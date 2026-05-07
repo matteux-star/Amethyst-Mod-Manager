@@ -903,6 +903,20 @@ class DownloadsPanel:
     # ------------------------------------------------------------------
 
     def _scroll(self, units: int):
+        # Tk Canvas.yview_scroll does not clamp when the scrollregion is
+        # smaller than the viewport — it happily moves contents off-screen
+        # in either direction. Guard manually: if the content fits in the
+        # viewport, treat as un-scrollable.
+        total_h = len(self._visible_files) * ROW_H
+        if total_h <= self._canvas.winfo_height():
+            if self._scroll_first != 0.0 or self._scroll_last != 1.0:
+                self._canvas.yview_moveto(0)
+            return
+        # Also block scrolling past either edge.
+        if units < 0 and self._scroll_first <= 0.0:
+            return
+        if units > 0 and self._scroll_last >= 1.0:
+            return
         self._canvas.yview_scroll(units, "units")
         self._redraw()
 
