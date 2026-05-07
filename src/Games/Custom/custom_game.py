@@ -372,26 +372,29 @@ class StandardCustomGame(BaseGame):
     def load_paths(self) -> bool:
         self._migrate_old_config()
         if not self._paths_file.exists():
+            self._game_path = None
+            self._prefix_path = None
+            self._staging_path = None
             return False
         try:
             data = json.loads(self._paths_file.read_text(encoding="utf-8"))
             raw = data.get("game_path", "")
-            if raw:
-                self._game_path = Path(raw)
+            self._game_path = Path(raw) if raw else None
             raw_pfx = data.get("prefix_path", "")
-            if raw_pfx:
-                self._prefix_path = Path(raw_pfx)
+            self._prefix_path = Path(raw_pfx) if raw_pfx else None
             raw_mode = data.get("deploy_mode", "hardlink")
             self._deploy_mode = {"symlink": LinkMode.SYMLINK, "copy":    LinkMode.SYMLINK}.get(
                 raw_mode, LinkMode.HARDLINK
             )
             raw_staging = data.get("staging_path", "")
-            if raw_staging:
-                self._staging_path = Path(raw_staging)
+            self._staging_path = Path(raw_staging) if raw_staging else None
             self._validate_staging()
             return bool(self._game_path)
         except (json.JSONDecodeError, OSError):
             pass
+        self._game_path = None
+        self._prefix_path = None
+        self._staging_path = None
         return False
 
     def save_paths(self) -> None:
