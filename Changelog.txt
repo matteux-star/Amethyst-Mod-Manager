@@ -2,6 +2,9 @@
 - Reworked the download Tab
 - Removed the option to symlink plugins, This was just a debugging feature I forgot to remove
 - Added to option to skip the script extender swap step for Bethesda games
+- Removed Mo2 import, It did not work as intended
+- Reworked vanilla plugin detection, Stops manually installed plugins being flagged as vanilla
+- Fixed some broken deploy sites not deploying correctly
 
 - v1.3.1
 - Added some missing dependencies to appimage build
