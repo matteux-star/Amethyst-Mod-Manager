@@ -51,9 +51,7 @@ from gui.add_game_dialog import AddGameDialog
 from gui.wizard_dialog import WizardDialog
 from Utils.plugin_loader import get_all_wizard_tools
 from Utils.config_paths import get_profiles_dir
-from Utils.deploy import deploy_root_folder, restore_root_folder, LinkMode, load_per_mod_strip_prefixes, deploy_root_flagged_mods
-from Utils.filemap import build_filemap
-from Utils.profile_backup import create_backup
+from Utils.deploy import restore_root_folder
 
 
 # ---------------------------------------------------------------------------
@@ -902,8 +900,13 @@ class TopBar(ctk.CTkFrame):
 
         self._run_deploy(game, profile)
 
-    def _run_deploy(self, game, profile):
-        """Execute the deploy worker thread for *game* / *profile*."""
+    def _run_deploy(self, game, profile, on_complete=None):
+        """Execute the deploy worker thread for *game* / *profile*.
+
+        If *on_complete* is given, it is called on the main thread after a
+        successful deploy (skipped on error/cancel). Used by Run EXE to chain
+        a launch onto the same deploy flow.
+        """
         if not confirm_deploy_appdata(self.winfo_toplevel(), game):
             self._log("Deploy: cancelled — AppData folder missing.")
             return
@@ -912,162 +915,50 @@ class TopBar(ctk.CTkFrame):
             app._mod_panel._root_folder_enabled
             if hasattr(app, "_mod_panel") else True
         )
-        game_root = game.get_game_path()
 
         status_bar = self.winfo_toplevel()._status
 
         def _worker():
-            # Thread-safe log: schedule UI update on the main thread.
+            from Utils.deploy_pipeline import run_deploy_pipeline
+
             def _tlog(msg):
                 self.after(0, lambda m=msg: self._log(m))
 
             def _progress(done: int, total: int, phase: str | None = None):
                 self.after(0, lambda d=done, t=total, p=phase: status_bar.set_progress(d, t, p))
 
-            try:
-                # Restore must use the last-deployed profile's paths so that
-                # runtime files (ShaderCache, saves, etc.) are moved back to
-                # the correct overwrite/ folder, not the currently-active one.
-                last_deployed = game.get_last_deployed_profile()
-                if last_deployed:
-                    game.set_active_profile_dir(
-                        game.get_profile_root() / "profiles" / last_deployed
-                    )
-                if getattr(game, "restore_before_deploy", True) and hasattr(game, "restore"):
+            # CET prompt must run on the main thread; block the worker until done.
+            def _confirm_cet() -> bool:
+                result = {"proceed": True}
+                done = threading.Event()
+                def _ask():
                     try:
-                        game.restore(log_fn=_tlog, progress_fn=_progress)
-                    except RuntimeError:
-                        pass
-                # Restore Root_Folder using the last-deployed profile's Root_Folder.
-                last_root_folder_dir = game.get_effective_root_folder_path()
-                if last_root_folder_dir.is_dir() and game_root:
-                    restore_root_folder(last_root_folder_dir, game_root, log_fn=_tlog)
-
-                # Switch to the target profile before building the filemap and deploying.
-                game.set_active_profile_dir(
-                    game.get_profile_root() / "profiles" / profile
-                )
-
-                # Rebuild filemap.txt before deploy so any files rescued into
-                # overwrite/ during restore are included with [Overwrite] priority.
-                profile_root = game.get_profile_root()
-                staging      = game.get_effective_mod_staging_path()
-                modlist_path = profile_root / "profiles" / profile / "modlist.txt"
-                filemap_out  = staging.parent / "filemap.txt"
-                if modlist_path.is_file():
-                    try:
-                        from Utils.profile_state import read_excluded_mod_files as _read_exc
-                        from Nexus.nexus_meta import collect_root_flagged_mods as _collect_rf
-                        _exc_raw = _read_exc(modlist_path.parent, None)
-                        _exc = {k: set(v) for k, v in _exc_raw.items()} if _exc_raw else None
-                        _rf_mods = _collect_rf(modlist_path, staging, log_fn=_tlog)
-                        from Utils.ui_config import load_normalize_folder_case as _load_norm_case
-                        from Games.ue5_game import UE5Game as _UE5Game
-                        _norm_case = getattr(game, "normalize_folder_case", True) and _load_norm_case()
-                        _cfn = None
-                        if isinstance(game, _UE5Game):
-                            def _cfn(rk: str, _g=game) -> str:
-                                dest, final = _g._resolve_entry(rk)
-                                return (dest + "/" + final) if dest else final
-                        else:
-                            _cfn = getattr(game, "filemap_conflict_key_fn", None)
-                        build_filemap(
-                            modlist_path, staging, filemap_out,
-                            strip_prefixes=game.mod_folder_strip_prefixes or None,
-                            per_mod_strip_prefixes=load_per_mod_strip_prefixes(modlist_path.parent),
-                            allowed_extensions=game.mod_install_extensions or None,
-                            root_deploy_folders=game.mod_root_deploy_folders or None,
-                            excluded_mod_files=_exc,
-                            conflict_ignore_filenames=getattr(game, "conflict_ignore_filenames", None) or None,
-                            exclude_dirs=getattr(game, "filemap_exclude_dirs", None) or None,
-                            normalize_folder_case=_norm_case,
-                            filemap_casing=getattr(game, "filemap_casing", "upper"),
-                            conflict_key_fn=_cfn,
-                            root_folder_mods=_rf_mods or None,
-                        )
-                    except Exception as fm_err:
-                        _tlog(f"Filemap rebuild warning: {fm_err}")
-
-                # CET + symlink warning (Cyberpunk 2077 only, after filemap rebuild)
-                _cet_result = {"proceed": True}
-                _cet_done = threading.Event()
-                def _ask_cet():
-                    try:
-                        _cet_result["proceed"] = confirm_cet_symlink(
+                        result["proceed"] = confirm_cet_symlink(
                             self.winfo_toplevel(), game
                         )
                     finally:
-                        _cet_done.set()
-                self.after(0, _ask_cet)
-                _cet_done.wait()
-                if not _cet_result["proceed"]:
-                    _tlog("Deploy: cancelled — CET requires Hardlink mode.")
-                    return
+                        done.set()
+                self.after(0, _ask)
+                done.wait()
+                return result["proceed"]
 
-                # Backup modlist/plugins before deploy
-                profile_dir = modlist_path.parent
-                try:
-                    create_backup(profile_dir, _tlog)
-                except Exception as backup_err:
-                    _tlog(f"Backup skipped: {backup_err}")
-
-                deploy_mode = game.get_deploy_mode() if hasattr(game, "get_deploy_mode") else LinkMode.HARDLINK
-                game.deploy(log_fn=_tlog, profile=profile, progress_fn=_progress,
-                            mode=deploy_mode)
-
-                # Apply Wine DLL overrides (user-added + handler-defined)
-                from Utils.wine_dll_config import deploy_game_wine_dll_overrides
-                _pfx = game.get_prefix_path()
-                if _pfx and _pfx.is_dir():
-                    deploy_game_wine_dll_overrides(game.name, _pfx, game.wine_dll_overrides, log_fn=_tlog)
-
-                # Record this profile as the last successfully deployed so that
-                # a future restore knows which overwrite/ folder to use.
-                game.save_last_deployed_profile(profile)
-
-                # Deploy Root_Folder using the target profile's Root_Folder
-                # (active profile dir is already set to target profile above).
-                target_root_folder_dir = game.get_effective_root_folder_path()
-                rf_allowed = getattr(game, "root_folder_deploy_enabled", True)
-
-                # Step A: deploy shared Root_Folder first (its log must exist before Step B).
-                if rf_allowed and root_folder_enabled and target_root_folder_dir.is_dir() and game_root:
-                    count = deploy_root_folder(target_root_folder_dir, game_root,
-                                            mode=deploy_mode, log_fn=_tlog)
-                    if count:
-                        _tlog("Root Folder: transferred files to game root.")
-
-                # Step B: deploy root-flagged mods; merges into Step A log (Root_Folder wins conflicts).
-                if game_root:
-                    _filemap_root_path = game.get_effective_filemap_path().parent / "filemap_root.txt"
-                    _staging = game.get_effective_mod_staging_path()
-                    _strip   = getattr(game, "mod_folder_strip_prefixes", None)
-                    _per_mod_strip = load_per_mod_strip_prefixes(profile_dir)
-                    _rf_count = deploy_root_flagged_mods(
-                        _filemap_root_path, game_root, _staging,
-                        mode=deploy_mode, strip_prefixes=_strip,
-                        per_mod_strip_prefixes=_per_mod_strip or None,
-                        log_fn=_tlog,
-                    )
-                    if _rf_count:
-                        _tlog(f"Root-flagged mods: {_rf_count} file(s) deployed to game root.")
-
-                # Launcher swap runs after root-folder deploy so that script
-                # extender executables (e.g. nvse_loader.exe) are present first.
-                if hasattr(game, "swap_launcher"):
-                    game.swap_launcher(_tlog)
-            except Exception as e:
-                import traceback as _tb
-                self.after(0, lambda err=e, tb=_tb.format_exc(): self._log(f"Deploy error: {err}\n{tb}"))
-            finally:
-                # Ensure active profile dir always reflects the UI selection on exit.
-                game.set_active_profile_dir(
-                    game.get_profile_root() / "profiles" / profile
+            success = False
+            try:
+                success = run_deploy_pipeline(
+                    game, profile,
+                    log_fn=_tlog,
+                    progress_fn=_progress,
+                    root_folder_enabled=root_folder_enabled,
+                    confirm_cet=_confirm_cet,
+                    do_backup=True,
                 )
+            finally:
                 self.after(0, lambda: self._set_deploy_buttons_enabled(True))
                 self.after(0, self._reload_mod_panel)
                 self.after(0, self._update_profile_menu_color)
                 self.after(1500, status_bar.clear_progress)
+                if success and on_complete is not None:
+                    self.after(0, on_complete)
 
         self._set_deploy_buttons_enabled(False)
         threading.Thread(target=_worker, daemon=True).start()

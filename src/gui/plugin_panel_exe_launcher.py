@@ -28,9 +28,8 @@ from gui.theme import (
     BTN_SUCCESS,
     BTN_SUCCESS_HOV,
 )
-from gui.dialogs import _ExeConfigDialog, _ExeFilterDialog, confirm_deploy_appdata
+from gui.dialogs import _ExeConfigDialog, _ExeFilterDialog
 from Utils.config_paths import get_exe_args_path, get_game_config_dir, get_game_config_path
-from Utils.profile_state import read_excluded_mod_files
 from Utils.xdg import xdg_open
 
 
@@ -815,100 +814,22 @@ class PluginPanelExeLauncherMixin:
         self._launch_exe(exe_path, game)
 
     def _run_deploy_then_launch(self, exe_path: "Path", game):
-        """Deploy mods in a background thread, then call _launch_exe on the main thread."""
-        from Utils.filemap import build_filemap
-        from Utils.deploy import LinkMode, deploy_root_folder, restore_root_folder, load_per_mod_strip_prefixes
-
-        if not confirm_deploy_appdata(self.winfo_toplevel(), game):
-            self._log("Run EXE: deploy cancelled — AppData folder missing.")
-            return
-
+        """Delegate to top_bar._run_deploy so Play uses the same flow as the
+        Deploy button, then launch the exe on success."""
         try:
             topbar = self.winfo_toplevel()._topbar
-            profile = topbar._profile_var.get()
         except AttributeError:
-            profile = "default"
+            self._log("Run EXE: top bar unavailable; launching without deploy.")
+            self._launch_exe(exe_path, game)
+            return
 
-        game_root = game.get_game_path()
+        profile = topbar._profile_var.get()
 
-        def _worker():
-            def _tlog(msg):
-                self._safe_after(0, lambda m=msg: self._log(m))
+        def _on_deploy_done():
+            self._log("Run EXE: deploy complete, launching…")
+            self._launch_exe(exe_path, game)
 
-            try:
-                # Activate the last-deployed profile for restore so rescued
-                # runtime files land in *that* profile's overwrite/ — not
-                # the shared default. Critical for profile_specific_mods.
-                profile_root = game.get_profile_root()
-                last_deployed = game.get_last_deployed_profile()
-                if last_deployed:
-                    game.set_active_profile_dir(
-                        profile_root / "profiles" / last_deployed
-                    )
-
-                if getattr(game, "restore_before_deploy", True) and hasattr(game, "restore"):
-                    try:
-                        game.restore(log_fn=_tlog)
-                    except RuntimeError:
-                        pass
-                # Restore Root_Folder using the last-deployed profile's Root_Folder.
-                restore_rf_dir = game.get_effective_root_folder_path()
-                if restore_rf_dir.is_dir() and game_root:
-                    restore_root_folder(restore_rf_dir, game_root, log_fn=_tlog)
-
-                # Switch to the target profile before deploy.
-                game.set_active_profile_dir(
-                    profile_root / "profiles" / profile
-                )
-
-                staging = game.get_effective_mod_staging_path()
-                modlist_path = profile_root / "profiles" / profile / "modlist.txt"
-                filemap_out = game.get_effective_filemap_path()
-                if modlist_path.is_file():
-                    try:
-                        _exc_raw = read_excluded_mod_files(modlist_path.parent, None)
-                        _exc = {k: set(v) for k, v in _exc_raw.items()} if _exc_raw else None
-                        build_filemap(
-                            modlist_path, staging, filemap_out,
-                            strip_prefixes=game.mod_folder_strip_prefixes or None,
-                            per_mod_strip_prefixes=load_per_mod_strip_prefixes(modlist_path.parent),
-                            allowed_extensions=game.mod_install_extensions or None,
-                            root_deploy_folders=game.mod_root_deploy_folders or None,
-                            excluded_mod_files=_exc,
-                            conflict_ignore_filenames=getattr(game, "conflict_ignore_filenames", None) or None,
-                            exclude_dirs=getattr(game, "filemap_exclude_dirs", None) or None,
-                            filemap_casing=getattr(game, "filemap_casing", "upper"),
-                        )
-                    except Exception as fm_err:
-                        _tlog(f"Run EXE: filemap rebuild warning: {fm_err}")
-
-                deploy_mode = game.get_deploy_mode() if hasattr(game, "get_deploy_mode") else LinkMode.HARDLINK
-                game.deploy(log_fn=_tlog, profile=profile, mode=deploy_mode)
-                game.save_last_deployed_profile(profile)
-
-                # Apply Wine DLL overrides (user-added + handler-defined)
-                from Utils.wine_dll_config import deploy_game_wine_dll_overrides
-                _pfx = game.get_prefix_path()
-                if _pfx and _pfx.is_dir():
-                    deploy_game_wine_dll_overrides(game.name, _pfx, game.wine_dll_overrides, log_fn=_tlog)
-
-                # Deploy Root_Folder using the target profile's Root_Folder.
-                target_rf_dir = game.get_effective_root_folder_path()
-                rf_allowed = getattr(game, "root_folder_deploy_enabled", True)
-                if rf_allowed and target_rf_dir.is_dir() and game_root:
-                    deploy_root_folder(target_rf_dir, game_root, mode=deploy_mode, log_fn=_tlog)
-
-                # Launcher swap runs after root-folder deploy so that script
-                # extender executables are present first.
-                if hasattr(game, "swap_launcher"):
-                    game.swap_launcher(_tlog)
-
-                _tlog("Run EXE: deploy complete, launching…")
-                self._safe_after(0, lambda: self._launch_exe(exe_path, game))
-            except Exception as e:
-                self._safe_after(0, lambda err=e: self._log(f"Run EXE: deploy error: {err}"))
-
-        threading.Thread(target=_worker, daemon=True).start()
+        topbar._run_deploy(game, profile, on_complete=_on_deploy_done)
 
     def _launch_exe(self, exe_path: "Path", game):
         """Route to native command / Steam / Heroic / Proton."""
