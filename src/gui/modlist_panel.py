@@ -476,6 +476,13 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._drag_scroll_after: str | None = None  # after() id for auto-scroll repeat
         self._drag_last_event_y: int = 0  # last widget-space Y from mouse drag
 
+        # Locked-separator drag confinement: when a mod inside a locked block is
+        # dragged, _drag_lock_sep_name names that separator so each drag tick can
+        # re-resolve the block range in the (possibly mutated) _entries list.
+        # _drag_lock_bypass=True (Shift held at press) disables the confinement.
+        self._drag_lock_sep_name: str | None = None
+        self._drag_lock_bypass: bool = False
+
         # Separator lock state: sep_name → bool (True = locked, block drag disabled)
         self._sep_locks: dict[str, bool] = {}
 
@@ -1894,10 +1901,11 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         _FONT_RADIO = (_theme.FONT_FAMILY, int(_theme.FS13 * 1.25), "bold")
         _FONT_STAR = (_theme.FONT_FAMILY, _theme.FS11)
 
-        # Indices currently being dragged — suppress _sel_set highlight for these
-        # so the blue box only shows at the current drag position, not the origin.
-        _dragging = (set(self._drag_sel_indices) if self._drag_sel_indices
-                     else ({self._drag_idx} if self._drag_idx >= 0 else set()))
+        # _drag_sel_indices tracks the *current* (post-reorder) positions of
+        # dragged rows, so don't suppress them — that strips the highlight off
+        # every dragged row in a multi-select drag.  The active drag anchor is
+        # still forced highlighted via the (i == self._drag_idx) clause below.
+        _dragging: set[int] = set()
 
         canvas_top = int(c.canvasy(0))
         canvas_h = c.winfo_height()
@@ -3152,6 +3160,13 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         idx = self._canvas_y_to_index(cy)
         shift = bool(event.state & 0x1)
         ctrl  = bool(event.state & 0x4)
+        # Alt mask varies across X11 setups: Mod1=0x8 on most Linux, 0x20000 on
+        # some KDE/SteamOS configs.  Accept either.
+        alt   = bool(event.state & (0x8 | 0x20000))
+        # Alt-at-press bypasses locked-separator drag confinement.
+        # Shift/Ctrl are already taken by selection gestures; Alt has no other
+        # binding here so the drag still starts normally.
+        self._drag_lock_bypass = alt
 
         # Checkbox hit-test: if the click is in the enable/disable column and the
         # entry is toggleable, handle it immediately and return.  This avoids
@@ -3552,6 +3567,43 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._drag_start_slot = start_slot
         self._drag_slot = start_slot
 
+        # Resolve locked-separator confinement for this drag.  Only applies when
+        # dragging a real mod (or a multi-select of mods) out of a locked block;
+        # full-block drags (is_block with empty sel_indices = whole separator
+        # moving as a unit) are unaffected.
+        self._drag_lock_sep_name = None
+        if not self._drag_lock_bypass:
+            _is_full_block_drag = is_block and not sel_indices
+            if not _is_full_block_drag:
+                # Use the anchor (first dragged) entry to identify the owning block.
+                anchor = sel_indices[0] if sel_indices else idx
+                self._drag_lock_sep_name = self._locked_sep_owning(anchor)
+
+    def _locked_sep_owning(self, mod_idx: int) -> str | None:
+        """Return the name of the locked separator whose block contains mod_idx,
+        or None if mod_idx is not inside a locked block (or is itself a separator).
+        Walks back from mod_idx in the current _entries to the nearest separator."""
+        if mod_idx < 0 or mod_idx >= len(self._entries):
+            return None
+        if self._entries[mod_idx].is_separator:
+            return None
+        i = mod_idx - 1
+        while i >= 0 and not self._entries[i].is_separator:
+            i -= 1
+        if i < 0:
+            return None
+        sep_name = self._entries[i].name
+        return sep_name if self._sep_locks.get(sep_name, False) else None
+
+    def _locked_block_bounds(self, sep_name: str) -> tuple[int, int] | None:
+        """Resolve [lo, hi) entry-index bounds of the locked block named sep_name
+        in the current _entries.  Returns None if the separator isn't present."""
+        for i, e in enumerate(self._entries):
+            if e.is_separator and e.name == sep_name:
+                blk = self._sep_block_range(i)
+                return (blk.start, blk.stop)
+        return None
+
     def _sep_block_range(self, sep_idx: int) -> range:
         """Return the range of indices [sep_idx, end) belonging to this separator block.
         The block is the separator plus every non-separator entry below it
@@ -3780,6 +3832,17 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         # Prevent non-bundle mods from being dropped inside a bundle block.
         _pre_removal_insert = self._clamp_outside_bundle_blocks(_pre_removal_insert)
 
+        # Confine drags inside a locked separator's block (Alt bypasses).
+        # Re-check Alt each tick so the user can press/release Alt mid-drag.
+        _alt_now = bool(event.state & (0x8 | 0x20000))
+        if self._drag_lock_sep_name is not None and not _alt_now:
+            bounds = self._locked_block_bounds(self._drag_lock_sep_name)
+            if bounds is not None:
+                _lo, _hi = bounds
+                # Valid pre-removal insertion range is [_lo+1, _hi]: never above
+                # the separator itself, never past the block's last entry.
+                _pre_removal_insert = max(_lo + 1, min(_pre_removal_insert, _hi))
+
         _drop_insert_at = _pre_removal_insert - sum(1 for d in drag_set if d < _pre_removal_insert)
 
         if self._drag_is_block:
@@ -3903,6 +3966,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._drag_reordered_vars = None
         self._drag_saved_sort_column = None
         self._drag_saved_sort_ascending = None
+        self._drag_lock_sep_name = None
+        self._drag_lock_bypass = False
         if _saved_col is not None:
             self._update_header(self._canvas_w)
         self._redraw()
