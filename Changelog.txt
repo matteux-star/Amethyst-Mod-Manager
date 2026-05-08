@@ -5,6 +5,10 @@
 - Removed Mo2 import, It did not work as intended
 - Reworked vanilla plugin detection, Stops manually installed plugins being flagged as vanilla
 - Fixed some broken deploy sites not deploying correctly
+- Added a create backup option to the restore backup menu, This creates a backup without having to deploy
+- Collection installs now apply diff patches if supplied by the author
+- Collection installs will apply ini tweaks if provided, Use profile-specfic ini files needs to on for this to work
+
 
 - v1.3.1
 - Added some missing dependencies to appimage build

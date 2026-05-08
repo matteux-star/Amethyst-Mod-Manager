@@ -1479,12 +1479,68 @@ class CollectionDetailDialog(tk.Frame):
             # Also fetch collection.json to get the authoritative install order
             schema_order: dict[int, int] = {}  # file_id → 0-based position
             cj: dict = {}
+            if not dl_path:
+                self._log(
+                    f"Collection preview: no downloadLink returned for "
+                    f"{getattr(self._collection, 'slug', '')!r} rev "
+                    f"{self._revision_number} — archive fetch skipped"
+                )
             if dl_path:
                 try:
                     self.after(0, lambda: self._status_var.set(
-                        "Fetching author\'s load order from collection archive…"
+                        "Fetching collection archive…"
                     ))
-                    cj = self._api.get_collection_archive_json(dl_path)
+                    _game_name = getattr(self._game, "name", "") or ""
+                    _cache_dir = get_download_cache_dir_for_game(_game_name)
+                    _slug = (getattr(self._collection, "slug", "") or "collection")
+                    # Resolve the viewing revision. self._revisions_list isn't
+                    # populated yet (set by _populate after this worker), so
+                    # fall back to the freshly-returned `revisions` list.
+                    _rev = self._revision_number
+                    if _rev is None:
+                        try:
+                            _published = [
+                                int(r.get("revisionNumber") or 0)
+                                for r in (revisions or [])
+                                if (r.get("revisionStatus") or "").lower() == "published"
+                            ]
+                            _rev = max(_published) if _published else None
+                        except Exception:
+                            _rev = None
+                    cj = {}
+                    if _rev is not None:
+                        _cached = _cache_dir / f"{_slug}_rev{int(_rev)}.7z"
+                        if _cached.is_file():
+                            try:
+                                import json as _json_local
+                                import tempfile as _tf_local
+                                import py7zr as _py7zr_local
+                                self.after(0, lambda: self._status_var.set(
+                                    "Reading cached collection archive…"
+                                ))
+                                with _tf_local.TemporaryDirectory() as _td:
+                                    with _py7zr_local.SevenZipFile(str(_cached), mode="r") as arc:
+                                        names = arc.getnames()
+                                        target = next(
+                                            (n for n in names if n.lstrip("/") == "collection.json"),
+                                            None,
+                                        )
+                                        if target is not None:
+                                            arc.extract(path=_td, targets=[target])
+                                            _cj_path = Path(_td) / target.lstrip("/")
+                                            if _cj_path.is_file():
+                                                cj = _json_local.loads(_cj_path.read_text(encoding="utf-8"))
+                                                self._log(f"Collection preview: loaded {_cached.name} from cache")
+                            except Exception as exc:
+                                self._log(f"Collection preview: cached archive read failed ({exc}) — re-downloading")
+                                cj = {}
+                    if not cj:
+                        if _rev is None:
+                            cj = self._api.get_collection_archive_json(dl_path)
+                        else:
+                            _keep = str(_cache_dir / f"{_slug}_rev{int(_rev)}.7z")
+                            cj = self._api.get_collection_archive_json(dl_path, keep_archive_at=_keep)
+                            self._log(f"Collection preview: archive saved to {_keep}")
                     for pos, m in enumerate(cj.get("mods", [])):
                         fid = (m.get("source") or {}).get("fileId")
                         if fid is not None:
@@ -1947,15 +2003,55 @@ class CollectionDetailDialog(tk.Frame):
             self._log(f"Collection update: snapshot failed: {exc}")
             snapshot_entries = []
 
+        # Also remove bundled/patched mods belonging to THIS collection so the
+        # install path re-installs them from the (possibly updated) archive.
+        # Bundled folders may have changed contents, and patched ESPs need the
+        # original source mod re-downloaded so the new patch can apply against
+        # the curator's reference CRC.
+        try:
+            staging_path = self._game.get_effective_mod_staging_path()
+        except Exception:
+            staging_path = None
+        slug_lower = (self._collection.slug or "").strip().lower()
+        bundled_or_patched: set[str] = set()
+        if staging_path is not None and staging_path.exists() and slug_lower:
+            import configparser as _cpi_upd
+            for mod_dir in staging_path.iterdir():
+                if not mod_dir.is_dir():
+                    continue
+                meta = mod_dir / "meta.ini"
+                if not meta.is_file():
+                    continue
+                cp = _cpi_upd.ConfigParser()
+                try:
+                    cp.read(meta, encoding="utf-8")
+                except Exception:
+                    continue
+                if not cp.has_section("General"):
+                    continue
+                from_col = (cp["General"].get("fromCollection") or "").strip().lower()
+                if from_col != slug_lower:
+                    continue
+                is_bundled = cp["General"].getboolean("fromCollectionBundled", fallback=False)
+                is_patched = cp["General"].getboolean("fromCollectionPatched", fallback=False)
+                if is_bundled or is_patched:
+                    bundled_or_patched.add(mod_dir.name.lower())
+        if bundled_or_patched:
+            self._log(
+                f"Collection update: re-installing {len(bundled_or_patched)} "
+                f"bundled/patched mod(s) from this collection"
+            )
+
         removals = diff.removals
         removed_lower: set[str] = set()
-        if removals:
+        # Combine schema-driven removals with the bundled/patched re-install list.
+        all_remove_lower = {name.lower() for name in (removals or [])} | bundled_or_patched
+        if all_remove_lower:
             try:
                 entries = getattr(mod_panel, "_entries", None) or []
-                remove_set = {name.lower() for name in removals}
                 indices = [
                     i for i, e in enumerate(entries)
-                    if not e.is_separator and e.name.lower() in remove_set
+                    if not e.is_separator and e.name.lower() in all_remove_lower
                 ]
                 if indices:
                     names_before = {entries[i].name.lower() for i in indices}
@@ -2754,7 +2850,12 @@ class CollectionDetailDialog(tk.Frame):
 
         _install_lock = threading.Lock()
         _install_counters = {"installed": 0, "skipped": 0, "done": 0}
-        _install_results: dict[int, str] = {}  # file_id → installed folder name
+        # Seed _install_results from the staging-meta.ini lookup so resume runs
+        # (and any path that skips a mod because it's already installed) don't
+        # lose the file_id → folder mapping. Step 3b's patcher and any other
+        # downstream consumer needs this map to find every collection mod —
+        # not just the freshly-installed ones.
+        _install_results: dict[int, str] = dict(already_installed_by_fid)
         _fomod_deferred: list = []  # (mod, result, effective_domain) tuples deferred for post-install
 
         def _extracting_push(fid: int, name: str):
@@ -3375,12 +3476,41 @@ class CollectionDetailDialog(tk.Frame):
         ]
         if bundle_schema_mods and download_link_path:
             import tempfile as _tf
-            _set_status(f"Downloading collection archive for {len(bundle_schema_mods)} bundled mod(s)…")
-            bundle_extract_dir = _tf.mkdtemp(prefix="amethyst_bundle_")
+            # Extract under the on-disk download cache — /tmp is tmpfs on
+            # SteamOS and collection archives can extract to several GB.
+            _scratch_root = get_download_cache_dir_for_game(getattr(self._game, "name", "") or "")
+            bundle_extract_dir = _tf.mkdtemp(prefix="amethyst_bundle_", dir=str(_scratch_root))
             try:
-                cj_full = self._api.get_collection_archive_full(
-                    download_link_path, bundle_extract_dir
-                )
+                # Reuse the cached archive saved by the preview step instead
+                # of re-downloading. Falls back to a fresh download if missing.
+                _slug = (getattr(self._collection, "slug", "") or "").strip()
+                try:
+                    _rev_int = self._resolved_viewing_revision()
+                except Exception:
+                    _rev_int = self._revision_number
+                _rev = int(_rev_int) if _rev_int is not None else "x"
+                _cached_archive = _scratch_root / f"{_slug}_rev{_rev}.7z"
+                cj_full: dict = {}
+                if _slug and _cached_archive.is_file():
+                    _set_status(f"Extracting cached collection archive for {len(bundle_schema_mods)} bundled mod(s)…")
+                    self._log(f"Collection install: reusing cached archive {_cached_archive}")
+                    try:
+                        import json as _json_local
+                        import py7zr as _py7zr_local
+                        with _py7zr_local.SevenZipFile(str(_cached_archive), mode="r") as arc:
+                            arc.extractall(path=bundle_extract_dir)
+                        _cj_path = Path(bundle_extract_dir) / "collection.json"
+                        if _cj_path.is_file():
+                            cj_full = _json_local.loads(_cj_path.read_text(encoding="utf-8"))
+                    except Exception as exc:
+                        self._log(f"Collection install: cached archive extract failed ({exc}) — re-downloading")
+                        cj_full = {}
+                if not cj_full:
+                    _set_status(f"Downloading collection archive for {len(bundle_schema_mods)} bundled mod(s)…")
+                    cj_full = self._api.get_collection_archive_full(
+                        download_link_path, bundle_extract_dir,
+                        keep_archive_at=str(_cached_archive) if _slug else None,
+                    )
                 if cj_full:
                     import os as _os
                     from pathlib import Path as _Path
@@ -3416,11 +3546,19 @@ class CollectionDetailDialog(tk.Frame):
                             # Write meta.ini so it's recognised as an installed mod
                             meta = dest / "meta.ini"
                             cp = _cpi.ConfigParser()
-                            cp["General"] = {
+                            try:
+                                _rev_int_b = self._resolved_viewing_revision()
+                            except Exception:
+                                _rev_int_b = self._revision_number
+                            general = {
                                 "modname": bm_name,
                                 "installationfile": file_expr,
                                 "fromCollection": self._collection.slug or "",
+                                "fromCollectionBundled": "true",
                             }
+                            if _rev_int_b is not None:
+                                general["fromCollectionRevision"] = str(int(_rev_int_b))
+                            cp["General"] = general
                             with open(meta, "w", encoding="utf-8") as mf:
                                 cp.write(mf)
                             # Bundled assets are patches — place at highest priority
@@ -3543,6 +3681,51 @@ class CollectionDetailDialog(tk.Frame):
                     self._log(f"Collection install: wrote modlist.txt with {len(final_entries)} entries")
                 except Exception as exc:
                     self._log(f"Collection install: failed to write modlist.txt: {exc}")
+
+        # ------------------------------------------------------------------
+        # Step 3b: Install bundled folders + apply binary patches from the
+        # cached collection archive. Runs after the load order is applied
+        # (Step 3) and before LOOT runs (Step 4) so bundled plugins and
+        # patched ESPs participate in the LOOT sort.
+        # ------------------------------------------------------------------
+        if not _col_pause.is_set() and overwrite_existing is None:
+            import shutil as _shutil_arc
+            _archive_root = self._ensure_collection_archive_extracted(
+                download_link_path=download_link_path or "",
+            )
+            if _archive_root is not None:
+                try:
+                    try:
+                        self._install_bundled_from_extracted(
+                            archive_root=_archive_root,
+                            modlist_path=modlist_path,
+                            staging_path=staging_path,
+                        )
+                    except Exception as exc:
+                        self._log(f"Collection install: bundled step failed: {exc}")
+                    try:
+                        self._apply_collection_binary_patches(
+                            archive_root=_archive_root,
+                            collection_schema=collection_schema,
+                            staging_path=staging_path,
+                            install_results=_install_results,
+                            schema_pos_to_name=schema_pos_to_name,
+                            schema_file_id_to_pos=schema_file_id_to_pos,
+                        )
+                    except Exception as exc:
+                        self._log(f"Collection install: patches step failed: {exc}")
+                    try:
+                        self._apply_collection_ini_tweaks(
+                            archive_root=_archive_root,
+                            profile_dir=profile_dir,
+                        )
+                    except Exception as exc:
+                        self._log(f"Collection install: INI tweaks step failed: {exc}")
+                finally:
+                    try:
+                        _shutil_arc.rmtree(_archive_root, ignore_errors=True)
+                    except Exception:
+                        pass
 
         # ------------------------------------------------------------------
         # Step 4: Write plugins.txt / loadorder.txt from collection.json.
@@ -3756,6 +3939,259 @@ class CollectionDetailDialog(tk.Frame):
             self.after(0, lambda: self._on_install_done(installed, skipped, total, str(profile_dir.name)))
         except Exception:
             pass
+
+    def _ensure_collection_archive_extracted(
+        self, download_link_path: str = "",
+    ) -> "Path | None":
+        """Return a directory containing the extracted collection archive.
+
+        Reads the archive saved by the preview step at
+        ``<download_cache>/<slug>_rev<N>.7z``. If it's missing and a
+        ``download_link_path`` is provided, fetches it once and writes to
+        that cache path. Returns ``None`` if the archive is unavailable.
+        Caller is responsible for ``shutil.rmtree`` on the returned path.
+        """
+        import shutil as _shutil
+        import tempfile as _tf
+
+        import py7zr
+
+        slug = (getattr(self._collection, "slug", "") or "").strip()
+        try:
+            _rev_int = self._resolved_viewing_revision()
+        except Exception:
+            _rev_int = self._revision_number
+        rev = int(_rev_int) if _rev_int is not None else "x"
+        if not slug:
+            return None
+        game_name = getattr(self._game, "name", "") or ""
+        cache_dir = get_download_cache_dir_for_game(game_name)
+        archive_path = cache_dir / f"{slug}_rev{rev}.7z"
+        if not archive_path.is_file():
+            if not download_link_path:
+                self._log(f"Collection archive: not found at {archive_path} and no download link — skipping")
+                return None
+            self._log(f"Collection archive: not in cache, downloading to {archive_path}")
+            _fetch_dir = Path(_tf.mkdtemp(prefix="amethyst_bundle_fetch_", dir=str(cache_dir)))
+            try:
+                cj = self._api.get_collection_archive_full(
+                    download_link_path, str(_fetch_dir),
+                    keep_archive_at=str(archive_path),
+                )
+                if not cj or not archive_path.is_file():
+                    self._log("Collection archive: fallback download failed")
+                    return None
+            finally:
+                try:
+                    _shutil.rmtree(_fetch_dir, ignore_errors=True)
+                except Exception:
+                    pass
+
+        extract_dir = Path(_tf.mkdtemp(prefix="amethyst_archive_extract_", dir=str(cache_dir)))
+        try:
+            with py7zr.SevenZipFile(str(archive_path), mode="r") as arc:
+                arc.extractall(path=str(extract_dir))
+        except Exception as exc:
+            self._log(f"Collection archive: failed to extract {archive_path}: {exc}")
+            try:
+                _shutil.rmtree(extract_dir, ignore_errors=True)
+            except Exception:
+                pass
+            return None
+        return extract_dir
+
+    def _install_bundled_from_extracted(
+        self, archive_root: Path, modlist_path: Path, staging_path: Path,
+    ) -> None:
+        """Install ``bundled/<x>/`` folders from an already-extracted collection
+        archive into staging and prepend them to modlist.txt.
+
+        Each bundled mod's ``meta.ini`` is tagged with
+        ``fromCollectionBundled=true`` so update runs can identify and refresh
+        the mod (the collection author may have changed the bundled contents).
+        """
+        import re as _re
+        import shutil as _shutil
+        import configparser as _cpi
+
+        slug = (getattr(self._collection, "slug", "") or "").strip()
+        try:
+            _rev_int = self._resolved_viewing_revision()
+        except Exception:
+            _rev_int = self._revision_number
+        rev_str = str(int(_rev_int)) if _rev_int is not None else ""
+        bundled_root = archive_root / "bundled"
+        if not bundled_root.is_dir():
+            return
+
+        bundle_folders = [p for p in sorted(bundled_root.iterdir()) if p.is_dir()]
+        if not bundle_folders:
+            return
+        self._log(
+            f"Collection bundled-cache: installing {len(bundle_folders)} bundled folder(s)"
+        )
+
+        staging_lower_map = {
+            p.name.lower(): p.name for p in staging_path.iterdir()
+            if p.is_dir()
+        } if staging_path.exists() else {}
+
+        new_mod_names: list[str] = []
+        for src_folder in bundle_folders:
+            raw_name = src_folder.name
+            clean = _re.sub(r"[^\w\s\-]", "", raw_name).strip().replace(" ", "_") or raw_name
+            if clean.lower() in staging_lower_map:
+                existing = staging_lower_map[clean.lower()]
+                self._log(f"Collection bundled-cache: '{raw_name}' already in staging as '{existing}' — keeping")
+                new_mod_names.append(existing)
+                continue
+            dest = staging_path / clean
+            if dest.exists():
+                _shutil.rmtree(dest, ignore_errors=True)
+            _shutil.copytree(str(src_folder), str(dest))
+            meta = dest / "meta.ini"
+            cp = _cpi.ConfigParser()
+            general = {
+                "modname": raw_name,
+                "installationfile": raw_name,
+                "fromCollection": slug,
+                "fromCollectionBundled": "true",
+            }
+            if rev_str:
+                general["fromCollectionRevision"] = rev_str
+            cp["General"] = general
+            try:
+                with open(meta, "w", encoding="utf-8") as mf:
+                    cp.write(mf)
+            except Exception:
+                pass
+            new_mod_names.append(clean)
+            self._log(f"Collection bundled-cache: installed '{raw_name}' → '{clean}'")
+
+        if new_mod_names and modlist_path.is_file():
+            try:
+                existing = read_modlist(modlist_path)
+                existing_lower = {e.name.lower() for e in existing}
+                prepend = [
+                    ModEntry(name=n, enabled=True, locked=False)
+                    for n in new_mod_names
+                    if n.lower() not in existing_lower
+                ]
+                if prepend:
+                    write_modlist(modlist_path, prepend + existing)
+                    self._log(
+                        f"Collection bundled-cache: prepended {len(prepend)} bundled mod(s) "
+                        "to top of modlist.txt"
+                    )
+            except Exception as exc:
+                self._log(f"Collection bundled-cache: modlist update failed: {exc}")
+
+    def _apply_collection_binary_patches(
+        self, archive_root: Path, collection_schema: dict, staging_path: Path,
+        install_results: "dict[int, str]",
+        schema_pos_to_name: "dict[int, str]",
+        schema_file_id_to_pos: "dict[int, int]",
+    ) -> None:
+        """Apply BSDIFF40 patches from the archive's ``patches/`` folder."""
+        from Utils.collection_patches import apply_collection_patches
+
+        # Build name → installed-folder index from staging once.
+        staging_lower = {
+            p.name.lower(): p.name for p in staging_path.iterdir() if p.is_dir()
+        } if staging_path.exists() else {}
+
+        def _folder_for(schema_entry: dict) -> "str | None":
+            src = schema_entry.get("source") or {}
+            fid = src.get("fileId")
+            if fid is not None:
+                folder = install_results.get(int(fid))
+                if folder:
+                    return folder
+            # Fall back to schema name (matches install_mod default folder).
+            schema_name = schema_entry.get("name") or ""
+            if schema_name:
+                hit = staging_lower.get(schema_name.lower())
+                if hit:
+                    return hit
+            return None
+
+        slug = (getattr(self._collection, "slug", "") or "").strip()
+        try:
+            _rev_int_p = self._resolved_viewing_revision()
+        except Exception:
+            _rev_int_p = self._revision_number
+        rev_str = str(int(_rev_int_p)) if _rev_int_p is not None else None
+
+        result = apply_collection_patches(
+            archive_root=archive_root,
+            collection_schema=collection_schema,
+            staging_path=staging_path,
+            mod_folder_for=_folder_for,
+            log_fn=self._log,
+            collection_slug=slug,
+            collection_revision=rev_str,
+        )
+        if (result.applied or result.crc_mismatch or result.missing_diff
+                or result.missing_target or result.failed):
+            self._log(
+                f"Collection patches: applied={result.applied}, "
+                f"crc_mismatch={result.crc_mismatch}, "
+                f"missing_diff={result.missing_diff}, "
+                f"missing_target={result.missing_target}, "
+                f"failed={result.failed}"
+            )
+
+    def _apply_collection_ini_tweaks(
+        self, archive_root: Path, profile_dir: Path,
+    ) -> None:
+        """Merge ``INI Tweaks/*.ini`` into profile-side INI copies (never the prefix)."""
+        from Utils.collection_ini_tweaks import (
+            GAME_INI_TARGETS,
+            apply_collection_ini_tweaks,
+        )
+
+        if not (archive_root / "INI Tweaks").is_dir():
+            return
+
+        # Grab the helpers from Bethesda.py — they handle multi-line / odd-quoted
+        # INI values that configparser refuses to parse.
+        try:
+            from Games.Bethesda.Bethesda import _read_ini_key, _set_ini_key
+        except Exception as exc:
+            self._log(f"Collection INI tweaks: INI helpers unavailable ({exc}) — skipped")
+            return
+
+        prefix_ini_dir = None
+        get_mygames = getattr(self._game, "_mygames_path", None)
+        if callable(get_mygames):
+            try:
+                prefix_ini_dir = get_mygames()
+            except Exception:
+                prefix_ini_dir = None
+
+        # Per-game whitelist of valid target filenames. Without this a tweak
+        # named "Foo [Skyrim] [v2].ini" would silently resolve to "v2.ini"
+        # because the trailing-bracket regex captures the last group.
+        game_name = getattr(self._game, "name", "") or ""
+        allowed_targets = GAME_INI_TARGETS.get(game_name)
+
+        result = apply_collection_ini_tweaks(
+            archive_root=archive_root,
+            profile_dir=profile_dir,
+            prefix_ini_dir=prefix_ini_dir,
+            set_ini_key=_set_ini_key,
+            read_ini_key=_read_ini_key,
+            log_fn=self._log,
+            allowed_targets=allowed_targets,
+        )
+        if result.files_processed or result.skipped:
+            self._log(
+                f"Collection INI tweaks: files={result.files_processed}, "
+                f"added={result.keys_added}, "
+                f"changed={result.keys_changed}, "
+                f"unchanged={result.keys_unchanged}, "
+                f"skipped={result.skipped}"
+            )
 
     def _refresh_profile_menu(self):
         """Update the top-bar profile dropdown to include any newly created profiles."""
@@ -4877,12 +5313,37 @@ class CollectionDetailDialog(tk.Frame):
         ]
         if bundle_schema_mods and download_link_path:
             import tempfile as _tf
-            _set_status(f"Installing {len(bundle_schema_mods)} bundled mod(s)\u2026")
-            bundle_extract_dir = _tf.mkdtemp(prefix="amethyst_bundle_")
+            _scratch_root = get_download_cache_dir_for_game(getattr(self._game, "name", "") or "")
+            bundle_extract_dir = _tf.mkdtemp(prefix="amethyst_bundle_", dir=str(_scratch_root))
             try:
-                cj_full = self._api.get_collection_archive_full(
-                    download_link_path, bundle_extract_dir,
-                )
+                _slug = (getattr(self._collection, "slug", "") or "").strip()
+                try:
+                    _rev_int = self._resolved_viewing_revision()
+                except Exception:
+                    _rev_int = self._revision_number
+                _rev = int(_rev_int) if _rev_int is not None else "x"
+                _cached_archive = _scratch_root / f"{_slug}_rev{_rev}.7z"
+                cj_full: dict = {}
+                if _slug and _cached_archive.is_file():
+                    _set_status(f"Extracting cached archive for {len(bundle_schema_mods)} bundled mod(s)\u2026")
+                    self._log(f"Manual install: reusing cached archive {_cached_archive}")
+                    try:
+                        import json as _json_local
+                        import py7zr as _py7zr_local
+                        with _py7zr_local.SevenZipFile(str(_cached_archive), mode="r") as arc:
+                            arc.extractall(path=bundle_extract_dir)
+                        _cj_path = Path(bundle_extract_dir) / "collection.json"
+                        if _cj_path.is_file():
+                            cj_full = _json_local.loads(_cj_path.read_text(encoding="utf-8"))
+                    except Exception as exc:
+                        self._log(f"Manual install: cached archive extract failed ({exc}) \u2014 re-downloading")
+                        cj_full = {}
+                if not cj_full:
+                    _set_status(f"Installing {len(bundle_schema_mods)} bundled mod(s)\u2026")
+                    cj_full = self._api.get_collection_archive_full(
+                        download_link_path, bundle_extract_dir,
+                        keep_archive_at=str(_cached_archive) if _slug else None,
+                    )
                 if cj_full:
                     import shutil as _shutil2
                     import configparser as _cpi
@@ -4908,11 +5369,19 @@ class CollectionDetailDialog(tk.Frame):
                         _shutil2.copytree(str(bundle_subdir), str(dest))
                         meta = dest / "meta.ini"
                         cp = _cpi.ConfigParser()
-                        cp["General"] = {
+                        try:
+                            _rev_int_m = self._resolved_viewing_revision()
+                        except Exception:
+                            _rev_int_m = self._revision_number
+                        general = {
                             "modname": bm_name,
                             "installationfile": file_expr,
                             "fromCollection": self._collection.slug or "",
+                            "fromCollectionBundled": "true",
                         }
+                        if _rev_int_m is not None:
+                            general["fromCollectionRevision"] = str(int(_rev_int_m))
+                        cp["General"] = general
                         with open(meta, "w", encoding="utf-8") as mf:
                             cp.write(mf)
                         install_order.append((-1, mod_name_clean))

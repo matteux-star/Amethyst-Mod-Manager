@@ -63,6 +63,8 @@ class NexusModMeta:
     is_fomod: bool = False             # True if installed via FOMOD installer
     root_folder: bool = False          # True if files should deploy to game root
     from_collection: str = ""          # slug of the collection that installed this mod
+    from_collection_bundled: bool = False  # True for mods extracted from collection bundled/ folder
+    from_collection_patched: bool = False  # True for mods that received BSDIFF40 patches from a collection
 
     @property
     def nexus_page_url(self) -> str:
@@ -138,13 +140,18 @@ _KEY_MAP: dict[str, str] = {
     "FOMOD":             "is_fomod",
     "rootFolder":        "root_folder",
     "fromCollection":    "from_collection",
+    "fromCollectionBundled": "from_collection_bundled",
+    "fromCollectionPatched": "from_collection_patched",
 }
 
 # Attributes that are ints
 _INT_FIELDS = {"mod_id", "file_id", "category_id", "latest_file_id"}
 
 # Attributes that are bools
-_BOOL_FIELDS = {"endorsed", "has_update", "ignore_update", "is_fomod", "root_folder"}
+_BOOL_FIELDS = {
+    "endorsed", "has_update", "ignore_update", "is_fomod", "root_folder",
+    "from_collection_bundled", "from_collection_patched",
+}
 
 
 def read_meta(meta_ini_path: Path) -> NexusModMeta:
@@ -198,9 +205,13 @@ def write_meta(meta_ini_path: Path, meta: NexusModMeta) -> None:
         if value is None:
             continue
         if attr in _BOOL_FIELDS:
-            # Never clobber an existing FOMOD=True with False — preserve the
-            # flag set by the installer even when callers construct fresh metas.
-            if attr == "is_fomod" and not value:
+            # Never clobber an existing True flag with False for state set by
+            # the installer (FOMOD, collection bundle/patch markers) — those
+            # come from a one-shot install step and should survive callers
+            # that construct fresh ``NexusModMeta`` objects without them.
+            if attr in (
+                "is_fomod", "from_collection_bundled", "from_collection_patched",
+            ) and not value:
                 continue
             cp.set(_SECTION, ini_key, "true" if value else "false")
         else:

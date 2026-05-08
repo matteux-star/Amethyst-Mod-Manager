@@ -179,6 +179,8 @@ def _scan_meta_flags_impl(entries: list, mods_dir: Path) -> dict:
     mod_versions: dict[str, str] = {}
     fomod_mods: set[str] = set()
     root_folder_mods: set[str] = set()
+    collection_bundled_mods: set[str] = set()
+    collection_patched_mods: set[str] = set()
     today = datetime.now().date()
     for entry in entries:
         if entry.is_separator:
@@ -219,6 +221,10 @@ def _scan_meta_flags_impl(entries: list, mods_dir: Path) -> dict:
                 fomod_mods.add(entry.name)
             if meta.root_folder:
                 root_folder_mods.add(entry.name)
+            if meta.from_collection_bundled:
+                collection_bundled_mods.add(entry.name)
+            if meta.from_collection_patched:
+                collection_patched_mods.add(entry.name)
         except Exception:
             pass
     return {
@@ -232,6 +238,8 @@ def _scan_meta_flags_impl(entries: list, mods_dir: Path) -> dict:
         "mod_versions": mod_versions,
         "fomod_mods": fomod_mods,
         "root_folder_mods": root_folder_mods,
+        "collection_bundled_mods": collection_bundled_mods,
+        "collection_patched_mods": collection_patched_mods,
     }
 
 
@@ -416,6 +424,10 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._fomod_mods: set[str] = set()
         # Set of mod names flagged for root-level (engine) deployment
         self._root_folder_mods: set[str] = set()
+        # Sets of mod names tagged by collection install — populated from
+        # meta.ini's fromCollectionBundled / fromCollectionPatched flags.
+        self._collection_bundled_mods: set[str] = set()
+        self._collection_patched_mods: set[str] = set()
         # Map mod name → install datetime for sorting (parallel to _install_dates)
         self._install_datetimes: dict[str, datetime] = {}
 
@@ -1373,6 +1385,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._mod_versions = results.get("mod_versions", {})
         self._fomod_mods = results.get("fomod_mods", set())
         self._root_folder_mods = results.get("root_folder_mods", set())
+        self._collection_bundled_mods = results.get("collection_bundled_mods", set())
+        self._collection_patched_mods = results.get("collection_patched_mods", set())
         if self._filter_panel_open:
             self._refresh_filter_category_list()
         self._vis_dirty = True
@@ -2163,6 +2177,11 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                             if _be.name in self._prertx_mods and self._icon_info and "info" not in _seen_flag:
                                 _agg_flags.append(("img", self._icon_info))
                                 _seen_flag.add("info")
+                            elif ((_be.name in self._collection_bundled_mods
+                                   or _be.name in self._collection_patched_mods)
+                                  and self._icon_info and "info" not in _seen_flag):
+                                _agg_flags.append(("img", self._icon_info))
+                                _seen_flag.add("info")
                             if self._mod_is_modified_in_mf(_be.name) and self._icon_disabled_files and "disabled" not in _seen_flag:
                                 _agg_flags.append(("img", self._icon_disabled_files))
                                 _seen_flag.add("disabled")
@@ -2389,6 +2408,12 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                     if entry.name in self._endorsed_mods and self._icon_endorsed:
                         _flags.append(("img", self._icon_endorsed))
                     if entry.name in self._prertx_mods and self._icon_info:
+                        _flags.append(("img", self._icon_info))
+                    elif (entry.name in self._collection_bundled_mods
+                          or entry.name in self._collection_patched_mods) and self._icon_info:
+                        # Reuse the info icon for collection-tagged mods; tooltip
+                        # text below distinguishes the two cases. Only one info
+                        # icon per mod (mutually exclusive with prertx render).
                         _flags.append(("img", self._icon_info))
                     if self._mod_is_modified_in_mf(entry.name) and self._icon_disabled_files:
                         _flags.append(("img", self._icon_disabled_files))
@@ -2954,13 +2979,16 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                 has_disabled = self._mod_is_modified_in_mf(name)
                 has_info     = name in self._prertx_mods
                 has_endorsed = name in self._endorsed_mods
+                has_col_flag = (name in self._collection_bundled_mods
+                                or name in self._collection_patched_mods)
                 score = 0
-                if has_warning:  score |= 64
-                if is_locked:    score |= 32
-                if has_update:   score |= 16
-                if has_root:     score |= 8
-                if has_disabled: score |= 4
-                if has_info:     score |= 2
+                if has_warning:  score |= 128
+                if is_locked:    score |= 64
+                if has_update:   score |= 32
+                if has_root:     score |= 16
+                if has_disabled: score |= 8
+                if has_info:     score |= 4
+                if has_col_flag: score |= 2
                 if has_endorsed: score |= 1
                 return -score  # negate so flagged mods sort first in ascending
             return _flags_key
@@ -3171,6 +3199,10 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                     _items.append("endorsed")
                 if entry.name in self._prertx_mods:
                     _items.append("prertx")
+                elif entry.name in self._collection_bundled_mods:
+                    _items.append("collection_bundled")
+                elif entry.name in self._collection_patched_mods:
+                    _items.append("collection_patched")
                 if self._mod_is_modified_in_mf(entry.name):
                     _items.append("disabled_files")
                 if entry.name in self._root_folder_mods:
@@ -3920,6 +3952,10 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                     _items.append("endorsed")
                 if entry.name in self._prertx_mods:
                     _items.append("prertx")
+                elif entry.name in self._collection_bundled_mods:
+                    _items.append("collection_bundled")
+                elif entry.name in self._collection_patched_mods:
+                    _items.append("collection_patched")
                 if self._mod_is_modified_in_mf(entry.name):
                     _items.append("disabled_files")
                 if entry.name in self._root_folder_mods:
@@ -3945,6 +3981,10 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                             tip = "Endorsed"
                         elif _kind == "prertx":
                             tip = "Pre-RTX mod"
+                        elif _kind == "collection_bundled":
+                            tip = "This mod is a collection bundled mod"
+                        elif _kind == "collection_patched":
+                            tip = "This mod has diff patches applied by the collection install"
                         elif _kind == "disabled_files":
                             tip = "Modified in Mod Files tab"
                         elif _kind == "root":
@@ -5143,7 +5183,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         # 2. Transient in-memory flags (no disk representation of their own;
         # rebuilt on reload, so just migrate the current snapshot).
         for s in (self._update_mods, self._missing_reqs, self._ignored_missing_reqs,
-                  self._endorsed_mods, self._prertx_mods, self._fomod_mods):
+                  self._endorsed_mods, self._prertx_mods, self._fomod_mods,
+                  self._collection_bundled_mods, self._collection_patched_mods):
             if old_name in s:
                 s.discard(old_name)
                 s.add(new_name)

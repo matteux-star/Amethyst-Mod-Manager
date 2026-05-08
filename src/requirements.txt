@@ -12,4 +12,5 @@ importlib_metadata
 backports.tarfile
 importlib_metadata
 msgpack
+bsdiff4
 # PyGObject is a system package (python-gobject); accessed via --system-site-packages

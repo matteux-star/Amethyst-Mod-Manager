@@ -2122,6 +2122,11 @@ class NexusAPI:
             total_size = int(rev.get("totalSize") or 0) + int(rev.get("assetsSizeBytes") or 0)
             mod_count = int(rev.get("modCount") or 0)
             download_link_path = rev.get("downloadLink") or ""
+            if not download_link_path:
+                app_log(
+                    f"get_collection_detail: no downloadLink for slug={slug!r} "
+                    f"rev={revision_number} rev_keys={sorted(rev.keys())}"
+                )
             mods: list[NexusCollectionMod] = []
             _seen_file_ids: set[int] = set()
             for entry in (rev.get("modFiles") or []):
@@ -2148,21 +2153,17 @@ class NexusAPI:
             app_log(f"GraphQL get_collection_detail error: {exc}")
             return ("", 0, 0, [], "", [])
 
-    def get_collection_archive_json(self, download_link_path: str) -> dict:
+    def get_collection_archive_json(
+        self, download_link_path: str,
+        keep_archive_at: "str | None" = None,
+    ) -> dict:
         """
         Resolve a collection ``downloadLink`` path to an archive CDN URL,
         download the ``.7z`` archive, extract ``collection.json`` from it,
         and return the parsed JSON dict.
 
-        Parameters
-        ----------
-        download_link_path:
-            The path returned by GraphQL, e.g.
-            ``/v2/collections/49623/revisions/649988/download_link``.
-
-        Returns
-        -------
-        Parsed ``collection.json`` dict, or empty dict on any failure.
+        If ``keep_archive_at`` is provided, the archive is streamed directly
+        to that path (no temp copy).
         """
         import tempfile
 
@@ -2186,8 +2187,17 @@ class NexusAPI:
             # Step 2: download the archive into a temp file.
             # Try each mirror in turn — some CDN nodes geo-restrict collection
             # archives and return 401 for certain regions.
-            with tempfile.NamedTemporaryFile(suffix=".7z", delete=False) as tmp:
-                tmp_path = tmp.name
+            # When keep_archive_at is provided, stream straight there to avoid
+            # using /tmp (tmpfs/SteamOS — too small for 1+ GB archives).
+            import os as _os
+            if keep_archive_at:
+                _os.makedirs(_os.path.dirname(keep_archive_at), exist_ok=True)
+                tmp_path = keep_archive_at
+                _delete_after = False
+            else:
+                with tempfile.NamedTemporaryFile(suffix=".7z", delete=False) as tmp:
+                    tmp_path = tmp.name
+                _delete_after = True
             try:
                 dl_resp = None
                 for cdn_url in cdn_urls:
@@ -2204,10 +2214,11 @@ class NexusAPI:
                     for chunk in dl_resp.iter_content(chunk_size=65536):
                         if chunk:
                             fh.write(chunk)
+                if keep_archive_at:
+                    app_log(f"get_collection_archive_json: saved archive to {keep_archive_at}")
 
                 # Step 3: extract collection.json using a nested temp dir
                 import json as _json
-                import os as _os
                 import tempfile as _tempfile
                 with _tempfile.TemporaryDirectory() as extract_dir:
                     with py7zr.SevenZipFile(tmp_path, mode="r") as arc:
@@ -2227,17 +2238,18 @@ class NexusAPI:
                     with open(out_path, "r", encoding="utf-8") as fh:
                         return _json.load(fh)
             finally:
-                try:
-                    import os
-                    os.unlink(tmp_path)
-                except Exception:
-                    pass
+                if _delete_after:
+                    try:
+                        _os.unlink(tmp_path)
+                    except Exception:
+                        pass
         except Exception as exc:
             app_log(f"get_collection_archive_json error: {exc}")
             return {}
 
     def get_collection_archive_full(
-        self, download_link_path: str, extract_dir: str
+        self, download_link_path: str, extract_dir: str,
+        keep_archive_at: "str | None" = None,
     ) -> dict:
         """
         Resolve a collection ``downloadLink`` path to a CDN URL, download the
@@ -2247,17 +2259,8 @@ class NexusAPI:
         Unlike ``get_collection_archive_json`` this keeps the full archive
         contents on disk so the caller can install bundled assets from it.
 
-        Parameters
-        ----------
-        download_link_path:
-            The path returned by GraphQL, e.g.
-            ``/v2/collections/49623/revisions/649988/download_link``.
-        extract_dir:
-            Directory to extract the archive into (must already exist).
-
-        Returns
-        -------
-        Parsed ``collection.json`` dict, or empty dict on any failure.
+        If ``keep_archive_at`` is provided, the archive is streamed directly
+        to that path (no temp copy).
         """
         import json as _json
         import os as _os
@@ -2279,8 +2282,21 @@ class NexusAPI:
                 app_log("get_collection_archive_full: no CDN URI returned")
                 return {}
 
-            with tempfile.NamedTemporaryFile(suffix=".7z", delete=False) as tmp:
-                tmp_path = tmp.name
+            # Download the .7z directly to keep_archive_at when provided
+            # (avoids a copy through /tmp, which is tmpfs on SteamOS and only
+            # has a few hundred MB free — collection archives can be 1.5+ GB).
+            # Otherwise put the temp file next to extract_dir, which the caller
+            # has chosen to be on real disk.
+            if keep_archive_at:
+                _os.makedirs(_os.path.dirname(keep_archive_at), exist_ok=True)
+                tmp_path = keep_archive_at
+                _delete_after = False
+            else:
+                with tempfile.NamedTemporaryFile(
+                    suffix=".7z", delete=False, dir=extract_dir,
+                ) as tmp:
+                    tmp_path = tmp.name
+                _delete_after = True
             try:
                 dl_resp = None
                 for cdn_url in cdn_urls:
@@ -2297,6 +2313,8 @@ class NexusAPI:
                     for chunk in dl_resp.iter_content(chunk_size=65536):
                         if chunk:
                             fh.write(chunk)
+                if keep_archive_at:
+                    app_log(f"get_collection_archive_full: saved archive to {keep_archive_at}")
 
                 with py7zr.SevenZipFile(tmp_path, mode="r") as arc:
                     arc.extractall(path=extract_dir)
@@ -2308,10 +2326,11 @@ class NexusAPI:
                 with open(cj_path, "r", encoding="utf-8") as fh:
                     return _json.load(fh)
             finally:
-                try:
-                    _os.unlink(tmp_path)
-                except Exception:
-                    pass
+                if _delete_after:
+                    try:
+                        _os.unlink(tmp_path)
+                    except Exception:
+                        pass
         except Exception as exc:
             app_log(f"get_collection_archive_full error: {exc}")
             return {}
