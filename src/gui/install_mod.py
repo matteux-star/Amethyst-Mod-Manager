@@ -182,7 +182,7 @@ from Utils.modlist import prepend_mod, ensure_mod_preserving_position, read_modl
 from Utils.profile_state import read_separator_locks, write_separator_locks
 from Utils.filemap import _scan_dir, update_mod_index
 from Utils.bsa_filemap import update_bsa_index
-from Nexus.nexus_meta import write_meta, resolve_nexus_meta_for_archive
+from Nexus.nexus_meta import write_meta, read_meta, resolve_nexus_meta_for_archive
 from gui.ctk_components import CTkNotification
 
 
@@ -936,11 +936,18 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
     # ------------------------------------------------------------------
     # Disable-extract mode: move the archive as-is into the mod folder.
     # ------------------------------------------------------------------
+    _preserved_endorsed = False
     if disable_extract:
         try:
             dest_root = game.get_effective_mod_staging_path() / mod_name
             was_existing_mod = dest_root.exists()
             if dest_root.exists():
+                _existing_meta_path = dest_root / "meta.ini"
+                if _existing_meta_path.exists():
+                    try:
+                        _preserved_endorsed = bool(read_meta(_existing_meta_path).endorsed)
+                    except Exception:
+                        pass
                 replace_dialog = _prompt_replace_dialog(
                     parent_window, mod_name,
                     game.get_effective_mod_staging_path(), suggestions)
@@ -973,6 +980,8 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
             if prebuilt_meta is not None:
                 try:
                     prebuilt_meta.installation_file = archive_filename
+                    if _preserved_endorsed:
+                        prebuilt_meta.endorsed = True
                     write_meta(_ne_meta_path, prebuilt_meta)
                 except OSError:
                     pass
@@ -1827,6 +1836,12 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
         replace_selected_only = False
         replace_all = False
         if dest_root.exists():
+            _existing_meta_path = dest_root / "meta.ini"
+            if _existing_meta_path.exists():
+                try:
+                    _preserved_endorsed = bool(read_meta(_existing_meta_path).endorsed)
+                except Exception:
+                    pass
             if headless and overwrite_existing:
                 # Append-with-overwrite: delete the existing folder and reinstall cleanly.
                 def _force_remove(func, path, _exc):
@@ -2119,6 +2134,8 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
             # Caller already has full metadata — write it directly, no API calls needed.
             try:
                 prebuilt_meta.installation_file = os.path.basename(archive_path)
+                if _preserved_endorsed:
+                    prebuilt_meta.endorsed = True
                 write_meta(meta_path, prebuilt_meta)
                 log_fn(f"Nexus: Saved metadata for '{mod_name}' "
                        f"(mod {prebuilt_meta.mod_id})")
