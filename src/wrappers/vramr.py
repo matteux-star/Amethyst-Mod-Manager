@@ -32,7 +32,7 @@ from typing import Callable
 _ANSI_RE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]|\x1b\[[?][0-9;]*[A-Za-z]|\x1b[A-Za-z]|\r")
 
 from Utils.config_paths import get_config_dir, get_download_cache_dir
-from Utils.steam_finder import find_any_installed_proton
+from Utils.steam_finder import find_wine
 
 
 # ── Presets ────────────────────────────────────────────────────────────────
@@ -65,17 +65,6 @@ _COMPRESSONATOR_DIR_NAME = "compressonatorcli-4.5.52-Linux"
 def _linux_to_wine(path: str | Path) -> str:
     r"""Convert a Linux absolute path to a Wine Z:\ drive path."""
     return "Z:" + str(path).replace("/", "\\")
-
-
-def _find_wine() -> str:
-    """Locate a wine64 binary from a Proton installation."""
-    proton_script = find_any_installed_proton()
-    if proton_script is None:
-        raise RuntimeError("No Proton/Wine installation found. Install Proton via Steam.")
-    wine = proton_script.parent / "files" / "bin" / "wine64"
-    if not wine.is_file():
-        raise RuntimeError(f"wine64 not found at expected path: {wine}")
-    return str(wine)
 
 
 def _wine_run(
@@ -441,7 +430,7 @@ def run_vramr(
 
     # Discover Wine
     _log("Locating Proton/Wine...")
-    wine = _find_wine()
+    wine = find_wine()[0]
     prefix = str(get_download_cache_dir() / "wine_prefixes" / "vramr")
     Path(prefix).mkdir(parents=True, exist_ok=True)
     _log(f"  Wine: {wine}")

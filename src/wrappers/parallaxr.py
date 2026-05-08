@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Callable
 
 from Utils.config_paths import get_download_cache_dir
-from Utils.steam_finder import find_any_installed_proton
+from Utils.steam_finder import find_wine
 from wrappers.bendr import _linux_to_wine, _ensure_utf8_prefix
 
 import re
@@ -29,21 +29,6 @@ import select
 import subprocess
 
 _ANSI_RE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]|\x1b\[[?][0-9;]*[A-Za-z]|\x1b[A-Za-z]|\r")
-
-
-def _find_wine() -> tuple[str, Path]:
-    """Locate a wine64 binary and the Proton root from any installed Proton.
-
-    Returns (wine64_path_str, proton_files_dir).
-    """
-    proton_script = find_any_installed_proton()
-    if proton_script is None:
-        raise RuntimeError("No Proton/Wine installation found. Install Proton via Steam.")
-    files_dir = proton_script.parent / "files"
-    wine = files_dir / "bin" / "wine64"
-    if not wine.is_file():
-        raise RuntimeError(f"wine64 not found at expected path: {wine}")
-    return str(wine), files_dir
 
 
 def _build_wine_overlay(proton_files_dir: Path, patched_ucrtbase: Path) -> Path:
@@ -75,7 +60,7 @@ def _build_wine_overlay(proton_files_dir: Path, patched_ucrtbase: Path) -> Path:
     proton_wine_unix = proton_files_dir / "lib" / "wine" / "x86_64-unix"
 
     # Copy binaries (must be real files so Wine resolves paths to our overlay)
-    for name in ("wine64", "wine64-preloader", "wineserver"):
+    for name in ("wine64", "wine64-preloader", "wine", "wine-preloader", "wineserver"):
         src = proton_bin / name
         if src.is_file():
             shutil.copy2(str(src), str(bin_dir / name))
@@ -272,7 +257,8 @@ def run_parallaxr(
 
     # Discover Wine
     _log("ParallaxR: Locating Proton/Wine...")
-    _, proton_files_dir = _find_wine()
+    wine_path, proton_files_dir = find_wine()
+    wine_name = Path(wine_path).name
     prefix = str(get_download_cache_dir() / "wine_prefixes" / "parallaxr")
     Path(prefix).mkdir(parents=True, exist_ok=True)
 
@@ -285,7 +271,7 @@ def run_parallaxr(
         )
     _log("ParallaxR: Building Wine overlay...")
     overlay = _build_wine_overlay(proton_files_dir, patched_ucrtbase)
-    wine = str(overlay / "bin" / "wine64")
+    wine = str(overlay / "bin" / wine_name)
     _log(f"  Wine: {wine}")
 
     # Set WINEDLLPATH before prefix init so the wineserver starts with it.
