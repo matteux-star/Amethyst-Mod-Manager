@@ -585,3 +585,21 @@ def find_game_in_libraries(libraries: list[Path], exe_name: str) -> Path | None:
             continue
 
     return None
+
+
+def find_wine() -> tuple[str, Path]:
+    """
+    Finds a wine binary and the Proton root.
+    This will first search for wine64 (Proton 9, 10), then fallback to wine (Proton 11+).
+    Returns (wine_path_str, proton_files_dir).
+    """
+    proton_script = find_any_installed_proton()
+    if proton_script is None:
+        raise RuntimeError("No Proton/Wine installation found. Install proton via Steam.")
+    files_dir = proton_script.parent / "files"
+    wine = files_dir / "bin" / "wine64"
+    if not wine.is_file():
+        wine = files_dir / "bin" / "wine"
+        if not wine.is_file():
+            raise RuntimeError(f"wine/wine64 not found at expected path in {files_dir / 'bin'}")
+    return str(wine), files_dir
