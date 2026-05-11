@@ -787,6 +787,9 @@ class PluginPanel(PluginPanelExeLauncherMixin, PluginPanelLOOTMixin,
         # Track folder iid -> (mod_name_for_highlight) so re-highlight works
         # without re-realising the whole tree.
         self._data_realised_nodes: set[str] = set()
+        # Data tab filter side panel state
+        self._data_filter_filetypes: frozenset[str] = frozenset()
+        self._data_filter_panel_open: bool = False
 
         self._build_plugins_tab()
         self._build_mod_files_tab()
@@ -1867,9 +1870,11 @@ class PluginPanel(PluginPanelExeLauncherMixin, PluginPanelLOOTMixin,
         mod_panel = getattr(self.winfo_toplevel(), "_mod_panel", None)
         if mod_panel is None:
             return
-        # Close modlist filter if open (they share the same column)
+        # Close modlist/data filter if open (they share the same column)
         if getattr(mod_panel, "_filter_panel_open", False):
             mod_panel._close_filter_side_panel()
+        if getattr(self, "_data_filter_panel_open", False):
+            self._close_data_filter_panel()
         self._plugin_filter_panel_open = True
         mod_panel.grid_columnconfigure(0, minsize=scaled(380))
         self._plugin_filter_side_panel.grid()

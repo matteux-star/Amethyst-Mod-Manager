@@ -255,7 +255,7 @@ class ModListFilterPanelMixin:
             ).pack(anchor="w", pady=2)
             self._bind_filter_panel_scroll()
             return
-        ordered = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+        ordered = sorted(counts.items(), key=lambda kv: kv[0])
         for ext, count in ordered:
             var = tk.BooleanVar(value=ext in self._filter_filetypes)
             self._fsp_filetype_vars[ext] = var
@@ -303,10 +303,12 @@ class ModListFilterPanelMixin:
             self._open_filter_side_panel()
 
     def _open_filter_side_panel(self):
-        # Close plugin filter if open (they share the same column).
+        # Close plugin/data filter if open (they share the same column).
         plugin_panel = getattr(self.winfo_toplevel(), "_plugin_panel", None)
         if plugin_panel is not None and getattr(plugin_panel, "_plugin_filter_panel_open", False):
             plugin_panel._close_plugin_filter_panel()
+        if plugin_panel is not None and getattr(plugin_panel, "_data_filter_panel_open", False):
+            plugin_panel._close_data_filter_panel()
         self._filter_panel_open = True
         # Use scaled minsize so the panel isn't squeezed at higher UI scale.
         self.grid_columnconfigure(0, minsize=scaled(380))
