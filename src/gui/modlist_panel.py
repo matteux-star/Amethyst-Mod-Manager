@@ -5527,7 +5527,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
 
         ROW_H    = scaled(30)
         MAX_ROWS = 20
-        FONT     = (_theme.FONT_FAMILY, 11)
+        FONT     = (_theme.FONT_FAMILY, _theme.FS11)
         PAD_X    = scaled(24)
 
         fnt = tkfont.Font(font=FONT)
@@ -5582,7 +5582,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                 inner, text=display, anchor="w",
                 bg=BG_PANEL, fg=TEXT_MAIN,
                 font=FONT,
-                padx=12, pady=5, cursor="hand2",
+                padx=scaled(12), pady=scaled(5), cursor="hand2",
                 width=0,
             )
             btn.pack(fill="x")
