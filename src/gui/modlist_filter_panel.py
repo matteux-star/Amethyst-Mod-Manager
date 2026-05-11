@@ -162,6 +162,11 @@ class ModListFilterPanelMixin:
                 scroll_frame._parent_canvas.yview_scroll(-step, "units")
             elif num == 5 or delta < 0:
                 scroll_frame._parent_canvas.yview_scroll(step, "units")
+            # Stop Tk from propagating the wheel event to ancestor widgets that
+            # also have _on_wheel bound — without this, a notch on a deeply
+            # nested checkbox scrolls once per ancestor (looks like acceleration
+            # as the list nests deeper near the bottom).
+            return "break"
 
         # On Tk >= 8.7 CTkScrollableFrame's own <MouseWheel> handler scrolls
         # at the app-wide 3-unit step. Override it on this instance so the
