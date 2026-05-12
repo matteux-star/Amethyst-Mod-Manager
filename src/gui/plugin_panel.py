@@ -69,7 +69,7 @@ from gui.theme import (
 )
 import gui.theme as _theme
 from gui.wheel_compat import LEGACY_WHEEL_REDUNDANT
-from gui.game_helpers import _GAMES, _vanilla_plugins_for_game
+from gui.game_helpers import _GAMES, _vanilla_plugins_for_game, foreign_deployed_plugin_basenames
 from gui.dialogs import _PriorityDialog, _ExeConfigDialog, _ExeFilterDialog, confirm_deploy_appdata
 from gui.install_mod import install_mod_from_archive
 from gui.mod_name_utils import _suggest_mod_names as suggest_mod_names
@@ -2827,12 +2827,15 @@ class PluginPanel(PluginPanelExeLauncherMixin, PluginPanelLOOTMixin,
         if data_dir and data_dir.is_dir() and self._plugin_extensions:
             exts_lower = {e.lower() for e in self._plugin_extensions}
             saved_lower = {n.lower() for n in saved_order}
+            foreign = foreign_deployed_plugin_basenames(self._game)
             try:
                 for entry in data_dir.iterdir():
                     if not entry.is_file() or entry.suffix.lower() not in exts_lower:
                         continue
                     low = entry.name.lower()
                     if low in mod_map or low in self._vanilla_plugins or low in saved_lower:
+                        continue
+                    if low in foreign:
                         continue
                     orphan = PluginEntry(name=entry.name, enabled=True)
                     mod_map[low] = orphan
