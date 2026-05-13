@@ -267,6 +267,24 @@ class SkyrimSE(Fallout_3):
                 description="Download ParallaxR from Nexus, deploy mods, and process parallax textures.",
                 dialog_class_path="wizards.bendr_parallaxr.ParallaxRWizard",
             ),
+            WizardTool(
+                id="run_skygen_skyrimse",
+                label="SkyGen — Patch Generator",
+                description=(
+                    "Scan your load order for Base Object Swapper / SkyPatcher patch coverage "
+                    "and generate new BOS or SP INI patches."
+                ),
+                dialog_class_path="wizards.skygen.SkyGenWizard",
+            ),
+            WizardTool(
+                id="run_plugin_audit_skyrimse",
+                label="Plugin Audit & Cleanup",
+                description=(
+                    "Scan load order for safe-to-disable plugins, then disable them or clean up "
+                    "orphaned SkyGen BOS/SkyPatcher INIs for plugins that must stay enabled."
+                ),
+                dialog_class_path="wizards.plugin_audit.PluginAuditWizard",
+            ),
         ]
 
     # -----------------------------------------------------------------------

@@ -1199,6 +1199,21 @@ class Skyrim(Fallout_3):
                 description="Download and run Wrye Bash.",
                 dialog_class_path="wizards.wrye_bash.WryeBashWizard",
             ),
+            WizardTool(
+                id="run_skygen_skyrim",
+                label="SkyGen — Patch Generator",
+                description="Scan your load order for BOS / SkyPatcher patch coverage and generate new patches.",
+                dialog_class_path="wizards.skygen.SkyGenWizard",
+            ),
+            WizardTool(
+                id="run_plugin_audit_skyrim",
+                label="Plugin Audit & Cleanup",
+                description=(
+                    "Scan load order for safe-to-disable plugins, then clean up orphaned "
+                    "SkyGen BOS/SkyPatcher INIs for plugins that must stay enabled."
+                ),
+                dialog_class_path="wizards.plugin_audit.PluginAuditWizard",
+            ),
         ]
 
     @property
@@ -1287,6 +1302,21 @@ class SkyrimVR(Fallout_3):
                 label="Run Wrye Bash",
                 description="Download and run Wrye Bash.",
                 dialog_class_path="wizards.wrye_bash.WryeBashWizard",
+            ),
+            WizardTool(
+                id="run_skygen_skyrimvr",
+                label="SkyGen — Patch Generator",
+                description="Scan your load order for BOS / SkyPatcher patch coverage and generate new patches.",
+                dialog_class_path="wizards.skygen.SkyGenWizard",
+            ),
+            WizardTool(
+                id="run_plugin_audit_skyrimvr",
+                label="Plugin Audit & Cleanup",
+                description=(
+                    "Scan load order for safe-to-disable plugins, then clean up orphaned "
+                    "SkyGen BOS/SkyPatcher INIs for plugins that must stay enabled."
+                ),
+                dialog_class_path="wizards.plugin_audit.PluginAuditWizard",
             ),
         ]
 
