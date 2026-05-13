@@ -565,27 +565,6 @@ def _sniff_plugin(plugin_path: Path, mod_folder: Optional[Path]) -> PluginDNA:
     )
 
 
-def _find_plugin_file(plugin_name: str, mods_path: Path,
-                      data_path: Optional[Path] = None) -> Optional[Path]:
-    """Locate plugin file on disk. Checks Data/, staging mods/, and FOMOD Data/."""
-    if data_path:
-        candidate = data_path / plugin_name
-        if candidate.is_file():
-            return candidate
-    if mods_path and mods_path.is_dir():
-        try:
-            for mod_dir in mods_path.iterdir():
-                if not mod_dir.is_dir():
-                    continue
-                for sub in (mod_dir, mod_dir / "Data"):
-                    candidate = sub / plugin_name
-                    if candidate.is_file():
-                        return candidate
-        except OSError:
-            pass
-    return None
-
-
 # Path helpers
 
 def _read_active_profile(game: "BaseGame") -> str:
@@ -877,11 +856,8 @@ class SkyGenWizard(ctk.CTkFrame):
 
     @staticmethod
     def _xdg_open(path: Path) -> None:
-        import subprocess
-        try:
-            subprocess.Popen(["xdg-open", str(path)])
-        except Exception:
-            pass
+        from Utils.xdg import xdg_open
+        xdg_open(path)
 
     # ------------------------------------------------------------------
     # Step 1 — Scan
@@ -923,9 +899,10 @@ class SkyGenWizard(ctk.CTkFrame):
 
         btn_row = ctk.CTkFrame(self._body, fg_color="transparent")
         btn_row.pack(side="bottom", pady=(8, 0))
+        self._scan_btn_row = btn_row
 
         ctk.CTkButton(
-            btn_row, text="Cancel", width=100, height=36,
+            btn_row, text="Close", width=100, height=36,
             font=FONT_BOLD,
             fg_color=BG_HEADER, hover_color="#3d3d3d", text_color=TEXT_MAIN,
             command=self._close,
@@ -948,12 +925,13 @@ class SkyGenWizard(ctk.CTkFrame):
         # Show a Cancel button
         if self._scan_cancel_btn is None:
             self._scan_cancel_btn = ctk.CTkButton(
-                self._body, text="Cancel", width=100, height=36,
+                self._scan_btn_row, text="Cancel", width=100, height=36,
                 font=FONT_BOLD, fg_color=BG_HEADER, hover_color="#3d3d3d",
                 text_color=TEXT_MAIN, command=self._cancel,
             )
             self._scan_cancel_btn.pack(before=self._scan_btn, side="right", padx=(0, 8))
-        self._scan_cancel_btn.pack(before=self._scan_btn, side="right", padx=(0, 8))
+        else:
+            self._scan_cancel_btn.pack(before=self._scan_btn, side="right", padx=(0, 8))
         threading.Thread(target=self._do_scan, daemon=True).start()
 
     def _cancel(self):
@@ -1182,8 +1160,10 @@ class SkyGenWizard(ctk.CTkFrame):
         # Generate button
         btn_row = ctk.CTkFrame(self._body, fg_color="transparent")
         btn_row.pack(side="bottom", pady=(8, 0))
+        self._gen_btn_row = btn_row
+
         ctk.CTkButton(
-            btn_row, text="\u2190 Back", width=100, height=36,
+            btn_row, text="Back", width=100, height=36,
             font=FONT_BOLD,
             fg_color=BG_HEADER, hover_color="#3d3d3d", text_color=TEXT_MAIN,
             command=self._show_step_scan,
@@ -1258,11 +1238,13 @@ class SkyGenWizard(ctk.CTkFrame):
         # Show a Cancel button
         if not hasattr(self, "_gen_cancel_btn") or self._gen_cancel_btn is None:
             self._gen_cancel_btn = ctk.CTkButton(
-                self._body, text="Cancel", width=100, height=36,
+                self._gen_btn_row, text="Cancel", width=100, height=36,
                 font=FONT_BOLD, fg_color=BG_HEADER, hover_color="#3d3d3d",
                 text_color=TEXT_MAIN, command=self._cancel,
             )
-        self._gen_cancel_btn.pack(side="right", padx=(0, 8), before=self._gen_btn)
+            self._gen_cancel_btn.pack(side="right", padx=(0, 8), before=self._gen_btn)
+        else:
+            self._gen_cancel_btn.pack(side="right", padx=(0, 8), before=self._gen_btn)
         threading.Thread(target=self._do_generate, daemon=True).start()
 
     def _do_generate(self):
@@ -1333,7 +1315,7 @@ class SkyGenWizard(ctk.CTkFrame):
         except Exception:
             pass
 
-    def _gen_bos(self, out_dir: Path) -> None:
+    def _gen_bos(self, out_dir: Path) -> int:
         """Write BOS swap INIs using object names (EditorIDs).
 
         Format: sourceObject|replacementObject|NONE|chanceR(percent)

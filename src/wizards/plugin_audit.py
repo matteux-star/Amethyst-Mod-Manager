@@ -169,7 +169,7 @@ def _find_plugin_file(plugin_name: str, mods_path: Path,
     # 2. Vanilla data dir
     if result is None:
         try:
-            data_path = game.get_game_folder() / "Data" / plugin_name
+            data_path = game.get_game_path() / "Data" / plugin_name
             if data_path.is_file():
                 result = data_path
         except Exception:

@@ -3644,7 +3644,6 @@ class PluginPanel(PluginPanelExeLauncherMixin, PluginPanelLOOTMixin,
             return
 
         staging_str = str(self._staging_root)
-        # Cache key: sum of mod subfolder mtimes
         try:
             total_mtime = sum(
                 d.stat().st_mtime
@@ -3657,71 +3656,87 @@ class PluginPanel(PluginPanelExeLauncherMixin, PluginPanelLOOTMixin,
         if cache_key == self._bos_sp_cache_key:
             return
 
-        result: dict[str, str] = {}
+        all_plugins: set[str] = set()   # all plugin basenames (lowercase) found in staging
+        bos_stems: set[str] = set()     # plugin stems (lowercase) with a _SWAP.ini
+        sp_plugins: set[str] = set()    # plugin names (lowercase) in filterByFormID entries
+
         try:
             for mod_dir in self._staging_root.iterdir():
                 if not mod_dir.is_dir():
                     continue
 
-                # Search roots: top-level and FOMOD Data/ layout
                 search_roots = [mod_dir]
                 data_sub = mod_dir / "Data"
                 if data_sub.is_dir():
                     search_roots.append(data_sub)
 
-                # Collect plugins from both roots
-                plugins_in_mod: list[str] = []
+                # Collect plugin basenames
                 for root in search_roots:
                     try:
                         for f in root.iterdir():
                             if f.is_file() and f.suffix.lower() in {".esp", ".esm", ".esl"}:
-                                plugins_in_mod.append(f.name.lower())
+                                all_plugins.add(f.name.lower())
                     except OSError:
                         pass
 
-                if not plugins_in_mod:
-                    continue
-
-                # BOS: per-plugin stem match (_SWAP.ini, case-insensitive)
-                bos_plugins: set[str] = set()
+                # BOS: any <stem>_SWAP.ini anywhere under the mod
                 for root in search_roots:
                     try:
                         for f in root.rglob("*.ini"):
-                            fn_lower = f.name.lower()
-                            if not fn_lower.endswith("_swap.ini"):
-                                continue
-                            if not f.is_file():
-                                continue
-                            matched_stem = fn_lower[:-len("_swap.ini")]
-                            for pname in plugins_in_mod:
-                                if Path(pname).stem.lower() == matched_stem:
-                                    bos_plugins.add(pname)
+                            if f.is_file() and f.name.lower().endswith("_swap.ini"):
+                                bos_stems.add(f.name.lower()[:-len("_swap.ini")])
                     except OSError:
                         pass
 
-                # SP: SKSE/Plugins/SkyPatcher/ or SkyPatcher2/ directory
-                has_sp = (
-                    (mod_dir / "SKSE" / "Plugins" / "SkyPatcher").is_dir()
-                    or (mod_dir / "SKSE" / "Plugins" / "SkyPatcher2").is_dir()
-                )
-
-                # Tag plugins
-                for pname in plugins_in_mod:
-                    is_bos = pname in bos_plugins
-                    if is_bos and has_sp:
-                        result[pname] = "both"
-                    elif is_bos:
-                        result[pname] = "bos"
-                    elif has_sp:
-                        result[pname] = "sp"
+                # SP: parse filterByFormID lines in SkyPatcher/SkyPatcher2 INIs.
+                # Each entry: filterByFormID = Plugin.esp|FormID
+                # A patch mod targeting another mod's plugin lives here, so scan
+                # all mods — not just the mod that owns the plugin.
+                for sp_dir_name in ("SkyPatcher", "SkyPatcher2"):
+                    sp_dir = mod_dir / "SKSE" / "Plugins" / sp_dir_name
+                    if not sp_dir.is_dir():
+                        continue
+                    try:
+                        for ini in sp_dir.rglob("*.ini"):
+                            if not ini.is_file():
+                                continue
+                            try:
+                                for line in ini.read_text(
+                                    encoding="utf-8", errors="ignore"
+                                ).splitlines():
+                                    s = line.strip()
+                                    if not s or s.startswith(";"):
+                                        continue
+                                    if s.lower().startswith("filterbyformid"):
+                                        eq = s.find("=")
+                                        if eq == -1:
+                                            continue
+                                        val = s[eq + 1:].strip()
+                                        if "|" in val:
+                                            ref = val.split("|")[0].strip().lower()
+                                            if ref.endswith((".esp", ".esm", ".esl")):
+                                                sp_plugins.add(ref)
+                            except (OSError, UnicodeDecodeError):
+                                pass
+                    except OSError:
+                        pass
 
         except OSError:
             pass
 
+        result: dict[str, str] = {}
+        for pname in all_plugins:
+            is_bos = Path(pname).stem.lower() in bos_stems
+            is_sp = pname in sp_plugins
+            if is_bos and is_sp:
+                result[pname] = "both"
+            elif is_bos:
+                result[pname] = "bos"
+            elif is_sp:
+                result[pname] = "sp"
+
         self._bos_sp_plugins = result
         self._bos_sp_cache_key = cache_key
-        # Schedule a redraw on the Tk thread so badges appear without
-        # requiring the user to interact with the panel.
         try:
             self.after(0, self._predraw)
         except Exception:
