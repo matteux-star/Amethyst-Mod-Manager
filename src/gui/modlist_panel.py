@@ -2311,7 +2311,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                             self._lock_cb_rects[sname] = rect2_id
                             self._lock_cb_marks[sname] = mark2_id
                             c.tag_bind(lk_tag2, "<ButtonRelease-1>",
-                                       lambda e, n=sname: self._on_sep_lock_toggle(n))
+                                       lambda e, r=rect2_id: self._on_sep_lock_click(r))
                             c.tag_bind(lk_tag2, "<Enter>",
                                        lambda e: c.config(cursor="hand2"))
                             c.tag_bind(lk_tag2, "<Leave>",
@@ -4780,6 +4780,14 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._save_sep_locks()
         self._redraw()
 
+    def _on_sep_lock_click(self, rect_id: int) -> None:
+        """Resolve the separator name from its lock-checkbox canvas item id.
+        Captured-name lambdas go stale across rename — look up live instead."""
+        for name, rid in self._lock_cb_rects.items():
+            if rid == rect_id:
+                self._on_sep_lock_toggle(name)
+                return
+
     def _set_sep_locks(self, sep_names: list[str], locked: bool) -> None:
         changed = False
         for n in sep_names:
@@ -5415,6 +5423,25 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._update_info()
         return True
 
+    def _unique_separator_name(self, base_name: str, *, ignore_idx: int | None = None) -> str:
+        """Return base_name suffixed with " (N)" before "_separator" so no other
+        separator entry shares the name. Separator name is the primary key for
+        lock/collapse/color/canvas-item dicts, so duplicates would collide."""
+        existing = {
+            e.name for i, e in enumerate(self._entries)
+            if e.is_separator and i != ignore_idx
+        }
+        if base_name not in existing:
+            return base_name
+        suffix = "_separator"
+        stem = base_name[:-len(suffix)] if base_name.endswith(suffix) else base_name
+        n = 2
+        while True:
+            candidate = f"{stem} ({n}){suffix}"
+            if candidate not in existing:
+                return candidate
+            n += 1
+
     def _rename_separator(self, idx: int):
         if not (0 <= idx < len(self._entries)):
             return
@@ -5427,7 +5454,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         new_display = dlg.result
         if not new_display:
             return
-        new_name = new_display + "_separator"
+        new_name = self._unique_separator_name(new_display + "_separator", ignore_idx=idx)
         if new_name == entry.name:
             return
         # Update collapse/lock tracking keys
@@ -6611,7 +6638,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self.winfo_toplevel().wait_window(dialog)
         if dialog.result is None:
             return
-        sep_name = dialog.result.strip() + "_separator"
+        sep_name = self._unique_separator_name(dialog.result.strip() + "_separator")
         # Under inverted priority sort, visual above/below is flipped in natural order.
         visually_above = above
         if self._sort_column == "priority" and self._sort_ascending:
