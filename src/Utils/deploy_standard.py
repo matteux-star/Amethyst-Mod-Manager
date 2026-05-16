@@ -127,17 +127,21 @@ def deploy_filemap(
     _per_mod = per_mod_strip_prefixes or {}
     _per_deploy = per_mod_deploy_dirs or {}
     _per_mode = per_mod_link_modes
-    if _per_mode is None:
-        try:
-            from Utils.deploy_shared import (
-                load_separator_deploy_paths as _lsdp,
-                expand_separator_link_modes as _eslm,
-            )
-            from Utils.modlist import read_modlist as _rml
-            _sd = _lsdp(filemap_path.parent)
-            _se = _rml(filemap_path.parent / "modlist.txt")
+    _per_merge: set[str] = set()
+    try:
+        from Utils.deploy_shared import (
+            load_separator_deploy_paths as _lsdp,
+            expand_separator_link_modes as _eslm,
+            expand_separator_merge_dirs as _esmd,
+        )
+        from Utils.modlist import read_modlist as _rml
+        _sd = _lsdp(filemap_path.parent)
+        _se = _rml(filemap_path.parent / "modlist.txt")
+        if _per_mode is None:
             _per_mode = _eslm(_sd, _se)
-        except Exception:
+        _per_merge = _esmd(_sd, _se)
+    except Exception:
+        if _per_mode is None:
             _per_mode = {}
     _per_mode = _per_mode or {}
     overwrite_dir = staging_root.parent / "overwrite"
@@ -236,7 +240,10 @@ def deploy_filemap(
         # (with backup) before the per-file deploy runs. Files that the mod
         # ships at the root (no folder component in rel_str) are excluded —
         # those still get the existing file-by-file backup-and-replace path.
-        if is_custom_task and "/" in rel_str:
+        # Mods whose separator opted into "merge folders" are skipped here so
+        # their top-level folders are merged with the target instead of
+        # wholesale-replaced; per-file backup-and-replace still applies.
+        if is_custom_task and "/" in rel_str and mod_name not in _per_merge:
             _custom_top_roots.setdefault(_eff_s, set()).add(rel_str.split("/", 1)[0])
 
         if progress_fn is not None and line_idx % 500 == 0:

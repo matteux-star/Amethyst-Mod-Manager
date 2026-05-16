@@ -1972,7 +1972,8 @@ class App(ctk.CTk):
     # -- Separator settings panel (overlays plugin panel) -------------------
 
     def show_sep_settings_panel(self, sep_name, current_path, on_save,
-                                current_raw=False, current_mode=""):
+                                current_raw=False, current_mode="",
+                                current_merge=False):
         self._ensure_plugin_panel_visible()
         from gui.dialogs import SepSettingsPanel
         def _factory():
@@ -1982,6 +1983,7 @@ class App(ctk.CTk):
                 self._plugin_panel_container,
                 sep_name=sep_name, current_path=current_path,
                 current_raw=current_raw, current_mode=current_mode,
+                current_merge=current_merge,
                 on_save=on_save, on_done=_done,
             )
         self._show_plugin_overlay("_sep_settings_panel", _factory)

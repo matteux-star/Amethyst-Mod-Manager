@@ -499,6 +499,27 @@ class LinkMode(Enum):
     COPY     = auto()
 
 
+def expand_separator_merge_dirs(
+    sep_paths: dict[str, dict],
+    entries,
+) -> set[str]:
+    """Return the set of mod names whose separator has 'merge folders' enabled.
+
+    When merge is on, the wholesale-folder-replace pass in deploy_filemap is
+    skipped for that mod's top-level folders — files are still backed up and
+    deployed individually, so file-level overwrites are still reversible.
+    """
+    result: set[str] = set()
+    current_merge = False
+    for entry in entries:
+        if entry.is_separator:
+            current_merge = bool(sep_paths.get(entry.name, {}).get("merge", False))
+        else:
+            if current_merge:
+                result.add(entry.name)
+    return result
+
+
 def expand_separator_link_modes(
     sep_paths: dict[str, dict],
     entries,
@@ -1350,6 +1371,7 @@ __all__ = [
     "expand_separator_deploy_paths",
     "expand_separator_raw_deploy",
     "expand_separator_link_modes",
+    "expand_separator_merge_dirs",
     "cleanup_custom_deploy_dirs",
     "restore_custom_deploy_backup_for_path",
     # Private helpers (re-exported via façade for back-compat)

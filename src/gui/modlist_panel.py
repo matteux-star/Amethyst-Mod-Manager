@@ -5484,19 +5484,23 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         current_path = _info.get("path", "") if isinstance(_info, dict) else ""
         current_raw = _info.get("raw", False) if isinstance(_info, dict) else False
         current_mode = _info.get("mode", "") if isinstance(_info, dict) else ""
+        current_merge = _info.get("merge", False) if isinstance(_info, dict) else False
 
         app = self.winfo_toplevel()
         show_fn = getattr(app, "show_sep_settings_panel", None)
         if show_fn:
-            def _on_save(val: str, raw: bool, mode: str = ""):
-                if val or raw or mode:
-                    self._sep_deploy_paths[sep_name] = {"path": val, "raw": raw, "mode": mode}
+            def _on_save(val: str, raw: bool, mode: str = "", merge: bool = False):
+                if val or raw or mode or merge:
+                    self._sep_deploy_paths[sep_name] = {
+                        "path": val, "raw": raw, "mode": mode, "merge": merge,
+                    }
                 else:
                     self._sep_deploy_paths.pop(sep_name, None)
                 self._save_sep_deploy_paths()
                 self._redraw()
             show_fn(sep_name, current_path, _on_save,
-                    current_raw=current_raw, current_mode=current_mode)
+                    current_raw=current_raw, current_mode=current_mode,
+                    current_merge=current_merge)
             return
 
         # Fallback: plain tk overlay on self (uses portal_filechooser for Browse)
