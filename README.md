@@ -74,6 +74,9 @@ Download the .flatpak from [releases](https://github.com/ChrisDKN/Amethyst-Mod-M
 <tr><td>Subnautica</td><td></td><td>Palworld</td><td></td></tr>
 <tr><td>Subnautica Below Zero</td><td></td><td>My Summer Car</td><td></td></tr>
 <tr><td>Red Dead Redemption 2</td><td></td><td>Planet Zoo</td><td></td></tr>
+<tr><td>Subnautica 2</td><td></td><td>Stellar Blade</td><td></td></tr>
+<tr><td>Spyro Reignited Trilogy</td><td></td><td>Payday 2</td><td></td></tr>
+<tr><td>Kingdom Hearts 3</td><td></td><td></td><td></td></tr>
 </table>
 
 - Amethyst has the ability to define custom games and is not limited to this list. The games in the Custom Handlers folder were made using this feature. See the Wiki for the guide

@@ -1,0 +1,96 @@
+{
+  "name": "Subnautica 2",
+  "game_id": "Subnautica_2",
+  "exe_name": "Subnautica2/Binaries/Win64/Subnautica2-Win64-Shipping.exe",
+  "deploy_type": "ue5",
+  "mod_data_path": "Subnautica2",
+  "steam_id": "1962700",
+  "nexus_game_domain": "subnautica2",
+  "image_url": "https://cdn2.steamgriddb.com/icon/71624c4e08afff4f62ba025392e93582/32/256x256.png",
+  "mod_folder_strip_prefixes": [
+    "Subnautica2",
+    "Mods"
+  ],
+  "conflict_ignore_filenames": [
+    "*read*.txt"
+  ],
+  "mod_folder_strip_prefixes_post": [
+    "~mods"
+  ],
+  "mod_install_prefix": "",
+  "mod_required_top_level_folders": [
+    "~mods"
+  ],
+  "mod_auto_strip_until_required": true,
+  "mod_required_file_types": [],
+  "mod_install_as_is_if_no_match": true,
+  "restore_before_deploy": true,
+  "normalize_folder_case": true,
+  "filemap_casing": "upper",
+  "wine_dll_overrides": {
+    "dwmapi": "native,builtin"
+  },
+  "custom_routing_rules": [
+    {
+      "dest": "Binaries/Win64",
+      "folders": [
+        "ue4ss"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Binaries/Win64/ue4ss/Mods",
+      "folders": [
+        "Scripts"
+      ],
+      "include_siblings": true
+    },
+    {
+      "dest": "Content/Splash",
+      "filenames": [
+        "Splash.bmp"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Mods",
+      "extensions": [
+        ".uplugin"
+      ],
+      "include_siblings": true
+    },
+    {
+      "dest": "Content/Paks",
+      "folders": [
+        "LogicMods"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Content/Paks",
+      "filenames": [
+        "SML.*"
+      ],
+      "loose_only": true
+    },
+    {
+      "dest": "Content/Paks/~mods",
+      "filenames": [
+        "*_P.pak"
+      ],
+      "include_siblings": true
+    },
+    {
+      "dest": "Content/Paks/LogicMods",
+      "extensions": [
+        ".pak"
+      ],
+      "include_siblings": true
+    }
+  ],
+  "custom_frameworks": {
+    "ue4ss": "Binaries/Win64/dwmapi.dll"
+  },
+  "version": 1,
+  "editable": false
+}
