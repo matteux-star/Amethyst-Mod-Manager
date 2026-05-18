@@ -432,6 +432,7 @@ class PluginPanelDataMixin:
         except Exception:
             pass
         self._data_tab_dirty = False
+        _saved_open = self._collect_open_folder_paths()
         self._data_tree.delete(*self._data_tree.get_children())
         self._data_filemap_entries = []
         self._data_filemap_casefold = []
@@ -484,7 +485,8 @@ class PluginPanelDataMixin:
         # Build contested_keys from the shared conflict cache.
         contested_keys, _ = self._get_conflict_cache(None)
         self._data_contested_keys = contested_keys
-        self._build_data_tree_from_entries(self._data_filemap_entries, contested_keys)
+        self._build_data_tree_from_entries(self._data_filemap_entries, contested_keys,
+                                           _open_paths=_saved_open)
 
     def _resolve_data_entries(self, entries):
         """Prefix each entry's path with its resolved deploy destination so the
@@ -753,13 +755,56 @@ class PluginPanelDataMixin:
                 entries.append((rel_path, mod_name))
         return entries
 
-    def _build_data_tree_from_entries(self, entries, contested_keys: "set[str] | None" = None):
+    def _collect_open_folder_paths(self) -> "set[tuple[str, ...]]":
+        """Return the path-tuples (stripped label segments) of every open folder node."""
+        tv = self._data_tree
+        open_paths: set[tuple[str, ...]] = set()
+
+        def walk(iid: str, ancestors: tuple[str, ...]):
+            label = tv.item(iid, "text").strip()
+            path = ancestors + (label,)
+            if tv.item(iid, "open"):
+                open_paths.add(path)
+                for child in tv.get_children(iid):
+                    walk(child, path)
+
+        for top in tv.get_children(""):
+            walk(top, ())
+        return open_paths
+
+    def _restore_open_folder_paths(self, open_paths: "set[tuple[str, ...]]") -> None:
+        """Re-open folder nodes whose label path is in *open_paths*.
+
+        Walks depth-first; realises lazy nodes before opening so children exist.
+        """
+        if not open_paths:
+            return
+        tv = self._data_tree
+
+        def walk(iid: str, ancestors: tuple[str, ...]):
+            label = tv.item(iid, "text").strip()
+            path = ancestors + (label,)
+            if path in open_paths:
+                self._realise_data_node(iid)
+                tv.item(iid, open=True)
+                for child in tv.get_children(iid):
+                    walk(child, path)
+
+        for top in tv.get_children(""):
+            walk(top, ())
+
+    def _build_data_tree_from_entries(self, entries, contested_keys: "set[str] | None" = None,
+                                      _open_paths: "set[tuple[str, ...]] | None" = None):
         """Build the tree hierarchy from a list of (rel_path, mod_name) entries.
 
         Folder children are realised lazily on first <<TreeviewOpen>> — only
         top-level folders + a placeholder per non-empty folder are inserted up
         front. See _realise_data_node / _on_data_tree_open.
         """
+        # Preserve the user's expanded folders across rebuilds.
+        if _open_paths is None:
+            _open_paths = self._collect_open_folder_paths()
+
         self._data_tree_expanded = False
         self._data_expand_btn.configure(text="⊞ Expand All")
         self._data_tree.delete(*self._data_tree.get_children())
@@ -824,6 +869,7 @@ class PluginPanelDataMixin:
             tags = (base, "mod_highlight") if (hi_mod and mod == hi_mod) else (base,)
             tree.insert("", "end", text=fname, values=(mod,), tags=tags)
 
+        self._restore_open_folder_paths(_open_paths)
         self._draw_data_marker_strip()
 
     def _realise_data_node(self, node_id: str) -> bool:
@@ -1143,7 +1189,7 @@ class PluginPanelDataMixin:
         if not query:
             self._data_search_prev_query = ""
             self._data_search_prev_indices = None
-            self._build_data_tree_from_entries(self._data_filemap_entries, _ck)
+            self._build_data_tree_from_entries(self._data_filemap_entries, _ck, _open_paths=set())
             return
 
         cf = self._data_filemap_casefold
@@ -1163,7 +1209,7 @@ class PluginPanelDataMixin:
         self._data_search_prev_indices = matched
 
         filtered = [entries[i] for i in matched]
-        self._build_data_tree_from_entries(filtered, _ck)
+        self._build_data_tree_from_entries(filtered, _ck, _open_paths=set())
         # Expand all nodes so filtered results are visible
         for item in self._data_tree.get_children():
             self._expand_all(item)
