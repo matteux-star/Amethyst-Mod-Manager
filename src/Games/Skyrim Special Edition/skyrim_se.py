@@ -120,8 +120,8 @@ class SkyrimSE(Fallout_3):
         from Utils.deploy import CustomRule
         return [
             CustomRule(dest="", filenames=["d3dx9_42.dll"], flatten=True),
-            CustomRule(dest="", filenames=["skse64_1*.dll"], flatten=True),
-            CustomRule(dest="", filenames=["skse64_loader.exe"], flatten=True),
+            CustomRule(dest="", filenames=["skse64_1*.dll"], flatten=True, loose_only=True),
+            CustomRule(dest="", filenames=["skse64_loader.exe"], flatten=True, loose_only=True),
             CustomRule(dest="", filenames=["d3dcompiler_47.dll"], flatten=True),
             CustomRule(dest="Data/SKSE/Plugins/CharGen/Presets", extensions=[".jslot"], flatten=True),
             # ENB Series files → game root
