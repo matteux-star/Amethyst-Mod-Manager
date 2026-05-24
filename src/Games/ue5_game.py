@@ -889,9 +889,14 @@ class UE5Game(BaseGame):
             )
             out_lines.append(keybinds_line if keybinds_line else _entry_for(keybinds_name))
 
-        # If nothing remains (no deployed mods, no preserved user content),
+        # If nothing remains besides blanks/comments we ourselves emitted,
         # delete the file so the empty-dir sweep can clean up the parent.
-        if not out_lines:
+        # Without this, the "; Built-in keybinds, do not move up!" header we
+        # wrote at deploy time would survive restore and keep the file alive.
+        has_real_content = any(
+            self._parse_mods_txt_line(l)[0] is not None for l in out_lines
+        )
+        if not has_real_content:
             if mods_file.is_file():
                 try:
                     mods_file.unlink()
