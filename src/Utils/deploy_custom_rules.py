@@ -652,10 +652,41 @@ def restore_custom_rules(
     return removed
 
 
+def mods_matching_root_rules(
+    mod_files: dict[str, list[str]],
+    rules: list["CustomRule"],
+) -> set[str]:
+    """Return the set of mod names that own at least one file matched by a
+    rule whose ``dest`` is empty (i.e. routes to the game root).
+
+    ``mod_files`` maps mod name -> list of relative file paths (any casing,
+    forward or back slashes).  Only rules with ``dest == ""`` and
+    ``to_prefix is False`` are considered.
+    """
+    root_rules = [r for r in rules if r.dest == "" and not r.to_prefix]
+    if not root_rules or not mod_files:
+        return set()
+    norm = [_normalise_rule(r) for r in root_rules]
+    hits: set[str] = set()
+    for mod_name, files in mod_files.items():
+        if mod_name in hits:
+            continue
+        for rel in files:
+            rel_lower = rel.replace("\\", "/").lower()
+            for rule, folders, exts, filenames in norm:
+                if _match_single_rule(rel_lower, rule, folders, exts, filenames) is not None:
+                    hits.add(mod_name)
+                    break
+            if mod_name in hits:
+                break
+    return hits
+
+
 __all__ = [
     "_CUSTOM_RULES_LOG_NAME",
     "_CUSTOM_RULES_BACKUP_DIR",
     "_CUSTOM_RULES_PREFIX_BACKUP_DIR",
     "deploy_custom_rules",
     "restore_custom_rules",
+    "mods_matching_root_rules",
 ]

@@ -431,6 +431,10 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._fomod_mods: set[str] = set()
         # Set of mod names flagged for root-level (engine) deployment
         self._root_folder_mods: set[str] = set()
+        # Set of mod names that own at least one file matched by a custom
+        # routing rule with dest="" (i.e. files that deploy to the game root).
+        # Auto-detected from the mod index + game's custom_routing_rules.
+        self._root_rule_mods: set[str] = set()
         # Sets of mod names tagged by collection install — populated from
         # meta.ini's fromCollectionBundled / fromCollectionPatched flags.
         self._collection_bundled_mods: set[str] = set()
@@ -1403,6 +1407,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._mod_versions = results.get("mod_versions", {})
         self._fomod_mods = results.get("fomod_mods", set())
         self._root_folder_mods = results.get("root_folder_mods", set())
+        self._root_rule_mods = self._compute_root_rule_mods()
         self._collection_bundled_mods = results.get("collection_bundled_mods", set())
         self._collection_patched_mods = results.get("collection_patched_mods", set())
         if self._filter_panel_open:
@@ -1411,6 +1416,32 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._mod_to_sep_idx = None
         self._redraw()
         self._update_info()
+
+    def _compute_root_rule_mods(self) -> set[str]:
+        """Mods owning files matched by a custom routing rule with dest=""."""
+        game = self._game
+        if game is None:
+            return set()
+        try:
+            rules = list(getattr(game, "custom_routing_rules", None) or [])
+        except Exception:
+            return set()
+        if not any(r.dest == "" and not r.to_prefix for r in rules):
+            return set()
+        try:
+            from Utils.filemap import read_mod_index
+            from Utils.deploy_custom_rules import mods_matching_root_rules
+        except Exception:
+            return set()
+        index_path = self._staging_root.parent / "modindex.bin"
+        index = read_mod_index(index_path)
+        if not index:
+            return set()
+        mod_files = {
+            name: list(normal.values()) + list(root.values())
+            for name, (normal, root) in index.items()
+        }
+        return mods_matching_root_rules(mod_files, rules)
 
     def _scan_update_flags(self):
         """Scan meta.ini for update flags. Uses async to avoid blocking UI."""
@@ -2206,7 +2237,9 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                             if self._mod_is_modified_in_mf(_be.name) and self._icon_disabled_files and "disabled" not in _seen_flag:
                                 _agg_flags.append(("img", self._icon_disabled_files))
                                 _seen_flag.add("disabled")
-                            if _be.name in self._root_folder_mods and self._icon_root_folder and "root" not in _seen_flag:
+                            if ((_be.name in self._root_folder_mods
+                                 or _be.name in self._root_rule_mods)
+                                and self._icon_root_folder and "root" not in _seen_flag):
                                 _agg_flags.append(("img", self._icon_root_folder))
                                 _seen_flag.add("root")
                         # Only 5 image slots exist in the pool — cap before the
@@ -2438,7 +2471,9 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                         _flags.append(("img", self._icon_info))
                     if self._mod_is_modified_in_mf(entry.name) and self._icon_disabled_files:
                         _flags.append(("img", self._icon_disabled_files))
-                    if entry.name in self._root_folder_mods and self._icon_root_folder:
+                    if ((entry.name in self._root_folder_mods
+                         or entry.name in self._root_rule_mods)
+                        and self._icon_root_folder):
                         _flags.append(("img", self._icon_root_folder))
 
                     self._render_flag_strip(s, _flags, _FLAG_X, _FLAG_W, y_mid)
@@ -3008,7 +3043,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                                and name not in self._ignored_missing_reqs)
                 is_locked    = self._entries[i].locked
                 has_update   = name in self._update_mods
-                has_root     = name in self._root_folder_mods
+                has_root     = (name in self._root_folder_mods
+                                or name in self._root_rule_mods)
                 has_disabled = self._mod_is_modified_in_mf(name)
                 has_info     = name in self._prertx_mods
                 has_endorsed = name in self._endorsed_mods
@@ -3247,6 +3283,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                     _items.append("disabled_files")
                 if entry.name in self._root_folder_mods:
                     _items.append("root")
+                elif entry.name in self._root_rule_mods:
+                    _items.append("root_rule")
                 _n = len(_items)
                 if _n > 0:
                     _group_w = (_n - 1) * _FLAG_ICON_SPACING
@@ -4138,6 +4176,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                     _items.append("disabled_files")
                 if entry.name in self._root_folder_mods:
                     _items.append("root")
+                elif entry.name in self._root_rule_mods:
+                    _items.append("root_rule")
                 _n = len(_items)
                 if _n > 0:
                     _group_w = (_n - 1) * _FLAG_ICON_SPACING
@@ -4167,6 +4207,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                             tip = "Modified in Mod Files tab"
                         elif _kind == "root":
                             tip = "This mod is sent to the root folder"
+                        elif _kind == "root_rule":
+                            tip = "This mod contains files that route to the game root"
                         else:
                             tip = ""
                         if tip:
@@ -7477,6 +7519,10 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                 self._prertx_mods   = prertx_mods
                 self._apply_loose_bsa_fold(loose_over_bsa, bsa_over_loose)
                 self._log(f"Filemap updated: {count} file(s).")
+            # Refresh the auto-detected root-rule flag set now that the index
+            # is guaranteed to exist / be current (handles first-install where
+            # the meta scan ran before the index was written).
+            self._root_rule_mods = self._compute_root_rule_mods()
             self._vis_dirty = True  # conflict filters depend on conflict_map
             self._mod_to_sep_idx = None
             self._redraw()
