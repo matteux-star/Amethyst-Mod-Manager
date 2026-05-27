@@ -86,16 +86,16 @@ class Subnautica(BaseGame):
     def custom_routing_rules(self) -> list:
         from Utils.deploy import CustomRule
         return [
-            CustomRule(dest="", filenames=["winhttp.dll"], flatten=True),
-            CustomRule(dest="", filenames=["version.dll"], flatten=True),
-            CustomRule(dest="", filenames=["run_bepinex.sh"], flatten=True),
-            CustomRule(dest="", filenames=["libdoorstop.dylib"], flatten=True),
-            CustomRule(dest="", filenames=["doorstop_config.ini"], flatten=True),
-            CustomRule(dest="BepInEx", folders=["config"], flatten=True),
-            CustomRule(dest="BepInEx", folders=["core"], flatten=True),
-            CustomRule(dest="BepInEx", folders=["patchers"], flatten=True),
-            CustomRule(dest="BepInEx", folders=["plugins"], flatten=True),
-            CustomRule(dest="BepInEx/plugins", folders=["Tobey"], flatten=True),
+            CustomRule(dest="", filenames=["winhttp.dll"], flatten=True, loose_only=True),
+            CustomRule(dest="", filenames=["version.dll"], flatten=True, loose_only=True),
+            CustomRule(dest="", filenames=["run_bepinex.sh"], flatten=True, loose_only=True),
+            CustomRule(dest="", filenames=["libdoorstop.dylib"], flatten=True, loose_only=True),
+            CustomRule(dest="", filenames=["doorstop_config.ini"], flatten=True, loose_only=True),
+            CustomRule(dest="BepInEx", folders=["config"], flatten=True, loose_only=True),
+            CustomRule(dest="BepInEx", folders=["core"], flatten=True, loose_only=True),
+            CustomRule(dest="BepInEx", folders=["patchers"], flatten=True, loose_only=True),
+            CustomRule(dest="BepInEx", folders=["plugins"], flatten=True, loose_only=True),
+            CustomRule(dest="BepInEx/plugins", folders=["Tobey"], flatten=True, loose_only=True),
         ]
     
     @property
