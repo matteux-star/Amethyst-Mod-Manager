@@ -173,9 +173,9 @@ class PluginPanelModFilesMixin:
         self._mf_tree.heading("#0", text="File name", anchor="w")
         self._mf_tree.heading("toplevel", text="Top Level", anchor="center")
         self._mf_tree.heading("check", text="Disable", anchor="center")
-        self._mf_tree.column("#0", stretch=True, minwidth=150)
-        self._mf_tree.column("toplevel", width=70, minwidth=70, stretch=False, anchor="center")
-        self._mf_tree.column("check", width=60, minwidth=60, stretch=False, anchor="center")
+        self._mf_tree.column("#0", stretch=True, minwidth=scaled(150))
+        self._mf_tree.column("toplevel", width=scaled(70), minwidth=scaled(70), stretch=False, anchor="center")
+        self._mf_tree.column("check", width=scaled(60), minwidth=scaled(60), stretch=False, anchor="center")
 
         _sb_bg     = SCROLL_BG
         _sb_trough = SCROLL_TROUGH
