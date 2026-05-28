@@ -2803,7 +2803,7 @@ class PluginPanel(PluginPanelExeLauncherMixin, PluginPanelLOOTMixin,
                     self._FW_GREEN_BG,
                     self._FW_GREEN_TEXT,
                 ))
-            elif exe.replace("\\", "/").lower() in staged_keys:
+            elif self._framework_exe_in_staged(exe, staged_keys):
                 banner_data.append((
                     f"●  {label} present in modlist but not deployed",
                     self._FW_ORANGE_BG,
@@ -2851,6 +2851,21 @@ class PluginPanel(PluginPanelExeLauncherMixin, PluginPanelLOOTMixin,
         # Remove excess widgets if framework count decreased
         while len(existing) > len(banner_data):
             existing.pop().destroy()
+
+    def _framework_exe_in_staged(self, exe: str, staged_keys: set[str]) -> bool:
+        key = exe.replace("\\", "/").lower().lstrip("/")
+        if key in staged_keys:
+            return True
+        # Framework paths are written relative to the game root (e.g.
+        # "Mods/ContentPatcher/ContentPatcher.dll"), but filemap keys are
+        # relative to the mods deploy dir — strip the leading mods_dir so the
+        # comparison lines up for games whose frameworks live inside Mods/.
+        mods_dir = (getattr(self._game, "mods_dir", "") or "").strip("/\\").lower()
+        if mods_dir:
+            prefix = mods_dir + "/"
+            if key.startswith(prefix) and key[len(prefix):] in staged_keys:
+                return True
+        return False
 
     def _refresh_plugins_tab(self) -> None:
         """Reload plugin entries from plugins.txt and redraw."""
