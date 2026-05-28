@@ -177,6 +177,7 @@ if [ "$MM_USE_PKGBUILD" = "1" ]; then
     #   libssl/libcrypto -> _ssl.so      (HTTPS — Nexus, GitHub, updates)
     #   libuuid          -> _uuid.so     (uuid.uuid4 used by Nexus SSO)
     #   libmpdec         -> _decimal.so  (transitive deps may import decimal)
+    set +e
     quick-sharun \
         /usr/bin/mod-manager               \
         /usr/share/amethyst-mod-manager    \
@@ -192,6 +193,10 @@ if [ "$MM_USE_PKGBUILD" = "1" ]; then
         "$TCLTK_STAGE/tcl8.6"              \
         "$TCLTK_STAGE/tk8.6"               \
         $( [ -f "$AUX_DIR/bin/bsdtar" ] && printf %s "$AUX_DIR/bin/bsdtar" )
+    _qs_rc=$?
+    echo "=== quick-sharun exit code: $_qs_rc ==="
+    set -e
+    [ "$_qs_rc" = "0" ] || exit "$_qs_rc"
 
     # Rewrite the wrapper's /usr/share path to "$APPDIR"/share — quick-sharun's
     # built-in /usr → "$APPDIR" rewrite only fires for dotnet scripts, so plain
