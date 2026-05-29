@@ -7038,7 +7038,10 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             self._rebuild_filemap()
             self._scan_missing_reqs_flags()
             self._update_enable_disable_all_btn()
-            self._redraw()
+            # Skip the synchronous _redraw here. The Tk BooleanVar already
+            # updated the checkbox visually for instant click feedback;
+            # conflict-highlight repaints happen in _done after the filemap
+            # rebuild finishes (which is when they become accurate).
             self._update_info()
 
     def _sync_plugins_for_toggle(self, mod_name: str, now_enabled: bool) -> None:
@@ -7556,11 +7559,20 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                 base_conflict_map  = dict(conflict_map)
                 base_overrides     = {k: set(v) for k, v in overrides.items()}
                 base_overridden_by = {k: set(v) for k, v in overridden_by.items()}
-                self.after(0, lambda: _done(count,
-                                             base_conflict_map, base_overrides, base_overridden_by,
-                                             bsa_conflict_map, bsa_overrides, bsa_overridden_by,
-                                             loose_over_bsa, bsa_over_loose,
-                                             None, prertx_mods))
+                # Compute root-rule mods here (off main thread) — was ~930 ms
+                # of main-thread time on large modlists (read_mod_index + scan).
+                try:
+                    worker_root_rule_mods = self._compute_root_rule_mods()
+                except Exception:
+                    worker_root_rule_mods = set()
+                def _done_wrapped():
+                    self._root_rule_mods = worker_root_rule_mods
+                    _done(count,
+                          base_conflict_map, base_overrides, base_overridden_by,
+                          bsa_conflict_map, bsa_overrides, bsa_overridden_by,
+                          loose_over_bsa, bsa_over_loose,
+                          None, prertx_mods)
+                self.after(0, _done_wrapped)
             except Exception as exc:
                 self.after(0, lambda e=exc: _done(0, {}, {}, {}, {}, {}, {}, {}, {}, e, set()))
 
@@ -7591,10 +7603,9 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                 self._prertx_mods   = prertx_mods
                 self._apply_loose_bsa_fold(loose_over_bsa, bsa_over_loose)
                 self._log(f"Filemap updated: {count} file(s).")
-            # Refresh the auto-detected root-rule flag set now that the index
-            # is guaranteed to exist / be current (handles first-install where
-            # the meta scan ran before the index was written).
-            self._root_rule_mods = self._compute_root_rule_mods()
+            # Root-rule mod set was already computed in the worker thread
+            # (see worker_root_rule_mods) and assigned to self._root_rule_mods
+            # in _done_wrapped, before this function ran.
             self._vis_dirty = True  # conflict filters depend on conflict_map
             self._mod_to_sep_idx = None
             self._redraw()
