@@ -381,7 +381,7 @@ class Fallout_3(BaseGame):
     _APPDATA_SUBPATH_GOG = Path("drive_c/users/steamuser/AppData/Local/Fallout3 GOG")
     _MYGAMES_SUBPATH = Path("Fallout3")
     _MYGAMES_SUBPATH_GOG = Path("Fallout3 GOG")
-    _ARCHIVE_INI_FILENAME = "FALLOUT.ini"
+    _ARCHIVE_INI_FILENAME = "FALLOUT.INI"
     # Per-game Prefs INI. When set, archive invalidation writes the same keys
     # to both the primary INI and the Prefs INI so the Prefs file can't silently
     # override what we wrote — the engine reads both and the Prefs value wins
@@ -1767,9 +1767,9 @@ class Enderal(Fallout_3):
     _APPDATA_SUBPATH_GOG = Path("drive_c/users/steamuser/AppData/Local/enderal GOG")
     _MYGAMES_SUBPATH = Path("Enderal")
     _MYGAMES_SUBPATH_GOG = Path("Enderal GOG")
-    _ARCHIVE_INI_FILENAME = "Skyrim.ini"
-    _ARCHIVE_PREFS_INI_FILENAME = "SkyrimPrefs.ini"
-    _invalidation_bsa_name = "Skyrim - Invalidation.bsa"
+    _ARCHIVE_INI_FILENAME = "Enderal.ini"
+    _ARCHIVE_PREFS_INI_FILENAME = "EnderalPrefs.ini"
+    _invalidation_bsa_name = "Enderal - Invalidation.bsa"
     _invalidation_bsa_version = 0x68
 
     @property
