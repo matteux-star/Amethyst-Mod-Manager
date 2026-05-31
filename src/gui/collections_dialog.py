@@ -48,7 +48,7 @@ from Utils.profile_state import (
     read_collection_install_paused,
     write_collection_install_paused,
 )
-from gui.install_mod import install_mod_from_archive, FOMOD_DEFERRED, ExtractionMemoryBudget, get_uncompressed_size
+from gui.install_mod import install_mod_from_archive, FOMOD_DEFERRED, BAIN_DEFERRED, ExtractionMemoryBudget, get_uncompressed_size
 from gui.mod_card import CARD_PAD, make_placeholder_image
 from gui.tk_tooltip import TkTooltip
 from gui.wheel_compat import LEGACY_WHEEL_REDUNDANT
@@ -2865,6 +2865,7 @@ class CollectionDetailDialog(tk.Frame):
         # not just the freshly-installed ones.
         _install_results: dict[int, str] = dict(already_installed_by_fid)
         _fomod_deferred: list = []  # (mod, result, effective_domain) tuples deferred for post-install
+        _bain_deferred: list = []   # BAIN mods deferred — processed before FOMODs
 
         def _extracting_push(fid: int, name: str):
             try:
@@ -3134,6 +3135,7 @@ class CollectionDetailDialog(tk.Frame):
                     skip_index_update=True,
                     overwrite_existing=overwrite_existing,
                     defer_interactive_fomod=(auto_fomod is None),
+                    defer_interactive_bain=(auto_bain is None),
                     on_installed=_capture_fomod,
                 )
             finally:
@@ -3145,6 +3147,14 @@ class CollectionDetailDialog(tk.Frame):
                 # FOMOD with no auto-selections — queue for after all other mods install.
                 with _install_lock:
                     _fomod_deferred.append((mod, result, effective_domain))
+                    _install_counters["done"] += 1
+                return
+
+            if folder_name == BAIN_DEFERRED:
+                # BAIN with no exported selections — queue for after all other
+                # mods install but before the deferred FOMODs.
+                with _install_lock:
+                    _bain_deferred.append((mod, result, effective_domain))
                     _install_counters["done"] += 1
                 return
 
@@ -3336,6 +3346,92 @@ class CollectionDetailDialog(tk.Frame):
                         )
                 except Exception as _pre_exc:
                     self._log(f"Collection install: preliminary plugins.txt skipped — {_pre_exc}")
+
+            # Process deferred BAIN mods first (before FOMODs) so the user works
+            # through: regular mods → BAIN pickers → FOMOD wizards. BAIN has no
+            # XML conditions, so it just needs a stable post-install context.
+            if _bain_deferred and not _col_stop.is_set():
+                _bain_deferred.sort(key=lambda t: (
+                    schema_file_id_to_phase.get(t[0].file_id, 0),
+                    schema_file_id_to_pos.get(t[0].file_id, len(schema_mods)),
+                ))
+                self._log(f"Installing {len(_bain_deferred)} deferred BAIN mod(s)…")
+                _set_status(f"Installing {len(_bain_deferred)} deferred BAIN mod(s)…")
+                for _def_mod, _def_result, _def_domain in _bain_deferred:
+                    if _col_stop.is_set():
+                        break
+                    _def_archive = str(_def_result.file_path)
+                    try:
+                        _def_mod_id = schema_file_id_to_mod_id.get(_def_mod.file_id, 0) or _def_mod.mod_id
+                        _def_pmeta = build_meta_from_download(
+                            game_domain=_def_domain,
+                            mod_id=_def_mod_id,
+                            file_id=_def_mod.file_id,
+                            archive_name=_def_mod.file_name or "",
+                            from_collection=self._collection.slug or "",
+                        )
+                        _def_pmeta.nexus_name = _def_mod.mod_name or ""
+                        _def_pmeta.author = _def_mod.mod_author or ""
+                        _def_pmeta.version = _def_mod.version or ""
+                        if _def_mod.category_id:
+                            _def_pmeta.category_id = _def_mod.category_id
+                        if _def_mod.category_name:
+                            _def_pmeta.category_name = _def_mod.category_name
+                        if schema_file_id_to_install_type.get(_def_mod.file_id, "").lower() == "dinput":
+                            _def_pmeta.root_folder = True
+                    except Exception:
+                        _def_pmeta = None
+                    _def_logical = schema_file_id_to_logical.get(_def_mod.file_id, "") or ""
+                    _def_schema_name = schema_pos_to_name.get(
+                        schema_file_id_to_pos.get(_def_mod.file_id, -1), "") or ""
+                    _def_preferred = _def_logical or _def_schema_name or _def_mod.mod_name or ""
+                    _def_preferred += schema_file_id_to_suffix.get(_def_mod.file_id, "")
+                    try:
+                        # No defer_interactive_bain here, so the picker is shown.
+                        _def_folder = install_mod_from_archive(
+                            _def_archive, self, self._log, self._game,
+                            bain_auto_selections=bain_by_file_id.get(_def_mod.file_id),
+                            prebuilt_meta=_def_pmeta,
+                            profile_dir=profile_dir,
+                            headless=True,
+                            preferred_name=_def_preferred,
+                            skip_index_update=True,
+                            overwrite_existing=overwrite_existing,
+                        )
+                    except Exception as _def_exc:
+                        self._log(f"Collection install: failed to install deferred BAIN '{_def_mod.mod_name}': {_def_exc}")
+                        _def_folder = None
+                    with _install_lock:
+                        if _def_folder:
+                            _install_results[_def_mod.file_id] = _def_folder
+                            _install_counters["installed"] += 1
+                        else:
+                            _install_counters["skipped"] += 1
+                    if _def_folder and _def_mod.file_id:
+                        _install_state["installed_fids"].add(_def_mod.file_id)
+                        try:
+                            self.after(0, lambda fid=_def_mod.file_id: self._mark_row_installed(fid))
+                        except Exception:
+                            pass
+                    # Clean up archive (decrement use count, delete at zero).
+                    with _install_lock:
+                        if _def_archive in _archive_use_count:
+                            _archive_use_count[_def_archive] -= 1
+                            _col_force_clear = load_collection_settings().get(
+                                "clear_archive_after_install", False)
+                            _should_clear = _col_force_clear or (
+                                load_clear_archive_after_install()
+                                and not load_keep_fomod_archives()
+                            )
+                            if (
+                                _archive_use_count[_def_archive] == 0
+                                and _should_clear
+                                and _def_archive not in _external_archive_paths
+                            ):
+                                try:
+                                    delete_archive_and_sidecar(Path(_def_archive))
+                                except Exception:
+                                    pass
 
             # Before processing deferred FOMODs, write a preliminary plugins.txt
             # so that fomod conditions can see plugins from already-installed mods.

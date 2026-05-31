@@ -887,6 +887,7 @@ def _copy_file_list(file_list: list[tuple[str, str, bool]],
 
 
 FOMOD_DEFERRED = "__FOMOD_DEFERRED__"
+BAIN_DEFERRED = "__BAIN_DEFERRED__"
 
 
 def _fire_on_installed(cb, is_fomod: bool = False,
@@ -947,7 +948,8 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
                              overwrite_existing: "bool | None" = None,
                              progress_fn=None,
                              clear_progress_fn=None,
-                             defer_interactive_fomod: bool = False) -> None:
+                             defer_interactive_fomod: bool = False,
+                             defer_interactive_bain: bool = False) -> None:
     """
     Extract archive to a temp directory, detect FOMOD, run the wizard if
     present, then copy the resolved files into the game's mod staging area.
@@ -1742,16 +1744,21 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
                         pass
 
             default_names = [p.name for p in bain_subpkgs if p.default_selected]
+            if bain_auto_selections is None and defer_interactive_bain:
+                # Collection install: no exported selections — defer this mod so
+                # its picker is shown after all non-interactive mods install
+                # (and before the deferred FOMODs).
+                log_fn("BAIN installer detected — deferring until other mods are installed.")
+                return BAIN_DEFERRED
             if bain_auto_selections is not None:
                 # Workshop / collection install: apply the exported choices and
                 # skip the interactive picker entirely.
                 selected = bain_auto_selections.get("selected", [])
                 _save_bain_selection(bain_auto_selections)
                 log_fn("BAIN: applying exported selection automatically.")
-            elif headless:
-                # Collection / non-interactive install with no exported choices:
-                # keep prior choices if we have them, otherwise use the per-
-                # package defaults (00-prefixed core packages only).
+            elif parent_window is None:
+                # No UI available to show a picker (pure automation) — keep prior
+                # choices if we have them, else per-package defaults (00 packages).
                 selected = (saved_selections or {}).get("selected") or default_names
                 log_fn("BAIN: non-interactive install — using "
                        + ("saved" if saved_selections else "default")
