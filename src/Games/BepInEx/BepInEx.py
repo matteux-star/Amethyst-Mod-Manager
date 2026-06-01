@@ -51,6 +51,11 @@ class Subnautica(BaseGame):
     def steam_id(self) -> str:
         return "264710"
 
+    @property
+    def default_deploy_mode(self) -> str:
+        # Symlinks don't work reliably for Subnautica's BepInEx loader.
+        return "hardlink"
+
     def set_heroic_app_name(self, app_name: str | None) -> None:
         self._saved_heroic_app_name = app_name or None
         self.save_paths()
@@ -333,6 +338,11 @@ class TCG_Card_Shop_Simulator(Subnautica):
         return "tcgcardshopsimulator"
 
     @property
+    def default_deploy_mode(self) -> str:
+        # Not yet verified for hardlink; keep the base symlink default.
+        return "symlink"
+
+    @property
     def wizard_tools(self) -> list[WizardTool]:
         return self._base_wizard_tools() + [
             WizardTool(
@@ -372,6 +382,11 @@ class Lethal_Company(Subnautica):
         return "lethalcompany"
 
     @property
+    def default_deploy_mode(self) -> str:
+        # Not yet verified for hardlink; keep the base symlink default.
+        return "symlink"
+
+    @property
     def wizard_tools(self) -> list[WizardTool]:
         return self._base_wizard_tools() + [
             WizardTool(
@@ -408,6 +423,11 @@ class Valheim(Subnautica):
     @property
     def nexus_game_domain(self) -> str:
         return "valheim"
+
+    @property
+    def default_deploy_mode(self) -> str:
+        # Not yet verified for hardlink; keep the base symlink default.
+        return "symlink"
 
     @property
     def wizard_tools(self) -> list[WizardTool]:
