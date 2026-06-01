@@ -1061,6 +1061,18 @@ class ProtonToolsPanel(ctk.CTkFrame):
         compat_data = _resolve_compat_data(prefix_path)
 
         if proton_script is None:
+            # Heroic-managed prefixes have no Steam CompatToolMapping, but the
+            # exact Proton build is recorded in GamesConfig/<app>.json — use it.
+            try:
+                from Utils.heroic_finder import find_heroic_proton_for_prefix
+                proton_script = find_heroic_proton_for_prefix(prefix_path)
+            except Exception:
+                proton_script = None
+            if proton_script is not None:
+                self._log(f"Proton Tools: using Heroic-configured Proton "
+                          f"{proton_script.parent.name}.")
+
+        if proton_script is None:
             preferred_runner = _read_prefix_runner(compat_data)
             proton_script = find_any_installed_proton(preferred_runner)
             if proton_script is None:
