@@ -1535,9 +1535,13 @@ class SettingsPanel(ctk.CTkFrame):
                 # steamapps/) or the steamapps folder itself — try both and
                 # validate before saving so we don't silently set a bogus
                 # path.
+                # Steam may name the file singular or plural and keep it under
+                # steamapps/, config/, or the root — accept any combination.
+                names = ("libraryfolders.vdf", "libraryfolder.vdf")
                 candidates = [
-                    chosen / "steamapps" / "libraryfolders.vdf",
-                    chosen / "libraryfolders.vdf",
+                    chosen / sub / name
+                    for sub in ("steamapps", "config", ".")
+                    for name in names
                 ]
                 vdf = next((c for c in candidates if c.is_file()), None)
                 if vdf is None:

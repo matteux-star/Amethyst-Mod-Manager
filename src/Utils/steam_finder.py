@@ -22,7 +22,10 @@ _STEAM_CANDIDATES: list[Path] = [
     _HOME / ".steam" / "steam",                                                     # Symlink fallback
 ]
 
-_VDF_FILENAME = "libraryfolders.vdf"
+# Steam normally writes "libraryfolders.vdf", but some installs (and older
+# clients) use the singular "libraryfolder.vdf". Accept both spellings.
+_VDF_FILENAMES = ("libraryfolders.vdf", "libraryfolder.vdf")
+_VDF_FILENAME = _VDF_FILENAMES[0]
 _COMMON_SUBDIR = Path("steamapps") / "common"
 
 
@@ -213,9 +216,13 @@ def find_steam_libraries() -> list[Path]:
     except Exception:
         pass
 
-    # Built-in fallbacks
+    # Built-in fallbacks. Steam keeps copies under both steamapps/ and the
+    # root config/, and may spell the file singular or plural — try them all.
     for steam_root in _STEAM_CANDIDATES:
-        vdf_candidates.append(steam_root / "steamapps" / _VDF_FILENAME)
+        for name in _VDF_FILENAMES:
+            vdf_candidates.append(steam_root / "steamapps" / name)
+            vdf_candidates.append(steam_root / "config" / name)
+            vdf_candidates.append(steam_root / name)
 
     for vdf_path in vdf_candidates:
         if vdf_path.is_file():
