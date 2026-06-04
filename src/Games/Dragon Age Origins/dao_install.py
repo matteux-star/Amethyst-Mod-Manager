@@ -86,16 +86,19 @@ def _is_top_level_doc(rel_parts: list[str]) -> bool:
 def _override_dest_rel(rel_parts: list[str]) -> Path:
     """Map a mod-relative path to its packages/core/override destination.
 
-    If the path contains an ``override`` segment, everything up to and
-    including it is dropped (the author already structured for override).
-    Otherwise the full path is preserved under override/.
+    Override is a FLAT namespace in DAO: the resource manager resolves loose
+    files (.mmh/.msh/.mao/.dds/.gda/...) by basename within
+    packages/core/override and does NOT reliably recurse into arbitrary
+    mod-named subfolders. Mods ship deeply nested layouts (e.g.
+    ``Anto Hairstyles/Coolsims033 Hair/hm/hm_har_coolsims033_0.mmh``) that the
+    user is expected to flatten on install — otherwise the resource is
+    registered in chargenmorphcfg.xml but the mesh can't be found (invisible
+    hairstyle). So we flatten every override file to its bare basename.
+
+    Cross-mod collisions (same basename in two mods) are resolved by the
+    filemap's normal priority order (higher-priority mod wins).
     """
-    lower = [p.lower() for p in rel_parts]
-    if "override" in lower:
-        idx = lower.index("override")
-        below = rel_parts[idx + 1:]
-        return _OVERRIDE_DEST.joinpath(*below) if below else _OVERRIDE_DEST
-    return _OVERRIDE_DEST.joinpath(*rel_parts)
+    return _OVERRIDE_DEST / rel_parts[-1]
 
 
 def _merge_tree(src_dir: Path, dst_dir: Path) -> None:
@@ -190,7 +193,6 @@ def _extract_archives(dest_root: Path, log_fn) -> int:
         else:  # .override (DAO-Modmanager): BioWare/Dragon Age/ tree
             bioware = temp / "BioWare" / "Dragon Age"
             if bioware.is_dir():
-                _maybe_apply_override_config(bioware, log_fn)
                 _merge_tree(bioware, dest_root)
             else:
                 _merge_tree(temp, dest_root)
@@ -206,16 +208,23 @@ def _extract_archives(dest_root: Path, log_fn) -> int:
     return count
 
 
-def _maybe_apply_override_config(bioware_dir: Path, log_fn) -> None:
+def _maybe_apply_override_config(dest_root: Path, log_fn) -> bool:
     """Apply OverrideConfig.xml choices for a DAO-Modmanager .override mod.
+
+    Searches the whole staged tree for an OverrideConfig.xml. This runs as its
+    own normalize step (not only during .override extraction) because the mod
+    may have been unpacked by the generic installer before normalize sees it —
+    by then there is no .override archive left, only the unpacked tree.
 
     OverrideConfig.xml (DAO-Modmanager format) offers selectable variants: each
     key has an OriginalFile and alternate Value options pointing at OptionsFile
     replacements. We prompt the user via the shared GUI question hook when one
     is present; absent a hook (headless/collection), defaults are kept.
+
+    Returns True if a config was found and handled (so callers can log it).
     """
     config = None
-    for dirpath, _dn, fns in os.walk(bioware_dir):
+    for dirpath, _dn, fns in os.walk(dest_root):
         for fn in fns:
             if fn.casefold() == "overrideconfig.xml":
                 config = Path(dirpath) / fn
@@ -223,24 +232,31 @@ def _maybe_apply_override_config(bioware_dir: Path, log_fn) -> None:
         if config:
             break
     if config is None:
-        return
+        return False
     try:
         choices = _prompt_override_config(config, log_fn)
     except Exception as exc:  # never let a wizard error abort the install
         log_fn(f"  [DAO] OverrideConfig handling failed: {exc}")
-        return
-    if not choices:
-        return
-    ovrd_root = bioware_dir / "packages" / "core" / "override"
+        choices = []
+    # Resolve OriginalFile/OptionsFile by basename anywhere in the staged tree
+    # (files may already be flattened into packages/core/override).
     for original, replacement in choices:
-        src = _find_in_tree(ovrd_root, replacement)
-        dst = _find_in_tree(ovrd_root, original)
+        src = _find_in_tree(dest_root, replacement)
+        dst = _find_in_tree(dest_root, original)
         if src and dst:
             try:
                 shutil.copy2(src, dst)
             except OSError as exc:
                 log_fn(f"  [DAO] OverrideConfig copy failed "
                        f"{replacement}→{original}: {exc}")
+    # OverrideConfig.xml is an installer artifact — the game never reads it.
+    # Remove it (always, even when no choices were applied) so it does not
+    # deploy into the override folder.
+    try:
+        config.unlink()
+    except OSError as exc:
+        log_fn(f"  [DAO] could not remove OverrideConfig.xml: {exc}")
+    return True
 
 
 def _find_in_tree(root: Path, filename: str) -> "Path | None":
@@ -290,7 +306,7 @@ def _prompt_override_config(config_path: Path, log_fn) -> list[tuple[str, str]]:
     if not options:
         return []
 
-    ask = _get_question_hook()
+    ask = _get_question_hook(log_fn)
     if ask is None:
         log_fn(f"  [DAO] OverrideConfig.xml present but no UI hook — "
                f"keeping {len(options)} default(s).")
@@ -309,6 +325,7 @@ def _prompt_override_config(config_path: Path, log_fn) -> list[tuple[str, str]]:
                     f"(default: {opt['default']})"),
             options=labels,
             default_index=default_idx,
+            log_fn=log_fn,
         )
         if chosen is None:
             continue
@@ -318,16 +335,20 @@ def _prompt_override_config(config_path: Path, log_fn) -> list[tuple[str, str]]:
     return results
 
 
-def _get_question_hook():
+def _get_question_hook(log_fn=None):
     """Return a callable(title, prompt, options, default_index) -> chosen|None.
 
     Resolved lazily from the GUI layer so this module stays import-light and
-    usable headless. Returns None when no GUI hook is registered.
+    usable headless. Returns None when no GUI hook is available — logging the
+    reason so a missing wizard isn't silent.
     """
     try:
         from gui.install_question import ask_choice  # type: ignore
         return ask_choice
-    except Exception:
+    except Exception as exc:
+        if log_fn:
+            log_fn(f"  [DAO] OverrideConfig wizard unavailable "
+                   f"(gui.install_question import failed: {exc!r}).")
         return None
 
 
@@ -341,6 +362,13 @@ def normalize_dao_mod(dest_root: Path, mod_name: str, log_fn=None) -> None:
     # Step 0: extract any .dazip/.override archives first, so their unpacked
     # content flows through the override/AddIns normalization below.
     extracted = _extract_archives(dest_root, _log)
+
+    # Step 0.5: handle an OverrideConfig.xml (DAO-Modmanager option wizard).
+    # Runs whether the .override was unpacked by us above or by the generic
+    # installer before normalize was invoked. Applies the user's variant choice
+    # and removes the config so it does not deploy.
+    if _maybe_apply_override_config(dest_root, _log):
+        _log(f"  [DAO] {mod_name}: applied OverrideConfig.xml options.")
 
     # Collect the current file set first; we mutate the tree as we go.
     files: list[Path] = []
@@ -372,12 +400,26 @@ def normalize_dao_mod(dest_root: Path, mod_name: str, log_fn=None) -> None:
             except OSError as exc:
                 _log(f"  [DAO] could not remove doc {rel}: {exc}")
             continue
+        lower_parts = [p.lower() for p in rel_parts]
+
+        # Override content (anywhere an "override" segment appears, however
+        # deeply nested) must be FLATTENED to packages/core/override/<basename>
+        # — DAO does not recurse into mod-named subfolders for these resources.
+        if "override" in lower_parts:
+            dst_rel = _OVERRIDE_DEST / rel_parts[-1]
+            if dst_rel != rel:
+                planned.append((src, dst_rel))
+            else:
+                kept += 1
+            continue
+
+        # Other canonical DAO layout (addins/, offers/, packages/core/data,
+        # modules/, characters/, ...) is left exactly as-is.
         if rel_parts[0].lower() in _CANONICAL_TOP:
-            # Already in canonical DAO layout (e.g. extracted .dazip addins/,
-            # packages/core/data, or a hand-structured override). Leave as-is.
             kept += 1
             continue
 
+        # Loose / unstructured content → flatten into override.
         dst_rel = _override_dest_rel(rel_parts)
         if dst_rel != rel:
             planned.append((src, dst_rel))

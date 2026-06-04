@@ -1147,7 +1147,10 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
                 f"'{os.path.basename(archive_path)}'"
             )
 
-        if ext.endswith(".zip"):
+        # .dazip (Dragon Age DLC package) and .override (DAO-Modmanager) are
+        # renamed ZIP archives — extract them with the ZIP path. The DAO handler's
+        # install logic then restructures the unpacked tree.
+        if ext.endswith((".zip", ".dazip", ".override")):
             import subprocess
             _zip_done = False
             # For large ZIPs, prefer native tools (7z or bsdtar) over Python's

@@ -165,7 +165,48 @@ def _existing_names(block: ET.Element) -> set[str]:
     }
 
 
-def _merge_block(dst_parent: ET.Element, src_block: ET.Element) -> int:
+# Map a chargen block tag to the file extension(s) its resources need on disk.
+# A resource is only registered if a matching file is present in the override —
+# otherwise the creator shows an empty/invisible slot. Blocks whose "resources"
+# are colour tints (.tnt) are matched by basename too.
+_BLOCK_EXTS = {
+    "heads": (".mop",),
+    "hairs": (".mmh",),
+    "beards": (".mmh",),
+    "hair_colors": (".tnt",),
+    "skin_colors": (".tnt",),
+    "eyes_colors": (".tnt",),
+    "eyes_makeup_colors": (".tnt",),
+    "blush_makeup_colors": (".tnt",),
+    "lip_makeup_colors": (".tnt",),
+    "brow_stubble_colors": (".tnt",),
+    "crew_cut_colors": (".tnt",),
+    "tattoo_colors": (".tnt",),
+    "tattoos": (".dds",),
+    "skins": (".dds",),
+}
+
+
+def _resource_present(name: str, exts: tuple[str, ...],
+                      present: set[str]) -> bool:
+    """True if the resource's file (name + one of exts) exists in override.
+
+    ``present`` is a set of lowercased basenames actually on disk. Head names
+    already include the .mop extension; others are bare and need one appended.
+    """
+    n = name.casefold()
+    if n in present:  # name already carries its extension (e.g. heads .mop)
+        return True
+    return any((n + e) in present for e in exts)
+
+
+def _block_exts_for(block_tag: str) -> tuple[str, ...]:
+    return _BLOCK_EXTS.get(block_tag, ())
+
+
+def _merge_block(dst_parent: ET.Element, src_block: ET.Element,
+                 present: "set[str] | None" = None,
+                 block_exts: "tuple[str, ...] | None" = None) -> int:
     """Merge src_block into the matching child of dst_parent, recursively.
 
     Resources are unioned and de-duplicated by name. Nested race/gender groups
@@ -177,6 +218,10 @@ def _merge_block(dst_parent: ET.Element, src_block: ET.Element) -> int:
     if dst_block is None:
         dst_block = ET.SubElement(dst_parent, tag)
 
+    # Determine which extension(s) this block's resources need. Top-level blocks
+    # carry the type; nested race/gender groups inherit from their parent.
+    exts = _block_exts_for(tag) if tag in _BLOCK_EXTS else (block_exts or ())
+
     added = 0
     have = _existing_names(dst_block)
     for res in src_block.findall("resource"):
@@ -185,19 +230,25 @@ def _merge_block(dst_parent: ET.Element, src_block: ET.Element) -> int:
             continue
         if name.casefold() in have:
             continue
+        # Drop phantom entries whose mesh/texture isn't actually installed —
+        # otherwise the creator shows an invisible slot. When present is None
+        # (no override scan), keep everything (vanilla-only baseline build).
+        if present is not None and exts and not _resource_present(name, exts, present):
+            continue
         dst_block.append(ET.Element("resource", dict(res.attrib)))
         have.add(name.casefold())
         added += 1
 
-    # Recurse into nested groups (e.g. human_male under heads).
+    # Recurse into nested groups (e.g. human_male under heads), inheriting exts.
     for child in src_block:
         if child.tag == "resource":
             continue
-        added += _merge_block(dst_block, child)
+        added += _merge_block(dst_block, child, present=present, block_exts=exts)
     return added
 
 
-def _merge_fragment(root: ET.Element, fragment_path: Path, log_fn) -> int:
+def _merge_fragment(root: ET.Element, fragment_path: Path,
+                    present: "set[str] | None", log_fn) -> int:
     try:
         frag = ET.parse(fragment_path).getroot()
     except ET.ParseError as exc:
@@ -207,7 +258,7 @@ def _merge_fragment(root: ET.Element, fragment_path: Path, log_fn) -> int:
         return 0
     added = 0
     for block in frag:
-        added += _merge_block(root, block)
+        added += _merge_block(root, block, present=present)
     return added
 
 
@@ -225,8 +276,21 @@ def build_chargenmorph(data_root: Path, mod_staging: "Path | None" = None,
     _log = log_fn or (lambda _: None)
     root = _build_vanilla()
 
-    # Collect fragments. Prefer staging (one per mod, un-collapsed); else scan
-    # the deployed override tree.
+    # Scan the DEPLOYED override for files actually present. A fragment may
+    # register hairs/heads/etc. that belong to mods the user doesn't have
+    # installed (mega "compatibility" fragments do this). Registering a resource
+    # with no mesh on disk yields an invisible slot in the creator — so we only
+    # keep resources whose file is present here.
+    deployed_override = data_root / _CHARGEN_REL.parent
+    present: set[str] = set()
+    if deployed_override.is_dir():
+        for dirpath, _dn, fns in os.walk(deployed_override):
+            for fn in fns:
+                present.add(fn.casefold())
+    _log(f"  [DAO] chargen: {len(present)} file(s) present in deployed override.")
+
+    # Collect fragments from staging (one per mod, before the override copies
+    # collapse) so every enabled mod's curated list is seen.
     fragments: list[Path] = []
     search_root = mod_staging if mod_staging and mod_staging.is_dir() else data_root
     for dirpath, _dn, fns in os.walk(search_root):
@@ -236,7 +300,7 @@ def build_chargenmorph(data_root: Path, mod_staging: "Path | None" = None,
 
     merged = 0
     for frag in sorted(fragments):
-        merged += _merge_fragment(root, frag, _log)
+        merged += _merge_fragment(root, frag, present, _log)
 
     out_path = data_root / _CHARGEN_REL
     out_path.parent.mkdir(parents=True, exist_ok=True)

@@ -66,8 +66,11 @@ NAME_PAD_R = scaled(8)    # gap between filename text and size column
 
 _POOL_SIZE = 40  # pre-allocated canvas slots (covers ~40 visible rows)
 
-# Archive extensions we care about (lowercase, with dot)
-_ARCHIVE_EXTS = {".zip", ".7z", ".rar", ".tar", ".tar.gz", ".tar.bz2", ".tar.xz"}
+# Archive extensions we care about (lowercase, with dot).
+# .dazip / .override are Dragon Age package formats (renamed zips) — listed so
+# they show up in the Downloads tab and can be installed like any other archive.
+_ARCHIVE_EXTS = {".zip", ".7z", ".rar", ".tar", ".tar.gz", ".tar.bz2", ".tar.xz",
+                 ".dazip", ".override"}
 
 from gui.text_utils import truncate_text_tk_call as _truncate_text_cached
 
