@@ -704,6 +704,12 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._normalize_folder_case = getattr(game, "normalize_folder_case", True) and load_normalize_folder_case()
         self._filemap_casing = str(getattr(game, "filemap_casing", "upper"))
         self._conflict_ignore_filenames = getattr(game, "conflict_ignore_filenames", set())
+        self._excluded_loose_filenames = getattr(game, "excluded_loose_filenames", set())
+        self._allowed_top_level_folders = (
+            set(getattr(game, "mod_required_top_level_folders", set()))
+            if getattr(game, "filemap_exclude_unknown_top_level", False)
+            else set()
+        )
         self._filemap_exclude_dirs = getattr(game, "filemap_exclude_dirs", frozenset({"fomod"}))
         # Load profile_state.json once; individual loaders pull from it
         self.__profile_state = read_profile_state(profile_dir)
@@ -7521,6 +7527,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         rescan_index        = self._filemap_rescan_index
         per_mod_strip       = dict(self._mod_strip_prefixes) if self._mod_strip_prefixes else {}
         conflict_ignore_fn  = set(self._conflict_ignore_filenames) if self._conflict_ignore_filenames else None
+        excluded_loose_fn   = set(self._excluded_loose_filenames) if self._excluded_loose_filenames else None
+        allowed_top_level   = set(self._allowed_top_level_folders) if self._allowed_top_level_folders else None
         exclude_dirs        = set(self._filemap_exclude_dirs) if self._filemap_exclude_dirs else None
         from Games.ue5_game import UE5Game as _UE5Game
         from Utils.deploy_pipeline import _make_ue5_conflict_key_fn
@@ -7606,6 +7614,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                     root_deploy_folders=root_deploy_folders or None,
                     disabled_plugins=disabled_plugins or None,
                     conflict_ignore_filenames=conflict_ignore_fn,
+                    excluded_loose_filenames=excluded_loose_fn,
+                    allowed_top_level_folders=allowed_top_level,
                     excluded_mod_files=excluded_mod_files or None,
                     normalize_folder_case=normalize_folder_case,
                     filemap_casing=filemap_casing,

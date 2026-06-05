@@ -5,6 +5,8 @@
 - Added some additional/more verbose logging when deploying
 - Tweaked bepinex handler to better handle runtime generated files generated outside of the plugins folder
 - Added a present but not enabled ribbon to framework detection
+- Fix for Bodyslide and outfit studio wizard to work with the newest version which removed/changed the x64 executable
+- Tweaks to cyberpunk handler to allow .txt files but remove loose files and folders that are not needed.
 
 - v1.3.7
 - Reworked Archive Invalidation for some bethesda games, Uses a dummy bsa file to make the gamebryo engine load loose files

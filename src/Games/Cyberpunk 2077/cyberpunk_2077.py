@@ -87,7 +87,23 @@ class Cyberpunk2077(BaseGame):
 
     @property
     def conflict_ignore_filenames(self) -> set[str]:
-        return {"*read*.txt","*.png","*.jpg","*.jpeg"}
+        return {
+            "*read*.txt",
+            "*.png",
+            "*.jpg",
+            "*.jpeg"
+            }
+
+    @property
+    def excluded_loose_filenames(self) -> set[str]:
+        return {"*.txt"}
+
+    @property
+    def filemap_exclude_unknown_top_level(self) -> bool:
+        # Authors often ship extra top-level folders (screenshots, "aboutMods",
+        # source dumps, etc.) that must not be deployed into the game root.
+        # Drop any foldered entry whose top level isn't a required folder.
+        return True
 
     @property
     def mod_auto_strip_until_required(self) -> bool:
@@ -99,6 +115,7 @@ class Cyberpunk2077(BaseGame):
             CustomRule(
                 dest="archive/pc/mod",
                 extensions=[".archive"],
+                companion_extensions=[".xl"],
                 loose_only=True,
             ),
         ]

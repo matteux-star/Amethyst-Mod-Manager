@@ -163,6 +163,26 @@ class BaseGame(ABC):
         return set()
 
     @property
+    def excluded_loose_filenames(self) -> set[str]:
+        """
+        Lowercase filename glob patterns that are excluded from the filemap
+        entirely, but only when the file is *loose* (sits at the top level of
+        a mod with no parent folder).
+
+        Unlike conflict_ignore_filenames (which keeps files in the filemap and
+        only skips conflict tracking), matched loose files are dropped from the
+        filemap and never deployed.  Files of the same name nested inside a
+        folder are unaffected.
+
+        Useful for generic loose readme/spawn-command .txt files that can crash
+        a game, while preserving identically-extensioned files (e.g. .txt
+        localization) that live inside folders.
+
+        Return an empty set (the default) to disable.
+        """
+        return set()
+
+    @property
     def archive_extensions(self) -> frozenset[str]:
         """
         File extensions of game-specific archive formats (e.g. ``.bsa``,
@@ -290,6 +310,24 @@ class BaseGame(ABC):
         is in mod_required_top_level_folders, instead of showing the
         prefix dialog. When False (the default), the dialog is shown
         when no required top-level folder is found.
+        """
+        return False
+
+    @property
+    def filemap_exclude_unknown_top_level(self) -> bool:
+        """
+        When True (and mod_required_top_level_folders is non-empty), any
+        filemap entry whose top-level path segment is not one of the
+        mod_required_top_level_folders is dropped from the filemap entirely
+        (and therefore from deployment and the Data tab).
+
+        Use for games like Cyberpunk 2077 where authors ship extra top-level
+        folders (e.g. screenshots, "aboutMods", source dumps) that must not be
+        deployed into the game root.  Loose top-level files (no folder) are
+        also excluded under this rule.
+
+        Return False (the default) to keep every entry regardless of its
+        top-level folder.
         """
         return False
 

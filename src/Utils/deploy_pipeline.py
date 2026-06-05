@@ -230,6 +230,12 @@ def _build_filemap_for_game(game, profile, *, log_fn: LogFn) -> None:
             root_deploy_folders=game.mod_root_deploy_folders or None,
             excluded_mod_files=exc,
             conflict_ignore_filenames=getattr(game, "conflict_ignore_filenames", None) or None,
+            excluded_loose_filenames=getattr(game, "excluded_loose_filenames", None) or None,
+            allowed_top_level_folders=(
+                getattr(game, "mod_required_top_level_folders", None) or None
+                if getattr(game, "filemap_exclude_unknown_top_level", False)
+                else None
+            ),
             exclude_dirs=getattr(game, "filemap_exclude_dirs", None) or None,
             normalize_folder_case=norm_case,
             filemap_casing=getattr(game, "filemap_casing", "upper"),

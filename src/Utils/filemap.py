@@ -809,6 +809,8 @@ def build_filemap(
     root_deploy_folders: set[str] | None = None,  # unused, kept for call-site compat
     disabled_plugins: dict[str, list[str]] | None = None,
     conflict_ignore_filenames: set[str] | None = None,
+    excluded_loose_filenames: set[str] | None = None,
+    allowed_top_level_folders: set[str] | None = None,
     excluded_mod_files: dict[str, set[str]] | None = None,
     normalize_folder_case: bool = True,
     filemap_casing: str = FILEMAP_CASING_UPPER,
@@ -839,6 +841,14 @@ def build_filemap(
     conflict_ignore_filenames — lowercase filenames (not paths) excluded from
     conflict tracking.  Files still appear in the filemap but do not count
     toward a mod's conflict status.  Pass None or an empty set to disable.
+
+    excluded_loose_filenames — lowercase glob patterns; matching files are
+    dropped from the filemap entirely, but only when the file is loose (no
+    parent folder).  Same-named files nested in folders are unaffected.
+
+    allowed_top_level_folders — when non-empty, any foldered entry whose first
+    path segment is not in this set is dropped from the filemap.  Loose
+    top-level files (no folder) are not affected by this rule.
 
     excluded_mod_files — dict mapping mod name to a set of lowercase rel_key
     paths that should be excluded from the filemap for that mod.  Excluded
@@ -894,6 +904,37 @@ def build_filemap(
             return False
         return bool(_ignore_re.match(rel_key.rsplit("/", 1)[-1]))
 
+    # Pre-compile loose-filename exclusion patterns.  Matches drop the file
+    # from the filemap entirely, but only when the file is loose (no "/" in
+    # its rel_key, i.e. it sits at the mod's top level).
+    _loose_excl_re: re.Pattern[str] | None = None
+    if excluded_loose_filenames:
+        _loose_excl_re = re.compile(
+            "|".join(fnmatch.translate(p.lower()) for p in excluded_loose_filenames)
+        )
+
+    def _is_excluded_loose(rel_key: str) -> bool:
+        if _loose_excl_re is None or "/" in rel_key:
+            return False
+        return bool(_loose_excl_re.match(rel_key))
+
+    # Lowercase allowed top-level folder names.  When set, any foldered entry
+    # whose first path segment is not in this set is dropped.  Loose top-level
+    # files (no "/") are intentionally left for the routing rules / the loose
+    # exclusion above to handle, so game-specific loose routing still works.
+    _allowed_top: set[str] | None = (
+        {f.lower() for f in allowed_top_level_folders}
+        if allowed_top_level_folders else None
+    )
+
+    def _is_unknown_top_level(rel_key: str) -> bool:
+        if _allowed_top is None:
+            return False
+        slash = rel_key.find("/")
+        if slash == -1:
+            return False
+        return rel_key[:slash] not in _allowed_top
+
     # Build per-mod excluded-file sets for fast lookup (lowercase rel_keys)
     _excluded: dict[str, set[str]] = excluded_mod_files or {}
 
@@ -944,6 +985,10 @@ def build_filemap(
         _map_ns    = filemap_root        if _is_root_mod else filemap
         for rel_key, rel_str in normal.items():
             if exc and rel_key in exc:
+                continue
+            if _is_excluded_loose(rel_key):
+                continue
+            if _is_unknown_top_level(rel_key):
                 continue
             if _is_ignored(rel_key):
                 continue
