@@ -547,6 +547,30 @@ class BaseGame(ABC):
         return False
 
     @property
+    def mod_staging_wrap_signals(self) -> "tuple[set[str], set[str]]":
+        """Marker (filenames, extensions) that flag a flat mod as needing wrapping.
+
+        Only consulted when ``mod_staging_requires_subdir`` is True.  Returns a
+        tuple of (lowercase filenames, lowercase extensions incl. dot).  A flat
+        staging folder is wrapped into ``<ModName>/`` if any root-level file
+        matches.  Default matches ``manifest.json`` (Stardew/SMAPI).
+        """
+        return ({"manifest.json"}, set())
+
+    @property
+    def mod_staging_already_structured_markers(self) -> "set[str]":
+        """Marker filenames that mark a mod as already correctly structured.
+
+        Only consulted when ``mod_staging_requires_subdir`` is True.  If any
+        immediate subdirectory of a mod contains one of these files, the mod is
+        left untouched even if a wrap signal is present at the root — the loose
+        root file is a sibling (e.g. a JA3 Packs ``.hpk`` next to an existing
+        ``<ModName>/metadata.lua`` folder), not a flat mod.  Empty (the default)
+        disables the guard.
+        """
+        return set()
+
+    @property
     def frameworks(self) -> dict[str, str]:
         """
         A mapping of framework display names to their executable filenames.

@@ -1,5 +1,6 @@
 - v1.3.8
 - Added support for Dragon Age: Origins
+- Added support for Jagged Alliance 3
 - Tweak to steam finder to use libraryfolder.vdf if present
 - Potential fix for proton related tools crashing due to proton run not working for the configured prefix
 - Added some additional/more verbose logging when deploying
@@ -9,6 +10,7 @@
 - Tweaks to cyberpunk handler to allow .txt files but remove loose files and folders that are not needed.
 - Tweaked the nxm handler to try and stop multiple instances opening
 - Added a filter by pbr textures to Skyrim's modlist filter menu
+- Fixed artifacts on transparent images in the add games menu.
 
 - v1.3.7
 - Reworked Archive Invalidation for some bethesda games, Uses a dummy bsa file to make the gamebryo engine load loose files

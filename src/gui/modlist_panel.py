@@ -342,6 +342,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._install_extensions: set[str] = set()
         self._root_deploy_folders: set[str] = set()
         self._staging_requires_subdir: bool = False
+        self._staging_wrap_signals: tuple[set[str], set[str]] = ({"manifest.json"}, set())
+        self._staging_already_structured: set[str] = set()
         self._normalize_folder_case: bool = True
         self._filemap_casing: str = "upper"
         self._filemap_exclude_dirs: frozenset[str] = frozenset({"fomod"})
@@ -702,6 +704,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._install_extensions = getattr(game, "mod_install_extensions", set())
         self._root_deploy_folders = getattr(game, "mod_root_deploy_folders", set())
         self._staging_requires_subdir = getattr(game, "mod_staging_requires_subdir", False)
+        self._staging_wrap_signals = getattr(game, "mod_staging_wrap_signals", ({"manifest.json"}, set()))
+        self._staging_already_structured = getattr(game, "mod_staging_already_structured_markers", set())
         self._normalize_folder_case = getattr(game, "normalize_folder_case", True) and load_normalize_folder_case()
         self._filemap_casing = str(getattr(game, "filemap_casing", "upper"))
         self._conflict_ignore_filenames = getattr(game, "conflict_ignore_filenames", set())
@@ -7584,6 +7588,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             _plugin_order_snap = [e.name for e in getattr(_pp, "_plugin_entries", []) if e.enabled]
             _plugin_exts_snap = frozenset(e.lower() for e in getattr(_pp, "_plugin_extensions", []) or [])
         staging_requires_subdir = self._staging_requires_subdir
+        staging_wrap_signals    = self._staging_wrap_signals
+        staging_already_struct  = self._staging_already_structured
         normalize_folder_case   = self._normalize_folder_case
         filemap_casing          = self._filemap_casing
         self._filemap_rescan_index = False
@@ -7606,7 +7612,9 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             nonlocal rescan_index
             try:
                 if staging_requires_subdir:
-                    fixed = fix_flat_staging_folders(staging)
+                    _wrap_names, _wrap_exts = staging_wrap_signals
+                    fixed = fix_flat_staging_folders(
+                        staging, _wrap_names, _wrap_exts, staging_already_struct)
                     if fixed:
                         rescan_index = True
                         self.after(0, lambda names=fixed: self._log(
