@@ -52,6 +52,25 @@ def _center_crop_to_square(img: "_PilImage.Image", size: int) -> "_PilImage.Imag
     return img.crop((x_off, y_off, x_off + size, y_off + size))
 
 
+def _flatten_on_bg(img: "_PilImage.Image") -> "_PilImage.Image":
+    """Composite an RGBA image onto the card background, then drop alpha.
+
+    A plain ``.convert("RGB")`` discards alpha without compositing, leaving the
+    stored colour under transparent pixels and turning anti-aliased edges fully
+    opaque — that's the halo/artifact ring around transparent icons. Compositing
+    onto BG_DEEP first blends edges into the card cleanly."""
+    if img.mode != "RGBA":
+        img = img.convert("RGBA")
+    bg_hex = (BG_DEEP or "#000000").lstrip("#")
+    try:
+        bg_rgb = tuple(int(bg_hex[i:i + 2], 16) for i in (0, 2, 4))
+    except Exception:
+        bg_rgb = (0, 0, 0)
+    bg = _PilImage.new("RGBA", img.size, bg_rgb + (255,))
+    bg.alpha_composite(img)
+    return bg.convert("RGB")
+
+
 # Session-level cache: game_id → PhotoImage (keyed by (game_id, pixel_size))
 _IMAGE_CACHE: dict[tuple[str, int], "_PilTk.PhotoImage"] = {}
 # Shared executor for async card image loading (daemon threads)
@@ -65,7 +84,7 @@ def _load_card_image_sync(img_path: Path, img_sq: int, px_size: int) -> "_PilIma
         raw = _PilImage.open(img_path).convert("RGBA")
         raw = _center_crop_to_square(raw, img_sq)
         raw = raw.resize((px_size, px_size), _PilImage.Resampling.LANCZOS if hasattr(_PilImage, "Resampling") else _PilImage.LANCZOS)  # type: ignore
-        return raw.convert("RGB")
+        return _flatten_on_bg(raw)
     except Exception:
         return None
 
@@ -397,7 +416,7 @@ class GamePickerPanel(tk.Frame):
             raw = _PilImage.open(img_path).convert("RGBA")
             raw = _center_crop_to_square(raw, self._IMG_SQ)
             raw = raw.resize((_img_sz, _img_sz), _PilImage.Resampling.LANCZOS if hasattr(_PilImage, "Resampling") else _PilImage.LANCZOS)  # type: ignore
-            photo = _PilTk.PhotoImage(raw.convert("RGB"))
+            photo = _PilTk.PhotoImage(_flatten_on_bg(raw))
             self._img_refs.append(photo)
             img_lbl = tk.Label(img_frame, image=photo, bg=BG_DEEP)
         else:
@@ -563,7 +582,7 @@ class GamePickerPanel(tk.Frame):
                 raw = _center_crop_to_square(raw, self._IMG_SQ)
                 sz = scaled(self._IMG_SQ)
                 raw = raw.resize((sz, sz), _PilImage.Resampling.LANCZOS if hasattr(_PilImage, "Resampling") else _PilImage.LANCZOS)  # type: ignore
-                photo = _PilTk.PhotoImage(raw.convert("RGB"))
+                photo = _PilTk.PhotoImage(_flatten_on_bg(raw))
                 self._img_refs.append(photo)
                 img_lbl.configure(image=photo, text="")
             except Exception:
@@ -958,7 +977,7 @@ class GamePickerPanel(tk.Frame):
             raw = _PilImage.open(img_path).convert("RGBA")
             raw = _center_crop_to_square(raw, self._IMG_SQ)
             raw = raw.resize((_img_sz, _img_sz), _PilImage.Resampling.LANCZOS if hasattr(_PilImage, "Resampling") else _PilImage.LANCZOS)  # type: ignore
-            photo = _PilTk.PhotoImage(raw.convert("RGB"))
+            photo = _PilTk.PhotoImage(_flatten_on_bg(raw))
             self._img_refs.append(photo)
             img_lbl = tk.Label(img_frame, image=photo, bg=BG_DEEP)
         else:
