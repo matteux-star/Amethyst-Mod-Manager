@@ -1,3 +1,6 @@
+- v1.3.9
+- Potential fix for ssl error causing nexus login to fail
+
 - v1.3.8
 - Added support for Dragon Age: Origins
 - Added support for Jagged Alliance 3

@@ -36,10 +36,23 @@ from pathlib import Path
 from typing import Optional
 
 from Utils.atomic_write import write_atomic_text
+from Utils.ca_bundle import resolve_ca_bundle
 from Utils.config_paths import get_config_dir
 
 
 _USER_AGENT = "Amethyst-Mod-Manager"
+
+_ssl_ctx = None
+
+def _get_ssl_context():
+    """Build (once) an SSL context using the resolved CA bundle for urllib calls."""
+    global _ssl_ctx
+    if _ssl_ctx is None:
+        import ssl
+        bundle = resolve_ca_bundle()
+        _ssl_ctx = ssl.create_default_context(cafile=bundle) if bundle \
+            else ssl.create_default_context()
+    return _ssl_ctx
 
 
 def _cache_dir() -> Path:
@@ -153,7 +166,7 @@ def fetch(
 
     req = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with urllib.request.urlopen(req, timeout=timeout, context=_get_ssl_context()) as resp:
             body = resp.read()
             new_etag = resp.headers.get("ETag")
             try:

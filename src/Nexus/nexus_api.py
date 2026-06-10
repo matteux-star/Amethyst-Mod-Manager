@@ -38,6 +38,7 @@ import requests
 
 from Utils.config_paths import get_config_dir
 from Utils.app_log import app_log
+from Utils.ca_bundle import resolve_ca_bundle
 from version import __version__
 
 API_BASE = "https://api.nexusmods.com/v1"
@@ -447,6 +448,7 @@ class NexusAPI:
         self._oauth_tokens = None
         self._game_id_cache: dict[str, int] = {}
         self._session = requests.Session()
+        self._session.verify = resolve_ca_bundle() or True
         self._session.headers.update({
             "APIKEY": self._key,
             "Content-Type": "application/json",
@@ -481,6 +483,7 @@ class NexusAPI:
         instance._oauth_tokens = tokens
         instance._game_id_cache = {}
         instance._session = requests.Session()
+        instance._session.verify = resolve_ca_bundle() or True
         instance._session.headers.update({
             "Authorization": f"Bearer {tokens.access_token}",
             "Content-Type": "application/json",
@@ -2160,6 +2163,7 @@ class NexusAPI:
                 json={"query": self._COLLECTION_DETAIL_QUERY, "variables": variables},
                 headers=headers,
                 timeout=max(self._timeout, 90),
+                verify=self._session.verify,
             )
             self._log_response("POST", "GraphQL get_collection_detail", resp)
             if not resp.ok:
@@ -2183,6 +2187,7 @@ class NexusAPI:
                     json={"query": self._COLLECTION_REVISION_QUERY, "variables": rev_variables},
                     headers=headers,
                     timeout=max(self._timeout, 90),
+                    verify=self._session.verify,
                 )
                 self._log_response("POST", "GraphQL get_collection_detail (specific revision)", rev_resp)
                 if not rev_resp.ok:
@@ -2247,6 +2252,7 @@ class NexusAPI:
         import py7zr
         import requests as _requests
 
+        _verify = self._session.verify
         api_headers = dict(self._session.headers)
         try:
             # Step 1: resolve download-link path → CDN URI
@@ -2254,6 +2260,7 @@ class NexusAPI:
                 f"https://api.nexusmods.com{download_link_path}",
                 headers=api_headers,
                 timeout=30,
+                verify=_verify,
             )
             link_resp.raise_for_status()
             cdn_urls = [e.get("URI", "") for e in (link_resp.json().get("download_links") or []) if e.get("URI")]
@@ -2279,7 +2286,7 @@ class NexusAPI:
                 dl_resp = None
                 for cdn_url in cdn_urls:
                     try:
-                        r = _requests.get(cdn_url, headers={}, stream=True, timeout=120)
+                        r = _requests.get(cdn_url, headers={}, stream=True, timeout=120, verify=_verify)
                         r.raise_for_status()
                         dl_resp = r
                         break
@@ -2346,12 +2353,14 @@ class NexusAPI:
         import py7zr
         import requests as _requests
 
+        _verify = self._session.verify
         api_headers = dict(self._session.headers)
         try:
             link_resp = _requests.get(
                 f"https://api.nexusmods.com{download_link_path}",
                 headers=api_headers,
                 timeout=30,
+                verify=_verify,
             )
             link_resp.raise_for_status()
             cdn_urls = [e.get("URI", "") for e in (link_resp.json().get("download_links") or []) if e.get("URI")]
@@ -2378,7 +2387,7 @@ class NexusAPI:
                 dl_resp = None
                 for cdn_url in cdn_urls:
                     try:
-                        r = _requests.get(cdn_url, headers={}, stream=True, timeout=300)
+                        r = _requests.get(cdn_url, headers={}, stream=True, timeout=300, verify=_verify)
                         r.raise_for_status()
                         dl_resp = r
                         break

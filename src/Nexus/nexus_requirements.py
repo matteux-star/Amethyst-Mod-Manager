@@ -33,6 +33,7 @@ GameScope = Optional[str]
 from Nexus.nexus_api import NexusAPI, NexusModRequirement, NexusModUpdateInfo
 from Nexus.nexus_meta import NexusModMeta, scan_installed_mods, read_meta, write_meta
 from Utils.config_paths import get_requirement_external_tool_mod_ids_path
+from Utils.ca_bundle import resolve_ca_bundle
 
 ProgressCallback = Callable[[str], None]
 
@@ -134,7 +135,7 @@ def _load_requirement_filter() -> tuple[
 
     remote_text = ""
     try:
-        resp = requests.get(REQUIREMENT_FILTER_URL, timeout=_FETCH_TIMEOUT)
+        resp = requests.get(REQUIREMENT_FILTER_URL, timeout=_FETCH_TIMEOUT, verify=resolve_ca_bundle() or True)
         if resp.ok:
             remote_text = resp.text
     except Exception:

@@ -49,6 +49,7 @@ import keyring
 import requests
 
 from Utils.app_log import app_log
+from Utils.ca_bundle import resolve_ca_bundle
 from Utils.config_paths import get_config_dir
 from version import __version__
 from Nexus.nexus_api import _KEYRING_SERVICE
@@ -257,6 +258,88 @@ def clear_oauth_tokens() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Connection self-diagnostics
+# ---------------------------------------------------------------------------
+
+def _log_connection_diagnostics() -> None:
+    """
+    Probe connectivity to the Nexus OAuth host and dump a shareable report to
+    the app log. Called when a token exchange/refresh fails so users can paste
+    the log instead of running curl by hand. Never touches OAuth tokens, so the
+    output is safe to share.
+    """
+    host = "users.nexusmods.com"
+    app_log("OAuth diagnostics: --- begin Nexus connection report ---")
+
+    # 1. Environment basics
+    try:
+        import ssl, platform, sys
+        app_log(f"OAuth diagnostics: python={sys.version.split()[0]} "
+                f"openssl={ssl.OPENSSL_VERSION} platform={platform.platform()}")
+        app_log(f"OAuth diagnostics: requests={requests.__version__}")
+        try:
+            import certifi
+            app_log(f"OAuth diagnostics: certifi bundle={certifi.where()}")
+        except Exception as exc:
+            app_log(f"OAuth diagnostics: certifi unavailable: {exc}")
+        app_log(f"OAuth diagnostics: system time={time.strftime('%Y-%m-%d %H:%M:%S %Z')} "
+                f"(wrong clock is a common SSL cause)")
+        for var in ("SSL_CERT_FILE", "SSL_CERT_DIR", "REQUESTS_CA_BUNDLE",
+                    "HTTP_PROXY", "HTTPS_PROXY"):
+            if os.environ.get(var):
+                app_log(f"OAuth diagnostics: env {var}={os.environ[var]}")
+    except Exception as exc:
+        app_log(f"OAuth diagnostics: env probe failed: {exc}")
+
+    # 2. DNS resolution
+    try:
+        import socket
+        infos = socket.getaddrinfo(host, 443, proto=socket.IPPROTO_TCP)
+        ips = sorted({i[4][0] for i in infos})
+        app_log(f"OAuth diagnostics: DNS {host} -> {', '.join(ips)}")
+    except Exception as exc:
+        app_log(f"OAuth diagnostics: DNS resolution FAILED: {exc!r}")
+
+    # 3. Python TLS probe (mirrors how the app connects) against the live endpoint
+    try:
+        bundle = resolve_ca_bundle()
+        app_log(f"OAuth diagnostics: resolved CA bundle = {bundle or 'requests default'}")
+        r = requests.get(_TOKEN_URL, timeout=20, verify=bundle or True)
+        app_log(f"OAuth diagnostics: python requests GET {_TOKEN_URL} -> "
+                f"HTTP {r.status_code} (TLS OK; any HTTP status here means the "
+                f"handshake succeeded)")
+    except Exception as exc:
+        app_log(f"OAuth diagnostics: python requests GET FAILED: {exc!r}")
+        app_log("OAuth diagnostics: ^ this is the app's real failure — usually a "
+                "CA-bundle / certifi issue in this build")
+
+    # 4. System curl comparison (uses the OS cert store, like the user's manual test)
+    try:
+        import subprocess, shutil
+        if shutil.which("curl"):
+            proc = subprocess.run(
+                ["curl", "-sS", "-o", "/dev/null", "-w",
+                 "HTTP %{http_code} in %{time_total}s", "-v", _TOKEN_URL],
+                capture_output=True, text=True, timeout=30,
+            )
+            # curl -v writes the handshake trace to stderr; keep only the useful lines
+            keep = ("SSL", "TLS", "certificate", "subject:", "issuer:",
+                    "expire date:", "Trying", "Connected", "HTTP")
+            for line in (proc.stderr + "\n" + proc.stdout).splitlines():
+                s = line.strip()
+                if s and any(k in s for k in keep):
+                    app_log(f"OAuth diagnostics: curl| {s}")
+        else:
+            app_log("OAuth diagnostics: curl not found on PATH; skipping system comparison")
+    except Exception as exc:
+        app_log(f"OAuth diagnostics: curl probe failed: {exc!r}")
+
+    app_log("OAuth diagnostics: --- end Nexus connection report ---")
+    app_log("OAuth diagnostics: if 'python requests' failed but 'curl' succeeded, "
+            "the system network is fine and the app's cert bundle is the problem.")
+
+
+# ---------------------------------------------------------------------------
 # Token refresh
 # ---------------------------------------------------------------------------
 
@@ -281,9 +364,17 @@ def refresh_if_needed(tokens: OAuthTokens, client_id: str = CLIENT_ID, client_se
                 "redirect_uri":  _REDIRECT_URI,
             },
             timeout=20,
+            verify=resolve_ca_bundle() or True,
         )
         resp.raise_for_status()
         data = resp.json()
+    except requests.exceptions.RequestException as exc:
+        if isinstance(exc, (requests.exceptions.SSLError,
+                            requests.exceptions.ConnectionError,
+                            requests.exceptions.Timeout)):
+            app_log(f"OAuth: token refresh hit a connection error ({exc!r}); running diagnostics")
+            _log_connection_diagnostics()
+        raise RuntimeError(f"OAuth token refresh failed: {exc}") from exc
     except Exception as exc:
         raise RuntimeError(f"OAuth token refresh failed: {exc}") from exc
 
@@ -556,10 +647,16 @@ class NexusOAuthClient:
                     "code_verifier": verifier,
                 },
                 timeout=20,
+                verify=resolve_ca_bundle() or True,
             )
             resp.raise_for_status()
             data = resp.json()
         except Exception as exc:
+            if isinstance(exc, (requests.exceptions.SSLError,
+                                requests.exceptions.ConnectionError,
+                                requests.exceptions.Timeout)):
+                app_log(f"OAuth: token exchange hit a connection error ({exc!r}); running diagnostics")
+                _log_connection_diagnostics()
             self._on_error(f"Token exchange failed: {exc}")
             return
 
