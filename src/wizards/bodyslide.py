@@ -22,6 +22,7 @@ Workflow
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import threading
@@ -112,7 +113,7 @@ class _BodySlideBaseWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         self._tool_exe_name     = self._exe.name if self._exe is not None else _as_names(self._exe_name)[0]
         self._tool_display_name = self._wizard_title
         self._exe_missing_text  = (
-            f"'{_as_names(self._exe_name)[0]}' was not found in your mod staging folder.\n\n"
+            f"{self._wizard_title} was not found in your mod staging folder.\n\n"
             f"Install {self._wizard_title} as a mod, then reopen this wizard."
         )
 
@@ -189,6 +190,22 @@ class _BodySlideBaseWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
                 return cand
         return None
 
+    def _slider_data_root(self, base: Path) -> Path | None:
+        """Find the folder that holds SliderSets/SliderGroups/ShapeData.
+
+        BodySlide 5.8+ resolves these relative to <ProjectPath> (the exe dir
+        when empty). When the exe and the slider data live in different folders
+        (exe under Tools/BodySlide, data under <mod>/BodySlide), the lists come
+        up empty. We locate the data folder so the caller can pin ProjectPath.
+        """
+        direct = base / "CalienteTools" / "BodySlide"
+        if (direct / "SliderSets").is_dir():
+            return direct
+        for cand in base.rglob("SliderSets"):
+            if cand.is_dir():
+                return cand.parent
+        return None
+
     # Maps a game's synthesis_registry_name to its BodySlide GameDataPaths child
     # tag and TargetGame index (see the comment at the top of Config.xml).
     _BODYSLIDE_GAMES = {
@@ -247,6 +264,16 @@ class _BodySlideBaseWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
                 tag, target = mapping
                 updated = self._set_gamedatapaths_child(updated, tag, wine_data)
                 updated = self._set_config_tag(updated, "TargetGame", str(target))
+
+            # BodySlide 5.8+ scans <ProjectPath>/SliderSets (falling back to the
+            # exe dir when empty). The exe and the slider data are usually in
+            # different folders here, so pin ProjectPath at the data folder or
+            # every list shows up empty.
+            slider_root = self._slider_data_root(data_path)
+            if slider_root is not None:
+                updated = self._set_config_tag(
+                    updated, "ProjectPath", self._to_wine_path(slider_root).rstrip("\\")
+                )
 
         if updated == text:
             return True
@@ -406,7 +433,7 @@ class _BodySlideBaseWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
             ctk.CTkLabel(
                 self._body,
                 text=(
-                    f"'{self._exe_name[0]}' was not found in the deployed Data folder.\n\n"
+                    f"{self._wizard_title} was not found in the deployed Data folder.\n\n"
                     f"Deploy your modlist first, then reopen this wizard."
                 ),
                 font=FONT_NORMAL, text_color="#e06c6c", justify="center", wraplength=460,
@@ -457,7 +484,10 @@ class _BodySlideBaseWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         # Studio (wxWidgets): it floods the app with window-handle queries and
         # crashes with "Invalid window handle" when the Preview child window
         # opens ("Fatal exception has occurred"). Disabling it fixes the crash.
+        # Proton 10 renamed the knob: the old PROTON_DISABLE_XALIA is ignored,
+        # the live one is PROTON_USE_XALIA=0. Set both for cross-version cover.
         env["PROTON_DISABLE_XALIA"] = "1"
+        env["PROTON_USE_XALIA"] = "0"
 
         # BodySlide x64 / Outfit Studio x64 autofill the Data folder from
         # the Bethesda Softworks registry key — a fresh tool prefix never
@@ -474,14 +504,33 @@ class _BodySlideBaseWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         except Exception as exc:
             self._log(f"{self._wizard_title} Wizard: registry write skipped: {exc}")
 
+        # Optional GL diagnostics: set MM_BODYSLIDE_GLLOG=1 to capture Wine's
+        # WGL/OpenGL backend decisions (context creation, SwapBuffers, drawable
+        # mode) to a log next to the prefix. Used to debug the black-preview
+        # issue where the multisampled GL canvas renders but never presents.
+        gl_log = None
+        if os.environ.get("MM_BODYSLIDE_GLLOG"):
+            # +wgl: WGL context/SwapBuffers; +opengl: GL backend; fixme-all off
+            # to keep the trace readable. MESA_DEBUG surfaces driver-side errors.
+            env["WINEDEBUG"] = "+wgl,+opengl,fixme-all"
+            env["MESA_DEBUG"] = "1"
+            env.setdefault("LIBGL_DEBUG", "verbose")
+            try:
+                log_path = Path(compat_data) / f"gl_trace_{self._tool_exe_name}.log"
+                gl_log = open(log_path, "w")
+                self._log(f"{self._wizard_title} Wizard: GL trace → {log_path}")
+            except OSError as exc:
+                self._log(f"{self._wizard_title} Wizard: could not open GL trace log: {exc}")
+                gl_log = None
+
         self._log(f"{self._wizard_title} Wizard: launching {exe} via Proton (cwd={exe.parent})")
         try:
             proc = subprocess.Popen(
                 ["python3", str(proton_script), "run", str(exe)],
                 env=env,
                 cwd=str(exe.parent),
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stdout=(gl_log or subprocess.DEVNULL),
+                stderr=(gl_log or subprocess.DEVNULL),
             )
             self._set_label(
                 "_run_status",
@@ -500,19 +549,28 @@ class _BodySlideBaseWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         except Exception as exc:
             self._set_label("_run_status", f"Launch error: {exc}", color="#e06c6c")
             self._log(f"{self._wizard_title} Wizard: launch error: {exc}")
+        finally:
+            if gl_log is not None:
+                try:
+                    gl_log.close()
+                except Exception:
+                    pass
 
 
 # ---------------------------------------------------------------------------
 # Concrete wizards
 # ---------------------------------------------------------------------------
 
+# Prefer the "x64" exe when present: that is the 5.7.x build, whose preview
+# panel renders correctly under Proton. 5.8+ dropped the x64 suffix and its
+# preview renders black on Wine/Mesa, so it is only the fallback.
 class BodySlideWizard(_BodySlideBaseWizard):
     _wizard_title    = "BodySlide"
-    _exe_name        = ("BodySlide.exe", "BodySlide x64.exe")
+    _exe_name        = ("BodySlide x64.exe", "BodySlide.exe")
     _output_mod_name = "BodySlide_files"
 
 
 class OutfitStudioWizard(_BodySlideBaseWizard):
     _wizard_title    = "Outfit Studio"
-    _exe_name        = ("OutfitStudio.exe", "OutfitStudio x64.exe")
+    _exe_name        = ("OutfitStudio x64.exe", "OutfitStudio.exe")
     _output_mod_name = "OutfitStudio_files"
