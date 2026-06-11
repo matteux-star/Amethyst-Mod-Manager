@@ -3622,6 +3622,8 @@ class CollectionDetailDialog(tk.Frame):
                 if cj_full:
                     import os as _os
                     from pathlib import Path as _Path
+                    _bundled_meta_map = self._installed_bundled_meta_map(
+                        staging_path, (self._collection.slug or "").strip())
                     for bm in bundle_schema_mods:
                         bm_name = bm.get("name") or ""
                         src = bm.get("source") or {}
@@ -3640,6 +3642,15 @@ class CollectionDetailDialog(tk.Frame):
                             self._log(f"Collection install: bundled '{bm_name}' already installed — skipping")
                             existing = staging_lower_map.get(mod_name_clean.lower(), mod_name_clean)
                             install_order.append((-1, existing))
+                            installed += 1
+                            continue
+                        _meta_hit = (_bundled_meta_map.get(file_expr.lower())
+                                     or _bundled_meta_map.get(bm_name.lower()))
+                        if _meta_hit:
+                            self._log(
+                                f"Collection install: bundled '{bm_name}' already installed "
+                                f"as '{_meta_hit}' — skipping")
+                            install_order.append((-1, _meta_hit))
                             installed += 1
                             continue
 
@@ -4108,6 +4119,42 @@ class CollectionDetailDialog(tk.Frame):
             return None
         return extract_dir
 
+    def _installed_bundled_meta_map(
+        self, staging_path: Path, slug: str,
+    ) -> "dict[str, str]":
+        """Map installationfile/modname of installed bundled mods → folder name.
+
+        Bundled assets can be installed under either the schema mod name
+        (Step 2c) or the archive's ``bundled/<folder>`` name (Step 3b), which
+        often differ.  Matching on the meta.ini keys lets either step recognise
+        the other's install and avoid duplicating the same bundle.
+        """
+        import configparser as _cpi
+
+        meta_map: dict[str, str] = {}
+        if not staging_path.is_dir():
+            return meta_map
+        for mod_dir in staging_path.iterdir():
+            meta_path = mod_dir / "meta.ini"
+            if not mod_dir.is_dir() or not meta_path.is_file():
+                continue
+            cp = _cpi.ConfigParser()
+            try:
+                cp.read(meta_path, encoding="utf-8")
+                if not cp.has_section("General"):
+                    continue
+                if not cp["General"].getboolean("fromCollectionBundled", fallback=False):
+                    continue
+                if (cp["General"].get("fromCollection", "") or "").strip() != slug:
+                    continue
+                for key in ("installationfile", "modname"):
+                    val = (cp["General"].get(key, "") or "").strip()
+                    if val:
+                        meta_map[val.lower()] = mod_dir.name
+            except Exception:
+                continue
+        return meta_map
+
     def _install_bundled_from_extracted(
         self, archive_root: Path, modlist_path: Path, staging_path: Path,
     ) -> None:
@@ -4144,6 +4191,8 @@ class CollectionDetailDialog(tk.Frame):
             if p.is_dir()
         } if staging_path.exists() else {}
 
+        bundled_meta_map = self._installed_bundled_meta_map(staging_path, slug)
+
         new_mod_names: list[str] = []
         for src_folder in bundle_folders:
             raw_name = src_folder.name
@@ -4151,6 +4200,13 @@ class CollectionDetailDialog(tk.Frame):
             if clean.lower() in staging_lower_map:
                 existing = staging_lower_map[clean.lower()]
                 self._log(f"Collection bundled-cache: '{raw_name}' already in staging as '{existing}' — keeping")
+                new_mod_names.append(existing)
+                continue
+            if raw_name.lower() in bundled_meta_map:
+                existing = bundled_meta_map[raw_name.lower()]
+                self._log(
+                    f"Collection bundled-cache: '{raw_name}' already installed as '{existing}' — keeping"
+                )
                 new_mod_names.append(existing)
                 continue
             dest = staging_path / clean
