@@ -382,45 +382,48 @@ class ScriptExtenderWizard(ctk.CTkFrame):
             def _reporthook(block_num, block_size, total_size):
                 if total_size > 0:
                     pct = min(block_num * block_size / total_size, 1.0)
-                    try:
-                        self.after(0, lambda p=pct: self._dl_progress.configure(
-                            mode="determinate"
-                        ) or self._dl_progress.set(p))
-                    except Exception:
-                        pass
+                    self._dl_ui(self._dl_progress, lambda p=pct: self._dl_progress.configure(
+                        mode="determinate"
+                    ) or self._dl_progress.set(p))
 
             urllib.request.urlretrieve(url, dest, reporthook=_reporthook)
             self._archive_path = dest
             self._log(f"Wizard: downloaded {filename}")
-            self.after(0, lambda: self._dl_progress.stop())
-            self.after(0, lambda: self._dl_progress.configure(mode="determinate"))
-            self.after(0, lambda: self._dl_progress.set(1.0))
+            self._dl_ui(self._dl_progress, lambda: self._dl_progress.stop())
+            self._dl_ui(self._dl_progress, lambda: self._dl_progress.configure(mode="determinate"))
+            self._dl_ui(self._dl_progress, lambda: self._dl_progress.set(1.0))
             self._set_dl_status(f"Downloaded {tag}: {filename}", color="#6bc76b")
-            self.after(0, lambda: self._dl_next_btn.configure(state="normal"))
+            self._dl_ui(self._dl_next_btn, lambda: self._dl_next_btn.configure(state="normal"))
         except Exception as exc:
             self._log(f"Wizard: download error: {exc}")
-            self.after(0, lambda: self._dl_progress.stop())
+            self._dl_ui(self._dl_progress, lambda: self._dl_progress.stop())
             self._set_dl_status(
                 f"Download failed: {exc}\n\nUse Browse to select a manually downloaded archive.",
                 color="#e06c6c",
             )
-            self.after(0, lambda: self._dl_next_btn.configure(state="normal"))
+            self._dl_ui(self._dl_next_btn, lambda: self._dl_next_btn.configure(state="normal"))
 
-    def _set_dl_status(self, text: str, color: str = TEXT_DIM):
+    def _dl_ui(self, widget, fn):
+        def _run():
+            try:
+                if widget.winfo_exists():
+                    fn()
+            except Exception:
+                pass
         try:
-            self.after(0, lambda: self._dl_status.configure(text=text, text_color=color))
+            self.after(0, _run)
         except Exception:
             pass
+
+    def _set_dl_status(self, text: str, color: str = TEXT_DIM):
+        self._dl_ui(self._dl_status, lambda: self._dl_status.configure(text=text, text_color=color))
 
     def _browse_archive_step1(self):
         def _on_picked(path: Path | None) -> None:
             if path and path.is_file():
                 self._archive_path = path
                 self._set_dl_status(f"Selected: {path.name}", color="#6bc76b")
-                try:
-                    self.after(0, lambda: self._dl_next_btn.configure(state="normal"))
-                except Exception:
-                    pass
+                self._dl_ui(self._dl_next_btn, lambda: self._dl_next_btn.configure(state="normal"))
 
         pick_file("Select the script extender archive", lambda p: self.after(0, lambda: _on_picked(p)))
 
