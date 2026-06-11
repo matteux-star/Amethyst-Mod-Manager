@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import threading
 from pathlib import Path
@@ -19,13 +20,66 @@ from pathlib import Path
 import customtkinter as ctk
 
 from gui.theme import (
-    ACCENT, ACCENT_HOV, BG_HEADER, BG_PANEL,
+    ACCENT, ACCENT_HOV, BG_HEADER, BG_PANEL, BORDER,
     TEXT_ON_ACCENT,
     TEXT_DIM, TEXT_MAIN,
-    FONT_NORMAL, FONT_BOLD,
+    FONT_NORMAL, FONT_BOLD, FONT_SMALL,
 )
 
 _LAUNCH_MODE_FILE = "exe_launch_mode.json"
+_LAUNCH_ENV_FILE = "launch_env.json"
+_ENV_VAR_RE = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*=')
+
+
+def load_tool_launch_env(exe: "Path | None") -> str:
+    """Return the saved env-var string for this exe ('' if none)."""
+    if exe is None:
+        return ""
+    p = exe.parent / _LAUNCH_ENV_FILE
+    try:
+        return json.loads(p.read_text(encoding="utf-8")).get(exe.name) or ""
+    except (OSError, ValueError):
+        return ""
+
+
+def save_tool_launch_env(exe: "Path | None", text: str) -> None:
+    """Persist the env-var string in launch_env.json next to the exe."""
+    if exe is None:
+        return
+    p = exe.parent / _LAUNCH_ENV_FILE
+    try:
+        data = json.loads(p.read_text(encoding="utf-8")) if p.is_file() else {}
+    except (OSError, ValueError):
+        data = {}
+    if text:
+        data[exe.name] = text
+    else:
+        data.pop(exe.name, None)
+    try:
+        if data:
+            p.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        elif p.is_file():
+            p.unlink()
+    except OSError:
+        pass
+
+
+def parse_env_overrides(text: str) -> dict:
+    """Parse a space-separated KEY=VALUE string into a dict (bad tokens skipped)."""
+    import shlex
+    text = (text or "").strip()
+    if not text:
+        return {}
+    try:
+        tokens = shlex.split(text)
+    except ValueError:
+        tokens = text.split()
+    out: dict = {}
+    for token in tokens:
+        if _ENV_VAR_RE.match(token):
+            k, v = token.split("=", 1)
+            out[k] = v
+    return out
 
 
 def load_saved_proton(game, exe_name: str) -> str:
@@ -128,6 +182,13 @@ class ProtonPrefixStepMixin:
         if result is None:
             return None, None, None
         proton_script, compat_data, env = result
+        extra = parse_env_overrides(load_tool_launch_env(self._exe))
+        if extra:
+            env.update(extra)
+            self._log(
+                f"{self._tool_display_name} Wizard: applying saved env vars: "
+                + " ".join(f"{k}={v}" for k, v in extra.items())
+            )
         return proton_script, env, compat_data
 
     def _link_plugins_txt(self, pfx: Path):
@@ -279,6 +340,33 @@ class ProtonPrefixStepMixin:
 
         self._update_prefix_delete_state()
 
+        ctk.CTkLabel(
+            self._body, text="Environment Variables (optional)",
+            font=FONT_BOLD, text_color=TEXT_MAIN,
+        ).pack(pady=(8, 2))
+        ctk.CTkLabel(
+            self._body,
+            text=(
+                "Space-separated KEY=VALUE pairs applied when the tool launches. "
+                "Saved next to the exe and reapplied on every run."
+            ),
+            font=FONT_SMALL, text_color=TEXT_DIM, justify="center", wraplength=460,
+        ).pack(pady=(0, 4))
+        self._env_entry = ctk.CTkEntry(
+            self._body, width=400, font=FONT_SMALL,
+            fg_color=BG_HEADER, text_color=TEXT_MAIN, border_color=BORDER,
+            placeholder_text="e.g. PROTON_USE_WINED3D=1 WINEDLLOVERRIDES=dinput8=n,b",
+        )
+        saved_env = load_tool_launch_env(self._exe)
+        if saved_env:
+            self._env_entry.insert(0, saved_env)
+        self._env_entry.pack(pady=(0, 6))
+        self._env_entry._entry.bind(
+            "<Control-a>",
+            lambda e: (self._env_entry._entry.select_range(0, "end"),
+                       self._env_entry._entry.icursor("end"), "break")[2],
+        )
+
         ctk.CTkButton(
             self._body, text="Continue", width=160, height=36,
             font=FONT_BOLD,
@@ -289,6 +377,10 @@ class ProtonPrefixStepMixin:
     def _on_proton_chosen(self):
         self._proton_name = self._proton_menu.get()
         save_saved_proton(self._game, self._tool_exe_name, self._proton_name)
+        try:
+            save_tool_launch_env(self._exe, self._env_entry.get().strip())
+        except Exception:
+            pass
         self._log(
             f"{self._tool_display_name} Wizard: using {self._proton_name} "
             "with an isolated prefix next to the exe."
