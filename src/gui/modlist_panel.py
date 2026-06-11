@@ -5139,6 +5139,10 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                 entry.enabled = self._root_folder_enabled
                 break
         self._redraw()
+        # Framework banners distinguish enabled/disabled Root_Folder staging.
+        pp = getattr(self.winfo_toplevel(), "_plugin_panel", None)
+        if pp is not None and hasattr(pp, "_refresh_framework_banners"):
+            pp._refresh_framework_banners()
 
     def _toggle_root_folder_flag(self, mod_name: str) -> None:
         """Toggle rootFolder=true/false in a mod's meta.ini and refresh the UI."""

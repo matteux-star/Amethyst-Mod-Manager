@@ -2807,6 +2807,13 @@ class PluginPanel(PluginPanelExeLauncherMixin, PluginPanelLOOTMixin,
         # enabled-only filemap, so it would otherwise read as "Not Present").
         disabled_basenames = self._framework_disabled_basenames(filemap_path_str)
 
+        # Root_Folder staging only reaches the game root on deploy, and only
+        # while the Mod List panel's Root_Folder toggle is on — so a staging
+        # hit maps to the orange/blue states, never to "Installed".
+        rf_allowed = getattr(self._game, "root_folder_deploy_enabled", True)
+        mod_panel = getattr(self.winfo_toplevel(), "_mod_panel", None)
+        rf_enabled = bool(getattr(mod_panel, "_root_folder_enabled", True))
+
         # Build the desired banner states
         banner_data: list[tuple[str, str, str]] = []  # (msg, bg, fg)
         for label, exe in frameworks.items():
@@ -2815,9 +2822,10 @@ class PluginPanel(PluginPanelExeLauncherMixin, PluginPanelLOOTMixin,
             if game_root is not None:
                 if _file_exists_ci(game_root, exe_path):
                     present = True
-            if not present and root_folder is not None:
-                if _file_exists_ci(root_folder, exe_path):
-                    present = True
+
+            in_root_staging = False
+            if not present and rf_allowed and root_folder is not None:
+                in_root_staging = _file_exists_ci(root_folder, exe_path)
 
             exe_basename = exe.replace("\\", "/").rsplit("/", 1)[-1].lower()
 
@@ -2827,7 +2835,13 @@ class PluginPanel(PluginPanelExeLauncherMixin, PluginPanelLOOTMixin,
                     self._FW_GREEN_BG,
                     self._FW_GREEN_TEXT,
                 ))
-            elif self._framework_exe_in_staged(exe, staged_keys):
+            elif in_root_staging and not rf_enabled:
+                banner_data.append((
+                    f"●  {label} present in modlist but not enabled",
+                    self._FW_BLUE_BG,
+                    self._FW_BLUE_TEXT,
+                ))
+            elif in_root_staging or self._framework_exe_in_staged(exe, staged_keys):
                 banner_data.append((
                     f"●  {label} present in modlist but not deployed",
                     self._FW_ORANGE_BG,
