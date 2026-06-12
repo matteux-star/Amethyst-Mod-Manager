@@ -7,6 +7,9 @@
 - Added a quick update right click option that will quickly update a mod if it can be name matched
 - Fixed bundled mods during collection installs being duplicated
 - Disabled the bain installer for games that don't use it
+- Added a filter menu to the mod files tab
+- Selecting an image based file including dds textures in the mod files tab will open a preview of the image
+- Selecting a text based file in the mod files tab opens an editor like in the ini files tab
 
 - v1.3.8
 - Added support for Dragon Age: Origins
