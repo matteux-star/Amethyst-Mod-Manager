@@ -1148,6 +1148,12 @@ class Fallout_NV(Fallout_3):
                 },
             ),
             WizardTool(
+                id="fnv_4gb_patch",
+                label="Apply 4GB Patch",
+                description="Patch FalloutNV.exe to use 4 GB of memory (keeps a backup that can be restored).",
+                dialog_class_path="wizards.fnv_4gb_patch.Fnv4GbPatchWizard",
+            ),
+            WizardTool(
                 id="run_bethini_fonv",
                 label="Run BethINI Pie",
                 description="Install BethINI Pie and configure Fallout New Vegas INI settings.",
@@ -1193,6 +1199,7 @@ class Fallout_NV(Fallout_3):
             CustomRule(dest="", folders=["Data"], flatten=True, loose_only=True),
             CustomRule(dest="", filenames=["nvse_loader.exe"], flatten=True, loose_only=True),
             CustomRule(dest="", filenames=["nvse*.pdb"], flatten=True, loose_only=True),
+            CustomRule(dest="", filenames=["FNVpatch.exe"], flatten=True, loose_only=True),
             self._saves_routing_rule([".fos"]),
                 ]
 

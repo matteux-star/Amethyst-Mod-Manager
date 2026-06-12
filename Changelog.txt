@@ -10,6 +10,8 @@
 - Added a filter menu to the mod files tab
 - Selecting an image based file including dds textures in the mod files tab will open a preview of the image
 - Selecting a text based file in the mod files tab opens an editor like in the ini files tab
+- Fixed a bug where updating a mod while deployed could send the old versions files to overwrite
+- Added a 4gb patcher wizard for New Vegas
 
 - v1.3.8
 - Added support for Dragon Age: Origins
