@@ -70,6 +70,55 @@ _VERSION_PART_RE = re.compile(r"(\d+)|([a-z]+)", re.IGNORECASE)
 # Tokens that, when present anywhere in the version string, mark it as a
 # pre-release (so "1.2b" and "2.0-rc1" sort BEFORE "1.2" and "2.0").
 _PRERELEASE_TOKENS = ("alpha", "beta", "pre", "dev", "rc")
+# Splits a version at the first pre-release marker: a known token (optionally
+# preceded by a separator, e.g. "-rc"), or a single trailing letter glued
+# directly after a digit ("1.2b"). Everything from the marker onward is the
+# pre-release tail, excluded from the core version tuple.
+_PRERELEASE_SPLIT_RE = re.compile(
+    r"(?:[.\-_+]?(?:" + "|".join(_PRERELEASE_TOKENS) + r"))|(?<=\d)(?=[a-z]$)",
+    re.IGNORECASE,
+)
+
+
+def _alpha_key(segment: str) -> tuple[int, str]:
+    """
+    Odometer / base-26 sort key for a standalone revision letter run.
+
+    A longer run is always greater, so once an author wraps past ``z`` the
+    sequence keeps ascending: ``z < aa < ab < ba < zz < aaa``.  Equal-length
+    runs fall back to lexical order.  (Plain lexical order would be wrong here —
+    ``"aa" < "z"`` would make a wrap to ``.aa`` look like a downgrade.)
+    """
+    return (len(segment), segment)
+
+
+def _segment_parts(
+    text: str,
+) -> tuple[tuple[tuple[int, tuple[int, str]], ...], bool]:
+    """
+    Split *text* on version separators into comparable
+    ``(number, alpha_key)`` pairs, returning ``(parts, has_number)``.
+
+    A purely numeric segment becomes ``(n, (0, ""))``; a purely alphabetic
+    segment (a standalone revision letter, e.g. the ``x`` in ``10.0.x``)
+    becomes ``(0, _alpha_key(letter))`` so it sorts AFTER the same-numbered
+    bare release and follows odometer ordering past ``z``.  Keeping every
+    position the same ``(int, (int, str))`` shape makes the tuples
+    type-uniform and comparable.
+    """
+    parts: list[tuple[int, tuple[int, str]]] = []
+    has_number = False
+    for segment in re.split(r"[.\-_+]", text):
+        if not segment:
+            continue
+        if segment.isalpha():
+            parts.append((0, _alpha_key(segment)))
+            continue
+        for num, _alpha in _VERSION_PART_RE.findall(segment):
+            if num:
+                parts.append((int(num), (0, "")))
+                has_number = True
+    return tuple(parts), has_number
 
 
 def _parse_version(v: str) -> tuple | None:
@@ -77,10 +126,15 @@ def _parse_version(v: str) -> tuple | None:
     Parse a version string into a comparable tuple.
 
     Handles leading ``v``/``V``, mixed numeric/alpha segments, and common
-    separators (``.``, ``-``, ``_``).  Pre-release strings (``alpha``, ``beta``,
-    ``rc``, ``pre``, ``dev``, or a trailing single letter like ``1.2b``) are
-    ranked BELOW their release counterpart so ``1.2b < 1.2`` and
-    ``2.0-rc1 < 2.0``.
+    separators (``.``, ``-``, ``_``).  Two letter conventions are handled
+    distinctly:
+
+    * A letter glued directly after digits (``1.2b``) or a known token
+      (``2.0-rc1``) is a PRE-RELEASE, ranked BELOW the bare release so
+      ``1.2b < 1.2`` and ``2.0-rc1 < 2.0`` (and ``2.0-rc1 < 2.0-rc2``).
+    * A letter that is its OWN dotted segment (``10.0.x``) is a sequential
+      REVISION, ordered alphabetically ABOVE the bare number so
+      ``10.0 < 10.0.v < 10.0.w < 10.0.x``.
 
     Returns ``None`` if no numeric component is found (unparseable).
     """
@@ -92,28 +146,24 @@ def _parse_version(v: str) -> tuple | None:
     if not s:
         return None
 
-    # Detect pre-release: either a known token, or a trailing single letter
-    # directly after digits (e.g. "1.2b", "1.0a").
-    is_prerelease = any(tok in s for tok in _PRERELEASE_TOKENS)
-    if not is_prerelease and re.search(r"\d[a-z]$", s):
-        is_prerelease = True
+    # Split off any pre-release tail so its digits don't inflate the core
+    # version (e.g. the "1" in "rc1" must not make "2.0-rc1" outrank "2.0").
+    m = _PRERELEASE_SPLIT_RE.search(s)
+    if m:
+        core_text, pre_text, is_prerelease = s[: m.start()], s[m.start():], True
+    else:
+        core_text, pre_text, is_prerelease = s, "", False
 
-    num_parts: list[int] = []
-    has_number = False
-    for segment in re.split(r"[.\-_+]", s):
-        if not segment:
-            continue
-        for num, _alpha in _VERSION_PART_RE.findall(segment):
-            if num:
-                num_parts.append(int(num))
-                has_number = True
-
+    core, has_number = _segment_parts(core_text)
     if not has_number:
         return None
-    # Release-rank: 1 for a final release, 0 for a pre-release. Compared AFTER
-    # the numeric parts so "1.2" > "1.2b" but "1.3b" > "1.2".
+
+    # Tuple order: core version, then release_rank (1 release > 0 pre-release,
+    # so "1.2" > "1.2b" but "1.3b" > "1.2"), then the pre-release ordinal as a
+    # final tie-breaker so "2.0-rc2" > "2.0-rc1".
+    pre_parts, _ = _segment_parts(pre_text)
     release_rank = 0 if is_prerelease else 1
-    return (tuple(num_parts), release_rank)
+    return (core, release_rank, pre_parts)
 
 
 def _version_is_newer(latest: str, installed: str) -> bool:
