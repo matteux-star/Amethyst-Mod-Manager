@@ -8,17 +8,21 @@ Workflow:
   3. Topologically sort mods so dependencies always appear before dependents.
   4. Write the Patch 7+ modsettings.lsx (Mods node only, no ModOrder).
 
-The GustavX base-game entry is always written first and never removed.
+The campaign entry is always written first: GustavX by default, or an
+installed Adventure (custom campaign) mod in its place.  Pure override paks
+(only touching base-game module folders) are left out of the load order.
 """
 
 from __future__ import annotations
 
+import json
+import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from Utils.modlist import ModEntry, read_modlist
-from Utils.pak_reader import extract_meta_lsx
+from Utils.pak_reader import extract_meta_lsx, read_pak_info
 from Utils.app_log import app_log, safe_log as _safe_log
 
 # ---------------------------------------------------------------------------
@@ -53,6 +57,23 @@ _SYSTEM_UUIDS: frozenset[str] = frozenset({
     # Engine / patch 6 builtin
     "9dff4c3b-fda7-43de-a763-ce1383039999",   # Engine
 })
+
+# Folder names of base-game modules inside paks (Mods/<Folder>/ or
+# Public/<Folder>/).  A pak that only writes into these folders is a pure
+# override — the game loads it automatically, it needs no load-order entry.
+# Mirrors BG3 Mod Manager's IgnoredMods.json.
+_BUILTIN_FOLDERS: frozenset[str] = frozenset({
+    "gustav", "gustavdev", "gustavx", "shared", "shareddev", "engine", "game",
+    "diceset_01", "diceset_02", "diceset_03", "diceset_04", "diceset_05",
+    "diceset_06", "diceset_07", "honour", "honourx",
+    "modbrowser", "mainui", "crossplayui", "photomode",
+})
+
+# Builtin paths that don't count as "overriding base-game data" (BG3MM's
+# IgnoreBuiltinPath) — custom UI mods legitimately add new files here.
+_BUILTIN_IGNORE_PATH = "game/gui/assets"
+
+_MOD_FOLDER_PATH_RE = re.compile(r"^(mods|public)/([^/]+)/(.+)$")
 
 # Campaign / adventure base-game entry — varies by patch.  Values taken from
 # the BG3MM tag that shipped for each patch:
@@ -198,13 +219,21 @@ class BG3ModInfo:
     version64: str
     md5: str = ""
     publish_handle: str = "0"
-    # Legacy 32-bit Version attribute used by patch 6 and earlier.
-    # Populated when meta.lsx has a "Version" attribute instead of "Version64".
+    # Legacy "Version" attribute — same 64-bit packed layout as Version64,
+    # apart from two historic 1.0.0.0 encodings (see _version64_or_default).
     version: str = ""
+    # ModuleInfo "Type" attribute — "Adventure" marks a custom campaign that
+    # should replace GustavX as the top modsettings entry.
+    mod_type: str = ""
     # UUIDs of mods this mod depends on
     dependencies: list[str] = field(default_factory=list)
     # The mod-list name (staging folder name) this came from
     source_mod: str = ""
+    # True when the pak only overrides base-game module folders — the game
+    # loads it automatically; it must not get a load-order entry.
+    is_override_only: bool = False
+    # True when the pak ships a ScriptExtender/Config.json with RequiredVersion.
+    requires_script_extender: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -219,12 +248,34 @@ def _attr_value(node: ET.Element, attr_id: str) -> str:
     return ""
 
 
+# Bare ampersand: "&" not already starting a character/entity reference.
+_BARE_AMP_RE = re.compile(r"&(?!amp;|apos;|quot;|gt;|lt;|#\d+;|#x[0-9A-Fa-f]+;)")
+_ATTR_VALUE_RE = re.compile(r'value="([^"]*)"')
+
+
+def _repair_meta_xml(xml_text: str) -> str:
+    """Escape raw &/</> in attribute values so malformed meta.lsx still parses.
+
+    Mod authors routinely ship meta.lsx with unescaped characters in Name or
+    Description.  BG3 Mod Manager pre-escapes attribute values before parsing;
+    we do the equivalent as a retry path.
+    """
+    xml_text = _BARE_AMP_RE.sub("&amp;", xml_text)
+    return _ATTR_VALUE_RE.sub(
+        lambda m: 'value="' + m.group(1).replace("<", "&lt;").replace(">", "&gt;") + '"',
+        xml_text,
+    )
+
+
 def parse_meta_lsx(xml_text: str) -> BG3ModInfo | None:
     """Parse a meta.lsx XML string and return a BG3ModInfo, or None on failure."""
     try:
         root = ET.fromstring(xml_text)
     except ET.ParseError:
-        return None
+        try:
+            root = ET.fromstring(_repair_meta_xml(xml_text))
+        except ET.ParseError:
+            return None
 
     # Find the ModuleInfo node
     module_info = None
@@ -242,6 +293,7 @@ def parse_meta_lsx(xml_text: str) -> BG3ModInfo | None:
     version32 = _attr_value(module_info, "Version")
     md5 = _attr_value(module_info, "MD5")
     publish_handle = _attr_value(module_info, "PublishHandle") or "0"
+    mod_type = _attr_value(module_info, "Type")
 
     if not uuid:
         return None
@@ -265,8 +317,40 @@ def parse_meta_lsx(xml_text: str) -> BG3ModInfo | None:
         md5=md5,
         publish_handle=publish_handle,
         version=version32,
+        mod_type=mod_type,
         dependencies=deps,
     )
+
+
+def _classify_pak_files(file_names: list[str]) -> tuple[bool, bool]:
+    """Return (overrides_builtin, has_own_data) for a pak's file list."""
+    overrides_builtin = False
+    has_own_data = False
+    for name in file_names:
+        nl = name.replace("\\", "/").lower()
+        m = _MOD_FOLDER_PATH_RE.match(nl)
+        if m is None:
+            continue
+        if nl.endswith("/meta.lsx"):
+            continue
+        if m.group(2) in _BUILTIN_FOLDERS:
+            if _BUILTIN_IGNORE_PATH not in nl:
+                overrides_builtin = True
+        else:
+            has_own_data = True
+    return overrides_builtin, has_own_data
+
+
+def _se_config_requires_extender(se_config: str | None) -> bool:
+    """True when a pak's ScriptExtender/Config.json declares RequiredVersion."""
+    if not se_config:
+        return False
+    try:
+        cfg = json.loads(se_config.lstrip("\ufeff"))
+    except (ValueError, TypeError):
+        return False
+    rv = cfg.get("RequiredVersion", -1) if isinstance(cfg, dict) else -1
+    return isinstance(rv, (int, float)) and rv > -1
 
 
 # ---------------------------------------------------------------------------
@@ -277,6 +361,7 @@ def scan_mod_paks(
     staging_root: Path,
     enabled_mods: list[ModEntry],
     no_metadata: list[str] | None = None,
+    excluded: dict[str, set[str]] | None = None,
 ) -> dict[str, BG3ModInfo]:
     """Scan .pak files for all enabled mods and return {uuid: BG3ModInfo}.
 
@@ -287,26 +372,44 @@ def scan_mod_paks(
     *no_metadata* — optional list; enabled mods that contain at least one .pak
     but yielded no usable meta.lsx are appended (with the reason) for the
     caller to surface as a diagnostic.
+
+    *excluded* — optional {mod_name: {rel_path_lower, ...}} of files the user
+    excluded in the Mod Files tab; those paks are not deployed, so they must
+    not get a modsettings entry either.
     """
     by_uuid: dict[str, BG3ModInfo] = {}
+    _excluded = excluded or {}
 
     for entry in enabled_mods:
         mod_dir = staging_root / entry.name
         if not mod_dir.is_dir():
             continue
         paks = list(mod_dir.rglob("*.pak"))
+        _mod_excl = _excluded.get(entry.name)
+        if _mod_excl:
+            paks = [p for p in paks
+                    if p.relative_to(mod_dir).as_posix().lower() not in _mod_excl]
         got_meta = False
         for pak in paks:
             try:
-                xml_text = extract_meta_lsx(pak)
+                pak_info = read_pak_info(pak)
             except Exception as exc:
                 app_log(f"Failed to read {pak}: {exc}")
                 continue
-            if xml_text is None:
+            if pak_info.meta_xml is None:
                 continue
-            info = parse_meta_lsx(xml_text)
+            info = parse_meta_lsx(pak_info.meta_xml)
             if info is None:
                 continue
+            if info.uuid in _SYSTEM_UUIDS:
+                # Override of a base-game module (e.g. a party-size mod's
+                # Mods/GustavX/meta.lsx copy, or a vanilla pak replacement) —
+                # never emit a base module as a user mod entry.
+                got_meta = True
+                continue
+            overrides_builtin, has_own_data = _classify_pak_files(pak_info.file_names)
+            info.is_override_only = overrides_builtin and not has_own_data
+            info.requires_script_extender = _se_config_requires_extender(pak_info.se_config)
             info.source_mod = entry.name
             by_uuid[info.uuid] = info
             got_meta = True
@@ -433,40 +536,57 @@ def _campaign_entry(patch_version: int) -> dict[str, str]:
 def _version64_or_default(info: BG3ModInfo) -> str:
     """Return a Version64 string, falling back to a 1.0.0.0 placeholder.
 
-    Some older mods only expose the 32-bit ``Version`` attribute; we
-    up-convert by left-shifting into the Version64 layout.  Default is
-    36028797018963968 (== 1<<55, which DivinityModVersion2 treats as 1.0.0.0).
+    Mirrors BG3 Mod Manager: the legacy ``Version`` attribute holds the same
+    64-bit packed value as ``Version64`` and is used verbatim, except the two
+    historic 1.0.0.0 encodings (1 and 268435456) which map to 1<<55.
     """
-    if info.version64:
-        return info.version64
-    if info.version:
-        try:
-            v32 = int(info.version)
-            # Version64 is 16 bits per part; Version32 packs 4 parts in 32 bits.
-            # Up-shift preserves the semantic version without loss.
-            return str(v32 << 32) if v32 else "36028797018963968"
-        except ValueError:
-            pass
-    return "36028797018963968"
+    raw = info.version64 or info.version
+    try:
+        v = int(raw)
+    except (TypeError, ValueError):
+        v = 0
+    if v in (0, 1, 268435456):
+        return "36028797018963968"
+    return str(v)
+
+
+def _campaign_dict(patch_version: int, campaign: BG3ModInfo | None) -> dict[str, str]:
+    """Return the campaign entry dict — an Adventure mod or the stock one."""
+    if campaign is None:
+        return _campaign_entry(patch_version)
+    return {
+        "Folder":        campaign.folder,
+        "MD5":           campaign.md5,
+        "Name":          campaign.name,
+        "PublishHandle": campaign.publish_handle or "0",
+        "UUID":          campaign.uuid,
+        "Version64":     _version64_or_default(campaign),
+    }
 
 
 def build_modsettings_xml(
     ordered_mods: list[BG3ModInfo],
     patch_version: int = 8,
+    campaign: BG3ModInfo | None = None,
 ) -> str:
-    """Build the full modsettings.lsx XML string for the given patch."""
+    """Build the full modsettings.lsx XML string for the given patch.
+
+    *campaign* — optional Adventure mod that replaces the stock campaign
+    entry at the top (custom campaigns).  None keeps GustavX/GustavDev/Gustav.
+    """
     if patch_version <= 6:
-        return _build_modsettings_xml_p6(ordered_mods)
-    return _build_modsettings_xml_p7(ordered_mods, patch_version)
+        return _build_modsettings_xml_p6(ordered_mods, campaign)
+    return _build_modsettings_xml_p7(ordered_mods, patch_version, campaign)
 
 
 def _build_modsettings_xml_p7(
     ordered_mods: list[BG3ModInfo],
     patch_version: int,
+    campaign: BG3ModInfo | None = None,
 ) -> str:
     header = _MODSETTINGS_HEADER_P8 if patch_version >= 8 else _MODSETTINGS_HEADER_P7
     parts = [header]
-    parts.append(_format_entry_p7(_campaign_entry(patch_version)))
+    parts.append(_format_entry_p7(_campaign_dict(patch_version, campaign)))
 
     for mod in ordered_mods:
         parts.append(_format_entry_p7({
@@ -475,15 +595,18 @@ def _build_modsettings_xml_p7(
             "Name":          mod.name,
             "PublishHandle": mod.publish_handle or "0",
             "UUID":          mod.uuid,
-            "Version64":     mod.version64 or "36028797018963968",
+            "Version64":     _version64_or_default(mod),
         }))
 
     parts.append(_MODSETTINGS_FOOTER_P7)
     return "".join(parts)
 
 
-def _build_modsettings_xml_p6(ordered_mods: list[BG3ModInfo]) -> str:
-    campaign = _GUSTAV_CLASSIC
+def _build_modsettings_xml_p6(
+    ordered_mods: list[BG3ModInfo],
+    campaign_mod: BG3ModInfo | None = None,
+) -> str:
+    campaign = _campaign_dict(6, campaign_mod)
 
     # ModOrder block: campaign first, then each mod in load order.
     mod_order_parts: list[str] = []
@@ -611,8 +734,13 @@ def write_modsettings(
     game_data_path: Path | None = None,
     patch_version: int = 8,
     manifest_load_order: list[dict] | None = None,
+    script_extender_dll: Path | None = None,
 ) -> int:
     """End-to-end: scan paks, resolve order, write modsettings.lsx.
+
+    *script_extender_dll* — optional path to the game's ``bin/DWrite.dll``.
+    When given and missing on disk, a warning is logged for every mod whose
+    pak declares a Script Extender requirement.
 
     *game_data_path* — optional path to the game's ``Data/`` directory.
     When provided, .pak files there are scanned so that base-game / DLC /
@@ -642,7 +770,14 @@ def write_modsettings(
 
     _log(f"Scanning .pak files for mod metadata (patch {patch_version}) ...")
     no_metadata: list[str] = []
-    mod_infos = scan_mod_paks(staging_root, enabled, no_metadata=no_metadata)
+    try:
+        from Utils.profile_state import read_excluded_mod_files
+        excluded = {m: set(v) for m, v in
+                    read_excluded_mod_files(modlist_path.parent, None).items()}
+    except Exception:
+        excluded = {}
+    mod_infos = scan_mod_paks(staging_root, enabled, no_metadata=no_metadata,
+                              excluded=excluded)
     _log(f"  Found metadata for {len(mod_infos)} mod(s).")
     if no_metadata:
         _log(f"  {len(no_metadata)} enabled mod(s) had .pak files but no "
@@ -657,12 +792,48 @@ def write_modsettings(
         modsettings_path.write_text(xml, encoding="utf-8")
         return 0
 
+    # Script Extender requirement check: warn when mods declare a required
+    # SE version but the loader DLL isn't installed in the game's bin/.
+    se_mods = sorted(i.name for i in mod_infos.values()
+                     if i.requires_script_extender)
+    if se_mods and script_extender_dll is not None \
+            and not script_extender_dll.is_file():
+        _log(f"  WARNING: {len(se_mods)} mod(s) require the BG3 Script "
+             f"Extender, but it is not installed ({script_extender_dll} "
+             f"missing): {', '.join(se_mods)}")
+
+    # Pure override paks (only touch base-game module folders) are loaded by
+    # the game automatically and must stay out of the load order — same as
+    # BG3 Mod Manager's "Overrides" section.
+    override_only = sorted((i for i in mod_infos.values() if i.is_override_only),
+                           key=lambda i: i.name)
+    eligible = {u: i for u, i in mod_infos.items() if not i.is_override_only}
+    if override_only:
+        _log(f"  {len(override_only)} pak(s) only override base-game files — "
+             "loaded automatically, left out of the load order:")
+        for i in override_only:
+            _log(f"    - {i.name} ({i.source_mod})")
+
     if manifest_load_order:
         _log(f"Resolving load order from collection manifest ({len(manifest_load_order)} entries) ...")
-        ordered = _apply_manifest_pak_order(enabled, mod_infos, manifest_load_order, _log)
+        ordered = _apply_manifest_pak_order(enabled, eligible, manifest_load_order, _log)
     else:
         _log("Resolving load order with dependency sorting ...")
-        ordered = resolve_load_order(enabled, mod_infos)
+        ordered = resolve_load_order(enabled, eligible)
+
+    # Adventure (custom campaign) mods replace the stock campaign entry at
+    # the top of modsettings rather than appearing as regular mod entries.
+    campaign_mod: BG3ModInfo | None = None
+    adventures = [m for m in ordered if m.mod_type == "Adventure"]
+    if adventures:
+        campaign_mod = adventures[-1]  # highest priority wins
+        if len(adventures) > 1:
+            _log("  WARNING: multiple Adventure (custom campaign) mods "
+                 f"installed: {', '.join(m.name for m in adventures)} — "
+                 f"using '{campaign_mod.name}'.")
+        ordered = [m for m in ordered if m.uuid != campaign_mod.uuid]
+        _log(f"  Adventure mod '{campaign_mod.name}' set as the campaign "
+             f"(replaces {_campaign_entry(patch_version)['Name']}).")
     _log(f"  Load order: {', '.join(m.name for m in ordered)}")
 
     # Build the set of UUIDs that are known to exist (installed mods +
@@ -681,7 +852,8 @@ def write_modsettings(
                 _log(f"  WARNING: {mod.name} requires a mod (UUID {dep_uuid}) "
                      f"that is not installed.")
 
-    xml = build_modsettings_xml(ordered, patch_version=patch_version)
+    xml = build_modsettings_xml(ordered, patch_version=patch_version,
+                                campaign=campaign_mod)
     modsettings_path.parent.mkdir(parents=True, exist_ok=True)
     modsettings_path.write_text(xml, encoding="utf-8")
 

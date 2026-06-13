@@ -600,6 +600,10 @@ class PluginPanelDataMixin:
             """
             parts = rel_lower.split("/")
             filename = parts[-1]
+            if rule.exclude_extensions:
+                for e in rule.exclude_extensions:
+                    if filename.endswith(e.lower()):
+                        return None
             is_loose = len(parts) == 1
             strip_len = -1
             folder_hit = False

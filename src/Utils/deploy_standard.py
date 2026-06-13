@@ -275,6 +275,7 @@ def deploy_filemap(
     symlink_exts: set[str] | None = None,
     exclude: set[str] | None = None,
     core_dir: "Path | None" = None,
+    flatten_extensions: set[str] | None = None,
 ) -> tuple[int, set[str]]:
     """Read filemap.txt and transfer every listed file into deploy_dir.
 
@@ -291,6 +292,10 @@ def deploy_filemap(
                      configured "ignore" folders for that mod).
     progress_fn    — optional callable(done: int, total: int) called after
                      each file is transferred.
+    flatten_extensions — lowercase extensions whose files are placed flat at
+                     the top of the deploy dir (basename only), regardless of
+                     their staging subfolder.  BG3 passes {".pak"} because the
+                     game only loads paks at the top level of the Mods folder.
 
     Returns:
         (count, placed_lower)
@@ -300,6 +305,7 @@ def deploy_filemap(
     _log = _safe_log(log_fn)
     _strip = {p.lower() for p in strip_prefixes} if strip_prefixes else set()
     _per_mod = per_mod_strip_prefixes or {}
+    _flatten_exts = {e.lower() for e in flatten_extensions} if flatten_extensions else None
     _per_deploy = per_mod_deploy_dirs or {}
     _per_mode = per_mod_link_modes
     _per_merge: set[str] = set()
@@ -410,16 +416,31 @@ def deploy_filemap(
             _log(f"  WARN: source not found — {rel_str} ({mod_name})")
             continue
 
+        # Flatten matching files to the top of the deploy dir. Source
+        # resolution above used the original rel path; only the destination
+        # changes. Collisions on the flattened name keep the first entry.
+        dst_rel = rel_str
+        dst_rel_lower = rel_lower
+        if _flatten_exts is not None and "/" in rel_str \
+                and os.path.splitext(rel_str)[1].lower() in _flatten_exts:
+            dst_rel = rel_str.rsplit("/", 1)[1]
+            dst_rel_lower = dst_rel.lower()
+            if dst_rel_lower in already_seen:
+                _log(f"  WARN: flattened name collision — skipping "
+                     f"{rel_str} ({mod_name})")
+                continue
+            already_seen.add(dst_rel_lower)
+
         effective_dir = _per_deploy.get(mod_name, deploy_dir)
         _core_s = _core_base_str if effective_dir is deploy_dir else None
         _eff_s = _deploy_dir_str if effective_dir is deploy_dir else str(effective_dir)
-        dst_str = _resolve_root_path_str(_eff_s, rel_str, _dir_listing_cache,
+        dst_str = _resolve_root_path_str(_eff_s, dst_rel, _dir_listing_cache,
                                          core_base_str=_core_s,
                                          resolved_dir_cache=_resolved_dir_cache)
         use_symlink = symlink_exts is not None and os.path.splitext(src_str)[1].lower() in symlink_exts
         override_mode = _per_mode.get(mod_name)
         is_custom_task = effective_dir is not deploy_dir
-        tasks.append((src_str, dst_str, rel_lower, is_custom_task, use_symlink, override_mode))
+        tasks.append((src_str, dst_str, dst_rel_lower, is_custom_task, use_symlink, override_mode))
         # Track top-level folder roots that custom-deploy mods are writing into,
         # so we can wholesale-replace any same-named folder at the destination
         # (with backup) before the per-file deploy runs. Files that the mod
@@ -428,14 +449,14 @@ def deploy_filemap(
         # Mods whose separator opted into "merge folders" are skipped here so
         # their top-level folders are merged with the target instead of
         # wholesale-replaced; per-file backup-and-replace still applies.
-        if is_custom_task and "/" in rel_str and mod_name not in _per_merge:
-            _top = rel_str.split("/", 1)[0]
+        if is_custom_task and "/" in dst_rel and mod_name not in _per_merge:
+            _top = dst_rel.split("/", 1)[0]
             _custom_top_roots.setdefault(_eff_s, set()).add(_top)
             _key = (_eff_s, _top.lower())
             _existing_owner = _top_folder_owner.get(_key, "__unset__")
             if _existing_owner == "__unset__":
                 _top_folder_owner[_key] = mod_name
-                _top_folder_sample[_key] = (src_str, rel_str, dst_str)
+                _top_folder_sample[_key] = (src_str, dst_rel, dst_str)
             elif _existing_owner != mod_name:
                 _top_folder_owner[_key] = None  # multi-owner → no dir-symlink
 

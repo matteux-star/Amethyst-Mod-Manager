@@ -617,6 +617,11 @@ class CustomRule:
                  base as ``dest``) that every matched file is also placed
                  into.  Used for Steam/GOG dual My Games folders where the
                  same save must land in both variants.
+    exclude_extensions — lowercase file extensions this rule must NOT claim,
+                 even when the folder/filename criteria match.  Used by BG3's
+                 ``mods`` folder rule so loose files under Mods/ route to the
+                 game Data dir while ``Mods/Foo.pak`` stays with the normal
+                 deploy into the Larian AppData Mods folder.
 
     Placement behaviour:
     - extension-only match: file placed as game_root/dest/<filename> (flat)
@@ -635,6 +640,7 @@ class CustomRule:
     include_siblings: bool = False
     to_prefix: bool = False
     mirror_dests: list[str] = field(default_factory=list)
+    exclude_extensions: list[str] = field(default_factory=list)
 
 
 def _default_core(deploy_dir: Path) -> Path:

@@ -32,8 +32,10 @@ v15/v16 entry (296 bytes):
 
 from __future__ import annotations
 
+import re
 import struct
 import zlib
+from dataclasses import dataclass, field
 from pathlib import Path
 
 try:
@@ -126,6 +128,35 @@ def _decompress(data: bytes, flags: int, uncompressed_size: int) -> bytes:
     raise ValueError(f"Unknown LSPK compression method: {method}")
 
 
+# Proper mod metas live at Mods/<Folder>/meta.lsx inside the archive.
+_MODS_META_RE = re.compile(r"^mods/([^/]+)/meta\.lsx$")
+
+
+def _choose_meta(candidates: list[tuple[str, tuple]], pak_path: Path) -> tuple | None:
+    """Pick which meta.lsx entry to use when a pak contains several.
+
+    Some paks ship extra meta.lsx files that override base-game modules
+    (e.g. party-size mods carrying a Mods/GustavX/meta.lsx copy).  Mirrors
+    BG3 Mod Manager: prefer entries anchored at Mods/<Folder>/meta.lsx, and
+    among those prefer the one whose <Folder> appears in the pak filename.
+    """
+    if not candidates:
+        return None
+    anchored: list[tuple[str, tuple]] = []
+    for name, entry in candidates:
+        m = _MODS_META_RE.match(name.replace("\\", "/").lower())
+        if m:
+            anchored.append((m.group(1), entry))
+    if not anchored:
+        return candidates[0][1]
+    if len(anchored) > 1:
+        pak_lower = pak_path.stem.lower()
+        for folder, entry in anchored:
+            if folder in pak_lower:
+                return entry
+    return anchored[0][1]
+
+
 def _decode_meta_content(content: bytes) -> str:
     # Some PAKs wrap meta.lsx in an extra zlib layer (zlib magic 0x78 ??).
     if len(content) >= 2 and content[0] == 0x78 and content[1] in (
@@ -141,12 +172,19 @@ def _decode_meta_content(content: bytes) -> str:
         return content.decode("latin-1")
 
 
-def _extract_meta_v18(f, pak_path: Path) -> str | None:
-    f.seek(0)
-    header = f.read(_HEADER_SIZE)
-    sig, version, file_list_offset, file_list_size, flags, priority = (
-        struct.unpack_from("<IIQIBB", header, 0)
-    )
+# A file-list entry: (name, offset, size_on_disk, flags, uncompressed_size, part)
+_PakEntry = tuple[str, int, int, int, int, int]
+
+
+def _entry_name(file_list: bytes, base: int) -> str:
+    name_bytes = file_list[base : base + 256]
+    nul = name_bytes.find(b"\x00")
+    return (name_bytes[:nul] if nul >= 0 else name_bytes).decode("utf-8")
+
+
+def _read_entries_v18(f) -> list[_PakEntry]:
+    f.seek(8)
+    file_list_offset = struct.unpack("<Q", f.read(8))[0]
 
     f.seek(file_list_offset)
     num_files = struct.unpack("<I", f.read(4))[0]
@@ -157,30 +195,22 @@ def _extract_meta_v18(f, pak_path: Path) -> str | None:
         compressed_data, num_files * _ENTRY_SIZE
     )
 
+    entries: list[_PakEntry] = []
     for i in range(num_files):
         base = i * _ENTRY_SIZE
-        name_bytes = file_list[base : base + 256]
-        nul = name_bytes.find(b"\x00")
-        name = name_bytes[:nul].decode("utf-8") if nul >= 0 else name_bytes.decode("utf-8")
-        if not name.endswith("meta.lsx"):
-            continue
-
+        name = _entry_name(file_list, base)
         offset_low = struct.unpack_from("<I", file_list, base + 256)[0]
         offset_high = struct.unpack_from("<H", file_list, base + 260)[0]
         file_offset = offset_low | (offset_high << 32)
+        part = file_list[base + 262]
         entry_flags = file_list[base + 263]
         size_on_disk = struct.unpack_from("<I", file_list, base + 264)[0]
         unc_size = struct.unpack_from("<I", file_list, base + 268)[0]
-
-        f.seek(file_offset)
-        raw = f.read(size_on_disk)
-        content = _decompress(raw, entry_flags, unc_size)
-        return _decode_meta_content(content)
-
-    return None
+        entries.append((name, file_offset, size_on_disk, entry_flags, unc_size, part))
+    return entries
 
 
-def _extract_meta_v15(f, pak_path: Path) -> str | None:
+def _read_entries_v15(f) -> list[_PakEntry]:
     # v15/v16 share the same entry layout (296 B); the file-list lives at
     # the offset given in the header at bytes 8..15.
     f.seek(8)
@@ -195,26 +225,89 @@ def _extract_meta_v15(f, pak_path: Path) -> str | None:
         compressed_data, num_files * _ENTRY_SIZE_V15
     )
 
+    entries: list[_PakEntry] = []
     for i in range(num_files):
         base = i * _ENTRY_SIZE_V15
-        name_bytes = file_list[base : base + 256]
-        nul = name_bytes.find(b"\x00")
-        name = name_bytes[:nul].decode("utf-8") if nul >= 0 else name_bytes.decode("utf-8")
-        if not name.endswith("meta.lsx"):
-            continue
-
+        name = _entry_name(file_list, base)
         file_offset  = struct.unpack_from("<Q", file_list, base + 256)[0]
         size_on_disk = struct.unpack_from("<Q", file_list, base + 264)[0]
         unc_size     = struct.unpack_from("<Q", file_list, base + 272)[0]
-        # archive_part = struct.unpack_from("<I", file_list, base + 280)[0]
+        part         = struct.unpack_from("<I", file_list, base + 280)[0]
         entry_flags  = struct.unpack_from("<I", file_list, base + 284)[0] & 0xFF
+        entries.append((name, file_offset, size_on_disk, entry_flags, unc_size, part))
+    return entries
 
-        f.seek(file_offset)
-        raw = f.read(size_on_disk)
-        content = _decompress(raw, entry_flags, unc_size)
-        return _decode_meta_content(content)
 
-    return None
+def _read_entries(f, pak_path: Path) -> list[_PakEntry]:
+    f.seek(0)
+    sig_bytes = f.read(8)
+    if len(sig_bytes) < 8:
+        raise ValueError(f"File too small to be an LSPK archive: {pak_path}")
+    sig, version = struct.unpack("<II", sig_bytes)
+    if sig != _LSPK_SIGNATURE:
+        raise ValueError(
+            f"Not an LSPK file (bad signature 0x{sig:08X}): {pak_path}"
+        )
+    if version >= 18:
+        return _read_entries_v18(f)
+    if version in (15, 16):
+        return _read_entries_v15(f)
+    raise ValueError(f"Unsupported LSPK version {version}: {pak_path}")
+
+
+def _read_entry_content(f, entry: _PakEntry) -> bytes:
+    _name, offset, size_on_disk, entry_flags, unc_size, _part = entry
+    f.seek(offset)
+    raw = f.read(size_on_disk)
+    return _decompress(raw, entry_flags, unc_size)
+
+
+@dataclass
+class PakInfo:
+    """Everything modsettings needs from one .pak, read in a single pass."""
+    meta_xml: str | None = None
+    file_names: list[str] = field(default_factory=list)
+    # Decoded ScriptExtender/Config.json text, if the pak ships one.
+    se_config: str | None = None
+
+
+def read_pak_info(pak_path: Path | str) -> PakInfo:
+    """Read the file list, the chosen meta.lsx, and any SE config from a .pak.
+
+    Supports LSPK v15, v16, and v18.  Raises on format errors or missing
+    dependencies.  Entries stored in secondary archive parts (multi-part
+    paks) are listed in ``file_names`` but never extracted.
+    """
+    _require_lz4()
+    pak_path = Path(pak_path)
+    info = PakInfo()
+
+    with pak_path.open("rb") as f:
+        entries = _read_entries(f, pak_path)
+
+        meta_candidates: list[tuple[str, _PakEntry]] = []
+        se_entry: _PakEntry | None = None
+        for entry in entries:
+            name = entry[0]
+            info.file_names.append(name)
+            if entry[5] != 0:
+                continue  # content lives in another archive part — can't read
+            name_lower = name.lower()
+            if name_lower.endswith("meta.lsx"):
+                meta_candidates.append((name, entry))
+            elif se_entry is None and "scriptextender/config.json" in name_lower:
+                se_entry = entry
+
+        chosen = _choose_meta(meta_candidates, pak_path)
+        if chosen is not None:
+            info.meta_xml = _decode_meta_content(_read_entry_content(f, chosen))
+        if se_entry is not None:
+            try:
+                info.se_config = _decode_meta_content(_read_entry_content(f, se_entry))
+            except Exception:
+                info.se_config = None
+
+    return info
 
 
 def extract_meta_lsx(pak_path: Path | str) -> str | None:
@@ -223,21 +316,4 @@ def extract_meta_lsx(pak_path: Path | str) -> str | None:
     Supports LSPK v15, v16, and v18.  Returns None if the archive does not
     contain a meta.lsx file.  Raises on format errors or missing dependencies.
     """
-    _require_lz4()
-    pak_path = Path(pak_path)
-
-    with pak_path.open("rb") as f:
-        sig_bytes = f.read(8)
-        if len(sig_bytes) < 8:
-            raise ValueError(f"File too small to be an LSPK archive: {pak_path}")
-        sig, version = struct.unpack("<II", sig_bytes)
-        if sig != _LSPK_SIGNATURE:
-            raise ValueError(
-                f"Not an LSPK file (bad signature 0x{sig:08X}): {pak_path}"
-            )
-
-        if version >= 18:
-            return _extract_meta_v18(f, pak_path)
-        if version in (15, 16):
-            return _extract_meta_v15(f, pak_path)
-        raise ValueError(f"Unsupported LSPK version {version}: {pak_path}")
+    return read_pak_info(pak_path).meta_xml

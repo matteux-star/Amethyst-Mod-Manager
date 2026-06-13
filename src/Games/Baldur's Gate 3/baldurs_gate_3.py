@@ -12,17 +12,18 @@ Mod structure:
   root is used if it exists.
   Staged mods live in Profiles/Baldur's Gate 3/mods/
 
-  Only .pak files are deployed to the Mods folder — other files (readmes,
-  images, etc.) are excluded from the filemap via mod_install_extensions.
-
-  Mods that contain a bin/ folder have those files deployed to the game's
-  root install directory instead (via filemap_root.txt), since BG3 native
-  mods expect bin/ to sit alongside the game executable.
+  Custom routing rules send loose-mod folders (Generated/, Public/, Mods/,
+  etc.) to the game's Data directory and bin/ files to the install root;
+  .pak files are excluded from the Mods-folder routing rule and instead
+  deploy flat at the top of the Larian AppData Mods folder, the only place
+  the game loads them from.  Remaining files (readmes, images, ...) deploy
+  alongside them and are harmless.
 
   After deploying .pak files, modsettings.lsx is generated automatically so
   BG3 recognises the installed mods.  Mod load order follows the modlist
   priority, with dependencies topologically sorted to appear before the
-  mods that require them.
+  mods that require them.  Adventure (custom campaign) mods replace the
+  GustavX campaign entry; pure override paks stay out of the load order.
 """
 
 import json
@@ -55,6 +56,36 @@ _NATIVE_LARIAN_ROOT = (
 # Subpaths within the Larian root
 _MODS_REL = Path("Mods")
 _MODSETTINGS_REL = Path("PlayerProfiles/Public/modsettings.lsx")
+
+
+def _suppress_launcher_mod_warnings(larian_root: Path, log_fn=None) -> None:
+    """Mark the Larian launcher's mod/data warnings as already shown.
+
+    The launcher otherwise prompts about third-party mods on every start and
+    can deactivate them.  Only the warning flags are touched (not telemetry),
+    and only if the launcher has run before (preferences.json exists).
+    """
+    _log = log_fn or (lambda _: None)
+    prefs = larian_root.parent / "Launcher" / "Settings" / "preferences.json"
+    if not prefs.is_file():
+        return
+    desired = {
+        "ModsWarningShown": True,
+        "DataWarningShown": True,
+        "DisplayFilesValidationMsg": False,
+        "DisplayModsDetectedMsg": False,
+    }
+    try:
+        data = json.loads(prefs.read_text(encoding="utf-8-sig"))
+        if not isinstance(data, dict):
+            return
+        if all(data.get(k) == v for k, v in desired.items()):
+            return
+        data.update(desired)
+        prefs.write_text(json.dumps(data, indent=4), encoding="utf-8")
+        _log(f"  Suppressed Larian launcher mod warnings ({prefs}).")
+    except (OSError, ValueError) as exc:
+        _log(f"  Note: could not update launcher preferences: {exc}")
 
 
 class BaldursGate3(BaseGame):
@@ -118,7 +149,11 @@ class BaldursGate3(BaseGame):
             CustomRule(dest="Data", folders=["generated"], flatten=True),
             CustomRule(dest="Data", folders=["public"], flatten=True),
             CustomRule(dest="Data", folders=["video"], flatten=True),
-            CustomRule(dest="Data", folders=["mods"], flatten=True),
+            # Loose files under Mods/ (unpacked mods) go to game Data/Mods,
+            # but .pak files under Mods/ must reach the Larian AppData Mods
+            # folder via the normal deploy (a common Nexus packaging layout).
+            CustomRule(dest="Data", folders=["mods"], flatten=True,
+                       exclude_extensions=[".pak"]),
             CustomRule(dest="Data", folders=["Cursors"], flatten=True),
             CustomRule(dest="bin", filenames=["DWrite.dll"], flatten=True),
             CustomRule(dest="", folders=["bin"], flatten=True),
@@ -360,7 +395,10 @@ class BaldursGate3(BaseGame):
                                             log_fn=_log,
                                             progress_fn=progress_fn,
                                             exclude=custom_exclude or None,
-                                            core_dir=mods_dir.parent / (mods_dir.name + "_Core"))
+                                            core_dir=mods_dir.parent / (mods_dir.name + "_Core"),
+                                            # The game only loads .pak files at
+                                            # the top level of the Mods folder.
+                                            flatten_extensions={".pak"})
         _log(f"  Transferred {linked_mod} mod file(s).")
 
         _log("Step 3: Filling gaps with vanilla files from Mods_Core/ ...")
@@ -388,11 +426,20 @@ class BaldursGate3(BaseGame):
                     _log(f"  Using collection manifest load order ({len(lo)} entries).")
             except (OSError, json.JSONDecodeError) as exc:
                 _log(f"  Warning: could not read collection.json: {exc}")
+        se_dll = (self._game_path / "bin" / "DWrite.dll"
+                  if self._game_path else None)
+        if se_dll is not None and not se_dll.is_file():
+            alt = se_dll.with_name("dwrite.dll")
+            if alt.is_file():
+                se_dll = alt
         mod_count = write_modsettings(modsettings, modlist, staging,
                                       log_fn=_log,
                                       game_data_path=game_data,
                                       patch_version=self._patch_version,
-                                      manifest_load_order=manifest_lo)
+                                      manifest_load_order=manifest_lo,
+                                      script_extender_dll=se_dll)
+
+        _suppress_launcher_mod_warnings(larian_root, log_fn=_log)
 
         _log(
             f"Deploy complete. "
