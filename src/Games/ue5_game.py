@@ -1028,6 +1028,7 @@ class UE5Game(BaseGame):
                 strip_prefixes=self.mod_folder_strip_prefixes,
                 per_mod_strip_prefixes=per_mod_strip,
                 per_mod_link_modes=per_mod_modes,
+                raw_mods=per_mod_raw or None,
                 log_fn=_log,
                 prefix_root=self.get_prefix_path(),
             )

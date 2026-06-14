@@ -12,7 +12,7 @@ from pathlib import Path
 
 from Games.Bethesda.Bethesda import Fallout_3
 from Games.base_game import WizardTool
-from Utils.deploy import LinkMode, deploy_core, deploy_custom_rules, deploy_filemap, load_per_mod_strip_prefixes, load_separator_deploy_paths, expand_separator_deploy_paths, expand_separator_link_modes, cleanup_custom_deploy_dirs, restore_custom_rules, restore_data_core, move_to_core
+from Utils.deploy import LinkMode, deploy_core, deploy_custom_rules, deploy_filemap, load_per_mod_strip_prefixes, load_separator_deploy_paths, expand_separator_deploy_paths, expand_separator_link_modes, expand_separator_raw_deploy, cleanup_custom_deploy_dirs, restore_custom_rules, restore_data_core, move_to_core
 from Utils.modlist import read_modlist
 
 
@@ -408,6 +408,7 @@ class SkyrimSE(Fallout_3):
         _sep_entries = read_modlist(profile_dir / "modlist.txt") if _sep_deploy else []
         per_mod_deploy = expand_separator_deploy_paths(_sep_deploy, _sep_entries) or None
         per_mod_modes = expand_separator_link_modes(_sep_deploy, _sep_entries) or None
+        per_mod_raw = expand_separator_raw_deploy(_sep_deploy, _sep_entries) or None
 
         custom_rules = self.custom_routing_rules
         custom_exclude: set[str] = set()
@@ -423,6 +424,7 @@ class SkyrimSE(Fallout_3):
                 log_fn=_log,
                 progress_fn=progress_fn,
                 prefix_root=self.get_prefix_path(),
+                raw_mods=per_mod_raw,
             )
 
         _log(f"Step 2: Transferring mod files into Data/ ({mode.name}) ...")

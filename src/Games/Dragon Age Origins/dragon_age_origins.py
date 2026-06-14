@@ -36,7 +36,7 @@ from Utils.deploy import (
     CustomRule, LinkMode, deploy_filemap, deploy_core, move_to_core,
     restore_data_core, deploy_custom_rules, load_per_mod_strip_prefixes,
     load_separator_deploy_paths, expand_separator_deploy_paths,
-    expand_separator_link_modes,
+    expand_separator_link_modes, expand_separator_raw_deploy,
     cleanup_custom_deploy_dirs, restore_custom_rules,
 )
 from Utils.modlist import read_modlist
@@ -331,6 +331,7 @@ class DragonAgeOrigins(BaseGame):
         _sep_entries = read_modlist(profile_dir / "modlist.txt") if _sep_deploy else []
         per_mod_deploy = expand_separator_deploy_paths(_sep_deploy, _sep_entries) or None
         per_mod_modes = expand_separator_link_modes(_sep_deploy, _sep_entries) or None
+        per_mod_raw = expand_separator_raw_deploy(_sep_deploy, _sep_entries) or None
 
         custom_rules = self.custom_routing_rules
         custom_exclude: set[str] = set()
@@ -344,6 +345,7 @@ class DragonAgeOrigins(BaseGame):
                 per_mod_strip_prefixes=per_mod_strip,
                 per_mod_link_modes=per_mod_modes,
                 log_fn=_log,
+                raw_mods=per_mod_raw,
             )
             _log(f"  Routed {len(custom_exclude)} file(s) to game root.")
 

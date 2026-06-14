@@ -14,7 +14,7 @@ from pathlib import Path
 import stat
 
 from Games.base_game import BaseGame, WizardTool
-from Utils.deploy import LinkMode, deploy_core, deploy_custom_rules, deploy_filemap, load_per_mod_strip_prefixes, load_separator_deploy_paths, expand_separator_deploy_paths, expand_separator_link_modes, cleanup_custom_deploy_dirs, move_to_core, restore_custom_rules, restore_data_core
+from Utils.deploy import LinkMode, deploy_core, deploy_custom_rules, deploy_filemap, load_per_mod_strip_prefixes, load_separator_deploy_paths, expand_separator_deploy_paths, expand_separator_link_modes, expand_separator_raw_deploy, cleanup_custom_deploy_dirs, move_to_core, restore_custom_rules, restore_data_core
 from Utils.deploy_shared import _FILEMAP_SNAPSHOT_NAME, _write_deploy_snapshot, _move_runtime_files
 from Utils.modlist import read_modlist
 from Utils.config_paths import get_profiles_dir
@@ -214,6 +214,7 @@ class Subnautica(BaseGame):
         _sep_entries = read_modlist(profile_dir / "modlist.txt") if _sep_deploy else []
         per_mod_deploy = expand_separator_deploy_paths(_sep_deploy, _sep_entries) or None
         per_mod_modes = expand_separator_link_modes(_sep_deploy, _sep_entries) or None
+        per_mod_raw = expand_separator_raw_deploy(_sep_deploy, _sep_entries) or None
 
         custom_rules = self.custom_routing_rules
         custom_exclude: set[str] = set()
@@ -228,6 +229,7 @@ class Subnautica(BaseGame):
                 per_mod_link_modes=per_mod_modes,
                 log_fn=_log,
                 progress_fn=progress_fn,
+                raw_mods=per_mod_raw,
             )
 
         _log(f"Step 2: Transferring mod files into {plugins_dir} ({mode.name}) ...")

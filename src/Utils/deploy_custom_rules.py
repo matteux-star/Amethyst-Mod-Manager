@@ -215,6 +215,7 @@ def deploy_custom_rules(
     strip_prefixes: set[str] | None = None,
     per_mod_strip_prefixes: dict[str, list[str]] | None = None,
     per_mod_link_modes: dict[str, LinkMode] | None = None,
+    raw_mods: set[str] | None = None,
     log_fn=None,
     progress_fn=None,
     prefix_root: Path | None = None,
@@ -260,6 +261,24 @@ def deploy_custom_rules(
         except Exception:
             _per_mode = {}
     _per_mode = _per_mode or {}
+
+    # Mods sitting under a separator with "Ignore deployment rules" (raw deploy)
+    # on must bypass custom routing entirely — their files are placed as-is by
+    # the normal deploy step (deploy_standard) under the separator's custom dir.
+    # Self-load the set (mirroring _per_mode) when the caller didn't supply it.
+    _raw_mods = raw_mods
+    if _raw_mods is None:
+        try:
+            from Utils.deploy_shared import (
+                load_separator_deploy_paths as _lsdp_raw,
+                expand_separator_raw_deploy as _esrd,
+            )
+            from Utils.modlist import read_modlist as _rml_raw
+            _raw_mods = _esrd(_lsdp_raw(filemap_path.parent),
+                              _rml_raw(filemap_path.parent / "modlist.txt"))
+        except Exception:
+            _raw_mods = set()
+    _raw_mods = _raw_mods or set()
 
     def _rule_base(rule: CustomRule) -> Path | None:
         """Return the root directory this rule's ``dest`` is resolved under,
@@ -331,6 +350,10 @@ def deploy_custom_rules(
             if "\t" not in line:
                 continue
             rel_str, mod_name = line.split("\t", 1)
+            # Raw-deploy mods bypass routing rules entirely — leave their files
+            # for the normal deploy step (placed as-is under the custom dir).
+            if mod_name in _raw_mods:
+                continue
             rel_lower = rel_str.lower()
             if rel_lower in seen_lower:
                 continue
