@@ -3,6 +3,25 @@ Amethyst Mod Manager — main entry point.
 Builds the main window (App) from gui panels and runs the event loop.
 """
 
+import faulthandler
+import os as _os
+
+# Catch native crashes (Tcl/Tk, Pillow, cffi, ...). On SIGSEGV/SIGABRT/SIGFPE
+# faulthandler dumps every thread's C-level traceback, which a bare
+# "Segmentation fault" message does not give us. Mirror to a file so the
+# trace survives the terminal closing. Disable with MM_NO_FAULTHANDLER=1.
+if _os.environ.get("MM_NO_FAULTHANDLER") != "1":
+    try:
+        _fh_dir = _os.path.join(
+            _os.environ.get("XDG_CONFIG_HOME", _os.path.expanduser("~/.config")),
+            "AmethystModManager",
+        )
+        _os.makedirs(_fh_dir, exist_ok=True)
+        _fh_file = open(_os.path.join(_fh_dir, "faulthandler.log"), "a", buffering=1)
+        faulthandler.enable(file=_fh_file, all_threads=True)
+    except Exception:
+        faulthandler.enable(all_threads=True)  # stderr-only fallback
+
 import errno
 import os
 import subprocess

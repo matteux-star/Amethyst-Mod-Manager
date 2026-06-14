@@ -32,5 +32,9 @@ if [ -f requirements.txt ]; then
     .venv/bin/pip install -r requirements.txt -q --disable-pip-version-check
 fi
 
-.venv/bin/python3 gui.py "$@"
+# Tee stderr to a log so a native crash trace (faulthandler) and the bash
+# "Segmentation fault" line survive after the terminal closes. Still shown live.
+_errlog="${XDG_CONFIG_HOME:-$HOME/.config}/AmethystModManager/run-stderr.log"
+mkdir -p "$(dirname "$_errlog")"
+.venv/bin/python3 gui.py "$@" 2> >(tee -a "$_errlog" >&2)
 

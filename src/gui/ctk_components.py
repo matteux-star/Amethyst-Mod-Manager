@@ -391,9 +391,16 @@ class CTkNotification(ctk.CTkToplevel):
         return nh
 
     def _update_geometry(self, event=None):
+        # NB: do NOT call update_idletasks() here. This runs from the master's
+        # <Configure> binding (and from destroy()'s reposition loop). Pumping the
+        # event loop re-enters geometry processing and can run a pending
+        # destroy()/after() mid-flight, freeing a widget whose Tcl command is
+        # still on the outer C stack -> segfault. winfo_* already return the
+        # latest committed geometry; the nw<=1 / nh<=1 fallbacks cover the
+        # not-yet-mapped case. Callers that need a fresh pump do it before this.
+        if not self.winfo_exists():
+            return
         try:
-            self.root.update_idletasks()
-            self.update_idletasks()
             px, py = self.root.winfo_rootx(), self.root.winfo_rooty()
             pw, ph = self.root.winfo_width(), self.root.winfo_height()
             nw = self.winfo_width()
