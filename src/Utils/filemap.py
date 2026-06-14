@@ -60,6 +60,22 @@ ROOT_FOLDER_NAME = "[Root_Folder]"
 # MO2 metadata files present in every mod folder — not real game files
 _EXCLUDE_NAMES = frozenset({"meta.ini"})
 
+
+def _is_macos_junk(name: str) -> bool:
+    """True for macOS metadata that should never deploy into a game folder.
+
+    AppleDouble sidecars (``._<name>``) and ``.DS_Store`` ride along in mods
+    zipped on macOS. They are not mod content; deploying them bloats the game
+    folder and breaks tools that enumerate directories (e.g. Alternative
+    Textures' GetDirectories scan reads ``._Foo`` as a texture folder).
+    ``__MACOSX`` is the archive-level container for the same junk.
+    """
+    return (
+        name.startswith("._")
+        or name == ".DS_Store"
+        or name == "__MACOSX"
+    )
+
 # Reuse a modest thread pool across calls rather than creating one per call
 _POOL = ThreadPoolExecutor(max_workers=20)
 
@@ -160,6 +176,8 @@ def _scan_dir(
                     if entry.is_dir(follow_symlinks=False):
                         if exclude_dirs and entry.name.lower() in exclude_dirs:
                             continue
+                        if _is_macos_junk(entry.name):
+                            continue
                         # Isolated Proton prefixes created next to a mod's exe
                         # (see _get_tool_prefix_env in dialogs.py) are runtime
                         # state, not mod content — never include them in the
@@ -175,6 +193,8 @@ def _scan_dir(
                         ))
                     elif entry.is_file(follow_symlinks=False):
                         if entry.name in _EXCLUDE_NAMES:
+                            continue
+                        if _is_macos_junk(entry.name):
                             continue
                         if not _is_utf8_safe(entry.name):
                             invalid_names.append(prefix + entry.name)
@@ -499,6 +519,11 @@ def read_mod_index(
             normal: dict[str, str] = {}
             root:   dict[str, str] = {}
             for rel_key, rel_str, kind in files:
+                # Self-heal older indexes built before macOS-junk filtering:
+                # drop ._* / .DS_Store / __MACOSX entries on read so they never
+                # reach the filemap or deploy.
+                if any(_is_macos_junk(seg) for seg in rel_str.split("/")):
+                    continue
                 (root if kind == "r" else normal)[rel_key] = rel_str
             index[mod_name] = (normal, root)
     except Exception:
