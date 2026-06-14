@@ -135,7 +135,7 @@ class PluginCycleOverlay(tk.Frame):
         self.grid_rowconfigure(2, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        toolbar = tk.Frame(self, bg=BG_HEADER, height=42)
+        toolbar = tk.Frame(self, bg=BG_HEADER, height=_theme.scaled(42))
         toolbar.grid(row=0, column=0, sticky="ew")
         toolbar.grid_propagate(False)
 

@@ -96,7 +96,7 @@ class ProfileSettingsOverlay(tk.Frame):
         self.grid_columnconfigure(0, weight=1)
 
         # Toolbar
-        toolbar = tk.Frame(self, bg=BG_HEADER, height=42)
+        toolbar = tk.Frame(self, bg=BG_HEADER, height=scaled(42))
         toolbar.grid(row=0, column=0, sticky="ew")
         toolbar.grid_propagate(False)
 
@@ -170,7 +170,7 @@ class ProfileSettingsOverlay(tk.Frame):
 
         for i, profile in enumerate(profiles):
             row_bg = BG_PANEL if i % 2 == 0 else BG_DEEP
-            row = tk.Frame(self._list_frame, bg=row_bg, height=44)
+            row = tk.Frame(self._list_frame, bg=row_bg, height=scaled(44))
             row.pack(fill="x", pady=(0, 1))
             row.grid_propagate(False)
             row.grid_rowconfigure(0, weight=1)

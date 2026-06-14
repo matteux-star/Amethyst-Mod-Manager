@@ -4382,8 +4382,9 @@ class CollectionDetailDialog(tk.Frame):
         overlay.bind("<Button-1>", lambda e: "break")
         overlay.bind("<ButtonRelease-1>", lambda e: "break")
 
-        inner = tk.Frame(overlay, bg=BG_CARD_ALT, width=500, bd=0, highlightthickness=0)
-        inner.place(relx=0.5, rely=0.5, anchor="center", width=500)
+        _inner_w = scaled(500)
+        inner = tk.Frame(overlay, bg=BG_CARD_ALT, width=_inner_w, bd=0, highlightthickness=0)
+        inner.place(relx=0.5, rely=0.5, anchor="center", width=_inner_w)
 
         tk.Label(
             inner, text=f"Installing {mod_count} mods…" if mod_count else "Installing…",

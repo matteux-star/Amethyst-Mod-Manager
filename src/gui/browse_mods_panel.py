@@ -32,6 +32,7 @@ from gui.theme import (
     TEXT_DIM,
     FONT_HEADER,
     FONT_SMALL,
+    scaled,
 )
 
 # Mods per page when browsing
@@ -140,7 +141,7 @@ class BrowseModsPanel(_NexusModListPanel):
             self._build_cat_side_panel(tab, rowspan=3)
 
         # Toolbar
-        toolbar = tk.Frame(tab, bg=BG_HEADER, height=28)
+        toolbar = tk.Frame(tab, bg=BG_HEADER, height=scaled(28))
         toolbar.grid(row=0, column=col, sticky="ew")
         toolbar.grid_propagate(False)
 
@@ -195,7 +196,7 @@ class BrowseModsPanel(_NexusModListPanel):
         self._inner.bind("<MouseWheel>",  self._on_mousewheel)
 
         # Search bar (row 2)
-        search_bar = tk.Frame(tab, bg=BG_HEADER, height=30)
+        search_bar = tk.Frame(tab, bg=BG_HEADER, height=scaled(30))
         search_bar.grid(row=2, column=col, sticky="ew")
         search_bar.grid_propagate(False)
 

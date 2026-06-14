@@ -122,7 +122,7 @@ class _NexusModListPanel:
             self._build_cat_side_panel(tab)
 
         # Toolbar
-        toolbar = tk.Frame(tab, bg=BG_HEADER, height=28)
+        toolbar = tk.Frame(tab, bg=BG_HEADER, height=scaled(28))
         toolbar.grid(row=0, column=col, sticky="ew")
         toolbar.grid_propagate(False)
 
@@ -405,7 +405,7 @@ class _NexusModListPanel:
         self._cat_side_panel = panel
 
         # Header
-        header = tk.Frame(panel, bg=BG_HEADER, height=36)
+        header = tk.Frame(panel, bg=BG_HEADER, height=scaled(36))
         header.pack(fill="x", side="top")
         header.pack_propagate(False)
 
