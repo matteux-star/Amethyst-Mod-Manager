@@ -1,7 +1,8 @@
 - v1.3.10
 - Fixed separator settings deploy method option not working
 - Added a global filter to not deploy macOS related files
-- 
+- Fix for Stardew valley AT mods where the Textures folder is in the wrong casing, causing an error in game
+- Added a guard to prevent vanilla files moving to overwrite when changing a custom games settings while deployed
 
 - v1.3.9
 - Potential fix for ssl error causing nexus login to fail
