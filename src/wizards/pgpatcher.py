@@ -129,6 +129,10 @@ class PGPatcherWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         self._log         = log_fn or (lambda msg: None)
         self._exe         = _patcher_exe_path(game)
         self._proton_name = ""
+        # Per-mod conflict resolution via a dummy MO2 instance (opt-in).
+        self._mo2_dummy_dir: "Path | None" = None
+        self._mo2_game_type: int = 0
+        self._use_mo2_parity = False
 
         title_bar = ctk.CTkFrame(self, fg_color=BG_HEADER, corner_radius=0, height=40)
         title_bar.pack(fill="x")
@@ -431,6 +435,22 @@ class PGPatcherWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
             font=FONT_NORMAL, text_color=TEXT_DIM, justify="center", wraplength=460,
         ).pack(pady=(0, 20))
 
+        self._mo2_parity_var = ctk.BooleanVar(value=self._use_mo2_parity)
+        ctk.CTkCheckBox(
+            self._body,
+            text="Per-mod conflict resolution (MO2 parity)",
+            variable=self._mo2_parity_var,
+            font=FONT_NORMAL, text_color=TEXT_DIM,
+        ).pack(pady=(0, 4))
+        ctk.CTkLabel(
+            self._body,
+            text=(
+                "Builds a synthetic MO2 instance so PGPatcher attributes\n"
+                "conflicts per-mod, matching a real MO2 setup. Experimental."
+            ),
+            font=FONT_NORMAL, text_color=TEXT_DIM, justify="center", wraplength=460,
+        ).pack(pady=(0, 12))
+
         self._deploy_status = ctk.CTkLabel(
             self._body, text="",
             font=FONT_NORMAL, text_color=TEXT_DIM, justify="center", wraplength=460,
@@ -444,7 +464,7 @@ class PGPatcherWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
             btn_frame, text="Skip", width=100, height=36,
             font=FONT_BOLD,
             fg_color=BG_HEADER, hover_color="#3d3d3d", text_color=TEXT_DIM,
-            command=self._show_step_run,
+            command=self._skip_deploy,
         ).pack(side="left", padx=(0, 8))
 
         ctk.CTkButton(
@@ -454,7 +474,26 @@ class PGPatcherWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
             command=self._start_deploy,
         ).pack(side="left")
 
+    def _skip_deploy(self):
+        # Honour the parity checkbox even when the user skips deploying.
+        self._use_mo2_parity = bool(self._mo2_parity_var.get())
+        if self._use_mo2_parity:
+            self._set_label("_deploy_status", "Building MO2 instance…")
+            threading.Thread(target=self._build_dummy_then_run, daemon=True).start()
+        else:
+            self._show_step_run()
+
+    def _build_dummy_then_run(self):
+        try:
+            self._maybe_build_mo2_dummy()
+        except Exception as exc:
+            self._set_label("_deploy_status", f"MO2 instance error: {exc}", color="#e06c6c")
+            self._log(f"PGPatcher Wizard: MO2 dummy error: {exc}")
+            return
+        self.after(0, self._show_step_run)
+
     def _start_deploy(self):
+        self._use_mo2_parity = bool(self._mo2_parity_var.get())
         from gui.dialogs import confirm_deploy_appdata
         if not confirm_deploy_appdata(self.winfo_toplevel(), self._game):
             self._set_label("_deploy_status", "Deploy cancelled — AppData folder missing.", color="#e06c6c")
@@ -545,11 +584,49 @@ class PGPatcherWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
 
             self._set_label("_deploy_status", "Deploy complete.", color="#6bc76b")
             self._refresh_topbar_deploy_state()
+
+            if self._use_mo2_parity:
+                self._set_label("_deploy_status", "Building MO2 instance…")
+                self._maybe_build_mo2_dummy()
+
             self.after(0, self._show_step_run)
 
         except Exception as exc:
             self._set_label("_deploy_status", f"Deploy error: {exc}", color="#e06c6c")
             self._log(f"PGPatcher Wizard: deploy error: {exc}")
+
+    def _maybe_build_mo2_dummy(self):
+        """Build the dummy MO2 instance for the active profile and remember its
+        path so config + launch can switch PGPatcher into MO2 mode."""
+        if not self._use_mo2_parity:
+            self._mo2_dummy_dir = None
+            return
+
+        from wizards._mo2_dummy import build_mo2_dummy_instance
+
+        try:
+            root_win = self.winfo_toplevel()
+            profile  = root_win._topbar._profile_var.get()
+        except Exception:
+            profile = "default"
+
+        apps_dir = _get_applications_dir(self._game)
+        game_pfx = self._game.get_prefix_path()
+        # The dummy's Z: paths resolve through the *tool* prefix; GOG detection
+        # inspects the *game* prefix's AppData folders.
+        tool_pfx = None
+        try:
+            _ps, _env, compat = self._get_tool_env()
+            if compat is not None:
+                tool_pfx = compat / "pfx"
+        except Exception:
+            tool_pfx = None
+        self._mo2_dummy_dir, self._mo2_game_type = build_mo2_dummy_instance(
+            self._game, apps_dir, profile,
+            prefix=tool_pfx or game_pfx,
+            game_prefix=game_pfx,
+            log_fn=lambda msg: self._log(f"PGPatcher Wizard: {msg}"),
+        )
 
     # ------------------------------------------------------------------
     # Step 6 — Run PGPatcher
@@ -622,10 +699,33 @@ class PGPatcherWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
 
         self._link_plugins_txt(compat_data / "pfx")
 
+        # Re-apply settings.json now that we know whether MO2 parity is on and
+        # where the dummy instance lives.  Config step ran before the dummy was
+        # built, so this is the authoritative write of modmanager.type.
+        try:
+            from Utils.exe_args_builder import _bootstrap_pgpatcher_settings
+            _bootstrap_pgpatcher_settings(
+                exe,
+                self._game.get_game_path(),
+                self._game.get_effective_mod_staging_path(),
+                log_fn=lambda msg: self._log(f"PGPatcher Wizard: {msg}"),
+                update=True,
+                pfx=compat_data / "pfx",
+                mo2_instance_dir=self._mo2_dummy_dir,
+                game_type=self._mo2_game_type if self._mo2_dummy_dir is not None else None,
+            )
+        except Exception as exc:
+            self._log(f"PGPatcher Wizard: settings re-apply error: {exc}")
+
+        # MO2 mode requires either real USVFS or this bypass flag on Linux.
+        launch_cmd = ["python3", str(proton_script), "run", str(exe)]
+        if self._mo2_dummy_dir is not None:
+            launch_cmd.append("--ignore-mo2vfscheck")
+
         self._log(f"PGPatcher Wizard: launching {exe} via Proton")
         try:
             proc = subprocess.Popen(
-                ["python3", str(proton_script), "run", str(exe)],
+                launch_cmd,
                 env=env,
                 cwd=str(exe.parent),
                 stdout=subprocess.DEVNULL,
