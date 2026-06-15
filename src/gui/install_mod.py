@@ -953,7 +953,8 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
                              clear_progress_fn=None,
                              defer_interactive_fomod: bool = False,
                              defer_interactive_bain: bool = False,
-                             suppress_notification: bool = False) -> None:
+                             suppress_notification: bool = False,
+                             skip_reload: bool = False) -> None:
     """
     Extract archive to a temp directory, detect FOMOD, run the wizard if
     present, then copy the resolved files into the game's mod staging area.
@@ -973,6 +974,12 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
         (same structure as ``saved_selections`` / ``FomodDialog.result``).
         Intended for collection installs where the author has already
         chosen the FOMOD options.
+
+    skip_reload : bool
+        When True, the per-install ``mod_panel.reload_after_install`` call is
+        suppressed.  Used by batch operations (e.g. Quick Update) that install
+        many mods back-to-back and trigger a single reload at the end instead of
+        one full reload per mod, which lags the UI on large modlists.
 
     disable_extract : bool
         When True, skip extraction entirely.  The archive file is moved as-is
@@ -1097,7 +1104,7 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
             _fire_on_installed(on_installed, is_fomod=False,
                                installed_mod_name=mod_name)
 
-            if mod_panel is not None:
+            if mod_panel is not None and not skip_reload:
                 mod_panel.after(0, mod_panel.reload_after_install)
             _maybe_queue_rename_after_install(
                 parent_window, mod_panel, headless=False,
@@ -1984,7 +1991,7 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
                 _show_mod_notification(parent_window, f"Installed bundle: {bundle_name}")
             _fire_on_installed(on_installed, is_fomod=False,
                                installed_mod_name=bundle_name)
-            if mod_panel is not None and not headless:
+            if mod_panel is not None and not headless and not skip_reload:
                 mod_panel.after(0, mod_panel.reload_after_install)
             # Bundles install one separator + N variants — renaming the
             # separator or individual variants doesn't fit the single-name
@@ -2075,7 +2082,7 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
                 _show_mod_notification(parent_window, f"Installed {len(multi_mods)} mods")
             _fire_on_installed(on_installed, is_fomod=False,
                                installed_mod_name=(installed_names[0] if installed_names else mod_name))
-            if mod_panel is not None and not headless:
+            if mod_panel is not None and not headless and not skip_reload:
                 mod_panel.after(0, mod_panel.reload_after_install)
             return installed_names[0] if installed_names else mod_name
         else:
@@ -2459,7 +2466,7 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
         _fire_on_installed(on_installed, is_fomod=is_fomod_install,
                            installed_mod_name=mod_name)
 
-        if mod_panel is not None and not headless:
+        if mod_panel is not None and not headless and not skip_reload:
             mod_panel.after(0, mod_panel.reload_after_install)
 
         _maybe_queue_rename_after_install(

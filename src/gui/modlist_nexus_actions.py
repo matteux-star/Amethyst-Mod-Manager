@@ -710,6 +710,7 @@ class ModListNexusActionsMixin:
                         preferred_name=mod_name,
                         overwrite_existing=True,
                         suppress_notification=True,
+                        skip_reload=True,
                     )
                     updated += 1
                     app.after(0, lambda m=mod_name:
@@ -719,6 +720,11 @@ class ModListNexusActionsMixin:
                         failed.append((mod_name, f"install failed ({exc})"))
             if status_bar is not None:
                 app.after(0, status_bar.clear_progress)
+            # Per-install reloads were suppressed (skip_reload=True) to avoid
+            # one full UI rebuild per mod, which lags on large modlists. Do a
+            # single reload now that every update has been installed.
+            if updated and mod_panel is not None:
+                app.after(0, mod_panel.reload_after_install)
             app.after(0, lambda n=updated:
                       self._quick_update_finish(n, failed, skipped))
 

@@ -5,6 +5,8 @@
 - Fix for Stardew valley AT mods where the Textures folder is in the wrong casing, causing an error in game
 - Added a guard to prevent vanilla files moving to overwrite when changing a custom games settings while deployed
 - Fixed loose CP2077 .xl files causing a deploy error 
+- Fixed a bug where custom routing rules for root deployed games could send a vanilla file to overwrite
+- Quick Update now refreshes the mod list once after all updates finish instead of after every mod install
 
 - v1.3.9
 - Potential fix for ssl error causing nexus login to fail
