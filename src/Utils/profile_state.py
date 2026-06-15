@@ -460,6 +460,23 @@ def write_ignored_missing_requirements(profile_dir: Path, value: set[str]) -> No
         write_profile_state(profile_dir, state)
 
 
+def read_selected_exe(profile_dir: Path) -> str | None:
+    """Return the exe dropdown label last selected for this profile, or None."""
+    raw = _read_key(profile_dir, None, "selected_exe")
+    return raw if isinstance(raw, str) and raw else None
+
+
+def write_selected_exe(profile_dir: Path, label: str | None) -> None:
+    """Persist the exe dropdown selection for this profile. Pass None/'' to clear."""
+    if label:
+        _update_key(profile_dir, "selected_exe", label)
+    else:
+        state = read_profile_state(profile_dir)
+        if "selected_exe" in state:
+            state.pop("selected_exe", None)
+            write_profile_state(profile_dir, state)
+
+
 def read_collection_optional_skipped(profile_dir: Path) -> set[int]:
     """Return the set of file_ids that were skipped (unchecked) in the optional mods panel
     when this profile's collection was last installed. Returns empty set if not saved."""
