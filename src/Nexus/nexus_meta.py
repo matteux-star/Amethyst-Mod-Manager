@@ -66,6 +66,7 @@ class NexusModMeta:
     from_collection: str = ""          # slug of the collection that installed this mod
     from_collection_bundled: bool = False  # True for mods extracted from collection bundled/ folder
     from_collection_patched: bool = False  # True for mods that received BSDIFF40 patches from a collection
+    xedit_modified_plugins: str = ""   # semicolon-separated plugin names edited in xEdit (set on restore)
 
     @property
     def nexus_page_url(self) -> str:
@@ -144,6 +145,7 @@ _KEY_MAP: dict[str, str] = {
     "fromCollection":    "from_collection",
     "fromCollectionBundled": "from_collection_bundled",
     "fromCollectionPatched": "from_collection_patched",
+    "xeditModifiedPlugins": "xedit_modified_plugins",
 }
 
 # Attributes that are ints
@@ -218,6 +220,12 @@ def write_meta(meta_ini_path: Path, meta: NexusModMeta) -> None:
                 continue
             cp.set(_SECTION, ini_key, "true" if value else "false")
         else:
+            # Never clobber the xEdit-modified plugin list with an empty value:
+            # it is set by restore_data_core (not the installer), so callers
+            # that build a fresh NexusModMeta to update other fields would
+            # otherwise wipe it.
+            if attr == "xedit_modified_plugins" and not value:
+                continue
             cp.set(_SECTION, ini_key, str(value).replace("%", "%%"))
 
     meta_ini_path.parent.mkdir(parents=True, exist_ok=True)

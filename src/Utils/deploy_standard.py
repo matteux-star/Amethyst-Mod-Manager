@@ -200,6 +200,45 @@ def _load_vanilla_deployed(path: Path) -> "set[str]":
     return rels
 
 
+# Plugin file extensions whose in-place edits (e.g. via xEdit / Quick Auto
+# Clean) we want to surface on the mod row.  When restore_data_core moves a
+# *modified* plugin back into its owning mod folder, it tags that mod's
+# meta.ini so the GUI can show a "contains an xEdit-modified plugin" flag.
+_PLUGIN_EXTS = (".esp", ".esm", ".esl")
+
+
+def _tag_mod_xedit_modified(mod_dir: Path, plugin_name: str) -> None:
+    """Record *plugin_name* in the mod's ``meta.ini`` under
+    ``[General] xeditModifiedPlugins`` (a semicolon-separated list).
+
+    Called when an externally-edited plugin is moved back into this mod's
+    staging folder during restore, so the modlist can flag the mod as
+    containing a plugin modified in xEdit.  Preserves all other meta.ini
+    content and is idempotent (a plugin already listed is not duplicated)."""
+    import configparser
+    meta = mod_dir / "meta.ini"
+    cp = configparser.ConfigParser()
+    if meta.is_file():
+        try:
+            cp.read(str(meta), encoding="utf-8")
+        except Exception:
+            cp = configparser.ConfigParser()
+    if not cp.has_section("General"):
+        cp.add_section("General")
+    existing = cp["General"].get("xeditModifiedPlugins", "")
+    names = [n.strip() for n in existing.split(";") if n.strip()]
+    # Case-insensitive de-dup (plugin filesystem names are case-insensitive).
+    lower = {n.lower() for n in names}
+    if plugin_name.lower() not in lower:
+        names.append(plugin_name)
+    cp["General"]["xeditModifiedPlugins"] = ";".join(names)
+    try:
+        with open(meta, "w", encoding="utf-8") as fh:
+            cp.write(fh)
+    except Exception:
+        pass
+
+
 def _tree_has_files(root: Path) -> bool:
     """Early-exit check: does *root* contain at least one file anywhere?"""
     stack = [str(root)]
@@ -1250,6 +1289,14 @@ def restore_data_core(
                                 _move_crash_safe(src_str, staging_path)
                                 rescued += 1
                                 rescued_to_mod += 1
+                                # The on-disk file differed from staging (the
+                                # size/mtime match above would have skipped it),
+                                # so it was edited in place by an external tool.
+                                # Flag the mod if it's a plugin (e.g. xEdit).
+                                if (target_mod != _OVERWRITE_NAME
+                                        and rel_str.lower().endswith(_PLUGIN_EXTS)):
+                                    _tag_mod_xedit_modified(
+                                        _staging / target_mod, os.path.basename(rel_str))
                                 continue
                             # xEdit orphan: staging missing — put file back in original mod or overwrite
                             target_mod = (
@@ -1266,6 +1313,13 @@ def restore_data_core(
                                     rescued_to_mod += 1
                                 _move_crash_safe(src_str, dst_str)
                                 rescued += 1
+                                # Staging source was missing (xEdit deleted the
+                                # original on close) — the rescued file is the
+                                # edited plugin.  Flag the owning mod.
+                                if (target_mod != _OVERWRITE_NAME
+                                        and rel_str.lower().endswith(_PLUGIN_EXTS)):
+                                    _tag_mod_xedit_modified(
+                                        _staging / target_mod, os.path.basename(rel_str))
                                 continue
                         else:
                             continue  # no staging check — skip as before

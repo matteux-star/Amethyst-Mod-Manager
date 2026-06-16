@@ -221,6 +221,7 @@ def _scan_meta_flags_impl(entries: list, mods_dir: Path, compute_sizes: bool = F
     root_folder_mods: set[str] = set()
     collection_bundled_mods: set[str] = set()
     collection_patched_mods: set[str] = set()
+    xedit_modified_mods: dict[str, list[str]] = {}
     today = datetime.now().date()
     for entry in entries:
         if entry.is_separator:
@@ -273,6 +274,11 @@ def _scan_meta_flags_impl(entries: list, mods_dir: Path, compute_sizes: bool = F
                 collection_bundled_mods.add(entry.name)
             if meta.from_collection_patched:
                 collection_patched_mods.add(entry.name)
+            if meta.xedit_modified_plugins:
+                plugins = [p.strip() for p in meta.xedit_modified_plugins.split(";")
+                           if p.strip()]
+                if plugins:
+                    xedit_modified_mods[entry.name] = plugins
         except Exception:
             pass
     return {
@@ -291,6 +297,7 @@ def _scan_meta_flags_impl(entries: list, mods_dir: Path, compute_sizes: bool = F
         "root_folder_mods": root_folder_mods,
         "collection_bundled_mods": collection_bundled_mods,
         "collection_patched_mods": collection_patched_mods,
+        "xedit_modified_mods": xedit_modified_mods,
     }
 
 
@@ -427,6 +434,14 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             self._icon_note = ImageTk.PhotoImage(
                 PilImage.open(_note_path).convert("RGBA").resize((_icon_sz, _icon_sz), PilImage.LANCZOS))
 
+        # xEdit-modified plugin flag — shown when a mod contains a plugin that
+        # was edited in xEdit and moved back to staging on restore.
+        self._icon_xedit: ImageTk.PhotoImage | None = None
+        _brush_path = _ICONS_DIR / "brush.png"
+        if _brush_path.is_file():
+            self._icon_xedit = ImageTk.PhotoImage(
+                PilImage.open(_brush_path).convert("RGBA").resize((_icon_sz, _icon_sz), PilImage.LANCZOS))
+
         # Separator collapse/expand arrows (right = collapsed, arrow = expanded)
         self._icon_sep_right: ImageTk.PhotoImage | None = None
         self._icon_sep_arrow: ImageTk.PhotoImage | None = None
@@ -496,6 +511,9 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         # meta.ini's fromCollectionBundled / fromCollectionPatched flags.
         self._collection_bundled_mods: set[str] = set()
         self._collection_patched_mods: set[str] = set()
+        # Map mod name → list of plugin names edited in xEdit (from meta.ini's
+        # xeditModifiedPlugins). Drives the brush flag in the Flags column.
+        self._xedit_modified_mods: dict[str, list[str]] = {}
         # Map mod name → install datetime for sorting (parallel to _install_dates)
         self._install_datetimes: dict[str, datetime] = {}
 
@@ -1465,6 +1483,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             self._mod_size_bytes.clear()
             self._fomod_mods.clear()
             self._bain_mods.clear()
+            self._xedit_modified_mods.clear()
             self._vis_dirty = True
             self._mod_to_sep_idx = None
             return
@@ -1507,6 +1526,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._root_rule_mods = self._compute_root_rule_mods()
         self._collection_bundled_mods = results.get("collection_bundled_mods", set())
         self._collection_patched_mods = results.get("collection_patched_mods", set())
+        self._xedit_modified_mods = results.get("xedit_modified_mods", {})
         if self._filter_panel_open:
             self._refresh_filter_category_list()
         self._vis_dirty = True
@@ -2474,6 +2494,10 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                             if self._mod_is_modified_in_mf(_be.name) and self._icon_disabled_files and "disabled" not in _seen_flag:
                                 _agg_flags.append(("img", self._icon_disabled_files))
                                 _seen_flag.add("disabled")
+                            if (_be.name in self._xedit_modified_mods
+                                    and self._icon_xedit and "xedit" not in _seen_flag):
+                                _agg_flags.append(("img", self._icon_xedit))
+                                _seen_flag.add("xedit")
                             if ((_be.name in self._root_folder_mods
                                  or _be.name in self._root_rule_mods)
                                 and self._icon_root_folder and "root" not in _seen_flag):
@@ -2646,6 +2670,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                         _flags.append(("img", self._icon_info))
                     if self._mod_is_modified_in_mf(entry.name) and self._icon_disabled_files:
                         _flags.append(("img", self._icon_disabled_files))
+                    if entry.name in self._xedit_modified_mods and self._icon_xedit:
+                        _flags.append(("img", self._icon_xedit))
                     if ((entry.name in self._root_folder_mods
                          or entry.name in self._root_rule_mods)
                         and self._icon_root_folder):
@@ -4469,6 +4495,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             _items.append("collection_patched")
         if self._mod_is_modified_in_mf(entry.name):
             _items.append("disabled_files")
+        if entry.name in self._xedit_modified_mods:
+            _items.append("xedit")
         if entry.name in self._root_folder_mods:
             _items.append("root")
         elif entry.name in self._root_rule_mods:
@@ -4501,6 +4529,13 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                     tip = "This mod has diff patches applied by the collection install"
                 elif _kind == "disabled_files":
                     tip = "Modified in Mod Files tab"
+                elif _kind == "xedit":
+                    _plugins = self._xedit_modified_mods.get(entry.name, [])
+                    if _plugins:
+                        tip = ("Contains a plugin modified in xEdit:\n"
+                               + "\n".join(f"  - {p}" for p in _plugins))
+                    else:
+                        tip = "Contains a plugin modified in xEdit"
                 elif _kind == "root":
                     tip = "This mod is sent to the root folder"
                 elif _kind == "root_rule":
