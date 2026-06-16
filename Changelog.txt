@@ -16,6 +16,7 @@
 - The pandora wizard now auto applies the dark theme.
 - Renamed the ini files tab since the tab shows more than just ini files
 - Mods that contain plugins modified in xedit are now flagged
+- Fixed non nexus metadata being removed from mod names during install
 
 - v1.3.9
 - Potential fix for ssl error causing nexus login to fail
