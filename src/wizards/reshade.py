@@ -38,9 +38,19 @@ from gui.theme import (
     TEXT_DIM, TEXT_MAIN, TEXT_OK, TEXT_WARN, TEXT_ERR,
     FONT_NORMAL, FONT_BOLD, FONT_SMALL,
 )
+from gui.wheel_compat import bind_scrollable_wheel
 
 _RESHADE_BASE_URL = "https://reshade.me/downloads/"
 _RESHADE_HOME_URL = "https://reshade.me/"
+
+# Rendering API → DLL name the game loads ReShade as.
+# (label, dll_name)
+_API_CHOICES: list[tuple[str, str]] = [
+    ("DirectX 10 / 11 / 12  (dxgi.dll)", "dxgi.dll"),
+    ("DirectX 9  (d3d9.dll)", "d3d9.dll"),
+    ("OpenGL  (opengl32.dll)", "opengl32.dll"),
+    ("Vulkan  (dxgi.dll)", "dxgi.dll"),
+]
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -126,26 +136,37 @@ _SHADER_BASE_SUBFOLDER = None  # has Shaders/ and Textures/ at root
 #   subfolder=None  → extract Shaders/ and Textures/ from repo root
 #   subfolder="xyz" → strip repo root then extract only the "xyz/" subtree
 _OPTIONAL_SHADER_PACKS: list[tuple[str, str, "str | None"]] = [
-    ("SweetFX",         "https://github.com/CeeJayDK/SweetFX/archive/refs/heads/master.zip",            None),
-    ("qUINT",           "https://github.com/martymcmodding/qUINT/archive/refs/heads/master.zip",         "Shaders"),
-    ("iMMERSE",         "https://github.com/martymcmodding/iMMERSE/archive/refs/heads/main.zip",         None),
-    ("METEOR",          "https://github.com/martymcmodding/METEOR/archive/refs/heads/main.zip",          None),
-    ("AstrayFX",        "https://github.com/BlueSkyDefender/AstrayFX/archive/refs/heads/master.zip",     None),
-    ("Depth3D",         "https://github.com/BlueSkyDefender/Depth3D/archive/refs/heads/master.zip",      None),
-    ("FXShaders",       "https://github.com/luluco250/FXShaders/archive/refs/heads/master.zip",          None),
-    ("Pirate Shaders",  "https://github.com/Heathen/Pirate-Shaders/archive/refs/heads/master.zip",       "reshade-shaders"),
-    ("OtisFX",          "https://github.com/FransBouma/OtisFX/archive/refs/heads/master.zip",            None),
+    ("SweetFX",          "https://github.com/CeeJayDK/SweetFX/archive/refs/heads/master.zip",                  None),
+    ("qUINT",            "https://github.com/martymcmodding/qUINT/archive/refs/heads/master.zip",              None),
+    ("iMMERSE",          "https://github.com/martymcmodding/iMMERSE/archive/refs/heads/main.zip",              None),
+    ("METEOR",           "https://github.com/martymcmodding/METEOR/archive/refs/heads/main.zip",               None),
+    ("AstrayFX",         "https://github.com/BlueSkyDefender/AstrayFX/archive/refs/heads/master.zip",          None),
+    ("Depth3D",          "https://github.com/BlueSkyDefender/Depth3D/archive/refs/heads/master.zip",           None),
+    ("FXShaders",        "https://github.com/luluco250/FXShaders/archive/refs/heads/master.zip",               None),
+    ("Pirate Shaders",   "https://github.com/Heathen/Pirate-Shaders/archive/refs/heads/master.zip",            "reshade-shaders"),
+    ("OtisFX",           "https://github.com/FransBouma/OtisFX/archive/refs/heads/master.zip",                 None),
+    ("AcerolaFX",        "https://github.com/GarrettGunnell/AcerolaFX/archive/refs/heads/main.zip",            None),
+    ("prod80",           "https://github.com/prod80/prod80-ReShade-Repository/archive/refs/heads/master.zip",  None),
+    ("AlucardDH (DH)",   "https://github.com/AlucardDH/dh-reshade-shaders/archive/refs/heads/master.zip",      None),
+    ("CobraFX",          "https://github.com/LordKobra/CobraFX/archive/refs/heads/master.zip",                 None),
+    ("CorgiFX",          "https://github.com/originalnicodr/CorgiFX/archive/refs/heads/master.zip",            None),
+    ("Daodan317081",     "https://github.com/Daodan317081/reshade-shaders/archive/refs/heads/master.zip",      None),
+    ("Brussell Shaders", "https://github.com/brussell1/Shaders/archive/refs/heads/master.zip",                 None),
+    ("Matsilagi (Ports)","https://github.com/Matsilagi/reshade-shaders/archive/refs/heads/master.zip",         None),
 ]
 
 
 def _extract_zip_into(data: bytes, dest: Path, subfolder: "str | None") -> None:
-    """Extract a GitHub repo zip into *dest*.
+    """Extract the ``Shaders/`` and ``Textures/`` trees from a GitHub repo zip
+    into *dest* (which is the ``reshade-shaders/`` output folder).
 
-    *subfolder* — if None, extract the repo root content directly into *dest*
-    (preserving subdirectories).  If a string, only extract files that live
-    inside that subfolder of the repo and place them into *dest/subfolder/*.
+    *subfolder* — if None, those folders sit at the repo root.  If a string,
+    they live inside that subfolder (e.g. Pirate-Shaders wraps everything in a
+    ``reshade-shaders/`` dir; qUINT keeps only a ``Shaders/`` dir).  Either
+    way the result is merged as ``dest/Shaders/...`` and ``dest/Textures/...``
+    so packs never end up double-nested under another ``reshade-shaders/``.
     """
-    _KEEP = {"Shaders", "Textures"}
+    _KEEP = ("Shaders/", "Textures/")
 
     try:
         with zipfile.ZipFile(io.BytesIO(data)) as zf:
@@ -156,26 +177,24 @@ def _extract_zip_into(data: bytes, dest: Path, subfolder: "str | None") -> None:
             if top is None:
                 raise RuntimeError("Unexpected zip layout (no top-level folder).")
 
+            # Path prefix to strip: the repo root, plus the wrapper subfolder
+            # when one is named.
+            prefix = top + "/"
+            if subfolder:
+                prefix += subfolder.rstrip("/") + "/"
+
             for member in zf.namelist():
-                # Strip the repo top-level folder prefix
-                if not member.startswith(top + "/"):
+                if not member.startswith(prefix):
                     continue
-                rel = member[len(top) + 1:]
+                rel = member[len(prefix):]
                 if not rel:
                     continue
 
-                if subfolder:
-                    # Only extract files inside the named subfolder
-                    if not rel.startswith(subfolder + "/"):
-                        continue
-                    target = dest / rel
-                else:
-                    # Extract Shaders/ and Textures/ only, skip loose files/dirs
-                    first_seg = rel.split("/")[0]
-                    if first_seg not in _KEEP:
-                        continue
-                    target = dest / rel
+                # Keep only the Shaders/ and Textures/ subtrees.
+                if not any(rel == k.rstrip("/") or rel.startswith(k) for k in _KEEP):
+                    continue
 
+                target = dest / rel
                 if member.endswith("/"):
                     target.mkdir(parents=True, exist_ok=True)
                 else:
@@ -200,6 +219,10 @@ def _download_and_extract_shaders(
     Raises RuntimeError on any failure.
     """
     out = dest_dir / "reshade-shaders"
+    # Start from a clean tree so a previous preset-pruned run can't leave the
+    # cache missing effects for a later non-preset (or different-preset) run.
+    if out.exists():
+        shutil.rmtree(str(out), ignore_errors=True)
     out.mkdir(parents=True, exist_ok=True)
 
     to_fetch = [(_SHADER_BASE_URL, _SHADER_BASE_SUBFOLDER)] + [
@@ -240,6 +263,93 @@ def _download_and_extract_shaders(
     return out
 
 
+# ---------------------------------------------------------------------------
+# Preset-driven effect selection
+# ---------------------------------------------------------------------------
+
+def parse_preset_effect_files(preset_path: Path) -> set[str]:
+    """Return the set of ``.fx`` filenames referenced by a ReShade preset.
+
+    ReShade presets list active effects in a top-level (section-less)
+    ``Techniques=`` key as comma-separated ``TechniqueName@File.fx`` entries.
+    The part after the ``@`` is the effect filename.  This mirrors the
+    official ReShade installer's SelectEffectsPage logic.
+
+    Returns an empty set if no ``Techniques`` key is found (caller should
+    treat that as "install everything").
+    """
+    wanted: set[str] = set()
+    try:
+        text = preset_path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return wanted
+
+    # Only the section-less Techniques / TechniqueSorting keys matter; both
+    # appear before the first "[Section]" header in a real preset.
+    for raw in text.splitlines():
+        line = raw.strip()
+        if line.startswith("[") and line.endswith("]"):
+            break  # entered the per-effect sections — stop
+        key, sep, value = line.partition("=")
+        if not sep:
+            continue
+        if key.strip() not in ("Techniques", "TechniqueSorting"):
+            continue
+        for entry in value.split(","):
+            entry = entry.strip()
+            at = entry.find("@")
+            if at >= 0:
+                fname = entry[at + 1:].strip()
+                if fname:
+                    wanted.add(fname.lower())
+    return wanted
+
+
+def prune_shaders_to_preset(shaders_dir: Path, wanted: "set[str]") -> set[str]:
+    """Delete every ``.fx`` under *shaders_dir* whose filename is not in
+    *wanted*.  ``.fxh`` include headers and all textures are kept (they are
+    shared dependencies that the pruned effects may rely on).
+
+    The same effect filename can exist in several downloaded packs.  ReShade
+    resolves effects by bare filename across its recursive search path, so two
+    copies of e.g. ``LiftGammaGain.fx`` would collide as duplicate techniques.
+    Only the first copy of each wanted effect is kept; later duplicates are
+    removed.
+
+    Returns the subset of *wanted* that was **not** found on disk, so the
+    caller can warn about effects missing from the downloaded packs.
+    """
+    if not wanted:
+        return set()
+
+    found: set[str] = set()
+    for fx in sorted(shaders_dir.rglob("*.fx"), key=lambda p: (len(p.parts), str(p))):
+        name = fx.name.lower()
+        if name in wanted and name not in found:
+            found.add(name)        # keep the first copy
+        else:
+            # Unwanted effect, or a duplicate of one already kept.
+            try:
+                fx.unlink()
+            except OSError:
+                pass
+
+    # Clean up now-empty directories left behind by the deletions.
+    for d in sorted(shaders_dir.rglob("*"), key=lambda p: -len(p.parts)):
+        if d.is_dir():
+            try:
+                next(d.iterdir())
+            except StopIteration:
+                try:
+                    d.rmdir()
+                except OSError:
+                    pass
+            except OSError:
+                pass
+
+    return {w for w in wanted if w not in found}
+
+
 # ============================================================================
 # Wizard
 # ============================================================================
@@ -254,18 +364,26 @@ class ReShadeWizard(ctk.CTkFrame):
         log_fn=None,
         *,
         on_close=None,
-        reshade_dll: str = "dxgi.dll",
-        reshade_arch: int = 64,
+        reshade_dll: "str | None" = None,
+        reshade_arch: "int | None" = None,
     ):
         super().__init__(parent, fg_color=BG_DEEP, corner_radius=0)
         self._on_close_cb = on_close or (lambda: None)
         self._game = game
         self._log = log_fn or (lambda _: None)
-        self._reshade_dll = reshade_dll          # e.g. "dxgi.dll"
-        self._reshade_arch = reshade_arch        # 32 or 64
 
-        # DLL stem used for the Wine override key, e.g. "dxgi"
-        self._override_key = Path(reshade_dll).stem
+        # Suggested defaults from the game handler (may be None for custom
+        # games). The user confirms / overrides these in step 1.
+        self._reshade_dll = reshade_dll or "dxgi.dll"   # e.g. "dxgi.dll"
+        self._reshade_arch = reshade_arch or 64         # 32 or 64
+
+        # DLL stem used for the Wine override key, e.g. "dxgi" — recomputed
+        # from the user's selection in _apply_api_choice().
+        self._override_key = Path(self._reshade_dll).stem
+
+        # Tk vars backing the step-1 selectors (created in _show_step_api).
+        self._api_var: "ctk.StringVar | None" = None
+        self._arch_var: "ctk.StringVar | None" = None
 
         self._extracted_dll: Path | None = None      # path to ReShade DLL in download cache
         self._extracted_shaders: Path | None = None  # path to reshade-shaders/ in download cache
@@ -275,7 +393,15 @@ class ReShadeWizard(ctk.CTkFrame):
             ctk.BooleanVar(value=False) for _ in _OPTIONAL_SHADER_PACKS
         ]
 
-        self._install_to_root_folder = ctk.BooleanVar(value=False)
+        # Optional user-supplied ReShade preset. When set, every shader pack
+        # is downloaded and then pruned to only the effects the preset uses.
+        self._preset_path: Path | None = None
+        self._preset_wanted: set[str] = set()    # required .fx filenames (lower)
+        self._preset_missing: set[str] = set()   # wanted effects not found on disk
+
+        # Install destination: "game" | "root_folder" | "mod"
+        self._install_dest = ctk.StringVar(value="game")
+        self._mod_name_var = ctk.StringVar(value="ReShade")
 
         # --- Title bar ---
         title_bar = ctk.CTkFrame(self, fg_color=BG_HEADER, corner_radius=0, height=40)
@@ -294,7 +420,7 @@ class ReShadeWizard(ctk.CTkFrame):
         self._body = ctk.CTkFrame(self, fg_color=BG_DEEP)
         self._body.pack(fill="both", expand=True, padx=20, pady=20)
 
-        self._show_step_shaders()
+        self._show_step_api()
 
     # ------------------------------------------------------------------
     # Lifecycle
@@ -312,14 +438,97 @@ class ReShadeWizard(ctk.CTkFrame):
             w.destroy()
 
     # ------------------------------------------------------------------
-    # Step 1 — Shader pack selection
+    # Step 1 — Rendering API / architecture
+    # ------------------------------------------------------------------
+
+    def _show_step_api(self):
+        self._clear_body()
+
+        ctk.CTkLabel(
+            self._body, text="Step 1: Rendering API & Architecture",
+            font=FONT_BOLD, text_color=TEXT_MAIN,
+        ).pack(pady=(0, 4))
+
+        ctk.CTkLabel(
+            self._body,
+            text=(
+                "Choose the graphics API this game uses and its executable\n"
+                "architecture. If you're not sure, dxgi.dll / 64-bit works for\n"
+                "most modern games."
+            ),
+            font=FONT_SMALL, text_color=TEXT_DIM, justify="center",
+        ).pack(pady=(0, 14))
+
+        form = ctk.CTkFrame(self._body, fg_color=BG_PANEL, corner_radius=6)
+        form.pack(fill="x", pady=(0, 12))
+
+        # --- API / DLL selector ---
+        ctk.CTkLabel(
+            form, text="Rendering API (DLL)",
+            font=FONT_BOLD, text_color=TEXT_MAIN, anchor="w",
+        ).pack(anchor="w", padx=12, pady=(12, 2))
+
+        api_labels = [lbl for lbl, _dll in _API_CHOICES]
+        # Pre-select the label whose DLL matches the handler suggestion.
+        default_label = next(
+            (lbl for lbl, dll in _API_CHOICES if dll == self._reshade_dll),
+            api_labels[0],
+        )
+        self._api_var = ctk.StringVar(value=default_label)
+        ctk.CTkOptionMenu(
+            form, values=api_labels, variable=self._api_var,
+            font=FONT_NORMAL, fg_color=BG_DEEP, button_color=ACCENT,
+            button_hover_color=ACCENT_HOV, text_color=TEXT_MAIN,
+            dropdown_fg_color=BG_PANEL, dropdown_text_color=TEXT_MAIN,
+        ).pack(fill="x", padx=12, pady=(0, 10))
+
+        # --- Architecture selector ---
+        ctk.CTkLabel(
+            form, text="Executable architecture",
+            font=FONT_BOLD, text_color=TEXT_MAIN, anchor="w",
+        ).pack(anchor="w", padx=12, pady=(4, 2))
+
+        self._arch_var = ctk.StringVar(value=str(self._reshade_arch))
+        arch_row = ctk.CTkFrame(form, fg_color="transparent")
+        arch_row.pack(anchor="w", padx=12, pady=(0, 12))
+        for val, label in (("64", "64-bit"), ("32", "32-bit")):
+            ctk.CTkRadioButton(
+                arch_row, text=label, value=val, variable=self._arch_var,
+                font=FONT_NORMAL, text_color=TEXT_MAIN,
+                fg_color=ACCENT, hover_color=ACCENT_HOV,
+            ).pack(side="left", padx=(0, 20))
+
+        ctk.CTkButton(
+            self._body, text="Next →", width=120, height=36,
+            font=FONT_BOLD, fg_color=ACCENT, hover_color=ACCENT_HOV, text_color=TEXT_ON_ACCENT,
+            command=self._apply_api_choice,
+        ).pack(side="bottom")
+
+    def _apply_api_choice(self):
+        """Persist the API/arch selection and advance to shader selection."""
+        if self._api_var is not None:
+            chosen = self._api_var.get()
+            self._reshade_dll = next(
+                (dll for lbl, dll in _API_CHOICES if lbl == chosen),
+                self._reshade_dll,
+            )
+            self._override_key = Path(self._reshade_dll).stem
+        if self._arch_var is not None:
+            try:
+                self._reshade_arch = int(self._arch_var.get())
+            except ValueError:
+                self._reshade_arch = 64
+        self._show_step_shaders()
+
+    # ------------------------------------------------------------------
+    # Step 2 — Shader pack selection
     # ------------------------------------------------------------------
 
     def _show_step_shaders(self):
         self._clear_body()
 
         ctk.CTkLabel(
-            self._body, text="Step 1: Select Shader Packs",
+            self._body, text="Step 2: Select Shader Packs",
             font=FONT_BOLD, text_color=TEXT_MAIN,
         ).pack(pady=(0, 4))
 
@@ -327,18 +536,68 @@ class ReShadeWizard(ctk.CTkFrame):
             self._body,
             text="The official ReShade shaders are always included.\nSelect any additional packs to download:",
             font=FONT_SMALL, text_color=TEXT_DIM, justify="center",
-        ).pack(pady=(0, 10))
+        ).pack(pady=(0, 8))
 
+        # --- Optional preset input ------------------------------------------
+        preset_box = ctk.CTkFrame(self._body, fg_color=BG_PANEL, corner_radius=6)
+        preset_box.pack(fill="x", pady=(0, 10))
+        ctk.CTkLabel(
+            preset_box, text="Install from a preset (optional)",
+            font=FONT_BOLD, text_color=TEXT_MAIN, anchor="w",
+        ).pack(anchor="w", padx=12, pady=(10, 0))
+        ctk.CTkLabel(
+            preset_box,
+            text=("Pick a ReShade preset (.ini) to install only the effects it\n"
+                  "uses. All packs are downloaded then trimmed to the preset."),
+            font=FONT_SMALL, text_color=TEXT_DIM, justify="left", anchor="w",
+        ).pack(anchor="w", padx=12, pady=(0, 6))
+
+        prow = ctk.CTkFrame(preset_box, fg_color="transparent")
+        prow.pack(fill="x", padx=12, pady=(0, 10))
+        self._preset_label = ctk.CTkLabel(
+            prow,
+            text=(self._preset_path.name if self._preset_path else "No preset selected"),
+            font=FONT_SMALL,
+            text_color=(TEXT_OK if self._preset_path else TEXT_DIM),
+            anchor="w",
+        )
+        self._preset_label.pack(side="left", fill="x", expand=True)
+        ctk.CTkButton(
+            prow, text="Browse\u2026", width=90, height=30, font=FONT_BOLD,
+            fg_color=ACCENT, hover_color=ACCENT_HOV, text_color=TEXT_ON_ACCENT,
+            command=self._browse_preset,
+        ).pack(side="right")
+        if self._preset_path:
+            ctk.CTkButton(
+                prow, text="Clear", width=70, height=30, font=FONT_BOLD,
+                fg_color=BG_HEADER, hover_color="#3d3d3d", text_color=TEXT_MAIN,
+                command=self._clear_preset,
+            ).pack(side="right", padx=(0, 6))
+
+        # --- Pack checkboxes (disabled when a preset is loaded) -------------
+        packs_disabled = self._preset_path is not None
         scroll = ctk.CTkScrollableFrame(self._body, fg_color=BG_PANEL, corner_radius=6)
         scroll.pack(fill="both", expand=True, pady=(0, 12))
 
-        for i, (label, _url, _sub) in enumerate(_OPTIONAL_SHADER_PACKS):
-            ctk.CTkCheckBox(
-                scroll, text=label,
-                variable=self._shader_pack_vars[i],
-                font=FONT_NORMAL, text_color=TEXT_MAIN,
-                fg_color=ACCENT, hover_color=ACCENT_HOV, checkmark_color="white",
-            ).pack(anchor="w", padx=12, pady=4)
+        if packs_disabled:
+            ctk.CTkLabel(
+                scroll,
+                text=("A preset is loaded \u2014 every pack will be downloaded and\n"
+                      "trimmed to the preset's effects."),
+                font=FONT_SMALL, text_color=TEXT_DIM, justify="left",
+            ).pack(anchor="w", padx=12, pady=8)
+        else:
+            for i, (label, _url, _sub) in enumerate(_OPTIONAL_SHADER_PACKS):
+                ctk.CTkCheckBox(
+                    scroll, text=label,
+                    variable=self._shader_pack_vars[i],
+                    font=FONT_NORMAL, text_color=TEXT_MAIN,
+                    fg_color=ACCENT, hover_color=ACCENT_HOV, checkmark_color="white",
+                ).pack(anchor="w", padx=12, pady=4)
+
+        # Linux X11 (Tk 8.6) wheel notches don't reach CTkScrollableFrame \u2014
+        # bind Button-4/5 so the pack list scrolls under the pointer.
+        bind_scrollable_wheel(scroll)
 
         ctk.CTkButton(
             self._body, text="Next \u2192", width=120, height=36,
@@ -346,15 +605,48 @@ class ReShadeWizard(ctk.CTkFrame):
             command=self._show_step_download,
         ).pack(side="bottom")
 
+    def _browse_preset(self):
+        from Utils.portal_filechooser import pick_preset_file
+        pick_preset_file(
+            "Select a ReShade preset",
+            lambda p: self.after(0, lambda: self._on_preset_picked(p)),
+        )
+
+    def _on_preset_picked(self, preset: "Path | None"):
+        if not preset:
+            return
+        wanted = parse_preset_effect_files(preset)
+        if not wanted:
+            self._preset_path = None
+            self._preset_wanted = set()
+            self._log(
+                f"ReShade wizard: '{preset.name}' has no Techniques= line \u2014 "
+                "not a usable preset, ignoring."
+            )
+        else:
+            self._preset_path = preset
+            self._preset_wanted = wanted
+            self._log(
+                f"ReShade wizard: preset '{preset.name}' selected \u2014 "
+                f"{len(wanted)} effect file(s) required."
+            )
+        self._show_step_shaders()
+
+    def _clear_preset(self):
+        self._preset_path = None
+        self._preset_wanted = set()
+        self._preset_missing = set()
+        self._show_step_shaders()
+
     # ------------------------------------------------------------------
-    # Step 2 — Download ReShade
+    # Step 3 — Download ReShade
     # ------------------------------------------------------------------
 
     def _show_step_download(self):
         self._clear_body()
 
         ctk.CTkLabel(
-            self._body, text="Step 2: Download ReShade",
+            self._body, text="Step 3: Download ReShade",
             font=FONT_BOLD, text_color=TEXT_MAIN,
         ).pack(pady=(0, 12))
 
@@ -398,10 +690,15 @@ class ReShadeWizard(ctk.CTkFrame):
                 except Exception as e:
                     dll_exc.append(e)
 
-            selected_packs = [
-                pack for pack, var in zip(_OPTIONAL_SHADER_PACKS, self._shader_pack_vars)
-                if var.get()
-            ]
+            # With a preset, download every pack and trim afterwards;
+            # otherwise only the packs the user ticked.
+            if self._preset_path is not None:
+                selected_packs = list(_OPTIONAL_SHADER_PACKS)
+            else:
+                selected_packs = [
+                    pack for pack, var in zip(_OPTIONAL_SHADER_PACKS, self._shader_pack_vars)
+                    if var.get()
+                ]
 
             def _get_shaders():
                 try:
@@ -422,7 +719,29 @@ class ReShadeWizard(ctk.CTkFrame):
             self._extracted_dll = dll_result[0]
             self._extracted_shaders = shaders_result[0]
             self._log(f"ReShade wizard: downloaded {self._extracted_dll.name} and shaders.")
-            self._set_dl_status("Downloaded ReShade and shaders successfully.", color=TEXT_OK)
+
+            # Trim the assembled shader set down to the preset's effects.
+            ok_msg = "Downloaded ReShade and shaders successfully."
+            if self._preset_path is not None and self._preset_wanted:
+                self._set_dl_status("Trimming shaders to preset…")
+                self._preset_missing = prune_shaders_to_preset(
+                    self._extracted_shaders, self._preset_wanted
+                )
+                kept = len(self._preset_wanted) - len(self._preset_missing)
+                self._log(
+                    f"ReShade wizard: kept {kept}/{len(self._preset_wanted)} "
+                    f"preset effect(s); {len(self._preset_missing)} missing."
+                )
+                if self._preset_missing:
+                    miss = ", ".join(sorted(self._preset_missing))
+                    ok_msg = (
+                        f"Installed {kept} of {len(self._preset_wanted)} preset effects.\n"
+                        f"Missing (not in any pack): {miss}"
+                    )
+                    self._log(f"ReShade wizard: missing preset effects: {miss}")
+                else:
+                    ok_msg = f"Trimmed shaders to {kept} preset effect(s)."
+            self._set_dl_status(ok_msg, color=TEXT_OK)
             self.after(0, lambda: [
                 self._progress.stop(),
                 self._progress.pack_forget(),
@@ -445,14 +764,14 @@ class ReShadeWizard(ctk.CTkFrame):
             pass
 
     # ------------------------------------------------------------------
-    # Step 2 — Install d3dcompiler_47
+    # Step 4 — Install d3dcompiler_47
     # ------------------------------------------------------------------
 
     def _show_step_d3dcompiler(self):
         self._clear_body()
 
         ctk.CTkLabel(
-            self._body, text="Step 3: Install d3dcompiler_47",
+            self._body, text="Step 4: Install d3dcompiler_47",
             font=FONT_BOLD, text_color=TEXT_MAIN,
         ).pack(pady=(0, 12))
 
@@ -558,14 +877,14 @@ class ReShadeWizard(ctk.CTkFrame):
             pass
 
     # ------------------------------------------------------------------
-    # Step 3 — Install files
+    # Step 5 — Install files
     # ------------------------------------------------------------------
 
     def _show_step_install(self):
         self._clear_body()
 
         ctk.CTkLabel(
-            self._body, text="Step 4: Install ReShade",
+            self._body, text="Step 5: Install ReShade",
             font=FONT_BOLD, text_color=TEXT_MAIN,
         ).pack(pady=(0, 12))
 
@@ -579,13 +898,46 @@ class ReShadeWizard(ctk.CTkFrame):
             font=FONT_NORMAL, text_color=TEXT_DIM, justify="center", wraplength=460,
         ).pack(pady=(0, 12))
 
-        ctk.CTkCheckBox(
-            self._body,
-            text="Install to Root_Folder (staging) instead of game folder",
-            variable=self._install_to_root_folder,
-            font=FONT_SMALL, text_color=TEXT_DIM,
-            fg_color=ACCENT, hover_color=ACCENT_HOV, checkmark_color="white",
-        ).pack(pady=(0, 16))
+        dest_box = ctk.CTkFrame(self._body, fg_color=BG_PANEL, corner_radius=6)
+        dest_box.pack(fill="x", pady=(0, 12))
+
+        ctk.CTkLabel(
+            dest_box, text="Install destination",
+            font=FONT_BOLD, text_color=TEXT_MAIN, anchor="w",
+        ).pack(anchor="w", padx=12, pady=(10, 4))
+
+        ctk.CTkRadioButton(
+            dest_box, text="Game folder", value="game", variable=self._install_dest,
+            font=FONT_NORMAL, text_color=TEXT_MAIN,
+            fg_color=ACCENT, hover_color=ACCENT_HOV,
+            command=self._sync_mod_name_state,
+        ).pack(anchor="w", padx=12, pady=2)
+
+        ctk.CTkRadioButton(
+            dest_box, text="Root_Folder (staging)", value="root_folder", variable=self._install_dest,
+            font=FONT_NORMAL, text_color=TEXT_MAIN,
+            fg_color=ACCENT, hover_color=ACCENT_HOV,
+            command=self._sync_mod_name_state,
+        ).pack(anchor="w", padx=12, pady=2)
+
+        ctk.CTkRadioButton(
+            dest_box, text="As a managed mod (root-flagged)", value="mod", variable=self._install_dest,
+            font=FONT_NORMAL, text_color=TEXT_MAIN,
+            fg_color=ACCENT, hover_color=ACCENT_HOV,
+            command=self._sync_mod_name_state,
+        ).pack(anchor="w", padx=12, pady=2)
+
+        mod_row = ctk.CTkFrame(dest_box, fg_color="transparent")
+        mod_row.pack(fill="x", padx=12, pady=(2, 10))
+        ctk.CTkLabel(
+            mod_row, text="Mod name:", font=FONT_SMALL, text_color=TEXT_DIM,
+        ).pack(side="left", padx=(24, 6))
+        self._mod_name_entry = ctk.CTkEntry(
+            mod_row, textvariable=self._mod_name_var, width=240,
+            font=FONT_NORMAL, fg_color=BG_DEEP, text_color=TEXT_MAIN,
+        )
+        self._mod_name_entry.pack(side="left")
+        self._sync_mod_name_state()
 
         self._install_status = ctk.CTkLabel(
             self._body, text="", font=FONT_NORMAL, text_color=TEXT_DIM,
@@ -610,20 +962,51 @@ class ReShadeWizard(ctk.CTkFrame):
         )
         self._do_install_btn.pack(side="right")
 
+    def _sync_mod_name_state(self):
+        """Enable the mod-name entry only when installing as a managed mod."""
+        try:
+            state = "normal" if self._install_dest.get() == "mod" else "disabled"
+            self._mod_name_entry.configure(state=state)
+        except Exception:
+            pass
+
     def _do_install(self):
         self._do_install_btn.configure(state="disabled", text="Installing\u2026")
 
         def _run():
             try:
-                use_root_folder = self._install_to_root_folder.get()
+                dest = self._install_dest.get()
 
-                # Derive exe subdir from the game handler (e.g. "bin/x64" for Cyberpunk)
-                game_exe = getattr(self._game, "exe_name", "") or ""
-                exe_subdir = Path(game_exe).parent if game_exe else Path(".")
-                if exe_subdir == Path("."):
+                # ReShade must live next to the rendering exe.  Ask the game
+                # handler for the install subdir relative to the game root
+                # (e.g. "bin/x64" for Cyberpunk, "<Project>/Binaries/Win64" for
+                # UE5).  This subdir is mirrored inside Root_Folder / mod staging
+                # too, since those deploy verbatim to the game root.
+                game_root = self._game.get_game_path()
+                try:
+                    exe_subdir = self._game.reshade_install_subdir(game_root)
+                except Exception as exc:
+                    self._log(f"ReShade wizard: reshade_install_subdir failed ({exc}); using game root.")
                     exe_subdir = None
+                if exe_subdir is not None:
+                    self._log(f"ReShade wizard: install subdir resolved to '{exe_subdir}'.")
 
-                if use_root_folder:
+                mod_dir: "Path | None" = None
+                if dest == "mod":
+                    mod_name = self._mod_name_var.get().strip() or "ReShade"
+                    from wizards._install_as_mod import register_as_mod
+                    # Creates staging/<mod>/, writes meta.ini (rootFolder=true),
+                    # prepends to modlist and refreshes the panel.
+                    mod_dir = register_as_mod(
+                        self._game, mod_name, None,
+                        parent_widget=self, log_fn=self._log,
+                        root_folder=True,
+                    )
+                    # Root-flagged mods deploy verbatim to game root, so mirror
+                    # the exe subdir inside the mod folder.
+                    base_dir = mod_dir
+                    dest_label = f"managed mod \u201c{mod_name}\u201d (root-flagged)"
+                elif dest == "root_folder":
                     base_dir = self._game.get_effective_root_folder_path()
                     base_dir.mkdir(parents=True, exist_ok=True)
                     dest_label = "Root_Folder (staging)"
@@ -635,6 +1018,8 @@ class ReShadeWizard(ctk.CTkFrame):
 
                 dest_dir = base_dir / exe_subdir if exe_subdir else base_dir
                 dest_dir.mkdir(parents=True, exist_ok=True)
+                if exe_subdir:
+                    dest_label += f" (under {exe_subdir})"
 
                 dll_src = self._extracted_dll
                 if dll_src is None or not dll_src.is_file():
@@ -644,13 +1029,17 @@ class ReShadeWizard(ctk.CTkFrame):
                 shutil.copy2(str(dll_src), str(dest_dir / self._reshade_dll))
                 self._log(f"ReShade wizard: copied {dll_src.name} → {self._reshade_dll}")
 
-                # 2. Copy bundled ReShade.ini and create blank ReShadePreset.ini
+                # 2. Copy bundled ReShade.ini and the preset (or a blank one).
                 src_ini = Path(__file__).parent / "ReShade.ini"
                 if src_ini.is_file():
                     shutil.copy2(str(src_ini), str(dest_dir / "ReShade.ini"))
                     self._log("ReShade wizard: copied ReShade.ini")
-                (dest_dir / "ReShadePreset.ini").touch()
-                self._log("ReShade wizard: created ReShadePreset.ini")
+                if self._preset_path is not None and self._preset_path.is_file():
+                    shutil.copy2(str(self._preset_path), str(dest_dir / "ReShadePreset.ini"))
+                    self._log(f"ReShade wizard: installed preset {self._preset_path.name} as ReShadePreset.ini")
+                else:
+                    (dest_dir / "ReShadePreset.ini").touch()
+                    self._log("ReShade wizard: created ReShadePreset.ini")
 
                 # 3. Copy reshade-shaders/ directly into dest_dir
                 shaders_src = self._extracted_shaders
@@ -679,9 +1068,14 @@ class ReShadeWizard(ctk.CTkFrame):
                         f'WINEDLLOVERRIDES="{self._override_key}=native,builtin" %command%'
                     )
 
+                deploy_note = (
+                    "\nDeploy your mods to copy ReShade into the game folder.\n"
+                    if dest in ("mod", "root_folder") else ""
+                )
                 self._set_install_status(
                     f"\u2713 ReShade installed to {dest_label}.\n"
-                    f"{override_note}\n\n"
+                    f"{override_note}\n"
+                    f"{deploy_note}\n"
                     "Click Done to close.",
                     color=TEXT_OK,
                 )

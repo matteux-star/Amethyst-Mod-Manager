@@ -65,7 +65,7 @@ class MarvelRivals(UE5Game):
 
     @property
     def exe_name(self) -> str:
-        return "MarvelRivals_Launcher.exe"
+        return "MarvelGame/Marvel/Binaries/Win64/Marvel-Win64-Shipping.exe"
 
     @property
     def steam_id(self) -> str:

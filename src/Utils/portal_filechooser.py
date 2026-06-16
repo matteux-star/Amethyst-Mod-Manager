@@ -749,6 +749,23 @@ def pick_exe_file(title: str, callback: Callable[[Path | None], None]) -> None:
     ).start()
 
 
+_PRESET_FILTERS = [
+    ("ReShade preset (*.ini, *.txt)", ["*.ini", "*.txt"]),
+    ("All files", ["*"]),
+]
+
+
+def pick_preset_file(title: str, callback: Callable[[Path | None], None]) -> None:
+    """Open a native file picker filtered to preset files (.ini/.txt) via XDG portal.
+    Runs in a background thread; callback is invoked with the selected Path or None.
+    """
+    threading.Thread(
+        target=_run_file_picker_worker,
+        args=(title, _PRESET_FILTERS, callback),
+        daemon=True,
+    ).start()
+
+
 # ---------------------------------------------------------------------------
 # Save-file picker
 # ---------------------------------------------------------------------------

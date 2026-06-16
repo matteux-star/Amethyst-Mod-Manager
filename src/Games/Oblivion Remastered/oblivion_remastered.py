@@ -68,8 +68,7 @@ class OblivionRemastered(UE5Game):
 
     @property
     def exe_name(self) -> str:
-        # The launcher lives one level above the OblivionRemastered/ subfolder
-        return "OblivionRemastered.exe"
+        return "OblivionRemastered/Binaries/Win64/OblivionRemastered-Win64-Shipping.exe"
 
     @property
     def steam_id(self) -> str:

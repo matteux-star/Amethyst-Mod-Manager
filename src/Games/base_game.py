@@ -904,33 +904,55 @@ class BaseGame(ABC):
     @property
     def reshade_dll(self) -> str | None:
         """
-        DLL name that ReShade should be installed as in the game folder.
+        Suggested DLL name that ReShade should be installed as.
 
-        The correct value depends on the graphics API the game uses:
+        This is only a *hint* used to pre-select the right option in the
+        ReShade wizard — the user can always change it there.  The correct
+        value depends on the graphics API the game uses:
           - DirectX 9          → ``"d3d9.dll"``
           - DirectX 10/11/12   → ``"dxgi.dll"``
           - OpenGL             → ``"opengl32.dll"``
 
-        When set, a *Install ReShade* entry is automatically added to
-        :attr:`wizard_tools` so the wizard appears in the Wizard menu
-        without any further changes to the game handler.
-
-        Return ``None`` (the default) to disable ReShade support for this
-        game.
+        The ReShade wizard is offered for every game regardless of this
+        value; return ``None`` (the default) to leave the wizard's DLL
+        choice unset so the user picks it manually (e.g. custom games).
         """
         return None
 
     @property
-    def reshade_arch(self) -> int:
+    def reshade_arch(self) -> int | None:
         """
-        Executable architecture for ReShade DLL selection: ``32`` or ``64``.
+        Suggested executable architecture for ReShade: ``32`` or ``64``.
 
-        Controls whether ``ReShade32.dll`` or ``ReShade64.dll`` is extracted
-        from the installer.  Defaults to ``64``; override to ``32`` for
-        legacy 32-bit games (e.g. Fallout 3, Fallout New Vegas, Oblivion,
-        Skyrim classic).
+        Like :attr:`reshade_dll`, this only pre-selects the matching option
+        in the wizard; the user can override it.  Controls whether
+        ``ReShade32.dll`` or ``ReShade64.dll`` is extracted from the
+        installer.  Override to ``32`` for legacy 32-bit games (e.g.
+        Fallout 3, Fallout New Vegas, Oblivion, Skyrim classic).
+
+        Return ``None`` (the default) to leave the choice unset so the user
+        picks it manually.
         """
-        return 64
+        return None
+
+    def reshade_install_subdir(self, game_path: "Path") -> "Path | None":
+        """Return the game-root-relative folder where ReShade (the proxy DLL,
+        ReShade.ini, preset and ``reshade-shaders/``) must be installed.
+
+        ReShade has to sit next to the *rendering* executable so the graphics
+        API proxy DLL gets loaded.  For most games that is the folder holding
+        :attr:`exe_name`.  Games whose ``exe_name`` is a bootstrap launcher
+        sitting above the real binary (e.g. Unreal Engine titles, where the
+        shipping exe lives under ``<Project>/Binaries/Win64/``) override this
+        to point at the actual binary's directory.
+
+        *game_path* is the resolved install root, so implementations can probe
+        the on-disk layout.  Return ``None`` to mean "the game root itself"
+        (no subdir).
+        """
+        exe = self.exe_name or ""
+        subdir = Path(exe).parent if exe else Path(".")
+        return None if subdir == Path(".") else subdir
 
     @property
     def wizard_tools(self) -> list[WizardTool]:
@@ -967,14 +989,13 @@ class BaseGame(ABC):
                 return self._base_wizard_tools() + [WizardTool(...)]
         """
         tools: list[WizardTool] = []
-        if self.reshade_dll:
-            tools.append(WizardTool(
-                id="install_reshade",
-                label="Install ReShade",
-                description=f"Download and install ReShade ({self.reshade_dll}) into the game folder.",
-                dialog_class_path="wizards.reshade.ReShadeWizard",
-                extra={"reshade_dll": self.reshade_dll, "reshade_arch": self.reshade_arch},
-            ))
+        tools.append(WizardTool(
+            id="install_reshade",
+            label="Install ReShade",
+            description="Download and install ReShade into the game folder.",
+            dialog_class_path="wizards.reshade.ReShadeWizard",
+            extra={"reshade_dll": self.reshade_dll, "reshade_arch": self.reshade_arch},
+        ))
         return tools
 
     # -----------------------------------------------------------------------

@@ -242,6 +242,50 @@ class UE5Game(BaseGame):
         """Destination for files that match no rule.  Defaults to game root."""
         return ""
 
+    def reshade_install_subdir(self, game_path: "Path") -> "Path | None":
+        """ReShade must sit next to the real rendering binary, which in Unreal
+        Engine games lives under ``<Project>/Binaries/Win64/`` rather than the
+        bootstrap launcher at the game root (the official ReShade installer
+        follows the launcher's embedded ``IDI_EXEC_FILE`` resource to find it).
+
+        Locate the ``Binaries/Win64`` folder that holds the shipping exe and
+        return it relative to *game_path*.  Falls back to the base behaviour
+        (parent of :attr:`exe_name`) if the layout can't be found on disk.
+        """
+        if game_path is not None and Path(game_path).is_dir():
+            root = Path(game_path)
+            candidates: list[Path] = []
+            # get_game_path() already resolves to the UE project root, so
+            # Binaries/Win64 usually sits directly under it; allow a couple of
+            # nesting levels in case a handler points at the install root.
+            for pattern in ("Binaries/Win64", "*/Binaries/Win64", "*/*/Binaries/Win64"):
+                for win64 in root.glob(pattern):
+                    if win64.is_dir():
+                        candidates.append(win64)
+                if candidates:
+                    break
+
+            def _has_shipping_exe(d: Path) -> bool:
+                try:
+                    return any(p.name.lower().endswith("-shipping.exe") for p in d.iterdir())
+                except OSError:
+                    return False
+
+            # Prefer a Win64 folder that actually contains a *-Shipping.exe.
+            best = next((c for c in candidates if _has_shipping_exe(c)), None)
+            if best is None and candidates:
+                best = min(candidates, key=lambda p: len(p.parts))
+            if best is not None:
+                try:
+                    return best.relative_to(root)
+                except ValueError:
+                    return best
+
+        # Disk probe failed (game not installed yet, etc.). UE projects always
+        # render from Binaries/Win64 relative to the project root, so default
+        # there rather than the bootstrap launcher's folder.
+        return Path("Binaries/Win64")
+
     # -----------------------------------------------------------------------
     # Paths (concrete default — subclasses may override)
     # -----------------------------------------------------------------------
