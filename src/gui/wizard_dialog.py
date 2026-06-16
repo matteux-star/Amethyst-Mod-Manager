@@ -69,7 +69,12 @@ _CATEGORY_RULES: list[tuple[tuple[str, ...], str]] = [
     # LOD & textures
     (("texgen", "dyndolod", "xlodgen"), "LOD & Textures"),
     # Patchers & cleanup
-    (("pgpatcher", "sseedit", "eslifier", "skygen", "plugin_audit",
+    #   xEdit ships under many build names (SSEEdit, FO4Edit, FNVEdit, TES5Edit,
+    #   SF1Edit, …) whose wizard ids share the "<build>edit_<suffix>" shape, so
+    #   match the generic "edit_" infix to catch the whole family — not just
+    #   SSEEdit.  Trailing "_" keeps it from matching unrelated ids like
+    #   "editor"/"credits".
+    (("pgpatcher", "edit_", "eslifier", "skygen", "plugin_audit",
       "script_merger", "gpak"), "Patchers & Cleanup"),
     # Load order & config
     (("wrye_bash", "bethini"), "Load Order & Config"),
