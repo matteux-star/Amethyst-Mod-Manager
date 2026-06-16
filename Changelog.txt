@@ -14,6 +14,8 @@
 - Added a wizard for ESLifier
 - Reworked the reshade wizard
 - The pandora wizard now auto applies the dark theme.
+- Renamed the ini files tab since the tab shows more than just ini files
+- Mods that contain plugins modified in xedit are now flagged
 
 - v1.3.9
 - Potential fix for ssl error causing nexus login to fail

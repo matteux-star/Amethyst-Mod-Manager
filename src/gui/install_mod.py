@@ -77,6 +77,52 @@ def get_uncompressed_size(path: str, compressed_size: int = 0) -> int:
     return compressed_size * 15
 
 
+def _path_is_tmpfs(path: str) -> bool:
+    """Best-effort check whether *path* lives on a tmpfs (ramdisk) mount.
+
+    Used to avoid silently extracting a multi-GB archive into a small
+    tmpfs ``/tmp``, where overflowing the mount's ``size=`` cap surfaces as
+    errno EDQUOT ("Disk Quota Exceeded") rather than ENOSPC.
+    """
+    try:
+        # f_blocks * f_frsize is the *total* size of the mount.  A tmpfs is
+        # typically a small fraction of RAM; a real disk is far larger.  We
+        # don't have statfs f_type from os.statvfs, so size is our proxy.
+        st = os.statvfs(path)
+        return st.f_blocks * st.f_frsize < 8 * 1024 ** 3  # < 8 GiB ⇒ treat as ramdisk
+    except OSError:
+        return False
+
+
+def _is_disk_full_error(text: str | None) -> bool:
+    """True if *text* (tool stderr) reports an out-of-space condition.
+
+    Covers both ENOSPC ("No space left") and the tmpfs size-cap case, which
+    the kernel reports as EDQUOT — surfaced by 7z/tar as "Disk Quota Exceeded".
+    """
+    if not text:
+        return False
+    low = text.lower()
+    return any(s in low for s in (
+        "disk quota exceeded", "quota exceeded",
+        "no space left", "enospc", "edquot",
+    ))
+
+
+def _reroute_extract_dir(old_dir: str, disk_parent: "Path") -> str:
+    """Discard *old_dir* and create a fresh extraction dir under *disk_parent*.
+
+    Falls back to keeping *old_dir* if the new location can't be created.
+    """
+    try:
+        Path(disk_parent).mkdir(parents=True, exist_ok=True)
+        new_dir = tempfile.mkdtemp(prefix="modmgr_", dir=str(disk_parent))
+    except OSError:
+        return old_dir
+    shutil.rmtree(old_dir, ignore_errors=True)
+    return new_dir
+
+
 def _get_available_memory_bytes() -> int:
     """Return available system memory in bytes via /proc/meminfo."""
     try:
@@ -1153,12 +1199,49 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
         _tmp_parent = None  # let mkdtemp use the default /tmp
     else:
         _tmp_parent = _staging.parent if _staging else None
-    try:
-        if _tmp_parent:
-            _tmp_parent.mkdir(parents=True, exist_ok=True)
-        extract_dir = tempfile.mkdtemp(prefix="modmgr_", dir=_tmp_parent or None)
-    except OSError:
+    # Resolve a concrete on-disk fallback parent (the staging filesystem) so
+    # that if the preferred location can't be created we never silently land
+    # back on the default tmpfs /tmp — overflowing that small ramdisk is what
+    # surfaces as "Disk Quota Exceeded" (EDQUOT) for large mods.
+    _disk_parent = _staging.parent if _staging else None
+    extract_dir = None
+    for _candidate in (_tmp_parent, _disk_parent, None):
+        try:
+            if _candidate is not None:
+                Path(_candidate).mkdir(parents=True, exist_ok=True)
+            extract_dir = tempfile.mkdtemp(prefix="modmgr_", dir=_candidate or None)
+        except OSError:
+            continue
+        # If we fell through to the default /tmp but it's a small ramdisk that
+        # can't hold the extraction, discard it and keep trying disk parents.
+        if (
+            _candidate is None
+            and _extract_size_estimate
+            and _path_is_tmpfs(extract_dir)
+        ):
+            try:
+                _free = os.statvfs(extract_dir)
+                if (_free.f_frsize * _free.f_bavail
+                        < _extract_size_estimate + 512 * 1024 * 1024):
+                    shutil.rmtree(extract_dir, ignore_errors=True)
+                    extract_dir = None
+                    continue
+            except OSError:
+                pass
+        break
+    if extract_dir is None:
+        # Last resort — let mkdtemp pick the default location.
         extract_dir = tempfile.mkdtemp(prefix="modmgr_")
+
+    # Record where the archive is being unpacked, and how much room is there,
+    # so disk-full / "Disk Quota Exceeded" failures are diagnosable from the log.
+    try:
+        _st = os.statvfs(extract_dir)
+        _free_gb = (_st.f_frsize * _st.f_bavail) / (1024 ** 3)
+        _loc = "ramdisk" if _path_is_tmpfs(extract_dir) else "disk"
+        log_fn(f"Extracting to {extract_dir} ({_loc}, {_free_gb:.1f} GB free)")
+    except OSError:
+        log_fn(f"Extracting to {extract_dir}")
 
     try:
         if not os.path.isfile(archive_path):
@@ -1267,6 +1350,19 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
                     [_7z_bin, "x", archive_path, f"-o{extract_dir}", "-y", "-mmt=on"],
                     stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
                 )
+                # If extraction ran out of room on a small tmpfs /tmp (surfaces
+                # as "Disk Quota Exceeded" / EDQUOT or ENOSPC), re-route to the
+                # on-disk staging filesystem and retry once before giving up.
+                if (result.returncode != 0
+                        and _is_disk_full_error(result.stderr)
+                        and _staging is not None
+                        and _path_is_tmpfs(extract_dir)):
+                    log_fn("Extraction filled the temp ramdisk — retrying on disk…")
+                    extract_dir = _reroute_extract_dir(extract_dir, _staging.parent)
+                    result = subprocess.run(
+                        [_7z_bin, "x", archive_path, f"-o{extract_dir}", "-y", "-mmt=on"],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+                    )
                 if result.returncode == 0:
                     _7z_done = True
                     log_fn("Extracted with 7z.")
