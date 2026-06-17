@@ -158,6 +158,20 @@ from gui.text_utils import truncate_text as _truncate_text_for_width, clear_trun
 from gui.tk_tooltip import TkTooltip
 
 
+# Name of the transient, non-interactive "ungrouped float" boundary row that is
+# inserted into _entries during a reverse-mode (priority-ascending) drag.  It
+# separates the high-priority mods that belong to no user separator (floated to
+# the bottom, just above Overwrite) from the last real user group, so dragging
+# across it is unambiguous.  Never saved to modlist.txt — stripped on uninvert.
+BOUNDARY_NAME = "__Ungrouped_Boundary__"
+
+# Sentinel "entry index" used in _visible_indices for the static (non-drag)
+# ungrouped-float divider.  It is NOT a valid index into _entries — _redraw
+# resolves it to self._static_boundary and every other vis[row] consumer treats
+# it as non-interactive (skips selection / hover / drag).
+BOUNDARY_ROW = -2
+
+
 def _copy_fomod_choice(src_profile_dir: Path, dst_profile_dir: Path, mod_name: str) -> None:
     """Copy a mod's saved installer choice JSON (FOMOD or BAIN) from one profile
     to another, if present."""
@@ -572,9 +586,33 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._drag_reordered_vars: list | None = None
         self._drag_saved_sort_column: str | None = None
         self._drag_saved_sort_ascending: bool | None = None
+        # Reverse-mode "ungrouped float": during a reverse-mode drag a transient,
+        # non-interactive boundary row (BOUNDARY_NAME) is inserted into _entries
+        # between the last user group and the high-priority mods that belong to no
+        # user separator, so those mods can sit at the bottom (just above
+        # Overwrite) while staying distinguishable from the last group's members.
+        # The boundary is stripped before saving.  See _activate_drag /
+        # _uninvert_entries_order.
+        self._drag_has_boundary: bool = False
+        # In the STATIC (non-drag) reverse-priority view the same divider is shown
+        # as a render-only synthetic row so the user can see where the last user
+        # separator's mods end and the ungrouped float begins.  It is injected
+        # into _visible_indices as the sentinel index BOUNDARY_ROW and resolved to
+        # this standalone ModEntry in _redraw; it is never part of _entries, so it
+        # never affects counts, saving, or the natural order.
+        self._static_boundary = ModEntry(
+            name=BOUNDARY_NAME, enabled=True, locked=True, is_separator=True,
+        )
+        self._static_boundary_visible: bool = False
 
         self._drag_pending:  bool = False  # waiting for click-vs-drag disambiguation
         self._drag_after_id: str | None = None  # after() id for drag-start timer
+        # Deferred-activation for clicking a highlighted mod inside a multi-
+        # selection: we must NOT start the drag (which physically inverts
+        # _entries in reverse mode) until the pointer actually moves, otherwise a
+        # plain click leaves the list re-sorted.  Holds (idx, cy) until the first
+        # real motion promotes it to a live drag, or release treats it as a click.
+        self._pending_multidrag: tuple[int, int] | None = None
         self._drag_scroll_after: str | None = None  # after() id for auto-scroll repeat
         self._drag_last_event_y: int = 0  # last widget-space Y from mouse drag
 
@@ -2303,11 +2341,28 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         # Must happen before _compute_visible_indices so priority-column sort works.
         if not self._priorities:
             mod_count = sum(1 for e in self._entries if not e.is_separator)
-            p = mod_count - 1
-            for idx, entry in enumerate(self._entries):
-                if not entry.is_separator:
-                    self._priorities[idx] = p
-                    p -= 1
+            # During a reverse-mode (priority-ascending) drag, _entries is
+            # physically inverted (lowest priority at the top — see
+            # _activate_drag).  The priority *number* of a mod is intrinsic to
+            # its real position, not the temporary physical order, so number
+            # from the bottom up in that case to keep the displayed numbers
+            # stable while dragging.
+            _inverted_physical = (
+                self._drag_saved_sort_column == "priority"
+                and self._drag_saved_sort_ascending
+            )
+            if _inverted_physical:
+                p = 0
+                for idx, entry in enumerate(self._entries):
+                    if not entry.is_separator:
+                        self._priorities[idx] = p
+                        p += 1
+            else:
+                p = mod_count - 1
+                for idx, entry in enumerate(self._entries):
+                    if not entry.is_separator:
+                        self._priorities[idx] = p
+                        p -= 1
 
         # Recompute visible indices only when something structural changed.
         if self._vis_dirty:
@@ -2363,12 +2418,29 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             row = first_row + s
             if s < vis_count and row < n:
                 i = vis[row]
-                entry = self._entries[i]
+                # BOUNDARY_ROW is a render-only sentinel (static divider); it is
+                # not a valid _entries index, so resolve it to the standalone
+                # boundary entry.  The drag divider is a real entry with the same
+                # name, so both fall into the same render branch below.
+                entry = self._static_boundary if i == BOUNDARY_ROW else self._entries[i]
                 y_top = row * row_h
                 y_bot = y_top + row_h
                 y_mid = y_top + row_h // 2
 
                 self._pool_data_idx[s] = i
+
+                if entry.name == BOUNDARY_NAME:
+                    # Transient ungrouped-float boundary: render a thin centered
+                    # divider line, nothing else.  Always repaint (cheap, rare).
+                    self._hide_pool_slot(s)
+                    self._pool_data_idx[s] = i
+                    _line_col = _theme.hover_tint(BG_DEEP, 50)
+                    c.coords(self._pool_sep_line_l[s],
+                             _SCALED_8, y_mid, cw - _SCALED_8, y_mid)
+                    c.itemconfigure(self._pool_sep_line_l[s],
+                                    fill=_line_col, state="normal", dash=(3, 3))
+                    _pool_last_state[s] = None
+                    continue
 
                 if entry.is_separator:
                     is_overwrite   = (entry.name == OVERWRITE_NAME)
@@ -3319,29 +3391,61 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         # higher-priority groups (top of list) move to the bottom when ascending.
         if self._sort_column == "priority" and self._sort_ascending:
             # Ascending = low priority first. Root Folder (lowest) goes to top,
-            # Overwrite (highest) goes to bottom; real groups are reversed between them.
-            # Overwrite's group may contain ungrouped mods — split those out so
-            # they reverse with the other groups while OW stays pinned at bottom.
+            # Overwrite (highest) goes to bottom; real user groups are reversed
+            # between them.  Mods that sit above the first user separator in
+            # natural order are "ungrouped" (they belong to no user separator)
+            # and are the HIGHEST priority — so they float to the bottom, just
+            # above Overwrite, rather than reversing up to the top.  Keeping them
+            # below the last user group (instead of pinned at the top) matches
+            # their real priority while never making them members of that group.
             ow_group  = next(((s, m) for s, m in groups
                               if s is not None and self._entries[s].name == OVERWRITE_NAME), None)
             rf_group  = next(((s, m) for s, m in groups
                               if s is not None and self._entries[s].name == ROOT_FOLDER_NAME), None)
-            middle = [(s, m) for s, m in groups if (s, m) != ow_group and (s, m) != rf_group]
+            user_groups = [(s, m) for s, m in groups if (s, m) != ow_group and (s, m) != rf_group]
+            ungrouped = None
             if ow_group is not None and ow_group[1]:
-                # Ungrouped mods live in OW's group — promote them to a separator-less
-                # group so they participate in the reversal.
-                middle.append((None, ow_group[1]))
+                # Ungrouped mods live in OW's group (between OW and the first
+                # user separator) — split them out as a separator-less group.
+                ungrouped = (None, ow_group[1])
                 ow_group = (ow_group[0], [])
             groups = (([rf_group] if rf_group else [])
-                      + list(reversed(middle))
+                      + list(reversed(user_groups))
+                      + ([ungrouped] if ungrouped else [])
                       + ([ow_group] if ow_group else []))
+
+            # Show the static divider (BOUNDARY_ROW sentinel) between the last
+            # user group and the ungrouped float so it's clear where that group
+            # ends.  Only when user separators exist and the last one (the group
+            # rendered directly above the float) is expanded — when it's
+            # collapsed the divider is shown only during a drag, not statically.
+            _last_user_sep = user_groups[0][0] if user_groups else None
+            _last_sep_collapsed = (
+                _last_user_sep is not None
+                and self._entries[_last_user_sep].name in self._collapsed_seps
+            )
+            self._static_boundary_visible = (
+                bool(user_groups) and not _last_sep_collapsed
+            )
+        else:
+            self._static_boundary_visible = False
 
         result: list[int] = []
         for sep_idx, mod_indices in groups:
+            # Inject the static divider just before the ungrouped float group.
+            if (self._static_boundary_visible and ungrouped is not None
+                    and mod_indices is ungrouped[1]):
+                result.append(BOUNDARY_ROW)
             if sep_idx is not None:
                 result.append(sep_idx)
             sorted_mods = sorted(mod_indices, key=key_fn, reverse=not self._sort_ascending)
             result.extend(sorted_mods)
+        # When there are no ungrouped float mods, the loop above never hits the
+        # injection point — add the divider just before Overwrite instead.
+        if self._static_boundary_visible and ungrouped is None:
+            _ow_pos = next((k for k, ei in enumerate(result)
+                            if ei >= 0 and self._entries[ei].name == OVERWRITE_NAME), len(result))
+            result.insert(_ow_pos, BOUNDARY_ROW)
         return result
 
     def _uninvert_entries_order(self):
@@ -3383,6 +3487,21 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             else:
                 middle.append(g)
 
+        # Recover the high-priority "ungrouped float".  In inverted order it sits
+        # below the transient boundary row (BOUNDARY_NAME), between the last user
+        # group and Overwrite.  The boundary is itself a separator, so groups_of()
+        # already split the float into its own group headed by that boundary —
+        # peel that group out (dropping the boundary row) so the float mods
+        # uninvert to the top, between OW and the first user group in natural
+        # order, never becoming members of the last user group.
+        ungrouped_idxs: list[int] = []
+        for g in list(middle):
+            sep_idx, mods = g
+            if sep_idx is not None and self._entries[sep_idx].name == BOUNDARY_NAME:
+                ungrouped_idxs = mods          # boundary row itself is discarded
+                middle.remove(g)
+                break
+
         # With no user separators, ungrouped mods live in Root's group
         # (first separator in inverted-visual order). Promote them to a
         # separator-less group so they reverse between OW and Root.
@@ -3391,8 +3510,9 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             rf_group = (rf_group[0], [])
 
         # Reverse middle groups and rebuild in natural order:
-        # [OW, highest-pri-group, ..., lowest-pri-group, Root]
+        # [OW, ungrouped-float, highest-pri-group, ..., lowest-pri-group, Root]
         new_groups = (([ow_group] if ow_group else [])
+                      + ([(None, ungrouped_idxs)] if ungrouped_idxs else [])
                       + list(reversed(middle))
                       + ([rf_group] if rf_group else []))
 
@@ -3552,7 +3672,18 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             return 0
         row = int(canvas_y // self.ROW_H)
         row = max(0, min(row, len(vis) - 1))
-        return vis[row]
+        ei = vis[row]
+        # The static divider sentinel is non-interactive — snap to the nearest
+        # real row so clicks/hover near it resolve to a real entry, never -2.
+        if ei == BOUNDARY_ROW:
+            for r in range(row + 1, len(vis)):
+                if vis[r] != BOUNDARY_ROW:
+                    return vis[r]
+            for r in range(row - 1, -1, -1):
+                if vis[r] != BOUNDARY_ROW:
+                    return vis[r]
+            return 0
+        return ei
 
     def _event_canvas_y(self, event) -> int:
         return int(self._canvas.canvasy(event.y))
@@ -3613,8 +3744,13 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             return
         # Cancel any previous pending drag
         self._cancel_drag_timer()
+        self._pending_multidrag = None
         cy = self._event_canvas_y(event)
         idx = self._canvas_y_to_index(cy)
+        # The transient ungrouped-float boundary row is non-interactive — never
+        # select, toggle, or start a drag from it.
+        if 0 <= idx < len(self._entries) and self._entries[idx].name == BOUNDARY_NAME:
+            return
         shift = bool(event.state & 0x1)
         ctrl  = bool(event.state & 0x4)
         # Alt mask varies across X11 setups: Mod1=0x8 on most Linux, 0x20000 on
@@ -3747,17 +3883,19 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                         self._sel_idx = idx
                     else:
                         lo_row, hi_row = min(lo_row, hi_row), max(lo_row, hi_row)
-                        self._sel_set = set(vis[lo_row : hi_row + 1])
+                        self._sel_set = {ei for ei in vis[lo_row : hi_row + 1]
+                                         if ei != BOUNDARY_ROW}
                     if self._on_mod_selected_cb is not None:
                         self._on_mod_selected_cb()
                     self._redraw()
                     return
                 # If this separator is part of an existing multi-selection, preserve
                 # it so the whole selection drags together (same as non-separator path).
+                # Defer activation until movement so a plain click doesn't invert
+                # _entries in reverse mode (see _pending_multidrag).
                 _sep_is_locked = self._sep_locks.get(self._entries[idx].name, False)
                 if idx in self._sel_set and len(self._sel_set) > 1 and not _sep_is_locked:
-                    self._activate_drag(idx, cy, False, [])
-                    self._redraw()
+                    self._pending_multidrag = (idx, cy)
                     return
                 self._sel_idx = idx
                 self._sel_set = {idx}
@@ -3804,7 +3942,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                 self._sel_idx = idx
             else:
                 lo_row, hi_row = min(lo_row, hi_row), max(lo_row, hi_row)
-                self._sel_set = set(vis[lo_row : hi_row + 1])
+                self._sel_set = {ei for ei in vis[lo_row : hi_row + 1]
+                                 if ei != BOUNDARY_ROW}
             if self._on_mod_selected_cb is not None:
                 self._on_mod_selected_cb()
             self._redraw()
@@ -3813,10 +3952,13 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
 
         # If clicking inside an existing multi-selection, preserve it so the
         # user can drag the whole group — only collapse to single on release.
+        # Defer starting the drag (which physically inverts _entries in reverse
+        # mode) until the pointer actually moves: a plain click must leave the
+        # list untouched and simply collapse the selection on release.
         _is_immovable = self._entries[idx].locked or self._bundle_name_of(idx) is not None
         if idx in self._sel_set and len(self._sel_set) > 1:
             if not _is_immovable:
-                self._activate_drag(idx, cy, False, [])
+                self._pending_multidrag = (idx, cy)
             return
 
         self._sel_idx = idx
@@ -3936,34 +4078,84 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                 else:
                     middle.append(g)
 
-            # With no user separators, ungrouped mods live in OW's group
-            # (first separator in natural order). Promote them to a
-            # separator-less group so they reverse between RF and OW.
+            # Ungrouped mods live in OW's group (between OW and the first user
+            # separator in natural order) — split them out so they can float to
+            # the bottom (just above OW) instead of reversing up to the top.
+            # This must match the static display order in _apply_column_sort.
+            ungrouped = None
             if ow_group is not None and ow_group[1]:
-                middle.append((None, ow_group[1]))
+                ungrouped = (None, ow_group[1])
                 ow_group = (ow_group[0], [])
 
-            # Inverted order: Root first, middle reversed, OW last.
+            # The ungrouped float slot sits between the last user group and OW.
+            # When user separators exist, always reserve it (even if there are no
+            # ungrouped mods yet) so the user can drop a mod at the bottom without
+            # it joining the last separator's block.  ungrouped may be empty.
+            if ungrouped is None:
+                ungrouped = (None, [])
+
+            # Inverted order: Root, reversed user groups, ungrouped float, OW.
             inv_groups = (([rf_group] if rf_group else [])
                           + list(reversed(middle))
+                          + [ungrouped]
                           + ([ow_group] if ow_group else []))
 
-            new_order: list[int] = []
+            # A transient, non-interactive boundary row marks the divider above
+            # the ungrouped float so dragging across it stays unambiguous and the
+            # round-trip (uninvert) can recover the split point exactly.  Show it
+            # whenever user separators exist (so the bottom-but-ungrouped slot is
+            # always reachable) — not only when float mods are already present.
+            # The boundary ModEntry lives only in _entries during the drag and is
+            # dropped by _uninvert_entries_order; it is never saved.
+            self._drag_has_boundary = bool(middle)
+
+            # Build the reordered entries/vars directly so the boundary row can be
+            # spliced in.  new_real_order holds old indices of the real entries in
+            # their new positions; the boundary (when present) is interleaved.
+            new_entries: list = []
+            new_vars: list = []
+            new_real_order: list[int] = []
             for _sep_idx, _mods in inv_groups:
+                if (self._drag_has_boundary and _mods is ungrouped[1]):
+                    # This is the floated ungrouped group (possibly empty) —
+                    # precede it with the boundary divider row.
+                    new_entries.append(ModEntry(
+                        name=BOUNDARY_NAME, enabled=True, locked=True,
+                        is_separator=True,
+                    ))
+                    new_vars.append(None)
                 if _sep_idx is not None:
-                    new_order.append(_sep_idx)
+                    new_entries.append(self._entries[_sep_idx])
+                    new_vars.append(self._check_vars[_sep_idx])
+                    new_real_order.append(_sep_idx)
                 # Within each group, reverse mod order so ascending priority
                 # (lowest-pri first) matches the visual display.
-                new_order.extend(reversed(_mods))
+                for _mi in reversed(_mods):
+                    new_entries.append(self._entries[_mi])
+                    new_vars.append(self._check_vars[_mi])
+                    new_real_order.append(_mi)
 
-            new_entries = [self._entries[i] for i in new_order]
-            new_vars = [self._check_vars[i] for i in new_order]
             self._entries[:] = new_entries
             self._check_vars[:] = new_vars
 
-            # Remap idx, sel_indices, and block references to new positions
-            old_to_new = {old: new for new, old in enumerate(new_order)}
+            # Remap idx, sel_indices, and block references to new positions.
+            # new_real_order maps "nth real entry" → old index; invert it and
+            # then account for the boundary row(s) inserted before some entries.
+            _old_for_pos = {i: old for i, old in enumerate(new_real_order)}
+            old_to_new: dict[int, int] = {}
+            _real_pos = 0
+            for _new_pos, _e in enumerate(new_entries):
+                if _e.name == BOUNDARY_NAME:
+                    continue
+                old_to_new[_old_for_pos[_real_pos]] = _new_pos
+                _real_pos += 1
             idx = old_to_new[idx]
+            # The selection holds NATURAL-order indices; remap them to the new
+            # inverted positions so the highlight stays on the same mods (and not
+            # on whatever entry now occupies the old index).
+            self._sel_set = {old_to_new[i] for i in self._sel_set if i in old_to_new}
+            if self._sel_idx in old_to_new:
+                self._sel_idx = old_to_new[self._sel_idx]
             if sel_indices:
                 sel_indices = sorted(old_to_new[i] for i in sel_indices)
                 self._drag_sel_indices = sel_indices
@@ -4281,6 +4473,17 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         )
 
     def _on_mouse_drag(self, event):
+        # Promote a deferred multi-selection drag to a live drag on the first
+        # real movement.  Until the pointer leaves the press row, treat it as a
+        # potential click and do nothing (so _entries is never inverted for what
+        # turns out to be a plain click).
+        if self._pending_multidrag is not None:
+            _p_idx, _p_cy = self._pending_multidrag
+            if abs(self._event_canvas_y(event) - _p_cy) < self.ROW_H // 2:
+                return
+            self._pending_multidrag = None
+            self._activate_drag(_p_idx, _p_cy, False, [])
+
         if self._drag_idx < 0 or not self._entries:
             return
 
@@ -4355,6 +4558,29 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         def _entry_name(ei):
             return self._entries[ei].name
 
+        # In reverse mode the physical _entries order is inverted, so a
+        # separator visually sits ABOVE the group it owns (instead of below it
+        # as in natural order).  Dropping just above such a separator should
+        # join that separator's group at its top, not fall through into the
+        # group above — otherwise a boundary drop lands in the Root-adjacent
+        # gap that uninvert maps to the very top (the "jumps to position 0"
+        # bug, GitHub #165).
+        _inverted_physical = (
+            self._drag_saved_sort_column == "priority"
+            and self._drag_saved_sort_ascending
+        )
+
+        # A full separator-block drag (the separator plus its own mods, moving as
+        # a unit) is a self-contained group.  Unlike a lone mod, it must NOT join
+        # the group below it — dropping it just above another user separator means
+        # "become a peer group directly above", so it inserts BEFORE that
+        # separator.  Otherwise (inverted join-group semantics + the priority-0
+        # top clamp) the block lands between the separator below and that
+        # separator's mods, orphaning those mods into the dragged group and making
+        # the top slot unreachable (GitHub: can't move a separator above the
+        # first group in reverse mode).
+        _is_full_sep_block = self._drag_is_block and not self._drag_sel_indices
+
         if slot == 0 and len(vis_without_drag) > 0:
             _pre_removal_insert = vis_without_drag[0]
         elif slot >= len(vis_without_drag):
@@ -4367,6 +4593,18 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                 below_name = _entry_name(below_ei)
                 if below_name == OVERWRITE_NAME:
                     _pre_removal_insert = below_ei + 1
+                elif below_name == BOUNDARY_NAME:
+                    # The ungrouped-float divider is the boundary itself, not a
+                    # group heading.  Dropping just above it means "last mod of
+                    # the group above the divider" — insert BEFORE the boundary so
+                    # this slot stays reachable.  (Dropping below the divider is
+                    # the next slot down, handled by below_ei == first float mod.)
+                    _pre_removal_insert = below_ei
+                elif _inverted_physical and not _is_full_sep_block:
+                    # Join the group this separator heads (insert after it).
+                    # Only for lone-mod / multi-select drags — a full separator
+                    # block stays above the separator (see _is_full_sep_block).
+                    _pre_removal_insert = below_ei + 1
                 else:
                     _pre_removal_insert = below_ei
             else:
@@ -4374,6 +4612,24 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
 
         # Prevent non-bundle mods from being dropped inside a bundle block.
         _pre_removal_insert = self._clamp_outside_bundle_blocks(_pre_removal_insert)
+
+        # In reverse mode the lowest-priority mod (priority 0) sits at the top,
+        # just under Root Folder.  If a user separator heads that top group, the
+        # gap between Root and that separator maps (on uninvert) to the HIGHEST
+        # priority — so a mod dropped there jumps to the top.  Forbid that: clamp
+        # the insertion to stay at or below the first user separator (i.e. never
+        # above the priority-0 position).
+        # This clamp guards a lone mod from landing in Root's ungrouped gap (which
+        # uninverts to the very top / highest priority).  A full separator block
+        # is exempt: dropping it above the first user separator legitimately makes
+        # it the lowest-priority group, not a stray priority-0 mod.
+        if _inverted_physical and not _is_full_sep_block:
+            _rf_idx = next((i for i, e in enumerate(self._entries)
+                            if e.is_separator and e.name == ROOT_FOLDER_NAME), None)
+            if _rf_idx is not None and _rf_idx + 1 < len(self._entries) \
+                    and self._entries[_rf_idx + 1].is_separator:
+                # A user separator immediately follows Root — floor is just after it.
+                _pre_removal_insert = max(_pre_removal_insert, _rf_idx + 2)
 
         # Confine drags inside a locked separator's block (Alt bypasses).
         # Re-check Alt each tick so the user can press/release Alt mid-drag.
@@ -4421,7 +4677,14 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             self._sel_idx  = insert_at
             self._sel_set  = {insert_at}
 
-        self._drag_moved = True
+        # Only count as a real move when the block ends at a different slot than
+        # it started.  A click (or jitter) inside a multi-selection enters this
+        # handler with slot == _drag_start_slot; in reverse mode _using_snapshot
+        # forces the insertion to be re-applied each event, so without this gate
+        # a zero-delta click would mark the drag "moved", commit an
+        # invert→uninvert round-trip on release, and visibly shuffle the list.
+        if slot != self._drag_start_slot:
+            self._drag_moved = True
         self._invalidate_derived_caches()
         self._vis_dirty = True
         self._mod_to_sep_idx = None
@@ -4430,11 +4693,36 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
     def _on_mouse_release(self, event):
         self._cancel_drag_timer()
         self._cancel_drag_autoscroll()
+
+        # A deferred multi-selection drag that never moved = a plain click inside
+        # the selection.  Collapse to the clicked mod without ever inverting
+        # _entries (so reverse-mode order is untouched).
+        if self._pending_multidrag is not None:
+            _p_idx, _ = self._pending_multidrag
+            self._pending_multidrag = None
+            self._sel_idx = _p_idx
+            self._sel_set = {_p_idx}
+            if self._on_mod_selected_cb is not None:
+                self._on_mod_selected_cb()
+            self._redraw()
+            self._update_info()
+            return
+
         had_multi = len(self._sel_set) > 1
 
         # Restore sort state if it was cleared for inverted drag
         _saved_col = self._drag_saved_sort_column
         _saved_asc = self._drag_saved_sort_ascending
+
+        # A click (or jitter) inside a multi-selection can momentarily toggle the
+        # drag slot away from and back to its origin, leaving _drag_moved set even
+        # though the block ended exactly where it began.  Committing that as a
+        # move runs an invert→uninvert round-trip that visibly re-sorts the list
+        # (priority 0 ends up at the bottom of the group).  Treat "ended at the
+        # origin slot" as no movement so the clean restore path runs instead.
+        if (self._drag_moved and self._drag_idx >= 0
+                and self._drag_slot == self._drag_start_slot):
+            self._drag_moved = False
 
         if self._drag_idx >= 0 and self._drag_moved:
             # Real-time reorder already happened during drag.
@@ -4476,11 +4764,26 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             self._mod_to_sep_idx = None
             self._rebuild_filemap()
         elif self._drag_idx >= 0 and not self._drag_moved:
-            # No movement — restore original _entries if we reordered for inverted drag
+            # No movement — restore original _entries if we reordered for inverted drag.
+            # The selection currently holds INVERTED-order indices (remapped in
+            # _activate_drag); capture the selected entry objects so we can recover
+            # their natural-order positions after restoring _entries.
+            _sel_entries = {id(self._entries[i]) for i in self._sel_set
+                            if 0 <= i < len(self._entries)}
+            _sel_idx_entry = (self._entries[self._sel_idx]
+                              if 0 <= self._sel_idx < len(self._entries) else None)
             _snap = self._drag_entries_snapshot
             if _snap is not None:
                 self._entries[:] = _snap
                 self._check_vars[:] = list(self._drag_vars_snapshot)
+                # Re-resolve the selection against the restored natural order.
+                self._sel_set = {i for i, e in enumerate(self._entries)
+                                 if id(e) in _sel_entries}
+                if _sel_idx_entry is not None:
+                    self._sel_idx = next(
+                        (i for i, e in enumerate(self._entries) if e is _sel_idx_entry),
+                        self._sel_idx,
+                    )
             if _saved_col is not None:
                 self._sort_column = _saved_col
                 self._sort_ascending = _saved_asc
@@ -4512,6 +4815,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._drag_reordered_vars = None
         self._drag_saved_sort_column = None
         self._drag_saved_sort_ascending = None
+        self._drag_has_boundary = False
         self._drag_lock_sep_name = None
         self._drag_lock_bypass = False
         if _saved_col is not None:
@@ -4638,6 +4942,12 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             old_hover = self._hover_idx
             self._hover_idx = new_hover
             self._repaint_hover_rows(old_hover, new_hover)
+
+        # The static divider sentinel is non-interactive — no tooltips / column
+        # hit-tests apply (and it is not a valid _entries index).
+        if new_hover == BOUNDARY_ROW:
+            self._tooltip.hide()
+            return
 
         # Show tooltip when hovering over the flags column icons.
         # Replicate the same layout logic as _redraw() to find which icon the cursor is over.
@@ -5760,10 +6070,17 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         if not any_changed:
             return
 
+        # In reverse-priority mode the display inverts _entries order within each
+        # group, so writing A→Z into ascending natural slots would render Z→A.
+        # Reverse the computed order (and keep the conflict block at the visual
+        # bottom = natural top) so the visible result is alphabetical.
+        _inverted = (self._sort_column == "priority" and self._sort_ascending)
+
         saved_col, saved_asc = self._clear_sort()
         new_sel: set[int] = set()
         for gslots, new_pairs in per_group_pairs:
-            for slot, (e, cv) in zip(gslots, new_pairs):
+            _pairs = list(reversed(new_pairs)) if _inverted else new_pairs
+            for slot, (e, cv) in zip(gslots, _pairs):
                 self._entries[slot] = e
                 self._check_vars[slot] = cv
                 new_sel.add(slot)
@@ -7436,7 +7753,25 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         (staging / "meta.ini").write_text(
             f"[General]\ninstalled={installed}\n", encoding="utf-8"
         )
-        insert_at = ref_idx + 1
+        # Insert the new mod in the visual row directly below ref_idx.  Under
+        # reverse-priority sort the display is inverted, so "below" in natural
+        # _entries order is flipped.
+        inverted = (self._sort_column == "priority" and self._sort_ascending)
+        if self._entries[ref_idx].is_separator:
+            # Separator ref: the new mod should join that separator's group as
+            # the row visually beneath the header.  In natural order that's the
+            # first group member (ref_idx + 1); under inversion the visually
+            # lower-priority end is the last member, just before the next
+            # separator (block_end).
+            block_end = ref_idx + 1
+            while (block_end < len(self._entries)
+                   and not self._entries[block_end].is_separator):
+                block_end += 1
+            insert_at = block_end if inverted else ref_idx + 1
+        else:
+            # Mod ref: "below" is ref_idx + 1 in natural order, ref_idx when the
+            # display is inverted (mods within a group are reversed).
+            insert_at = ref_idx if inverted else ref_idx + 1
         entry = ModEntry(name=mod_name, enabled=True, locked=False, is_separator=False)
         self._entries.insert(insert_at, entry)
         # Create logical var for the new mod (visual rendering uses pool)
@@ -8236,9 +8571,13 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             # when _redraw replaces _visible_indices (identity check) — not on
             # every scroll tick.
             if self._marker_maps_vis is not vis:
-                self._marker_ei_to_row = {ei: r for r, ei in enumerate(vis)}
+                # Skip the static-divider sentinel (BOUNDARY_ROW): it is not a
+                # valid _entries index and has no mod/separator to map.
+                self._marker_ei_to_row = {ei: r for r, ei in enumerate(vis)
+                                          if ei != BOUNDARY_ROW}
                 self._marker_name_to_row = {self._entries[ei].name: r
-                                            for r, ei in enumerate(vis)}
+                                            for r, ei in enumerate(vis)
+                                            if ei != BOUNDARY_ROW}
                 self._marker_maps_vis = vis
             ei_to_row = self._marker_ei_to_row
             name_to_row = self._marker_name_to_row

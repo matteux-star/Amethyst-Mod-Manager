@@ -1,5 +1,6 @@
 - v1.3.11
 - Reworked RE engine bundle style mods to be detected and presented better, an interface can now be opened for these mods to change the options. 
+- Fixed bugs related to reverse priority sorting
 
 - v1.3.10
 - Added Fallout 76 support
