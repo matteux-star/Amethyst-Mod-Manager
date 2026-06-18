@@ -5742,12 +5742,16 @@ class MissingReqsPanel(ctk.CTkFrame):
                  missing_ids: set, api,
                  install_from_browse,
                  ignored_set: set, save_ignored_fn,
-                 on_done=None):
+                 on_done=None, mods=None):
         super().__init__(parent, fg_color=BG_DEEP, corner_radius=0)
         self._mod_name = mod_name
         self._domain = domain
         self._mod_id = mod_id
         self._missing_ids = missing_ids
+        # Multi-mod mode: aggregate requirements across several mods.  Each
+        # entry is {"mod_name", "mod_id", "domain", "missing_ids"}.  When None,
+        # behave as the single-mod panel driven by the scalar fields above.
+        self._mods = list(mods) if mods else None
         self._api = api
         self._install_from_browse = install_from_browse
         self._ignored_set = ignored_set
@@ -5808,7 +5812,11 @@ class MissingReqsPanel(ctk.CTkFrame):
         footer = ctk.CTkFrame(self, fg_color=BG_PANEL, corner_radius=0)
         footer.pack(fill="x", side="bottom")
         ctk.CTkFrame(footer, fg_color=BORDER, height=1, corner_radius=0).pack(side="top", fill="x")
-        self._ignore_var = tk.BooleanVar(value=mod_name in ignored_set)
+        if self._mods is not None:
+            ignore_init = all(m["mod_name"] in ignored_set for m in self._mods)
+        else:
+            ignore_init = mod_name in ignored_set
+        self._ignore_var = tk.BooleanVar(value=ignore_init)
         ctk.CTkCheckBox(
             footer, text="Ignore requirements",
             variable=self._ignore_var,
@@ -5828,10 +5836,29 @@ class MissingReqsPanel(ctk.CTkFrame):
         err = None
         missing_list = []
         try:
-            all_reqs = self._api.get_mod_requirements(self._domain, self._mod_id)
-            for r in all_reqs:
-                if r.mod_id in self._missing_ids:
-                    missing_list.append(r)
+            if self._mods is not None:
+                # Aggregate every mod's missing requirements, deduping by the
+                # requirement's own mod-id so a shared dependency shows once.
+                seen: set = set()
+                errors: list[str] = []
+                for m in self._mods:
+                    try:
+                        all_reqs = self._api.get_mod_requirements(
+                            m["domain"], m["mod_id"])
+                    except Exception as e:
+                        errors.append(f"{m['mod_name']}: {e}")
+                        continue
+                    for r in all_reqs:
+                        if r.mod_id in m["missing_ids"] and r.mod_id not in seen:
+                            seen.add(r.mod_id)
+                            missing_list.append(r)
+                if not missing_list and errors:
+                    err = "Could not load requirements: " + "; ".join(errors)
+            else:
+                all_reqs = self._api.get_mod_requirements(self._domain, self._mod_id)
+                for r in all_reqs:
+                    if r.mod_id in self._missing_ids:
+                        missing_list.append(r)
         except Exception as e:
             err = f"Could not load requirements: {e}"
         self.after(0, lambda: self._fetch_done(missing_list, err))
@@ -6002,10 +6029,14 @@ class MissingReqsPanel(ctk.CTkFrame):
             open_url(url)
 
     def _on_ignore_toggle(self):
+        names = ([m["mod_name"] for m in self._mods]
+                 if self._mods is not None else [self._mod_name])
         if self._ignore_var.get():
-            self._ignored_set.add(self._mod_name)
+            for n in names:
+                self._ignored_set.add(n)
         else:
-            self._ignored_set.discard(self._mod_name)
+            for n in names:
+                self._ignored_set.discard(n)
         self._save_ignored_fn()
 
     def _close(self):

@@ -5271,6 +5271,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
 
         note_multi_names: list[str] = []
         note_multi_remove_names: list[str] = []
+        missing_reqs_multi_names: list[str] = []
         if is_multi:
             for ti in non_synthetic_real:
                 tname = entries[ti].name
@@ -5281,6 +5282,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                 note_multi_names.append(tname)
                 if tname in self._mod_notes_map:
                     note_multi_remove_names.append(tname)
+                if tname in self._missing_reqs:
+                    missing_reqs_multi_names.append(tname)
 
         return SimpleNamespace(
             idx=idx, mod_name=mod_name,
@@ -5302,6 +5305,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             root_folder_disable_multi=root_folder_disable_multi,
             note_multi_names=note_multi_names,
             note_multi_remove_names=note_multi_remove_names,
+            missing_reqs_multi_names=missing_reqs_multi_names,
             is_premium=is_premium, quick_update_names=quick_update_names,
         )
 
@@ -5553,6 +5557,12 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             dep_names = self._missing_reqs_detail.get(mod_name, [])
             menu.add_command("Missing Requirements",
                 lambda: self._show_missing_reqs(mod_name, dep_names))
+
+        # Missing Requirements (multi) — aggregate across selected mods
+        if c.is_multi and c.missing_reqs_multi_names:
+            names = list(c.missing_reqs_multi_names)
+            menu.add_command(f"Missing Requirements ({len(names)})",
+                lambda mns=names: self._show_missing_reqs_multi(mns))
 
         # Remove note (multi)
         if c.is_multi and c.note_multi_remove_names:
@@ -7266,6 +7276,55 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._log(f"Removed note from {removed} mod(s).")
         self._redraw()
 
+    def _build_missing_req_spec(self, mod_name: str, default_domain: str):
+        """Resolve (mod_id, domain, missing_ids) for one mod, or None on failure.
+
+        Logs the reason and returns None when the mod has no usable meta.ini /
+        Nexus mod-id / game domain.
+        """
+        meta_path = self._staging_root / mod_name / "meta.ini"
+        if not meta_path.is_file():
+            self._log(f"{mod_name}: No meta.ini found.")
+            return None
+        try:
+            meta = read_meta(meta_path)
+        except Exception:
+            self._log(f"{mod_name}: Could not read meta.ini.")
+            return None
+        if meta.mod_id <= 0:
+            self._log(f"{mod_name}: No Nexus mod ID.")
+            return None
+        domain = default_domain
+        if not domain and "/mods/" in meta.nexus_page_url:
+            domain = meta.nexus_page_url.split("/mods/")[0].rsplit("/", 1)[-1]
+        if not domain:
+            self._log(f"{mod_name}: Could not determine game domain.")
+            return None
+
+        missing_ids: set[int] = set()
+        for pair in (meta.missing_requirements or "").split(";"):
+            part = pair.split(":", 1)[0].strip()
+            if part:
+                try:
+                    missing_ids.add(int(part))
+                except ValueError:
+                    pass
+        return SimpleNamespace(
+            mod_name=mod_name, mod_id=meta.mod_id,
+            domain=domain, missing_ids=missing_ids,
+        )
+
+    def _missing_reqs_install_cb(self, app, api):
+        """Build the install-from-browse callback used by the missing-reqs panel."""
+        from gui.nexus_browser_overlay import install_nexus_mod_from_entry
+        mod_panel = self
+        game = self._game
+        log_fn_install = self._log
+        if api and game and game.is_configured():
+            return (lambda entry: install_nexus_mod_from_entry(
+                app, api, game, mod_panel, log_fn_install, entry))
+        return None
+
     def _show_missing_reqs(self, mod_name: str, dep_names: list[str]) -> None:
         """Show missing requirements as an inline overlay over the plugin panel."""
         app = self.winfo_toplevel()
@@ -7280,54 +7339,71 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         game = _GAMES.get(topbar._game_var.get()) if topbar else None
         domain = (game.nexus_game_domain if game and game.is_configured() else "") or ""
 
-        meta_path = self._staging_root / mod_name / "meta.ini"
-        if not meta_path.is_file():
-            self._log(f"{mod_name}: No meta.ini found.")
+        spec = self._build_missing_req_spec(mod_name, domain)
+        if spec is None:
             return
-        try:
-            meta = read_meta(meta_path)
-        except Exception:
-            self._log(f"{mod_name}: Could not read meta.ini.")
-            return
-        if meta.mod_id <= 0:
-            self._log(f"{mod_name}: No Nexus mod ID.")
-            return
-        if not domain and "/mods/" in meta.nexus_page_url:
-            domain = meta.nexus_page_url.split("/mods/")[0].rsplit("/", 1)[-1]
-        if not domain:
-            self._log("Could not determine game domain.")
-            return
-
-        missing_ids: set[int] = set()
-        for pair in (meta.missing_requirements or "").split(";"):
-            part = pair.split(":", 1)[0].strip()
-            if part:
-                try:
-                    missing_ids.add(int(part))
-                except ValueError:
-                    pass
-
-        # Install callback: download and install directly from Nexus (or open browser if not premium)
-        from gui.nexus_browser_overlay import install_nexus_mod_from_entry
-        mod_panel = self
-        game = self._game
-        api_for_install = api
-        log_fn_install = self._log
-        install_from_browse = (
-            lambda entry: install_nexus_mod_from_entry(app, api_for_install, game, mod_panel, log_fn_install, entry)
-        ) if (api_for_install and game and game.is_configured()) else None
 
         if hasattr(app, "show_missing_reqs_panel"):
             app.show_missing_reqs_panel(
                 mod_name=mod_name,
-                domain=domain,
-                mod_id=meta.mod_id,
-                missing_ids=missing_ids,
+                domain=spec.domain,
+                mod_id=spec.mod_id,
+                missing_ids=spec.missing_ids,
                 api=api,
-                install_from_browse=install_from_browse,
+                install_from_browse=self._missing_reqs_install_cb(app, api),
                 ignored_set=self._ignored_missing_reqs,
                 save_ignored_fn=self._save_ignored_missing_reqs,
                 redraw_fn=self._redraw,
+            )
+
+    def _show_missing_reqs_multi(self, mod_names: list[str]) -> None:
+        """Show the combined missing requirements of several selected mods.
+
+        Aggregates every mod's requirements into one panel; the panel itself
+        dedupes by requirement mod-id so a shared dependency is listed once.
+        """
+        app = self.winfo_toplevel()
+        api = getattr(app, "_nexus_api", None)
+        if api is None:
+            self._log("Nexus: Login to Nexus first.")
+            return
+        if self._modlist_path is None:
+            self._log("No profile loaded.")
+            return
+        topbar = getattr(app, "_topbar", None)
+        game = _GAMES.get(topbar._game_var.get()) if topbar else None
+        domain = (game.nexus_game_domain if game and game.is_configured() else "") or ""
+
+        specs = []
+        for mn in mod_names:
+            spec = self._build_missing_req_spec(mn, domain)
+            if spec is not None and spec.missing_ids:
+                specs.append(spec)
+        if not specs:
+            self._log("No resolvable missing requirements in the selection.")
+            return
+
+        # Single resolvable mod → fall back to the normal single-mod panel.
+        if len(specs) == 1:
+            self._show_missing_reqs(specs[0].mod_name, [])
+            return
+
+        if hasattr(app, "show_missing_reqs_panel"):
+            app.show_missing_reqs_panel(
+                mod_name=f"{len(specs)} mods",
+                domain=specs[0].domain,
+                mod_id=specs[0].mod_id,
+                missing_ids=specs[0].missing_ids,
+                api=api,
+                install_from_browse=self._missing_reqs_install_cb(app, api),
+                ignored_set=self._ignored_missing_reqs,
+                save_ignored_fn=self._save_ignored_missing_reqs,
+                redraw_fn=self._redraw,
+                mods=[
+                    {"mod_name": s.mod_name, "mod_id": s.mod_id,
+                     "domain": s.domain, "missing_ids": s.missing_ids}
+                    for s in specs
+                ],
             )
 
     def _show_overwrites_dialog(self, mod_name: str) -> None:

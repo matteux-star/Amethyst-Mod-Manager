@@ -2162,7 +2162,8 @@ class App(ctk.CTk):
 
     def show_missing_reqs_panel(self, mod_name, domain, mod_id, missing_ids,
                                 api, install_from_browse,
-                                ignored_set, save_ignored_fn, redraw_fn):
+                                ignored_set, save_ignored_fn, redraw_fn,
+                                mods=None):
         self._ensure_plugin_panel_visible()
         from gui.dialogs import MissingReqsPanel
         def _factory():
@@ -2175,7 +2176,7 @@ class App(ctk.CTk):
                 missing_ids=missing_ids, api=api,
                 install_from_browse=install_from_browse,
                 ignored_set=ignored_set, save_ignored_fn=save_ignored_fn,
-                on_done=_done,
+                on_done=_done, mods=mods,
             )
         self._show_plugin_overlay("_missing_reqs_panel", _factory)
 
