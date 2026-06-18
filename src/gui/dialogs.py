@@ -73,7 +73,7 @@ from gui.theme import (
 )
 import gui.theme as _theme
 from gui.path_utils import _to_wine_path
-from Utils.config_paths import get_exe_args_path, get_profile_exe_args_path, get_custom_game_images_dir, get_vcredist_cache_path, get_dotnet_cache_dir, get_custom_games_dir
+from Utils.config_paths import get_exe_args_path, get_profile_exe_args_path, get_custom_game_images_dir, get_vcredist_cache_path, get_dotnet_cache_dir, get_custom_games_dir, get_config_dir
 
 from gui.ctk_components import CTkAlert, CTkLoader, ICON_PATH
 from gui.tk_tooltip import TkTooltip
@@ -1067,26 +1067,57 @@ class ProtonToolsPanel(ctk.CTkFrame):
             command=self._on_close,
         ).pack(side="right", padx=4, pady=4)
 
-        # Body — centred vertically/horizontally
-        body = ctk.CTkFrame(self, fg_color=BG_DEEP)
+        # Body — scrollable so the categorised button list never gets clipped
+        # on short windows / high UI scales.
+        body = ctk.CTkScrollableFrame(self, fg_color=BG_DEEP, corner_radius=0)
         body.grid(row=1, column=0, sticky="nsew")
+        body.grid_columnconfigure(0, weight=1)
 
         inner = ctk.CTkFrame(body, fg_color="transparent")
-        inner.place(relx=0.5, rely=0.5, anchor="center")
+        inner.pack(anchor="center", pady=(14, 14))
 
         btn_cfg = dict(width=260, height=34, font=FONT_BOLD,
                        fg_color=ACCENT, hover_color=ACCENT_HOV, text_color=TEXT_ON_ACCENT)
 
-        ctk.CTkButton(inner, text="Run winecfg",                  command=self._run_winecfg,           **btn_cfg).pack(pady=(0, 6))
-        ctk.CTkButton(inner, text="Run protontricks",              command=self._run_protontricks,     **btn_cfg).pack(pady=(0, 6))
-        ctk.CTkButton(inner, text="Run EXE in this prefix …",      command=self._run_exe,               **btn_cfg).pack(pady=(0, 6))
-        ctk.CTkButton(inner, text="Open wine registry",             command=self._run_regedit,          **btn_cfg).pack(pady=(0, 6))
-        ctk.CTkButton(inner, text="Browse prefix",                 command=self._browse_prefix,         **btn_cfg).pack(pady=(0, 6))
-        ctk.CTkButton(inner, text="Install VC++ Redistributable",  command=self._run_install_vcredist, **btn_cfg).pack(pady=(0, 6))
-        ctk.CTkButton(inner, text="Install d3dcompiler_47",         command=self._run_install_d3dcompiler_47, **btn_cfg).pack(pady=(0, 6))
-        ctk.CTkButton(inner, text="Install .NET …",                 command=self._run_install_dotnet,  **btn_cfg).pack(pady=(0, 6))
-        ctk.CTkButton(inner, text="Open game folder",               command=self._open_game_folder,    **btn_cfg).pack(pady=(0, 6))
-        ctk.CTkButton(inner, text="Wine DLL Overrides",            command=self._open_wine_dll_overrides, **btn_cfg).pack(pady=(0, 6))
+        def _category(label: str, first: bool = False) -> None:
+            ctk.CTkLabel(
+                inner, text=label.upper(), font=FONT_SMALL,
+                text_color=TEXT_MUTED, anchor="w",
+            ).pack(anchor="w", fill="x", pady=((0 if first else 14), 4))
+            ctk.CTkFrame(inner, fg_color=BORDER, height=1).pack(
+                anchor="w", fill="x", pady=(0, 8))
+
+        # --- Prefix tools ---------------------------------------------------
+        _category("Prefix Tools", first=True)
+        ctk.CTkButton(inner, text="Run winecfg",              command=self._run_winecfg,             **btn_cfg).pack(pady=(0, 6))
+        ctk.CTkButton(inner, text="Run protontricks",         command=self._run_protontricks,        **btn_cfg).pack(pady=(0, 6))
+        ctk.CTkButton(inner, text="Run EXE in this prefix …", command=self._run_exe,                 **btn_cfg).pack(pady=(0, 6))
+        ctk.CTkButton(inner, text="Open wine registry",       command=self._run_regedit,             **btn_cfg).pack(pady=(0, 6))
+        ctk.CTkButton(inner, text="Wine DLL Overrides",       command=self._open_wine_dll_overrides, **btn_cfg).pack(pady=(0, 6))
+
+        # --- Installers -----------------------------------------------------
+        _category("Installers")
+        ctk.CTkButton(inner, text="Install VC++ Redistributable", command=self._run_install_vcredist,       **btn_cfg).pack(pady=(0, 6))
+        ctk.CTkButton(inner, text="Install d3dcompiler_47",       command=self._run_install_d3dcompiler_47, **btn_cfg).pack(pady=(0, 6))
+        ctk.CTkButton(inner, text="Install .NET …",              command=self._run_install_dotnet,         **btn_cfg).pack(pady=(0, 6))
+
+        # --- Folders --------------------------------------------------------
+        _category("Open Folders")
+        for label, opener in (
+            ("Game folder",     self._open_game_folder),
+            ("Prefix folder",   self._browse_prefix),
+            ("My Games folder", self._open_mygames_folder),
+            ("AppData folder",  self._open_appdata_folder),
+            ("Staging folder",  self._open_staging_folder),
+            ("Profile folder",  self._open_profile_folder),
+            (".config folder",  self._open_config_folder),
+        ):
+            ctk.CTkButton(inner, text=label, command=opener, **btn_cfg).pack(pady=(0, 6))
+
+        # On Tk 8.6 (AppImage) X11 wheel notches arrive as Button-4/5, which the
+        # scrollable frame doesn't listen for — bind them so the wheel scrolls
+        # over the buttons too. The helper re-walks descendants on <Enter>.
+        bind_scrollable_wheel(body)
 
     def _get_proton_env(self):
         from Utils.steam_finder import (
@@ -1228,35 +1259,83 @@ class ProtonToolsPanel(ctk.CTkFrame):
                 log(f"Proton Tools error: {e}")
         self._close_and_run(_launch)
 
-    def _browse_prefix(self):
-        prefix_path = self._game.get_prefix_path()
-        if prefix_path is None or not prefix_path.is_dir():
-            self._log("Proton Tools: prefix not configured for this game.")
+    def _open_folder(self, path, descr):
+        """Close the panel and open *path* in the file manager.
+
+        ``path`` may be None / non-existent — in that case we just log why the
+        folder couldn't be opened and leave the panel as-is.
+        """
+        if path is None:
+            self._log(f"Proton Tools: {descr} is not configured for this game.")
+            return
+        path = Path(path)
+        if not path.is_dir():
+            self._log(f"Proton Tools: {descr} not found ({path}).")
             return
         log = self._log
-        path = str(prefix_path)
+        spath = str(path)
         def _launch():
-            log("Proton Tools: opening prefix folder …")
+            log(f"Proton Tools: opening {descr} …")
             try:
-                xdg_open(path)
+                xdg_open(spath)
             except Exception as e:
                 log(f"Proton Tools error: {e}")
         self._close_and_run(_launch)
 
+    def _browse_prefix(self):
+        self._open_folder(self._game.get_prefix_path(), "prefix folder")
+
     def _open_game_folder(self):
-        game_path = self._game.get_game_path()
-        if game_path is None or not game_path.is_dir():
-            self._log("Proton Tools: game folder not configured or not found.")
+        self._open_folder(self._game.get_game_path(), "game folder")
+
+    def _open_mygames_folder(self):
+        # Bethesda games expose the exact per-game My Games subpath; for other
+        # engines fall back to the generic My Games folder inside the prefix.
+        getter = getattr(self._game, "_mygames_path", None)
+        path = getter() if callable(getter) else None
+        if path is None:
+            prefix = self._game.get_prefix_path()
+            if prefix is not None:
+                path = prefix / "drive_c/users/steamuser/Documents/My Games"
+        self._open_folder(path, "My Games folder")
+
+    def _open_appdata_folder(self):
+        # The in-prefix per-game AppData/Local folder (Bethesda games expose the
+        # exact subpath; otherwise fall back to AppData/Local in the prefix).
+        prefix = self._game.get_prefix_path()
+        if prefix is None:
+            self._open_folder(None, "AppData folder")
             return
-        log = self._log
-        path = str(game_path)
-        def _launch():
-            log("Proton Tools: opening game folder …")
+        sub = getattr(self._game, "_APPDATA_SUBPATH", None)
+        if sub is not None:
+            self._open_folder(prefix / sub, "AppData folder")
+            return
+        self._open_folder(
+            prefix / "drive_c/users/steamuser/AppData/Local", "AppData folder")
+
+    def _open_staging_folder(self):
+        getter = getattr(self._game, "get_effective_mod_staging_path", None) \
+            or getattr(self._game, "get_mod_staging_path", None)
+        path = getter() if callable(getter) else None
+        self._open_folder(path, "staging folder")
+
+    def _open_profile_folder(self):
+        # Prefer the active profile directory; fall back to the profiles/ root.
+        path = getattr(self._game, "_active_profile_dir", None)
+        if path is None:
             try:
-                xdg_open(path)
-            except Exception as e:
-                log(f"Proton Tools error: {e}")
-        self._close_and_run(_launch)
+                path = self._game.get_profile_root() / "profiles"
+            except Exception:
+                path = None
+        self._open_folder(path, "profile folder")
+
+    def _open_config_folder(self):
+        # The app's top-level config dir: ~/.config/AmethystModManager/
+        try:
+            path = get_config_dir()
+        except Exception:
+            path = None
+        self._open_folder(path, ".config folder")
 
     def _run_regedit(self):
         proton_script, env = self._get_proton_env()
