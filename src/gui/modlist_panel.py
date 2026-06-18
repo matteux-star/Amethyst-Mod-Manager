@@ -5342,10 +5342,82 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         return None
 
     def _populate_context_menu(self, menu, c: SimpleNamespace) -> None:
-        """Add the alphabetically-ordered command/submenu entries."""
+        """Add the command/submenu entries, organised into functional groups
+        separated by thin spacers. Within each group entries stay alphabetical."""
         idx = c.idx
         mod_name = c.mod_name
         ctx_meta = c.ctx_meta
+
+        # Emit a thin spacer before a group only when the menu already has
+        # content *and* the group itself produced at least one entry, so we
+        # never get leading/trailing/doubled separators from skipped entries.
+        _row_at_group_start = [menu._item_row]
+
+        def _group_break() -> None:
+            """Call between groups: insert a separator iff the previous group
+            added items and any earlier content exists."""
+            if menu._item_row != _row_at_group_start[0] and menu._has_items:
+                menu.add_separator()
+            _row_at_group_start[0] = menu._item_row
+
+        # ── Group 1: Open / manage the mod ──────────────────────────────
+        # Open folder
+        if c.mod_folder is not None and not c.is_multi:
+            menu.add_command("Open folder", lambda f=c.mod_folder: self._open_folder(f))
+
+        # Bundle options… (RE/Fluffy single-mod bundles)
+        if (not c.is_separator and not c.is_multi
+                and self._bundle_spec_path(idx) is not None):
+            menu.add_command("Bundle options…", lambda: self._open_bundle_options(idx))
+
+        # Create empty mod below
+        if self._modlist_path is not None and not c.is_synthetic and not c.is_multi:
+            menu.add_command("Create empty mod below", lambda: self._create_empty_mod(idx))
+
+        # Reinstall Mod
+        if (c.is_real_mod and not c.is_multi
+                and ctx_meta is not None and c.archive_path is not None):
+            menu.add_command("Reinstall Mod",
+                lambda nc=mod_name, ap=c.archive_path: self._reinstall_mod(nc, ap))
+
+        # Rename mod
+        if (not c.is_separator and not c.is_locked
+                and not c.is_bundle_var and not c.is_multi):
+            menu.add_command("Rename mod", lambda: self._rename_mod(idx))
+
+        # ── Group 2: Files & install options ────────────────────────────
+        _group_break()
+
+        # Disable Plugins…
+        if not c.is_separator and not c.is_locked and c.plugin_files and not c.is_multi:
+            menu.add_command("Disable Plugins…",
+                lambda n=mod_name, pf=c.plugin_files: self._show_disable_plugins_dialog(n, pf))
+
+        # INI files
+        if not c.is_separator and not c.is_locked and c.ini_files and not c.is_multi:
+            menu.add_submenu("INI files",
+                lambda inis=c.ini_files: self._show_ini_picker(
+                    inis, parent_dismiss=menu._withdraw, parent_popup=menu))
+
+        # Root Folder install toggle (single)
+        if not c.is_separator and not c.is_locked and not c.is_multi:
+            is_rf = mod_name in self._root_folder_mods
+            rf_label = "Disable Root Folder install" if is_rf else "Enable Root Folder install"
+            menu.add_command(rf_label,
+                lambda mn=mod_name: self._toggle_root_folder_flag(mn))
+
+        # Root Folder install toggle (multi)
+        if c.is_multi and c.root_folder_disable_multi:
+            names = list(c.root_folder_disable_multi)
+            menu.add_command(f"Disable Root Folder install ({len(names)})",
+                lambda mns=names: self._set_root_folder_flag_multi(mns, False))
+        if c.is_multi and c.root_folder_enable_multi:
+            names = list(c.root_folder_enable_multi)
+            menu.add_command(f"Enable Root Folder install ({len(names)})",
+                lambda mns=names: self._set_root_folder_flag_multi(mns, True))
+
+        # ── Group 3: Nexus / online & updates ───────────────────────────
+        _group_break()
 
         # Abstain from Endorsement (single)
         if (c.is_real_mod and not c.is_multi
@@ -5358,27 +5430,6 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             targets = list(c.abstain_multi)
             menu.add_command(f"Abstain selected ({len(targets)})",
                 lambda t=targets: self._abstain_selected_mods(t))
-
-        # Add note / Edit note  (single)
-        if c.is_real_mod and not c.is_multi:
-            note_label = "Edit note" if mod_name in self._mod_notes_map else "Add note"
-            menu.add_command(note_label,
-                lambda mn=mod_name: self._open_note_editor_by_name(mn))
-
-        # Add / append note (multi)
-        if c.is_multi and c.note_multi_names:
-            names = list(c.note_multi_names)
-            menu.add_command(f"Add note ({len(names)})",
-                lambda mns=names: self._open_note_editor_for_multi(mns))
-
-        # Add separator above / below
-        if not c.is_multi:
-            menu.add_command("Add separator above", lambda: self._add_separator(idx, above=True))
-            menu.add_command("Add separator below", lambda: self._add_separator(idx, above=False))
-
-        # Change separator color
-        if c.is_separator and not c.is_synthetic:
-            menu.add_command("Change separator color", lambda: self._change_separator_color(idx))
 
         # Change Version
         if (c.is_real_mod and not c.is_multi
@@ -5398,40 +5449,6 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             menu.add_command(f"Check Updates ({len(check_names)})",
                 lambda mns=check_names: self._on_check_updates_for_mods(mns))
 
-        # Copy to profile
-        if c.other_profiles:
-            if c.is_multi and c.copy_mod_names:
-                menu.add_submenu(
-                    f"Copy to profile ({len(c.copy_mod_names)})",
-                    lambda profs=c.other_profiles, mns=c.copy_mod_names:
-                        self._show_copy_to_profile_picker_multi(
-                            mns, profs, parent_dismiss=menu._withdraw, parent_popup=menu),
-                )
-            elif not c.is_multi and c.copy_mod_name:
-                menu.add_submenu(
-                    "Copy to profile",
-                    lambda profs=c.other_profiles, mn=c.copy_mod_name:
-                        self._show_copy_to_profile_picker(
-                            mn, profs, parent_dismiss=menu._withdraw, parent_popup=menu),
-                )
-
-        # Create empty mod below
-        if self._modlist_path is not None and not c.is_synthetic and not c.is_multi:
-            menu.add_command("Create empty mod below", lambda: self._create_empty_mod(idx))
-
-        # Disable Plugins…
-        if not c.is_separator and not c.is_locked and c.plugin_files and not c.is_multi:
-            menu.add_command("Disable Plugins…",
-                lambda n=mod_name, pf=c.plugin_files: self._show_disable_plugins_dialog(n, pf))
-
-        # Disable / Enable selected (n)
-        if c.toggleable:
-            count = len(c.toggleable)
-            menu.add_command(f"Disable selected ({count})",
-                lambda inds=list(c.toggleable): self._disable_selected_mods(inds))
-            menu.add_command(f"Enable selected ({count})",
-                lambda inds=list(c.toggleable): self._enable_selected_mods(inds))
-
         # Endorse Mod (single)
         if (c.is_real_mod and not c.is_multi
                 and ctx_meta is not None and ctx_meta.mod_id > 0 and not ctx_meta.endorsed):
@@ -5443,49 +5460,6 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             targets = list(c.endorse_multi)
             menu.add_command(f"Endorse selected ({len(targets)})",
                 lambda t=targets: self._endorse_selected_mods(t))
-
-        # INI files
-        if not c.is_separator and not c.is_locked and c.ini_files and not c.is_multi:
-            menu.add_submenu("INI files",
-                lambda inis=c.ini_files: self._show_ini_picker(
-                    inis, parent_dismiss=menu._withdraw, parent_popup=menu))
-
-        # Lock / Unlock Separator(s)
-        if c.is_separator and not c.is_synthetic:
-            if len(c.remove_multi_sep) >= 2:
-                sel_sep_names = [self._entries[i].name for i in c.remove_multi_sep]
-                all_locked = all(self._sep_locks.get(n, False) for n in sel_sep_names)
-                label = (f"Unlock Separators ({len(sel_sep_names)})" if all_locked
-                         else f"Lock Separators ({len(sel_sep_names)})")
-                menu.add_command(label,
-                    lambda names=sel_sep_names, lock=not all_locked:
-                        self._set_sep_locks(names, lock))
-            else:
-                is_sep_locked = self._sep_locks.get(mod_name, False)
-                label = "Unlock Separator" if is_sep_locked else "Lock Separator"
-                menu.add_command(label,
-                    lambda n=mod_name: self._on_sep_lock_toggle(n))
-
-        # Missing Requirements
-        if c.is_real_mod and not c.is_multi and mod_name in self._missing_reqs:
-            dep_names = self._missing_reqs_detail.get(mod_name, [])
-            menu.add_command("Missing Requirements",
-                lambda: self._show_missing_reqs(mod_name, dep_names))
-
-        # Move to separator
-        if not c.is_separator and not c.is_locked and not c.is_bundle_var and c.sep_names:
-            if c.multi_sel:
-                menu.add_submenu(f"Move to separator ({len(c.multi_sel)})",
-                    lambda ms=c.multi_sel: self._show_separator_picker_multi(
-                        ms, c.sep_names, parent_dismiss=menu._withdraw, parent_popup=menu))
-            else:
-                menu.add_submenu("Move to separator",
-                    lambda: self._show_separator_picker(
-                        idx, c.sep_names, parent_dismiss=menu._withdraw, parent_popup=menu))
-
-        # Open folder
-        if c.mod_folder is not None and not c.is_multi:
-            menu.add_command("Open folder", lambda f=c.mod_folder: self._open_folder(f))
 
         # Open on Nexus (single)
         if (c.is_real_mod and not c.is_multi and ctx_meta is not None and c.nexus_url):
@@ -5505,11 +5479,94 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             menu.add_command(qu_label,
                 lambda mns=list(c.quick_update_names): self._quick_update_mods(mns))
 
-        # Reinstall Mod
-        if (c.is_real_mod and not c.is_multi
-                and ctx_meta is not None and c.archive_path is not None):
-            menu.add_command("Reinstall Mod",
-                lambda nc=mod_name, ap=c.archive_path: self._reinstall_mod(nc, ap))
+        # ── Group 4: Organise / layout ──────────────────────────────────
+        _group_break()
+
+        # Add separator above / below
+        if not c.is_multi:
+            menu.add_command("Add separator above", lambda: self._add_separator(idx, above=True))
+            menu.add_command("Add separator below", lambda: self._add_separator(idx, above=False))
+
+        # Copy to profile
+        if c.other_profiles:
+            if c.is_multi and c.copy_mod_names:
+                menu.add_submenu(
+                    f"Copy to profile ({len(c.copy_mod_names)})",
+                    lambda profs=c.other_profiles, mns=c.copy_mod_names:
+                        self._show_copy_to_profile_picker_multi(
+                            mns, profs, parent_dismiss=menu._withdraw, parent_popup=menu),
+                )
+            elif not c.is_multi and c.copy_mod_name:
+                menu.add_submenu(
+                    "Copy to profile",
+                    lambda profs=c.other_profiles, mn=c.copy_mod_name:
+                        self._show_copy_to_profile_picker(
+                            mn, profs, parent_dismiss=menu._withdraw, parent_popup=menu),
+                )
+
+        # Disable / Enable selected (n)
+        if c.toggleable:
+            count = len(c.toggleable)
+            menu.add_command(f"Disable selected ({count})",
+                lambda inds=list(c.toggleable): self._disable_selected_mods(inds))
+            menu.add_command(f"Enable selected ({count})",
+                lambda inds=list(c.toggleable): self._enable_selected_mods(inds))
+
+        # Move to separator
+        if not c.is_separator and not c.is_locked and not c.is_bundle_var and c.sep_names:
+            if c.multi_sel:
+                menu.add_submenu(f"Move to separator ({len(c.multi_sel)})",
+                    lambda ms=c.multi_sel: self._show_separator_picker_multi(
+                        ms, c.sep_names, parent_dismiss=menu._withdraw, parent_popup=menu))
+            else:
+                menu.add_submenu("Move to separator",
+                    lambda: self._show_separator_picker(
+                        idx, c.sep_names, parent_dismiss=menu._withdraw, parent_popup=menu))
+
+        # Set priority…
+        if (not c.is_separator and not c.is_locked
+                and not c.is_bundle_var and not c.is_multi):
+            menu.add_command("Set priority…", lambda: self._set_priority(idx))
+
+        # Sort Alphabetically (multi-select only)
+        if c.is_multi and len(c.toggleable) >= 2:
+            menu.add_command(f"Sort Alphabetically ({len(c.toggleable)})",
+                lambda inds=list(c.toggleable): self._sort_selected_alphabetically(inds))
+
+        # ── Group 5: Info / conflicts / notes ───────────────────────────
+        _group_break()
+
+        # Add / Edit note (single)
+        if c.is_real_mod and not c.is_multi:
+            note_label = "Edit note" if mod_name in self._mod_notes_map else "Add note"
+            menu.add_command(note_label,
+                lambda mn=mod_name: self._open_note_editor_by_name(mn))
+
+        # Add / append note (multi)
+        if c.is_multi and c.note_multi_names:
+            names = list(c.note_multi_names)
+            menu.add_command(f"Add note ({len(names)})",
+                lambda mns=names: self._open_note_editor_for_multi(mns))
+
+        # Missing Requirements
+        if c.is_real_mod and not c.is_multi and mod_name in self._missing_reqs:
+            dep_names = self._missing_reqs_detail.get(mod_name, [])
+            menu.add_command("Missing Requirements",
+                lambda: self._show_missing_reqs(mod_name, dep_names))
+
+        # Remove note (multi)
+        if c.is_multi and c.note_multi_remove_names:
+            names = list(c.note_multi_remove_names)
+            menu.add_command(f"Remove note ({len(names)})",
+                lambda mns=names: self._remove_notes_multi(mns))
+
+        # Show Conflicts
+        if c.conflict_status != CONFLICT_NONE or c.bsa_conflict_status != CONFLICT_NONE:
+            menu.add_command("Show Conflicts",
+                lambda: self._show_overwrites_dialog(mod_name))
+
+        # ── Group 6: Destructive — remove ───────────────────────────────
+        _group_break()
 
         # Remove mod
         if not c.is_separator and not c.is_locked:
@@ -5519,69 +5576,48 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             else:
                 menu.add_command("Remove mod", lambda: self._remove_mod(idx))
 
-        # Remove note (multi)
-        if c.is_multi and c.note_multi_remove_names:
-            names = list(c.note_multi_remove_names)
-            menu.add_command(f"Remove note ({len(names)})",
-                lambda mns=names: self._remove_notes_multi(mns))
-
-        # Remove separator(s)
+        # ── Separator-row entries (mutually exclusive with the mod groups) ─
+        # A separator row sets is_separator; none of the above mod entries
+        # fire for it, so these form their own block below any earlier ones.
         if c.is_separator and not c.is_synthetic:
+            _group_break()
+
+            # Change separator color
+            menu.add_command("Change separator color",
+                lambda: self._change_separator_color(idx))
+
+            # Lock / Unlock Separator(s)
+            if len(c.remove_multi_sep) >= 2:
+                sel_sep_names = [self._entries[i].name for i in c.remove_multi_sep]
+                all_locked = all(self._sep_locks.get(n, False) for n in sel_sep_names)
+                label = (f"Unlock Separators ({len(sel_sep_names)})" if all_locked
+                         else f"Lock Separators ({len(sel_sep_names)})")
+                menu.add_command(label,
+                    lambda names=sel_sep_names, lock=not all_locked:
+                        self._set_sep_locks(names, lock))
+            else:
+                is_sep_locked = self._sep_locks.get(mod_name, False)
+                label = "Unlock Separator" if is_sep_locked else "Lock Separator"
+                menu.add_command(label,
+                    lambda n=mod_name: self._on_sep_lock_toggle(n))
+
+            # Rename separator
+            if not c.is_bundle_sep:
+                menu.add_command("Rename separator",
+                    lambda: self._rename_separator(idx))
+
+            # Separator settings…
+            if not c.is_bundle_sep:
+                menu.add_command("Separator settings…",
+                    lambda: self._show_sep_settings(idx))
+
+            # Remove separator(s)  (destructive — own sub-group)
+            _group_break()
             if len(c.remove_multi_sep) >= 2:
                 menu.add_command(f"Remove separators ({len(c.remove_multi_sep)})",
                     lambda inds=list(c.remove_multi_sep): self._remove_separators(inds))
             else:
                 menu.add_command("Remove separator", lambda: self._remove_separator(idx))
-
-        # Rename mod
-        if (not c.is_separator and not c.is_locked
-                and not c.is_bundle_var and not c.is_multi):
-            menu.add_command("Rename mod", lambda: self._rename_mod(idx))
-
-        # Bundle options… (RE/Fluffy single-mod bundles)
-        if (not c.is_separator and not c.is_multi
-                and self._bundle_spec_path(idx) is not None):
-            menu.add_command("Bundle options…", lambda: self._open_bundle_options(idx))
-
-        # Rename separator
-        if c.is_separator and not c.is_synthetic and not c.is_bundle_sep:
-            menu.add_command("Rename separator", lambda: self._rename_separator(idx))
-
-        # Root Folder install toggle (single)
-        if not c.is_separator and not c.is_locked and not c.is_multi:
-            is_rf = mod_name in self._root_folder_mods
-            rf_label = "Disable Root Folder install" if is_rf else "Enable Root Folder install"
-            menu.add_command(rf_label,
-                lambda mn=mod_name: self._toggle_root_folder_flag(mn))
-
-        # Root Folder install toggle (multi)
-        if c.is_multi and c.root_folder_enable_multi:
-            names = list(c.root_folder_enable_multi)
-            menu.add_command(f"Enable Root Folder install ({len(names)})",
-                lambda mns=names: self._set_root_folder_flag_multi(mns, True))
-        if c.is_multi and c.root_folder_disable_multi:
-            names = list(c.root_folder_disable_multi)
-            menu.add_command(f"Disable Root Folder install ({len(names)})",
-                lambda mns=names: self._set_root_folder_flag_multi(mns, False))
-
-        # Separator settings…
-        if c.is_separator and not c.is_synthetic and not c.is_bundle_sep:
-            menu.add_command("Separator settings…", lambda: self._show_sep_settings(idx))
-
-        # Set priority…
-        if (not c.is_separator and not c.is_locked
-                and not c.is_bundle_var and not c.is_multi):
-            menu.add_command("Set priority…", lambda: self._set_priority(idx))
-
-        # Show Conflicts
-        if c.conflict_status != CONFLICT_NONE or c.bsa_conflict_status != CONFLICT_NONE:
-            menu.add_command("Show Conflicts",
-                lambda: self._show_overwrites_dialog(mod_name))
-
-        # Sort Alphabetically (multi-select only)
-        if c.is_multi and len(c.toggleable) >= 2:
-            menu.add_command(f"Sort Alphabetically ({len(c.toggleable)})",
-                lambda inds=list(c.toggleable): self._sort_selected_alphabetically(inds))
 
     def _on_root_folder_toggle(self) -> None:
         self._root_folder_enabled = not self._root_folder_enabled
