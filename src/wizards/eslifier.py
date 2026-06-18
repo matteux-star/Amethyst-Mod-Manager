@@ -96,6 +96,7 @@ class ESLifierWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         self._log         = log_fn or (lambda msg: None)
         self._exe         = find_eslifier_exe(game)
         self._proton_name = ""
+        self._scan_mirror: Path | None = None
 
         title_bar = ctk.CTkFrame(self, fg_color=BG_HEADER, corner_radius=0, height=40)
         title_bar.pack(fill="x")
@@ -352,9 +353,18 @@ class ESLifierWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         # leave an isolated Wine prefix (prefix_<ProtonName>/) inside that mod's
         # staging folder. Those prefixes contain dosdevices/com1..6 symlinks which
         # Wine reports as being on mount '\\.\com1' — relpath then crashes ESLifier
-        # with "path is on mount '\\.\com1', start on mount 'Z:'". Point ESLifier
-        # at a filtered copy of modlist.txt with such mods removed so it never
-        # descends into them.
+        # with "path is on mount '\\.\com1', start on mount 'Z:'".
+        #
+        # Build a hardlinked mirror of the staging folder that omits every
+        # prefix_*/ directory, and point ESLifier's scan path at the mirror so it
+        # can never descend into a Wine prefix. Output still goes to the real
+        # staging folder so the "ESLifier Output" mod lands in the mod list.
+        scan_root = self._build_mods_mirror(staging, profile, settings_dir)
+        # Stash for post-run cleanup (only if it's the mirror, not staging).
+        self._scan_mirror = scan_root if scan_root != staging else None
+
+        # Belt and braces: also hand ESLifier a modlist copy with prefix mods
+        # removed (cheap, and keeps its enabled set in sync with the mirror).
         modlist_for_eslifier = self._write_filtered_modlist(
             modlist_txt, staging, settings_dir / "modlist.txt"
         )
@@ -371,7 +381,9 @@ class ESLifierWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         existing.update({
             "mo2_mode": True,
             # In MO2 mode "skyrim_folder_path" is actually the MO2 mods folder.
-            "skyrim_folder_path":   _to_wine_path(staging, pfx),
+            # Point it at the prefix-free mirror so ESLifier never walks into a
+            # Wine prefix; output still goes to the real staging folder.
+            "skyrim_folder_path":   _to_wine_path(scan_root, pfx),
             "output_folder_path":   _to_wine_path(staging, pfx),
             "output_folder_name":   existing.get("output_folder_name") or _OUTPUT_NAME,
             "overwrite_path":       _to_wine_path(overwrite, pfx),
@@ -384,12 +396,131 @@ class ESLifierWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
             encoding="utf-8",
         )
         self._log(f"ESLifier Wizard: wrote settings → {settings_file}")
-        self._log(f"  mods folder:  {staging}")
+        self._log(f"  scan folder:  {scan_root}")
+        self._log(f"  output:       {staging}")
         self._log(f"  overwrite:    {overwrite}")
         self._log(f"  plugins.txt:  {plugins_txt}")
         self._log(f"  modlist.txt:  {modlist_for_eslifier}")
         if not plugins_txt.is_file():
             self._log(f"  WARN: plugins.txt not found at {plugins_txt}")
+
+    def _build_mods_mirror(
+        self, staging: Path, profile: str, settings_dir: Path
+    ) -> Path:
+        """Build a hardlinked mirror of *staging* that omits every ``prefix_*``
+        directory, and return the mirror root.
+
+        ESLifier walks the scan folder with ``os.walk``; any Wine prefix in the
+        tree (left by tool-as-mod wizards) makes ``os.path.relpath`` crash on the
+        ``\\.\\com1`` dosdevices symlinks. Mirroring with hardlinks is cheap (no
+        data copied). Falls back to returning *staging* unchanged if the mirror
+        can't be built.
+
+        The mirror lives inside the ESLifier app dir
+        (``<app>/ESLifier_Data/scan_<profile>/``). Hardlinks need the mirror on
+        the same filesystem as *staging*; the Applications folder is a sibling of
+        ``mods/`` under the profile root, so in practice they always match, and
+        :meth:`_mirror_tree` falls back to a per-file copy on ``EXDEV`` if they
+        ever don't. Rebuilt from scratch each run so it always reflects the
+        current load order.
+        """
+        import os
+        import shutil
+
+        safe_profile = "".join(c if c.isalnum() or c in "-_" else "_" for c in profile)
+        mirror = settings_dir / f"scan_{safe_profile}"
+
+        try:
+            if mirror.exists():
+                shutil.rmtree(mirror)
+            mirror.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            self._log(
+                f"ESLifier Wizard: could not prepare mods mirror ({exc}); "
+                "scanning staging directly."
+            )
+            return staging
+
+        skipped: list[str] = []
+        try:
+            for entry in os.scandir(staging):
+                if not entry.is_dir(follow_symlinks=False):
+                    continue
+                if entry.name == mirror.name:
+                    continue
+                src_mod = Path(entry.path)
+                dst_mod = mirror / entry.name
+                self._mirror_tree(src_mod, dst_mod, skipped)
+        except OSError as exc:
+            self._log(
+                f"ESLifier Wizard: error building mods mirror ({exc}); "
+                "scanning staging directly."
+            )
+            shutil.rmtree(mirror, ignore_errors=True)
+            return staging
+
+        if skipped:
+            self._log(
+                "ESLifier Wizard: omitted "
+                f"{len(skipped)} Wine prefix folder(s) from the scan mirror: "
+                + ", ".join(skipped)
+            )
+        self._log(f"ESLifier Wizard: built scan mirror at {mirror}")
+        return mirror
+
+    def _mirror_tree(self, src: Path, dst: Path, skipped: list[str]) -> None:
+        """Recursively mirror files under *src* into *dst*, skipping any
+        ``prefix_*`` directory (appending its path to *skipped*).
+
+        Each file is hardlinked; on failure it falls back to a symlink. Both
+        avoid copying data (the mods folder can be many GB). If neither works the
+        ``OSError`` propagates so the caller can abandon the mirror and scan the
+        real staging folder directly instead of copying."""
+        import os
+
+        dst.mkdir(parents=True, exist_ok=True)
+        try:
+            entries = list(os.scandir(src))
+        except OSError:
+            return
+        for entry in entries:
+            if entry.is_dir(follow_symlinks=False):
+                if entry.name.startswith("prefix_"):
+                    skipped.append(str(Path(entry.path)))
+                    continue
+                self._mirror_tree(Path(entry.path), dst / entry.name, skipped)
+            elif entry.is_file(follow_symlinks=False):
+                target = dst / entry.name
+                # Prefer a hardlink (cheapest, shares inode). If that fails
+                # (cross-device, link count, …), fall back to an absolute
+                # symlink to the real file — still no data copied. Only copy as a
+                # last resort. A file symlink can't lead Wine's os.walk into a
+                # prefix_* dir because those are pruned at the directory level
+                # above, so this stays safe against the com1 crash.
+                try:
+                    os.link(entry.path, target)
+                except OSError:
+                    os.symlink(entry.path, target)
+            elif entry.is_symlink():
+                # Preserve symlinks (e.g. deployed loose files) verbatim.
+                import os as _os
+                try:
+                    _os.symlink(_os.readlink(entry.path), dst / entry.name)
+                except OSError:
+                    pass
+
+    def _cleanup_scan_mirror(self) -> None:
+        """Remove the hardlinked scan mirror built for this run, if any."""
+        mirror = getattr(self, "_scan_mirror", None)
+        if not mirror:
+            return
+        import shutil
+        try:
+            shutil.rmtree(mirror, ignore_errors=True)
+            self._log(f"ESLifier Wizard: removed scan mirror {mirror}")
+        except OSError:
+            pass
+        self._scan_mirror = None
 
     def _write_filtered_modlist(
         self, modlist_txt: Path, staging: Path, dest: Path
@@ -483,7 +614,9 @@ class ESLifierWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
                 log_fn=lambda m: self._log(f"ESLifier Wizard: {m}"),
             )
             self._log("ESLifier Wizard: ESLifier closed.")
+            self._cleanup_scan_mirror()
             self._set_label("_run_status", "ESLifier finished. Click Done to close.", color="#6bc76b")
         except Exception as exc:
+            self._cleanup_scan_mirror()
             self._set_label("_run_status", f"Launch error: {exc}", color="#e06c6c")
             self._log(f"ESLifier Wizard: launch error: {exc}")
