@@ -5,7 +5,7 @@
 - Added additional folder paths to the proton window and split the proton window's items into categories
 - Filtered prefix folders out when running the eslifer wizard to prevent an error in the application
 - The nexus browser can now be searched with a partial name match or by modid
-- Added a popout button to the fomod installer that turns it into a separate window
+- Added a popout button to the fomod installer and nexus browser that turns it into a separate window
 - Added an option in settings to hide bsa conflicts
 - Added a use profile specfic saves option (Limited to bethesda games for now)
 - Profile specfic ini files are now taken from the ini files folder in the profile and are also symlinked so edits persist

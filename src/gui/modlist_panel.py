@@ -8070,7 +8070,13 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             self._workshop_panel = None
 
     def _on_nexus_browser(self):
-        """Show the Nexus Browse/Tracked/Endorsed overlay over the modlist panel."""
+        """Show the Nexus Browse/Tracked/Endorsed overlay over the modlist panel.
+
+        A popout toggle re-hosts the browser in a separate window so the user
+        can keep browsing/downloading while sorting mods in the main window.
+        Tk can't reparent a live widget across toplevels, so the toggle tears
+        down the current overlay and builds a fresh one in the other host
+        (the panels are stateless and reload on show)."""
         app = self.winfo_toplevel()
         api = getattr(app, "_nexus_api", None)
         game = self._game
@@ -8080,18 +8086,66 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             return
         self._close_nexus_browser()
         open_settings = app.get_nexus_settings_opener() if hasattr(app, "get_nexus_settings_opener") else None
-        panel = NexusBrowserOverlay(
-            self, game_domain=domain, api=api, game=game,
-            log_fn=self._log,
-            app_root=app,
-            on_close=self._close_nexus_browser,
-            on_open_settings=open_settings,
-        )
-        panel.place(relx=0, rely=0, relwidth=1, relheight=1)
-        self._nexus_browser_panel = panel
+
+        def _build(popped_out: bool, initial_tab: str = "Browse"):
+            # Always clear any existing host first.
+            self._close_nexus_browser()
+
+            def _on_rehost(going_to_popout, current_tab):
+                _build(going_to_popout, current_tab)
+
+            common = dict(
+                game_domain=domain, api=api, game=game,
+                log_fn=self._log,
+                app_root=app,
+                on_close=self._close_nexus_browser,
+                on_open_settings=open_settings,
+                on_rehost=_on_rehost,
+                is_popped_out=popped_out,
+                initial_tab=initial_tab,
+            )
+
+            if popped_out:
+                host = ctk.CTkToplevel(app, fg_color=BG_DEEP)
+                host.title("Nexus Mods")
+                try:
+                    root = app.winfo_toplevel()
+                    root.update_idletasks()
+                    w = max(int(root.winfo_width() * 0.85), 900)
+                    h = max(int(root.winfo_height() * 0.85), 600)
+                    x = root.winfo_rootx() + (root.winfo_width() - w) // 2
+                    y = root.winfo_rooty() + (root.winfo_height() - h) // 2
+                    host.geometry(f"{w}x{h}+{max(x, 0)}+{max(y, 0)}")
+                except Exception:
+                    host.geometry("1000x680")
+                host.minsize(700, 480)
+                host.grid_rowconfigure(0, weight=1)
+                host.grid_columnconfigure(0, weight=1)
+                # Closing the popout window closes the browser entirely.
+                host.protocol("WM_DELETE_WINDOW", self._close_nexus_browser)
+                self._nexus_browser_window = host
+
+                panel = NexusBrowserOverlay(host, **common)
+                panel.grid(row=0, column=0, sticky="nsew")
+                self._nexus_browser_panel = panel
+                try:
+                    # Independent window (not transient/topmost) so the manager
+                    # underneath stays usable for sorting mods.
+                    host.attributes("-topmost", False)
+                    host.lift()
+                    host.focus_force()
+                except Exception:
+                    pass
+            else:
+                panel = NexusBrowserOverlay(self, **common)
+                panel.place(relx=0, rely=0, relwidth=1, relheight=1)
+                self._nexus_browser_panel = panel
+
+        _build(popped_out=False)
 
     def _close_nexus_browser(self):
-        """Destroy the Nexus browser overlay and restore the modlist."""
+        """Destroy the Nexus browser overlay (and its popout window) and restore
+        the modlist."""
         panel = getattr(self, "_nexus_browser_panel", None)
         if panel is not None:
             try:
@@ -8099,6 +8153,13 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             except Exception:
                 pass
             self._nexus_browser_panel = None
+        win = getattr(self, "_nexus_browser_window", None)
+        if win is not None:
+            try:
+                win.destroy()
+            except Exception:
+                pass
+            self._nexus_browser_window = None
 
     def show_profile_settings(self, game_name: str, current_profile: str,
                                on_profile_renamed=None, on_profile_removed=None,

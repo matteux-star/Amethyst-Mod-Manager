@@ -127,6 +127,8 @@ class CTkToolTip(Toplevel):
 
         if self.disable:
             return
+        if not self.winfo_exists():
+            return
         self.last_moved = time.time()
 
         # Set the status as inside for the very first time
@@ -175,9 +177,15 @@ class CTkToolTip(Toplevel):
         Displays the ToolTip.
         """
 
+        # The tooltip's own Toplevel may already be gone (widget destroyed,
+        # panel rebuilt) by the time this delayed callback fires.
+        if not self.winfo_exists():
+            return
+
         if not self.widget.winfo_exists():
             self.hide()
             self.destroy()
+            return
 
         if self.status == "inside" and time.time() - self.last_moved >= self.delay:
             self.status = "visible"
