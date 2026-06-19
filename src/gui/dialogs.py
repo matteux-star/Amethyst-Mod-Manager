@@ -305,6 +305,7 @@ def confirm_cet_symlink(parent, game) -> bool:
 
 
 from gui.text_utils import build_tree_str as _build_tree_str
+from gui.text_utils import truncate_text as _truncate_text
 
 
 # Game picker — extracted to gui/game_picker_dialog.py
@@ -4091,7 +4092,8 @@ class BundleOptionsPanel(ctk.CTkFrame):
         # folder -> {"text": str, "marker": CTkLabel} for live conflict recolour.
         self._opt_widgets: dict[str, dict] = {}
         # Shared tooltip for option rows whose label was elided (long names).
-        self._label_tooltip = TkTooltip(self, font=TK_FONT_NORMAL)
+        self._label_tooltip = TkTooltip(
+            self, font=(_theme.FONT_FAMILY, _theme.FS10))
 
         title_bar = ctk.CTkFrame(self, fg_color=BG_PANEL, corner_radius=0, height=36)
         title_bar.pack(fill="x")
@@ -4112,8 +4114,8 @@ class BundleOptionsPanel(ctk.CTkFrame):
             text="Choose which options are active. “Select one” groups allow a "
                  "single choice; optional add-ons can be combined.\n"
                  "When optional add-ons overlap, the one lower in the list wins "
-                 "— use ▲/▼ to reorder.  Options whose files are fully replaced "
-                 "by another selection are flagged in red.",
+                 "— use ▲/▼ to reorder.  Checking an add-on turns off any lower "
+                 "one it fully replaces, so your choice wins.",
             font=FONT_SMALL, text_color=TEXT_DIM, anchor="w", justify="left",
         ).pack(anchor="w", padx=16, pady=(12, 6))
 
@@ -4138,6 +4140,10 @@ class BundleOptionsPanel(ctk.CTkFrame):
         ).pack(side="right", padx=4, pady=12)
 
         self._build_rows()
+        # Re-truncate option labels to the live panel width (like the modlist
+        # column does on resize) so expanding the panel reveals more of each name.
+        self._last_scroll_w = 0
+        self._scroll.bind("<Configure>", self._on_scroll_resize, add="+")
         # Bind X11 wheel notches once; bind_scrollable_wheel re-walks descendants
         # on <Enter>, so rows rebuilt by a reorder keep scrolling without
         # re-binding (which would stack <Enter> handlers).
@@ -4149,25 +4155,98 @@ class BundleOptionsPanel(ctk.CTkFrame):
         if _first is not None:
             self._preview_option(_first.folder)
 
-    # Max option-label length before eliding.  Long bundle option names would
-    # otherwise stretch the row and push the conflict marker and ▲/▼ buttons off
-    # the right edge of the panel; the full name stays available via a tooltip.
-    _LABEL_MAX = 38
+    # Fixed row chrome reserved beside an option label, in pixels.  The label
+    # column has a weighted spacer to its right, so the label only needs to clear
+    # the checkbox/radio indicator (left) plus the widgets that sit *after* it:
+    #   - checkbox/radio indicator + its text gap + the row's outer padding;
+    #   - the ▲/▼ reorder buttons (checkbox rows only);
+    #   - the '(overridden)' marker, but only on rows currently showing it (added
+    #     per-row in :meth:`_label_max_px`, since it sits right after the label).
+    _CHROME_INDICATOR_PX = 46    # checkbox/radio box + gap + row padx
+    _CHROME_BUTTONS_PX = 78      # the two ▲/▼ buttons + their pads
+    _MARKER_PX = 96              # width of the "(overridden)" marker text
+    # Floor so a very narrow panel still shows a usable stub rather than "…".
+    _LABEL_MIN_PX = 60
 
-    @classmethod
-    def _elide(cls, text: str) -> str:
-        """Truncate *text* with an ellipsis if longer than ``_LABEL_MAX``."""
-        if len(text) > cls._LABEL_MAX:
-            return text[: cls._LABEL_MAX - 1].rstrip() + "…"
-        return text
-
-    def _maybe_tooltip(self, widget, full_text: str) -> None:
-        """Attach a tooltip showing *full_text* when the label was elided."""
-        if len(full_text) > self._LABEL_MAX:
+    def _scroll_width(self) -> int:
+        """Current inner width of the option list (px)."""
+        try:
+            w = self._scroll.winfo_width()
+        except Exception:
+            w = 0
+        if w <= 1:  # not yet realised — fall back to the panel's requested width
             try:
-                self._label_tooltip.attach(widget, full_text)
+                w = self.winfo_reqwidth()
             except Exception:
-                pass
+                w = 420
+        return w
+
+    def _label_max_px(self, *, has_buttons: bool = True,
+                      marker_shown: bool = False) -> int:
+        """Available pixel width for an option label at the current panel width,
+        reserving only the chrome that actually sits in this row."""
+        reserve = self._CHROME_INDICATOR_PX
+        if has_buttons:
+            reserve += self._CHROME_BUTTONS_PX
+        if marker_shown:
+            reserve += self._MARKER_PX
+        return max(self._LABEL_MIN_PX, self._scroll_width() - reserve)
+
+    def _fit_label(self, text: str, *, has_buttons: bool = True,
+                   marker_shown: bool = False) -> str:
+        """Truncate *text* to the current available label width (pixel-aware)."""
+        return _truncate_text(self._scroll, text, TK_FONT_NORMAL,
+                              self._label_max_px(has_buttons=has_buttons,
+                                                 marker_shown=marker_shown))
+
+    def _option_tooltip_text(self, full_name: str, folder: str) -> str:
+        """Tooltip body for an option row: the full name, plus the modinfo
+        ``description=`` (when present) on following lines."""
+        desc = ""
+        if self._lib_dir is not None:
+            try:
+                from Utils.re_bundle import option_description
+                desc = option_description(self._lib_dir, folder)
+            except Exception:
+                desc = ""
+        return f"{full_name}\n\n{desc}" if desc else full_name
+
+    def _maybe_tooltip(self, widget, full_text: str, folder: str = "") -> None:
+        """Attach a tooltip showing the full name (the visible label may be
+        elided) and, when *folder* resolves to a modinfo description, that text
+        below it."""
+        try:
+            self._label_tooltip.attach(
+                widget, self._option_tooltip_text(full_text, folder))
+        except Exception:
+            pass
+
+    def _on_scroll_resize(self, _event=None) -> None:
+        """Re-truncate every option label to the new panel width.  Skipped unless
+        the panel width actually changed (the scroll frame fires <Configure> for
+        height and child changes too)."""
+        width = self._scroll_width()
+        if width == getattr(self, "_last_scroll_w", 0):
+            return
+        self._last_scroll_w = width
+        for w in self._opt_widgets.values():
+            self._refit_row(w)
+
+    def _refit_row(self, w: dict) -> None:
+        """Re-truncate one row's label to the current width, reserving marker
+        space only when that row is actually showing the '(overridden)' note."""
+        lbl = w.get("label_widget")
+        if lbl is None:
+            return
+        marker = w.get("marker")
+        marker_shown = bool(marker is not None and str(marker.cget("text")))
+        max_px = self._label_max_px(
+            has_buttons=w.get("has_buttons", True), marker_shown=marker_shown)
+        try:
+            lbl.configure(text=_truncate_text(
+                self._scroll, w["text"], TK_FONT_NORMAL, max_px))
+        except Exception:
+            pass
 
     def _build_rows(self):
         """(Re)build the option rows from the current spec.  Called on init and
@@ -4205,18 +4284,21 @@ class BundleOptionsPanel(ctk.CTkFrame):
                     optrow.grid(row=row, column=0, columnspan=2, sticky="ew",
                                 padx=24, pady=2)
                     rb = ctk.CTkRadioButton(
-                        optrow, text=self._elide(opt.label), variable=var, value=oi,
+                        optrow, text=self._fit_label(opt.label, has_buttons=False),
+                        variable=var, value=oi,
                         command=_pick, font=FONT_NORMAL, text_color=TEXT_MAIN,
                         fg_color=ACCENT, hover_color=ACCENT_HOV, border_color=BORDER,
                     )
                     rb.grid(row=0, column=0, sticky="w")
-                    self._maybe_tooltip(rb, opt.label)
+                    self._maybe_tooltip(rb, opt.label, opt.folder)
                     marker = ctk.CTkLabel(
                         optrow, text="", font=FONT_SMALL, text_color=BG_RED_TEXT,
                         anchor="w",
                     )
                     marker.grid(row=0, column=1, sticky="w", padx=(8, 0))
-                    self._opt_widgets[opt.folder] = {"text": opt.label, "marker": marker}
+                    self._opt_widgets[opt.folder] = {
+                        "text": opt.label, "marker": marker, "label_widget": rb,
+                        "has_buttons": False}
                     self._bind_hover_preview(optrow, opt.folder)
                     row += 1
             else:
@@ -4239,21 +4321,29 @@ class BundleOptionsPanel(ctk.CTkFrame):
                     bvar = tk.BooleanVar(value=opt.selected)
                     def _toggle(o=opt, v=bvar):
                         o.selected = bool(v.get())
+                        if o.selected:
+                            # "Your click wins": if this option would be fully
+                            # overridden by lower selected options, turn those
+                            # overriders off so the one you just checked deploys.
+                            self._promote_option(o.folder)
                         self._recompute_conflicts()
                     cb = ctk.CTkCheckBox(
-                        rowf, text=self._elide(opt.label), variable=bvar,
+                        rowf, text=self._fit_label(opt.label), variable=bvar,
                         command=_toggle, font=FONT_NORMAL, text_color=TEXT_MAIN,
                         fg_color=ACCENT, hover_color=ACCENT_HOV,
                         checkmark_color="white", border_color=BORDER,
                     )
                     cb.grid(row=0, column=0, sticky="w")
-                    self._maybe_tooltip(cb, opt.label)
+                    self._maybe_tooltip(cb, opt.label, opt.folder)
                     marker = ctk.CTkLabel(
                         rowf, text="", font=FONT_SMALL, text_color=BG_RED_TEXT,
                         anchor="w",
                     )
                     marker.grid(row=0, column=1, sticky="w", padx=(8, 0))
-                    self._opt_widgets[opt.folder] = {"text": opt.label, "marker": marker}
+                    self._opt_widgets[opt.folder] = {
+                        "text": opt.label, "marker": marker, "label_widget": cb,
+                        "opt": opt, "var": bvar, "checkbox": cb, "has_buttons": True,
+                    }
                     self._bind_hover_preview(cb, opt.folder)
                     self._bind_hover_preview(rowf, opt.folder)
                     ctk.CTkButton(
@@ -4272,31 +4362,70 @@ class BundleOptionsPanel(ctk.CTkFrame):
 
         self._recompute_conflicts()
 
+    def _ordered_selected_folders(self) -> list[str]:
+        """Selected option folders in deploy apply order, mirroring
+        :func:`re_bundle._ordered_selected_folders`: select-one groups first (in
+        declared order), independent groups last, and within a group the shown
+        order (lower = applied later = wins)."""
+        out: list[str] = []
+        for g in self._spec.groups:
+            if not g.select_one:
+                continue
+            out += [o.folder for o in g.options
+                    if o.selected and not o.is_label]
+        for g in self._spec.groups:
+            if g.select_one:
+                continue
+            out += [o.folder for o in g.options
+                    if o.selected and not o.is_label]
+        return out
+
+    def _promote_option(self, folder: str) -> None:
+        """Make the just-checked *folder* win: turn off any other selected
+        independent option that is a full-overlap *alternative* of it — i.e. one
+        whose deployable file set is wholly contained in, or wholly contains,
+        *folder*'s (so enabling both would leave one completely shadowing the
+        other).  This is the "your click wins" rule: checking one mesh/texture
+        variant turns off the sibling variant writing the same files, regardless
+        of list order.
+
+        Genuine partial-overlap add-ons (sharing only *some* files) are left
+        selected — both still contribute, and apply order decides the overlap."""
+        files = self._opt_files.get(folder, set())
+        if not files:
+            return  # no files → nothing to win or shadow
+
+        for other, w in self._opt_widgets.items():
+            if other == folder or "var" not in w:
+                continue  # self, or a radio (can't empty its group)
+            o = w["opt"]
+            if not o.selected or o.is_label:
+                continue
+            ofiles = self._opt_files.get(other, set())
+            if not ofiles:
+                continue
+            # Full overlap in either direction → mutually-exclusive alternatives.
+            if ofiles <= files or files <= ofiles:
+                o.selected = False
+                try:
+                    w["var"].set(False)
+                except Exception:
+                    pass
+
     def _recompute_conflicts(self):
         """Flag every selected option whose files are entirely overridden by
-        another selected option, mirroring deploy order.
-
-        Apply order matches :func:`re_bundle._ordered_selected_folders`:
-        select-one groups first (in declared order), independent groups last, and
-        within a group the option order shown (lower = applied later = wins). The
-        LAST selected option to write a file wins it; an option none of whose
-        files survive is marked '(overridden)' in red.
+        another selected option, mirroring deploy order (see
+        :meth:`_ordered_selected_folders`).  The LAST selected option to write a
+        file wins it; an option none of whose files survive is marked
+        '(overridden)' in red.  (Checking an option auto-promotes it past lower
+        overriders via :meth:`_promote_option`, so a freshly-checked option won't
+        be left overridden — this marks only the cases the user hasn't resolved,
+        e.g. a select-one radio shadowed by an independent add-on.)
         """
         if not self._opt_widgets:
             return
 
-        ordered: list[str] = []
-        for g in self._spec.groups:
-            if not g.select_one:
-                continue
-            ordered += [o.folder for o in g.options
-                        if o.selected and not o.is_label]
-        for g in self._spec.groups:
-            if g.select_one:
-                continue
-            ordered += [o.folder for o in g.options
-                        if o.selected and not o.is_label]
-
+        ordered = self._ordered_selected_folders()
         # winners[rel] = folder of the LAST selected option providing that file.
         winners: dict[str, str] = {}
         for folder in ordered:
@@ -4307,11 +4436,16 @@ class BundleOptionsPanel(ctk.CTkFrame):
         for folder, w in self._opt_widgets.items():
             marker = w["marker"]
             files = self._opt_files.get(folder, set())
-            if folder in selected and files and not any(
-                    winners.get(rel) == folder for rel in files):
+            was_shown = bool(str(marker.cget("text")))
+            now_shown = bool(folder in selected and files and not any(
+                winners.get(rel) == folder for rel in files))
+            if now_shown:
                 marker.configure(text="(overridden)", text_color=BG_RED_TEXT)
             else:
                 marker.configure(text="")
+            # Marker toggling changes the room left for the label, so re-fit it.
+            if now_shown != was_shown:
+                self._refit_row(w)
 
     def _move(self, group, idx: int, delta: int):
         """Swap option *idx* with its neighbour and rebuild the rows."""

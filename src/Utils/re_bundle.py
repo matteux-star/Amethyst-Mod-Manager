@@ -64,6 +64,7 @@ __all__ = [
     "write_bundle_spec",
     "materialize_selection",
     "option_image",
+    "option_description",
     "BUNDLE_LIB_DIR",
 ]
 
@@ -152,6 +153,34 @@ class BundleLayout:
         return sum(len(g.variants) for g in self.groups)
 
 
+# "<Word> [Option ]<N>" — the author's intended sequence lives in the *label*
+# (e.g. ``Texture Option 3``), not the folder name, which often sorts the
+# variants into a scrambled order.  Captures the section word + number.
+_LABEL_ORDER_RE = re.compile(r"^\s*([A-Za-z]+)\s+(?:option\s+)?(\d+)\b",
+                             re.IGNORECASE)
+
+
+def _variant_sort_key(index: int, name: str) -> tuple:
+    """Stable sort key ordering variants within a group by the number in their
+    label.  ``Mesh Option 1/2`` then ``Texture Option 1/2/3/4`` — grouped by the
+    leading word, each ascending by number.  Labels without a ``<Word> N`` shape
+    (e.g. a ``Main Files`` entry) sort *before* numbered ones, keeping their
+    original disk order via *index* so nothing else gets reshuffled."""
+    m = _LABEL_ORDER_RE.match(name)
+    if not m:
+        return (0, "", 0, index)        # un-numbered: keep first, in disk order
+    return (1, m.group(1).lower(), int(m.group(2)), index)
+
+
+def _sorted_variants(variants: "list[BundleVariant]") -> "list[BundleVariant]":
+    """Return *variants* ordered by :func:`_variant_sort_key` (label number),
+    stable on the original sequence for anything without a number."""
+    return [v for _, v in sorted(
+        ((_variant_sort_key(i, v.name), v) for i, v in enumerate(variants)),
+        key=lambda t: t[0],
+    )]
+
+
 def _scan_variant_dirs(root: Path) -> list[tuple[Path, dict[str, str]]] | None:
     """Return ``[(subdir, modinfo_dict), ...]`` for every immediate subdir that
     has a parseable ``modinfo.ini``.  Returns ``None`` unless there are at least
@@ -173,12 +202,20 @@ def _scan_variant_dirs(root: Path) -> list[tuple[Path, dict[str, str]]] | None:
 
 
 def detect_re_bundle(extract_dir: str) -> BundleLayout | None:
-    """Detect a Fluffy bundle (either format) and return its grouped layout.
+    """Detect a Fluffy bundle and return its grouped layout, or ``None``.
 
-    Returns ``None`` if *extract_dir* is not a Fluffy bundle.  Handles both the
-    flat ``nameasbundle`` format (→ a single ``select_one`` group) and the
-    ``AddonFor`` tree (→ one group per dummymod header plus an ``independent``
-    group for standalone addons).
+    Handles three on-disk shapes (all "every immediate subdir has a
+    ``modinfo.ini``"):
+
+    1. **AddonFor tree** — any ``AddonFor`` present → :func:`_build_addonfor_layout`.
+    2. **Flat ``NameAsBundle``** — one independent group per distinct bundle name
+       (an archive may mix several), plus a trailing group for un-bundled
+       standalones.
+    3. **Plain multi-mod** — no ``NameAsBundle`` and no ``AddonFor`` anywhere, yet
+       every subdir is a self-describing Fluffy mod.  These are facets of one
+       Nexus download (e.g. per-character variants), so we install them as ONE
+       bundle (a single independent group, each folder a toggleable option) — a
+       single mod folder + meta.ini, so Nexus update/endorse actions work.
     """
     root = Path(extract_dir)
     scanned = _scan_variant_dirs(root)
@@ -193,32 +230,94 @@ def detect_re_bundle(extract_dir: str) -> BundleLayout | None:
 
     # --- Format 1: flat nameasbundle ---------------------------------------
     # The flat format carries NO machine-readable grouping — Fluffy just shows a
-    # flat checklist and the user picks freely (no enforced "select one").  So
-    # the whole thing is ONE independent (checkbox) group.  Content-less folders
-    # (no deployable files) are visual dividers / info text → kept as labels.
-    bundle_name: str | None = None
-    variants: list[BundleVariant] = []
+    # flat checklist and the user picks freely (no enforced "select one").  A
+    # single archive may mix several ``NameAsBundle`` values (a base bundle plus
+    # a sub-bundle, e.g. "Gemma..." + "...Summer Coveralls"), and may include
+    # folders with NO ``NameAsBundle`` at all (plain ``name=`` standalones).  We
+    # build one independent (checkbox) group per distinct bundle name, in first-
+    # seen order, plus a trailing group for the un-bundled standalones — nothing
+    # is dropped.  Content-less folders (no deployable files) are visual dividers
+    # / info text → kept as labels.
+    #
+    # --- Format 3: plain multi-mod (no NameAsBundle, no AddonFor) -----------
+    # When NO folder carries a bundle name, the folders are independent Fluffy
+    # mods shipped in one archive.  We still bundle them (one group) so they
+    # install as a single mod with one meta.ini.  The group is named after the
+    # folders' common name prefix.
+    has_nameasbundle = any(info.get("nameasbundle", "") for _, info in scanned)
+
+    # bundle-name (preserve first-seen casing) → list of variants, in disk order.
+    grouped: "dict[str, list[BundleVariant]]" = {}
+    display_name: dict[str, str] = {}   # lower → first-seen display casing
+    standalones: list[BundleVariant] = []
     for subdir, info in scanned:
-        bname = info.get("nameasbundle", "")
-        if not bname:
-            return None  # every folder must share a bundle name
-        if bundle_name is None:
-            bundle_name = bname
-        elif bname.lower() != bundle_name.lower():
-            return None  # inconsistent bundle names
         vname = info.get("name", "") or subdir.name
         is_label = not _has_deployable_files(subdir)
-        variants.append(BundleVariant(name=vname, path=str(subdir),
-                                      folder=subdir.name, is_label=is_label))
+        variant = BundleVariant(name=vname, path=str(subdir),
+                                folder=subdir.name, is_label=is_label)
+        bname = info.get("nameasbundle", "").strip()
+        if not bname:
+            standalones.append(variant)
+            continue
+        key = bname.lower()
+        display_name.setdefault(key, bname)
+        grouped.setdefault(key, []).append(variant)
 
-    real = [v for v in variants if not v.is_label]
-    if not bundle_name or len(real) < 2:
+    groups: list[BundleGroup] = []
+    for key, variants in grouped.items():
+        groups.append(BundleGroup(name=display_name[key], select_one=False,
+                                  variants=_sorted_variants(variants), flat=True))
+    if standalones:
+        # Un-bundled folders.  When the archive has NamedAsBundle groups too,
+        # these are leftovers → a trailing "— Other" group, kept ``flat`` so its
+        # section-default (first per ``-N-`` section) applies.  When there are NO
+        # named groups at all (plain multi-mod), they ARE the bundle: independent
+        # per-mod folders → name the group after the common prefix and mark it
+        # NOT flat so every option defaults on (the override-prune pass still
+        # drops any that another fully covers, e.g. "Type A" ⊆ "Type B").
+        if has_nameasbundle:
+            other_name = next(iter(display_name.values()), "")
+            grp_name = f"{other_name} — Other" if other_name else "Other"
+            grp_flat = True
+        else:
+            grp_name = _common_name_prefix(
+                [v.name for v in standalones if not v.is_label]) or "Bundle"
+            grp_flat = False
+        groups.append(BundleGroup(
+            name=grp_name, select_one=False,
+            variants=_sorted_variants(standalones), flat=grp_flat))
+
+    if sum(1 for g in groups for v in g.variants if not v.is_label) < 2:
         return None
-    return BundleLayout(
-        bundle_name=bundle_name,
-        groups=[BundleGroup(name=bundle_name, select_one=False,
-                            variants=variants, flat=True)],
-    )
+    # Overall display name = the bundle with the most options (most prominent),
+    # not whichever happened to sort first.  For a plain multi-mod (no named
+    # groups), use the common-prefix group name.
+    if display_name:
+        bundle_name = max(display_name, key=lambda k: len(grouped[k]))
+        bundle_name = display_name[bundle_name]
+    else:
+        bundle_name = groups[0].name if groups else "Bundle"
+    return BundleLayout(bundle_name=bundle_name, groups=groups)
+
+
+def _common_name_prefix(names: "list[str]") -> str:
+    """Return the longest common word-boundary prefix of *names*, trimmed of
+    trailing separators (used to name a plain multi-mod bundle, e.g.
+    ``["Dormant Jiggle Physics: Chun-Li", "Dormant Jiggle Physics: Lily"]`` →
+    ``"Dormant Jiggle Physics"``).  "" if there's no shared multi-word prefix."""
+    if not names:
+        return ""
+    split = [n.split() for n in names]
+    common: list[str] = []
+    for words in zip(*split):
+        first = words[0]
+        if all(w == first for w in words):
+            common.append(first)
+        else:
+            break
+    prefix = " ".join(common).rstrip(" :-_–—|/").strip()
+    # Only useful as a label if it actually shortens / shares something.
+    return prefix if len(common) >= 1 and prefix else ""
 
 
 def _build_addonfor_layout(
@@ -229,14 +328,19 @@ def _build_addonfor_layout(
     The tree is keyed by each entry's ``name`` value (what ``AddonFor`` points
     at), matched case-insensitively.  Roles:
 
-    - **Root** = ``AddonFor`` empty + Dummymod → the bundle name.
-    - **Header** (Dummymod, AddonFor=root) → a select-one group; its children
+    - **Root** = a Dummymod with empty ``AddonFor`` *or* a Dummymod whose own
+      ``name`` is the ``AddonFor`` target of the options (a bundle that nests
+      itself under another dummymod, e.g. ``999.HAIR`` → ``AddonFor=Just
+      Cleavage`` while every option says ``AddonFor=999.HAIR``).
+    - **Header** (other Dummymod that options point at) → a group; its children
       (entries whose ``AddonFor`` equals the header's name) are the options.
     - **Standalone** (not Dummymod, AddonFor=root) → independent optional toggle.
 
-    Children of any non-root header become that group's options.  Anything whose
-    ``AddonFor`` doesn't resolve to a known header is treated as a root-level
-    standalone so nothing is silently dropped.
+    ``AddonFor`` in Fluffy means "independent add-on", so header groups are
+    **independent** (checkbox) toggles — the options are not mutually exclusive
+    (different hair slots, etc.).  Children of any non-root header become that
+    group's options.  Anything whose ``AddonFor`` doesn't resolve to a known
+    header is treated as a root-level standalone so nothing is silently dropped.
     """
     # name (lower) → (subdir, info)
     by_name: dict[str, tuple[Path, dict[str, str]]] = {}
@@ -244,20 +348,33 @@ def _build_addonfor_layout(
         nm = (info.get("name", "") or subdir.name).strip().lower()
         by_name.setdefault(nm, (subdir, info))
 
-    # Identify the root: a dummymod with empty AddonFor.
+    # Names that non-dummymod options point at via AddonFor (the parents that
+    # actually hold installable options).
+    pointed_at = {
+        info.get("addonfor", "").strip().lower()
+        for subdir, info in scanned
+        if not _is_dummymod(info) and info.get("addonfor", "").strip()
+    }
+
+    # Identify the root(s): a dummymod with empty AddonFor, OR a dummymod whose
+    # own name is what the options point at (a bundle nested under another
+    # dummymod — e.g. ``999.HAIR`` carries ``AddonFor=Just Cleavage`` yet every
+    # option says ``AddonFor=999.HAIR``).  The latter would otherwise be mistaken
+    # for a child header and collapse all options into one wrong group.
     root_names = {
         (info.get("name", "") or subdir.name).strip().lower()
         for subdir, info in scanned
         if _is_dummymod(info) and not info.get("addonfor", "")
     }
 
-    # Any non-root dummymod is a select-one group header (a dummymod's whole
-    # purpose is to head a group); the names of those headers are the parents
-    # whose children become mutually-exclusive options.
+    # Any other dummymod that options point at is a group header; its children
+    # (entries whose AddonFor equals the header's name) are independent options.
     header_names = {
-        (info.get("name", "") or subdir.name).strip().lower()
+        nm
         for subdir, info in scanned
-        if _is_dummymod(info) and (info.get("name", "") or subdir.name).strip().lower() not in root_names
+        if _is_dummymod(info)
+        and (nm := (info.get("name", "") or subdir.name).strip().lower()) not in root_names
+        and nm in pointed_at
     }
 
     # children[header_name_lower] = [(subdir, info), ...] in disk order
@@ -298,16 +415,18 @@ def _build_addonfor_layout(
         groups.append(BundleGroup(
             name=bundle_name,
             select_one=False,
-            variants=[
+            variants=_sorted_variants([
                 BundleVariant(
                     name=info.get("name", "") or subdir.name,
                     path=str(subdir), folder=subdir.name,
+                    is_label=not _has_deployable_files(subdir),
                 )
                 for subdir, info in standalones
-            ],
+            ]),
         ))
 
-    # One select-one group per dummymod header, in disk order.
+    # One independent (checkbox) group per dummymod header.  AddonFor options are
+    # independent add-ons, not mutually exclusive; ordered by label number.
     for h_subdir, h_info in headers:
         h_name = h_info.get("name", "") or h_subdir.name
         opts = children.get(h_name.strip().lower(), [])
@@ -315,14 +434,15 @@ def _build_addonfor_layout(
             continue  # empty group — nothing to install
         groups.append(BundleGroup(
             name=h_name,
-            select_one=True,
-            variants=[
+            select_one=False,
+            variants=_sorted_variants([
                 BundleVariant(
                     name=info.get("name", "") or subdir.name,
                     path=str(subdir), folder=subdir.name,
+                    is_label=not _has_deployable_files(subdir),
                 )
                 for subdir, info in opts
-            ],
+            ]),
         ))
 
     if not any(g.variants for g in groups):
@@ -458,11 +578,24 @@ class BundleSpec:
 
 
 def _name_prefix_group(name: str) -> str:
-    """Extract the leading ``-N-`` section number from a flat-bundle option name
-    (e.g. ``-2- body-01`` → ``2``), used only to pick a sensible default
-    ("first real option per section").  Returns "" when no number is present."""
+    """Derive a flat-bundle option's "section" key, used only to pick a sensible
+    default ("first real option per section", so mutually-exclusive alternatives
+    don't all deploy at once).  Recognises two authoring conventions:
+
+    - a ``-N-`` section marker (e.g. ``-2- body-01`` → ``2``);
+    - a ``<Word> Option N`` / ``<Word> N`` label (e.g. ``Mesh Option 1`` →
+      ``mesh``, ``Texture Option 3`` → ``texture``) — the *word* is the section
+      so every "Mesh Option N" collapses to one default-on entry.
+
+    Returns "" when neither pattern matches (each such option is its own
+    section, hence default-on)."""
     m = re.search(r"(?:^|[^0-9])-(\d+)-(?:[^0-9]|$)", name)
-    return m.group(1) if m else ""
+    if m:
+        return m.group(1)
+    m = re.match(r"\s*([A-Za-z]+)\s+(?:option\s+)?\d+\b", name, re.IGNORECASE)
+    if m:
+        return m.group(1).lower()
+    return ""
 
 
 def layout_to_spec(layout: BundleLayout) -> BundleSpec:
@@ -474,6 +607,13 @@ def layout_to_spec(layout: BundleLayout) -> BundleSpec:
         alternatives all at once);
       - other independent group (AddonFor optionals) → every option on;
       - label entries are never selected.
+
+    Independent groups default every option on, but many bundles (e.g. skin/hair
+    variants) have several options that write the *same* files.  As a final pass
+    (:func:`_prune_overridden_defaults`) we keep, for each set of fully-
+    overlapping alternatives, the **topmost** option and turn the rest off — so a
+    fresh install starts with one contributor per file and the first listed wins.
+    The user can re-enable any of them in the Bundle Options dialog.
     """
     groups: list[BundleSpecGroup] = []
     for g in layout.groups:
@@ -505,7 +645,64 @@ def layout_to_spec(layout: BundleLayout) -> BundleSpec:
             ))
         groups.append(BundleSpecGroup(name=g.name, select_one=g.select_one,
                                       options=opts, flat=g.flat))
-    return BundleSpec(groups=groups)
+
+    spec = BundleSpec(groups=groups)
+    _prune_overridden_defaults(spec, layout)
+    return spec
+
+
+def _prune_overridden_defaults(spec: BundleSpec, layout: BundleLayout) -> None:
+    """Turn off default-selected options that conflict with an earlier one, so a
+    fresh install starts with one contributor per file and the **topmost** option
+    of any fully-overlapping set is the one left on.  Mutates *spec* in place;
+    select-one options are left alone (their group needs one winner).
+
+    Deploy apply order is "lower in the list wins" — so naively the *bottom*
+    alternative would survive.  To make the *top* the default, we walk options in
+    list order and claim each file for the *first* selected option to provide it;
+    an option none of whose files are still unclaimed (i.e. an earlier option
+    already covers them all) is turned off.
+
+    File sets come from each variant's extracted folder (``BundleVariant.path``).
+    Pruning one option can free files for a later one, so the pass repeats until
+    stable.  If file sets can't be read, the selection is unchanged.
+    """
+    # folder → deployable rel set, read from the extracted option folders.
+    files: dict[str, set[str]] = {}
+    for g in layout.groups:
+        for v in g.variants:
+            if v.is_label:
+                continue
+            try:
+                files[v.folder] = _deployable_rels_at(Path(v.path))
+            except OSError:
+                files[v.folder] = set()
+
+    opt_by_folder = {o.folder: o for g in spec.groups for o in g.options}
+    # Only independent (non select-one) options are eligible to be turned off.
+    independent = {o.folder for g in spec.groups if not g.select_one
+                   for o in g.options}
+    # Options in display (top→bottom) order, grouped as shown.
+    display_order = [o.folder for g in spec.groups for o in g.options
+                     if not o.is_label]
+
+    for _ in range(len(opt_by_folder) + 1):
+        claimed: set[str] = set()
+        changed = False
+        # First-come-first-served in DISPLAY order: the top option claims its
+        # files; a lower option whose files are all already claimed is dropped.
+        for folder in display_order:
+            opt = opt_by_folder.get(folder)
+            if opt is None or not opt.selected:
+                continue
+            ofiles = files.get(folder, set())
+            if folder in independent and ofiles and ofiles <= claimed:
+                opt.selected = False
+                changed = True
+                continue
+            claimed |= ofiles
+        if not changed:
+            break
 
 
 def merge_bundle_spec(new_spec: BundleSpec, old_spec: BundleSpec) -> BundleSpec:
@@ -625,6 +822,15 @@ def option_image(lib_dir: Path, folder: str) -> "Path | None":
 _OPTION_META_EXT = (".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp")
 
 
+def option_description(lib_dir: Path, folder: str) -> str:
+    """Return option *folder*'s ``description=`` from its modinfo.ini (stripped),
+    or "" if absent/blank.  Used for the option-row hover tooltip."""
+    info = parse_modinfo(lib_dir / folder / "modinfo.ini")
+    if not info:
+        return ""
+    return info.get("description", "").strip()
+
+
 def _is_option_metadata(rel_tail: str) -> bool:
     """True for Fluffy per-option bookkeeping at the option root: ``modinfo.ini``
     and the screenshot image — not deployable mod content."""
@@ -633,15 +839,10 @@ def _is_option_metadata(rel_tail: str) -> bool:
     return rel_tail.lower().endswith(_OPTION_META_EXT)
 
 
-def option_deployable_rels(lib_dir: Path, folder: str) -> set[str]:
-    """Return the lowercased mod-root-relative paths option *folder* would
-    materialise (the option-folder prefix stripped, Fluffy bookkeeping skipped).
-
-    This mirrors :func:`materialize_selection`'s per-option file resolution so
-    callers (e.g. the Bundle Options conflict view) can tell, before any deploy,
-    which selected options write the same files.
-    """
-    opt_root = lib_dir / folder
+def _deployable_rels_at(opt_root: Path) -> set[str]:
+    """Lowercased mod-root-relative paths the option folder at *opt_root* would
+    materialise (prefix stripped, Fluffy bookkeeping skipped).  Works on any
+    absolute option-folder path (extract dir or ``.mm_bundle`` library)."""
     if not opt_root.is_dir():
         return set()
     rels: set[str] = set()
@@ -655,6 +856,17 @@ def option_deployable_rels(lib_dir: Path, folder: str) -> set[str]:
             continue
         rels.add(rel.lower())
     return rels
+
+
+def option_deployable_rels(lib_dir: Path, folder: str) -> set[str]:
+    """Return the lowercased mod-root-relative paths option *folder* would
+    materialise (the option-folder prefix stripped, Fluffy bookkeeping skipped).
+
+    This mirrors :func:`materialize_selection`'s per-option file resolution so
+    callers (e.g. the Bundle Options conflict view) can tell, before any deploy,
+    which selected options write the same files.
+    """
+    return _deployable_rels_at(lib_dir / folder)
 
 
 def _ordered_selected_folders(spec: BundleSpec) -> list[str]:
