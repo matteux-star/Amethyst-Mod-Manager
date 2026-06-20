@@ -123,6 +123,62 @@ def _reroute_extract_dir(old_dir: str, disk_parent: "Path") -> str:
     return new_dir
 
 
+def _debackslash_extracted_tree(extract_dir: str, log_fn=None) -> int:
+    """Repair an extraction that kept Windows backslash path separators.
+
+    Some ZIPs (commonly packed by PowerShell's ``Compress-Archive``) store
+    member names with ``\\`` separators, which violates the ZIP spec. Native
+    extractors (7z/bsdtar) and Python's ``zipfile`` then create *flat* files
+    whose names literally contain backslashes — e.g. a single file called
+    ``Data\\Interface\\foo.ttf`` — instead of a nested folder tree.
+
+    Downstream install code resolves paths with forward slashes, so those flat
+    entries are never matched (``rglob`` finds them, but ``src.is_file()`` then
+    fails against the rewritten ``Data/Interface/foo.ttf`` path) → "0 items
+    copied". This sweep relocates every backslash-named entry to its proper
+    nested location. Returns the number of entries moved.
+
+    Idempotent and cheap when no backslash names exist (the common case).
+    """
+    root = Path(extract_dir)
+    # Collect first so we don't mutate the tree mid-walk. Deepest paths first
+    # so files move before we try to clean up their (now-empty) flat parents.
+    offenders = [p for p in root.rglob("*") if "\\" in p.name]
+    if not offenders:
+        return 0
+    moved = 0
+    for entry in sorted(offenders, key=lambda p: len(str(p)), reverse=True):
+        if not entry.exists():
+            continue
+        rel = str(entry.relative_to(root)).replace("\\", "/")
+        target = root / rel
+        if target == entry:
+            continue
+        try:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if entry.is_dir():
+                # A backslash-named directory: merge its contents, then drop it.
+                target.mkdir(parents=True, exist_ok=True)
+                for child in entry.iterdir():
+                    dest = target / child.name
+                    if not dest.exists():
+                        shutil.move(str(child), str(dest))
+                try:
+                    entry.rmdir()
+                except OSError:
+                    pass
+            else:
+                if target.exists():
+                    target.unlink()
+                shutil.move(str(entry), str(target))
+                moved += 1
+        except OSError:
+            continue
+    if moved and log_fn is not None:
+        log_fn(f"Normalised {moved} Windows backslash path(s) from archive.")
+    return moved
+
+
 def _get_available_memory_bytes() -> int:
     """Return available system memory in bytes via /proc/meminfo."""
     try:
@@ -1368,6 +1424,11 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
                         "deflate64) that requires the '7z' binary. Install "
                         "the 'p7zip' package or use the Flatpak build."
                     )
+            # Native extractors (7z/bsdtar) reproduce Windows backslash member
+            # names as literal flat filenames; repair them into a real tree so
+            # the rest of the install pipeline can resolve the paths.
+            if _zip_done:
+                _debackslash_extracted_tree(extract_dir, log_fn)
         elif ext.endswith(".7z"):
             import subprocess
             _7z_done = False
