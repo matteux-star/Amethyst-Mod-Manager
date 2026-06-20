@@ -2346,30 +2346,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
 
         # Recompute priorities cache only when _entries has changed.
         # Must happen before _compute_visible_indices so priority-column sort works.
-        if not self._priorities:
-            mod_count = sum(1 for e in self._entries if not e.is_separator)
-            # During a reverse-mode (priority-ascending) drag, _entries is
-            # physically inverted (lowest priority at the top — see
-            # _activate_drag).  The priority *number* of a mod is intrinsic to
-            # its real position, not the temporary physical order, so number
-            # from the bottom up in that case to keep the displayed numbers
-            # stable while dragging.
-            _inverted_physical = (
-                self._drag_saved_sort_column == "priority"
-                and self._drag_saved_sort_ascending
-            )
-            if _inverted_physical:
-                p = 0
-                for idx, entry in enumerate(self._entries):
-                    if not entry.is_separator:
-                        self._priorities[idx] = p
-                        p += 1
-            else:
-                p = mod_count - 1
-                for idx, entry in enumerate(self._entries):
-                    if not entry.is_separator:
-                        self._priorities[idx] = p
-                        p -= 1
+        self._ensure_priorities()
 
         # Recompute visible indices only when something structural changed.
         if self._vis_dirty:
@@ -3100,8 +3077,45 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._invalidate_derived_caches()
         self._redraw()
 
+    def _ensure_priorities(self) -> None:
+        """Populate the entry-index → priority-number cache when empty.
+
+        Must run before any priority-column sort (in _apply_column_sort) so the
+        sort key has real numbers; otherwise priorities.get(i, 0) returns 0 for
+        every mod and the "sort" is a no-op that leaves each group in its raw
+        _entries order.  _compute_visible_indices calls this directly so callers
+        outside _redraw (e.g. the multi-select collapse in _on_mouse_release)
+        don't cache a mis-sorted visible list — that was the reverse-priority
+        "list flips after dragging a locked separator" bug.
+        """
+        if self._priorities:
+            return
+        mod_count = sum(1 for e in self._entries if not e.is_separator)
+        # During a reverse-mode (priority-ascending) drag, _entries is
+        # physically inverted (lowest priority at the top — see _activate_drag).
+        # The priority *number* of a mod is intrinsic to its real position, not
+        # the temporary physical order, so number from the bottom up in that
+        # case to keep the displayed numbers stable while dragging.
+        _inverted_physical = (
+            self._drag_saved_sort_column == "priority"
+            and self._drag_saved_sort_ascending
+        )
+        if _inverted_physical:
+            p = 0
+            for idx, entry in enumerate(self._entries):
+                if not entry.is_separator:
+                    self._priorities[idx] = p
+                    p += 1
+        else:
+            p = mod_count - 1
+            for idx, entry in enumerate(self._entries):
+                if not entry.is_separator:
+                    self._priorities[idx] = p
+                    p -= 1
+
     def _compute_visible_indices(self) -> list[int]:
         """Return entry indices that match the current filter, collapsed state, and column sort."""
+        self._ensure_priorities()
         # Step 1: basic visibility (filter or collapse)
         if self._filter_text:
             ft = self._filter_text
@@ -4796,6 +4810,17 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             if _saved_col is not None:
                 self._sort_column = _saved_col
                 self._sort_ascending = _saved_asc
+            # _entries is now back in natural order, so the "inverted drag"
+            # priority-numbering branch (keyed on _drag_saved_sort_column) no
+            # longer applies.  Clear these markers before the collapse block
+            # below computes visible indices — otherwise _ensure_priorities
+            # numbers natural-order _entries with the inverted (bottom-up)
+            # scheme, baking wrong priority numbers AND a no-op sort into the
+            # cached visible list (the reverse-priority "list flips after
+            # dragging a locked separator" bug).  The local _saved_* copies
+            # still drive the header/restore logic below.
+            self._drag_saved_sort_column = None
+            self._drag_saved_sort_ascending = None
             self._invalidate_derived_caches()
             self._vis_dirty = True
             self._mod_to_sep_idx = None
