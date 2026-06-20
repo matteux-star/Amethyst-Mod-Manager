@@ -415,6 +415,113 @@ def _step_digicert_root(pfx: Path, wine: Path, log: Callable[[str], None]) -> bo
     return True
 
 
+def _step_ca_bundle_roots(pfx: Path, wine: Path, log: Callable[[str], None]) -> bool:
+    """Import the full public CA bundle into the Wine Root store.
+
+    dotnet runs under Wine as a *Windows* process, where NuGet signature
+    verification is always on and uses the Windows root store — Wine's store
+    is near-empty, so timestamping/author certs on Mutagen's older deps fail
+    with NU3028 ('certificate is not trusted'). Importing the whole Mozilla
+    CA bundle (via the project's resolve_ca_bundle() / certifi) gives the
+    prefix the trust anchors those signatures chain to, instead of pinning
+    individual fingerprints. Idempotent via the per-prefix done-marker.
+    """
+    if _is_done(pfx, "ca_bundle_roots_v1"):
+        log("  CA bundle roots already imported, skipping.")
+        return True
+
+    bundle: "str | None" = None
+    try:
+        from Utils.ca_bundle import resolve_ca_bundle
+        bundle = resolve_ca_bundle()
+    except Exception as exc:
+        log(f"  resolve_ca_bundle unavailable ({exc}); trying certifi directly.")
+    if not bundle:
+        try:
+            import certifi
+            bundle = certifi.where()
+        except Exception as exc:
+            log(f"  No CA bundle available ({exc}) — skipping root import.")
+            return True  # non-fatal; DigiCert G4 step already ran
+
+    bundle_path = Path(bundle)
+    if not bundle_path.is_file():
+        log(f"  CA bundle not found at {bundle_path} — skipping root import.")
+        return True
+
+    # Split the PEM into individual certificates — Wine's certutil imports
+    # one cert per file.
+    try:
+        text = bundle_path.read_text(encoding="utf-8", errors="replace")
+    except OSError as exc:
+        log(f"  Could not read CA bundle ({exc}) — skipping root import.")
+        return True
+
+    blocks: list[str] = []
+    marker = "-----BEGIN CERTIFICATE-----"
+    end = "-----END CERTIFICATE-----"
+    start = text.find(marker)
+    while start != -1:
+        stop = text.find(end, start)
+        if stop == -1:
+            break
+        blocks.append(text[start:stop + len(end)] + "\n")
+        start = text.find(marker, stop)
+
+    if not blocks:
+        log("  CA bundle contained no certificates — skipping root import.")
+        return True
+
+    env = _base_env(pfx, wine)
+
+    # Fast path: try importing the whole bundle in a single certutil call.
+    # If Wine's certutil accepts a multi-cert PEM, this avoids ~150 separate
+    # wine process spawns (which take 5-7 min the first time).
+    log(f"Importing {len(blocks)} CA root(s) into the Wine Root store …")
+    with tempfile.TemporaryDirectory() as tmpd:
+        bundle_copy = Path(tmpd) / "ca_bundle.pem"
+        try:
+            bundle_copy.write_text("".join(blocks), encoding="utf-8")
+            result = subprocess.run(
+                [str(wine), "certutil", "-addstore", "Root", str(bundle_copy)],
+                env=env, capture_output=True, text=True, timeout=180,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            result = None
+        if result is not None and result.returncode == 0:
+            _mark_done(pfx, "ca_bundle_roots_v1")
+            log(f"  CA roots imported ({len(blocks)} certs, single pass).")
+            return True
+        log("  Bulk import unavailable — importing certs individually "
+            "(one-time, this can take a few minutes).")
+
+        # Fallback: one cert per certutil call, with periodic progress.
+        imported = 0
+        failed = 0
+        total = len(blocks)
+        for i, block in enumerate(blocks, 1):
+            cert_file = Path(tmpd) / f"ca_{i}.pem"
+            try:
+                cert_file.write_text(block, encoding="utf-8")
+            except OSError:
+                failed += 1
+                continue
+            r = subprocess.run(
+                [str(wine), "certutil", "-addstore", "Root", str(cert_file)],
+                env=env, capture_output=True, text=True, timeout=60,
+            )
+            if r.returncode == 0:
+                imported += 1
+            else:
+                failed += 1
+            if i % 25 == 0 or i == total:
+                log(f"    … {i}/{total} certs processed")
+
+    _mark_done(pfx, "ca_bundle_roots_v1")
+    log(f"  CA roots imported: {imported} ok, {failed} skipped/failed.")
+    return True
+
+
 def _step_win11_version(pfx: Path, wine: Path, log: Callable[[str], None]) -> bool:
     """Set Windows version to Win11 directly via registry.
 
@@ -638,9 +745,12 @@ def _step_nuget_config(pfx: Path, wine: Path, log: Callable[[str], None]) -> boo
 
     Mutagen's deps include 2020-era packages whose timestamping certs have
     rolled past validity. ``allowUntrustedRoot="true"`` on the listed
-    fingerprints (nuget.org repo + Microsoft author) lets NuGet accept them.
+    fingerprints (nuget.org repo + Microsoft author) lets NuGet accept them
+    despite the untrusted timestamp roots in Wine's near-empty cert store.
+    The three nuget.org repository fingerprints are the current set; the
+    seven Microsoft author fingerprints cover its rotating author certs.
     """
-    if _is_done(pfx, "nuget_config_v6"):
+    if _is_done(pfx, "nuget_config_v8"):
         return True
     cfg = (
         pfx / "drive_c" / "users" / "steamuser"
@@ -675,7 +785,7 @@ def _step_nuget_config(pfx: Path, wine: Path, log: Callable[[str], None]) -> boo
         '</configuration>\n'
     )
     cfg.write_text(content, encoding="utf-8")
-    _mark_done(pfx, "nuget_config_v6")
+    _mark_done(pfx, "nuget_config_v8")
     log("  NuGet.Config written with trustedSigners (allowUntrustedRoot).")
     return True
 
@@ -728,6 +838,7 @@ def setup_synthesis_prefix(
     ok &= _step_dotnet7_desktop(pfx, wine, log_fn)
     ok &= _step_dotnet6_desktop(pfx, wine, log_fn)
     ok &= _step_digicert_root(pfx, wine, log_fn)
+    ok &= _step_ca_bundle_roots(pfx, wine, log_fn)
     ok &= _step_regedit(pfx, wine, log_fn)
     ok &= _step_fonts(pfx, wine, log_fn)
     ok &= _step_nuget_config(pfx, wine, log_fn)
@@ -802,6 +913,19 @@ def _plugins_appdata_targets(game: "BaseGame", pfx: Path) -> list[Path]:
 
 def _active_profile_plugins_source(game: "BaseGame", profile: str) -> Path:
     return game.get_profile_root() / "profiles" / profile / "plugins.txt"
+
+
+def _mygames_root(pfx: Path, game: "BaseGame") -> "Path | None":
+    """The ``Documents/.../My Games`` folder inside a prefix for this game.
+
+    ``_MYGAMES_DOCS`` is the prefix-relative path down to (and including)
+    ``My Games`` (e.g. ``drive_c/users/steamuser/Documents/My Games``), so
+    the per-game subfolder lives directly under it.
+    """
+    docs = getattr(game, "_MYGAMES_DOCS", None)
+    if docs is None:
+        return None
+    return pfx / docs
 
 
 # ============================================================================
@@ -1158,6 +1282,57 @@ class SynthesisWizard(ctk.CTkFrame):
                 pass
         self._plugins_symlinks = []
 
+    def _symlink_mygames(self) -> None:
+        """Symlink the game prefix's whole My Games folder into the Synthesis prefix.
+
+        Some patchers read the Skyrim/Fallout INIs (Skyrim.ini, *Prefs.ini,
+        *Custom.ini) and other config out of My Games; without them they fall
+        back to defaults or error. We link the *entire* ``My Games`` folder
+        from the real game prefix (the one the game launches with) into the
+        Synthesis prefix's ``Documents/`` so patchers see exactly what the
+        game sees.
+        """
+        game = self._game
+        self._mygames_link = None
+        game_pfx = game.get_prefix_path() if hasattr(game, "get_prefix_path") else None
+        if game_pfx is None:
+            self._append_log("Skipping My Games link (game prefix not configured).")
+            return
+        src = _mygames_root(Path(game_pfx), game)
+        dst = _mygames_root(_synthesis_pfx(game), game)
+        if src is None or dst is None:
+            self._append_log("Skipping My Games link (game has no My Games path).")
+            return
+        if not src.is_dir():
+            self._append_log(f"Game-prefix My Games folder not found ({src}) — skipping link.")
+            return
+        try:
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            if dst.is_symlink() or dst.exists():
+                if dst.is_symlink():
+                    dst.unlink()
+                else:
+                    # A real dir already lives there — leave it, don't clobber.
+                    self._append_log(f"My Games already exists as a real folder at {dst} — skipping link.")
+                    return
+            dst.symlink_to(src, target_is_directory=True)
+            self._mygames_link = dst
+            self._append_log(f"Linked My Games → {dst}")
+        except OSError as exc:
+            self._append_log(f"My Games link failed: {exc}")
+
+    def _remove_mygames_symlinks(self) -> None:
+        link = getattr(self, "_mygames_link", None)
+        if link is None:
+            return
+        try:
+            if link.is_symlink():
+                link.unlink()
+                self._log(f"Synthesis: removed My Games symlink {link}")
+        except OSError:
+            pass
+        self._mygames_link = None
+
     def _on_launch(self):
         if self._selected_proton is None:
             return
@@ -1259,6 +1434,10 @@ class SynthesisWizard(ctk.CTkFrame):
 
         self._deploy_active_profile()
 
+        # Link the game's My Games INIs in after deploy — some patchers read
+        # Skyrim.ini / *Custom.ini and need the same files the game uses.
+        self._symlink_mygames()
+
         # Run via `proton run` so the Steam Linux Runtime sniper container
         # provides libicuuc/libicuin (Wine's icu.dll stub forwards into them
         # — without the runtime, .NET 9 WPF crashes with
@@ -1293,6 +1472,7 @@ class SynthesisWizard(ctk.CTkFrame):
             self._append_log(f"Launch error: {exc}")
         finally:
             self._remove_plugins_symlink()
+            self._remove_mygames_symlinks()
             try:
                 self.after(0, lambda: self._launch_btn.configure(
                     state="normal", text="Launch Synthesis",
