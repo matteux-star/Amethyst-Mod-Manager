@@ -284,7 +284,7 @@ def _ensure_prefix(pfx: Path, wine: Path, log: Callable[[str], None]) -> bool:
     result = subprocess.run(
         [str(wine), "wineboot", "-i"],
         env=_base_env(pfx, wine),
-        capture_output=True, text=True, timeout=300,
+        capture_output=True, text=True, errors="replace", timeout=300,
     )
     if result.returncode != 0:
         log(f"  wineboot exited with {result.returncode}: {result.stderr[:200]}")
@@ -304,7 +304,7 @@ def _step_dotnet9_sdk(pfx: Path, wine: Path, log: Callable[[str], None]) -> bool
     result = subprocess.run(
         [str(wine), str(installer), "/install", "/quiet", "/norestart"],
         env=_base_env(pfx, wine),
-        capture_output=True, text=True, timeout=900,
+        capture_output=True, text=True, errors="replace", timeout=900,
     )
     if result.returncode not in (0, 3010):
         log(f"  .NET 9 SDK installer exited with {result.returncode}")
@@ -325,7 +325,7 @@ def _step_dotnet10_desktop(pfx: Path, wine: Path, log: Callable[[str], None]) ->
     result = subprocess.run(
         [str(wine), str(installer), "/install", "/quiet", "/norestart"],
         env=_base_env(pfx, wine),
-        capture_output=True, text=True, timeout=600,
+        capture_output=True, text=True, errors="replace", timeout=600,
     )
     if result.returncode not in (0, 3010):
         log(f"  .NET 10 Desktop Runtime installer exited with {result.returncode}")
@@ -355,7 +355,7 @@ def _install_desktop_runtime(
     result = subprocess.run(
         [str(wine), str(installer), "/install", "/quiet", "/norestart"],
         env=_base_env(pfx, wine),
-        capture_output=True, text=True, timeout=600,
+        capture_output=True, text=True, errors="replace", timeout=600,
     )
     if result.returncode not in (0, 3010):
         log(f"  {label} installer exited with {result.returncode}")
@@ -406,7 +406,7 @@ def _step_digicert_root(pfx: Path, wine: Path, log: Callable[[str], None]) -> bo
     result = subprocess.run(
         [str(wine), "certutil", "-addstore", "Root", str(cert)],
         env=_base_env(pfx, wine),
-        capture_output=True, text=True, timeout=60,
+        capture_output=True, text=True, errors="replace", timeout=60,
     )
     if result.returncode != 0:
         log(f"  certutil exited with {result.returncode} (likely already present)")
@@ -484,7 +484,7 @@ def _step_ca_bundle_roots(pfx: Path, wine: Path, log: Callable[[str], None]) -> 
             bundle_copy.write_text("".join(blocks), encoding="utf-8")
             result = subprocess.run(
                 [str(wine), "certutil", "-addstore", "Root", str(bundle_copy)],
-                env=env, capture_output=True, text=True, timeout=180,
+                env=env, capture_output=True, text=True, errors="replace", timeout=180,
             )
         except (OSError, subprocess.TimeoutExpired):
             result = None
@@ -508,7 +508,7 @@ def _step_ca_bundle_roots(pfx: Path, wine: Path, log: Callable[[str], None]) -> 
                 continue
             r = subprocess.run(
                 [str(wine), "certutil", "-addstore", "Root", str(cert_file)],
-                env=env, capture_output=True, text=True, timeout=60,
+                env=env, capture_output=True, text=True, errors="replace", timeout=60,
             )
             if r.returncode == 0:
                 imported += 1
@@ -554,7 +554,7 @@ def _step_win11_version(pfx: Path, wine: Path, log: Callable[[str], None]) -> bo
         if value:
             args += ["/d", value]
         result = subprocess.run(
-            args, env=env, capture_output=True, text=True, timeout=30,
+            args, env=env, capture_output=True, text=True, errors="replace", timeout=30,
         )
         if result.returncode != 0:
             log(f"  reg add {name} failed: {result.stderr[:200].strip()}")
@@ -564,7 +564,7 @@ def _step_win11_version(pfx: Path, wine: Path, log: Callable[[str], None]) -> bo
         [str(wine), "reg", "delete",
          r"HKLM\System\CurrentControlSet\Control\Windows",
          "/v", "CSDVersion", "/f"],
-        env=env, capture_output=True, text=True, timeout=30,
+        env=env, capture_output=True, text=True, errors="replace", timeout=30,
     )
 
     if all_ok:
@@ -616,7 +616,7 @@ def _step_regedit(pfx: Path, wine: Path, log: Callable[[str], None]) -> bool:
         result = subprocess.run(
             [str(wine), "regedit", reg_path],
             env=_base_env(pfx, wine),
-            capture_output=True, text=True, timeout=60,
+            capture_output=True, text=True, errors="replace", timeout=60,
         )
         if result.returncode != 0:
             log(f"  wine regedit exited with {result.returncode}: {result.stderr[:200].strip()}")
@@ -659,7 +659,7 @@ def _step_game_path(
             "/f",
         ],
         env=_base_env(pfx, wine),
-        capture_output=True, text=True, timeout=60,
+        capture_output=True, text=True, errors="replace", timeout=60,
     )
     if result.returncode != 0:
         log(f"  reg add exited with {result.returncode}: {result.stderr[:200]}")
@@ -730,7 +730,7 @@ def _step_vcredist(pfx: Path, wine: Path, log: Callable[[str], None]) -> bool:
     result = subprocess.run(
         [str(wine), str(installer), "/install", "/quiet", "/norestart"],
         env=_base_env(pfx, wine),
-        capture_output=True, text=True, timeout=600,
+        capture_output=True, text=True, errors="replace", timeout=600,
     )
     if result.returncode not in (0, 1638, 3010):
         log(f"  vc_redist exited with {result.returncode}")
@@ -800,7 +800,7 @@ def _step_mscoree_cleanup(pfx: Path, wine: Path, log: Callable[[str], None]) -> 
             "/v", "*mscoree", "/f",
         ],
         env=_base_env(pfx, wine),
-        capture_output=True, text=True, timeout=30,
+        capture_output=True, text=True, errors="replace", timeout=30,
     )
     _mark_done(pfx, "mscoree_cleanup")
     return True
