@@ -1,0 +1,106 @@
+{
+  "name": "FF VII Remake Intergrade",
+  "game_id": "Final_Fantasy_VII_Remake_Intergrade",
+  "exe_name": "End/Binaries/Win64/ff7remake_.exe",
+  "deploy_type": "ue5",
+  "mod_data_path": "End",
+  "steam_id": "1462040",
+  "nexus_game_domain": "finalfantasy7remake",
+  "image_url": "https://cdn2.steamgriddb.com/icon_thumb/50c8932f79e0369ac94e06e9c6bd86e5.png",
+  "mod_folder_strip_prefixes": [],
+  "conflict_ignore_filenames": [
+    "*.txt",
+    "*.png",
+    "*.jpg"
+  ],
+  "mod_folder_strip_prefixes_post": [],
+  "mod_install_prefix": "",
+  "mod_required_top_level_folders": [],
+  "mod_auto_strip_until_required": false,
+  "mod_required_file_types": [],
+  "mod_install_as_is_if_no_match": false,
+  "restore_before_deploy": true,
+  "normalize_folder_case": true,
+  "filemap_casing": "upper",
+  "wine_dll_overrides": {
+    "xinput1_3.dll": "native,builtin",
+    "dxgi": "native,builtin",
+    "d3d11": "native,builtin"
+  },
+  "custom_routing_rules": [
+    {
+      "dest": "drive_c/users/steamuser/Documents/My Games/FINAL FANTASY VII REMAKE/Saved/Config/WindowsNoEditor",
+      "filenames": [
+        "Engine.ini"
+      ],
+      "flatten": true,
+      "to_prefix": true
+    },
+    {
+      "dest": "Content/GameContents/Movie",
+      "extensions": [
+        ".emov"
+      ],
+      "include_siblings": true
+    },
+    {
+      "dest": "Binaries/Win64",
+      "filenames": [
+        "xinput1_3.dll"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Binaries/Win64",
+      "folders": [
+        "reshade-shaders"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Binaries/Win64",
+      "extensions": [
+        ".dll"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Binaries/Win64",
+      "filenames": [
+        "*reshade*.ini"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Content/Paks/~mods",
+      "extensions": [
+        ".pak"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Binaries/Win64",
+      "folders": [
+        "Mods"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Binaries/Win64",
+      "folders": [
+        "ShaderFixes"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Binaries/Win64",
+      "filenames": [
+        "d3dx.ini"
+      ],
+      "flatten": true
+    }
+  ],
+  "custom_frameworks": {},
+  "version": 1,
+  "editable": false
+}
