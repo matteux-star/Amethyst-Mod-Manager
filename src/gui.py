@@ -355,6 +355,14 @@ class App(ctk.CTk):
         # Up/Down reorder selection).
         register_shortcuts(self)
 
+        # Memory-leak diagnostic (env-gated; auto-on from source). Press F12 to
+        # dump an RSS / object-count / Tk-item snapshot to the terminal.
+        try:
+            from Utils import memtrace
+            memtrace.install(self)
+        except Exception:
+            pass
+
     # -- Focus management ---------------------------------------------------
     _TEXT_INPUT_CLASSES = (
         "Entry", "TEntry", "Text", "TCombobox", "Spinbox", "TSpinbox",

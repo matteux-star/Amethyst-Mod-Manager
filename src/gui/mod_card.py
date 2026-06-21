@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import io
 import threading
+from collections import OrderedDict
 from typing import Callable, Any
 
 import tkinter as tk
@@ -45,6 +46,65 @@ CARD_IMG_W = CARD_W - 10
 CARD_IMG_H = 160
 CARD_PAD = scaled(10)
 CARD_COLS = 2
+
+# Max thumbnails kept in memory per panel. Each CTkImage holds two decoded
+# PhotoImages (light+dark), so an unbounded cache is the main RAM leak when
+# browsing hundreds of mods/collections. Evicting drops the only Python ref,
+# letting Tk free both underlying images on the next GC pass.
+IMG_CACHE_MAX = 120
+
+
+class LRUImageCache(OrderedDict):
+    """OrderedDict LRU that evicts the oldest CTkImage when over capacity.
+
+    Shared by every Nexus card panel (Browse/Tracked/Endorsed and the
+    Collections dialog) so image RAM stays bounded across a long session.
+    """
+
+    def __setitem__(self, key, value):
+        if key in self:
+            self.move_to_end(key)
+        super().__setitem__(key, value)
+        if len(self) > IMG_CACHE_MAX:
+            self.popitem(last=False)  # drop oldest -> its CTkImage becomes GC-able
+
+    def __getitem__(self, key):
+        value = super().__getitem__(key)
+        self.move_to_end(key)
+        return value
+
+
+def destroy_widget_tree(widget) -> None:
+    """Fully destroy *widget* and every descendant, CTk-safe.
+
+    CustomTkinter widgets only unregister from their global Scaling /
+    AppearanceMode trackers inside their own ``destroy()`` override (there is no
+    ``<Destroy>`` binding). When a plain ``tk.Frame`` parent is destroyed, Tk
+    tears down the Tcl subtree but never runs the Python ``destroy()`` of nested
+    CTk children, so they stay registered in those module-level dicts forever —
+    a hard leak that strands their CTkImages/PhotoImages.
+
+    This walks the tree leaf-first and calls each widget's own ``destroy()`` so
+    every CTk descendant unregisters itself, regardless of how plain-tk and CTk
+    frames are interleaved. Use this anywhere a repeatedly-rebuilt subtree
+    (cards, detail panels, overlays) is torn down.
+
+    (CTkScrollableFrame's separate ``bind_all`` leak — it never unbinds its
+    root-level mousewheel callbacks — is fixed at the source by
+    ``wheel_compat.patch_ctk_scrollable_frame``, so the per-instance destroy here
+    is sufficient.)
+    """
+    try:
+        children = list(widget.winfo_children())
+    except Exception:
+        children = []
+    for child in children:
+        destroy_widget_tree(child)
+    try:
+        widget.destroy()
+    except Exception:
+        pass
+
 
 PLACEHOLDER_COLOR = "#3a3a3a"
 

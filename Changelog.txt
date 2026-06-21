@@ -1,3 +1,6 @@
+- v1.3.12
+- Fixed memory leak issues related to the nexus browser and collection windows
+
 - v1.3.11
 - Reworked RE engine bundle style mods to be detected and presented better, an interface can now be opened for these mods to change the options.
 - Fixed bugs related to reverse priority sorting

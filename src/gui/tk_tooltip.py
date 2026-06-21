@@ -156,6 +156,13 @@ class TkTooltip:
         def _leave(event: tk.Event) -> None:
             self.hide()
 
+        def _on_destroy(event: tk.Event) -> None:
+            # Only react to the bound widget itself being destroyed, not a
+            # child's <Destroy> bubbling up. Tears down any live tooltip window
+            # so destroyed cards don't strand a Toplevel + pending after().
+            if event.widget is widget:
+                self.hide()
+
         def _bind_recursive(w: tk.Widget, depth: int = 0) -> None:
             w.bind("<Enter>", _enter, add="+")
             w.bind("<Leave>", _leave, add="+")
@@ -164,6 +171,7 @@ class TkTooltip:
                     _bind_recursive(child, depth + 1)
 
         _bind_recursive(widget)
+        widget.bind("<Destroy>", _on_destroy, add="+")
 
     def hide(self) -> None:
         """Cancel any pending show and destroy the tooltip window."""

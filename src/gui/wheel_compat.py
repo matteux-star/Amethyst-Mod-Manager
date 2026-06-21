@@ -148,3 +148,77 @@ def patch_ctk_scrollable_frame() -> None:
                 self._parent_canvas.yview("scroll", units, "units")
 
     ScrollableFrame._mouse_wheel_all = _patched_mouse_wheel_all
+
+    _patch_ctk_scrollable_frame_destroy(ScrollableFrame)
+
+
+# Sequences CTkScrollableFrame.__init__ registers via bind_all but never cleans
+# up in destroy() — a memory leak (the bound methods pin the whole frame).
+_SCROLLFRAME_ALL_SEQS = (
+    "<MouseWheel>",
+    "<KeyPress-Shift_L>", "<KeyPress-Shift_R>",
+    "<KeyRelease-Shift_L>", "<KeyRelease-Shift_R>",
+)
+
+
+def _patch_ctk_scrollable_frame_destroy(ScrollableFrame) -> None:
+    """Make CTkScrollableFrame.destroy() remove its OWN root-level bindings.
+
+    Upstream binds 5 sequences with ``bind_all(seq, self._method, add="+")`` and
+    never unbinds them, so every destroyed scroll-frame stays pinned by the root
+    interpreter's bind table forever (it strands the frame's entire subtree —
+    category checkboxes, images — the Nexus-browser leak).
+
+    We can't use ``unbind_all(seq)`` — that is global and would kill scrolling on
+    the always-open plugin/status scroll-frames. Instead we record the per-bind
+    funcid at bind time (wrapping bind_all) and delete exactly those funcids from
+    the root bind script on destroy, leaving other frames' bindings intact.
+    """
+    if getattr(ScrollableFrame, "_mm_destroy_patched", False):
+        return
+
+    _orig_init = ScrollableFrame.__init__
+    _orig_destroy = ScrollableFrame.destroy
+
+    def _patched_init(self, *args, **kwargs):
+        self._mm_all_funcids = []
+        # Capture funcids only during the original __init__'s bind_all calls.
+        _real_bind_all = self.bind_all
+
+        def _recording_bind_all(sequence=None, func=None, add=None):
+            funcid = _real_bind_all(sequence, func, add)
+            if sequence in _SCROLLFRAME_ALL_SEQS and funcid:
+                self._mm_all_funcids.append((sequence, funcid))
+            return funcid
+
+        self.bind_all = _recording_bind_all
+        try:
+            _orig_init(self, *args, **kwargs)
+        finally:
+            # Restore the real method so later bind_all calls behave normally.
+            try:
+                del self.bind_all
+            except Exception:
+                self.bind_all = _real_bind_all
+
+    def _patched_destroy(self):
+        root = self._root()
+        for sequence, funcid in getattr(self, "_mm_all_funcids", []):
+            try:
+                # Surgically drop only THIS funcid's line from the global
+                # ('bind', 'all', seq) script and delete its Tcl command —
+                # exactly what tkinter.unbind(funcid) does, but for bind_all.
+                # Other scroll-frames' bindings on the same sequence survive.
+                root._unbind(("bind", "all", sequence), funcid)
+            except Exception:
+                # Fallback: at least release the command so *self* is freed.
+                try:
+                    root.deletecommand(funcid)
+                except Exception:
+                    pass
+        self._mm_all_funcids = []
+        _orig_destroy(self)
+
+    ScrollableFrame.__init__ = _patched_init
+    ScrollableFrame.destroy = _patched_destroy
+    ScrollableFrame._mm_destroy_patched = True

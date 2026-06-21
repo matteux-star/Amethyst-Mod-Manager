@@ -595,38 +595,37 @@ class NexusBrowserOverlay(tk.Frame):
             frame.grid_columnconfigure(0, weight=1)
             self._panel_frames[name] = frame
 
-        self._tracked_panel = TrackedModsPanel(
-            self._panel_frames["Tracked"],
-            log_fn=self._log,
-            get_api=_get_api,
-            get_game_domain=_get_game_domain,
-            install_fn=self._install_from_tracked,
-            get_installed_mod_ids=_get_installed_mod_ids,
-        )
-        self._endorsed_panel = EndorsedModsPanel(
-            self._panel_frames["Endorsed"],
-            log_fn=self._log,
-            get_api=_get_api,
-            get_game_domain=_get_game_domain,
-            install_fn=self._install_from_endorsed,
-            get_installed_mod_ids=_get_installed_mod_ids,
-        )
-        self._browse_panel = BrowseModsPanel(
-            self._panel_frames["Browse"],
-            log_fn=self._log,
-            get_api=_get_api,
-            get_game_domain=_get_game_domain,
-            install_fn=self._install_from_browse,
-            get_installed_mod_ids=_get_installed_mod_ids,
-        )
-        self._trending_panel = TrendingModsPanel(
-            self._panel_frames["Trending"],
-            log_fn=self._log,
-            get_api=_get_api,
-            get_game_domain=_get_game_domain,
-            install_fn=self._install_from_trending,
-            get_installed_mod_ids=_get_installed_mod_ids,
-        )
+        # Lazy construction: each tab panel is a full canvas/card grid (~3k
+        # widgets). Building all four up front spikes RSS ~700MB on open. Instead
+        # build only the tab the user actually views, on first _show_panel. The
+        # factories capture the per-panel install callback + shared getters.
+        self._panels: dict[str, object] = {}
+        self._panel_factories = {
+            "Browse": lambda f: BrowseModsPanel(
+                f, log_fn=self._log, get_api=_get_api,
+                get_game_domain=_get_game_domain,
+                install_fn=self._install_from_browse,
+                get_installed_mod_ids=_get_installed_mod_ids,
+            ),
+            "Tracked": lambda f: TrackedModsPanel(
+                f, log_fn=self._log, get_api=_get_api,
+                get_game_domain=_get_game_domain,
+                install_fn=self._install_from_tracked,
+                get_installed_mod_ids=_get_installed_mod_ids,
+            ),
+            "Endorsed": lambda f: EndorsedModsPanel(
+                f, log_fn=self._log, get_api=_get_api,
+                get_game_domain=_get_game_domain,
+                install_fn=self._install_from_endorsed,
+                get_installed_mod_ids=_get_installed_mod_ids,
+            ),
+            "Trending": lambda f: TrendingModsPanel(
+                f, log_fn=self._log, get_api=_get_api,
+                get_game_domain=_get_game_domain,
+                install_fn=self._install_from_trending,
+                get_installed_mod_ids=_get_installed_mod_ids,
+            ),
+        }
 
         # If not logged in, show a centered login prompt over the content area
         if self._api is None and self._on_open_settings:
@@ -656,6 +655,18 @@ class NexusBrowserOverlay(tk.Frame):
         self._current_panel = self._initial_tab
         self._show_panel(self._initial_tab)
 
+    def _get_panel(self, name: str):
+        """Return the tab panel for *name*, building it on first access."""
+        panel = self._panels.get(name)
+        if panel is None:
+            factory = self._panel_factories.get(name)
+            frame = self._panel_frames.get(name)
+            if factory is None or frame is None:
+                return None
+            panel = factory(frame)
+            self._panels[name] = panel
+        return panel
+
     def _show_panel(self, name: str):
         """Switch to the Browse, Tracked, Endorsed, or Trending panel."""
         for n, frame in self._panel_frames.items():
@@ -672,14 +683,8 @@ class NexusBrowserOverlay(tk.Frame):
             (self._trending_btn, "Trending"),
         ]:
             btn.configure(fg_color=ACCENT_HOV if n == name else ACCENT)
-        # Auto-refresh the panel when switching to it
-        panel_map = {
-            "Browse": self._browse_panel,
-            "Tracked": self._tracked_panel,
-            "Endorsed": self._endorsed_panel,
-            "Trending": self._trending_panel,
-        }
-        panel = panel_map.get(name)
+        # Build the panel on first view, then refresh it.
+        panel = self._get_panel(name)
         if panel is not None and hasattr(panel, "refresh"):
             panel.refresh()
 
@@ -741,10 +746,9 @@ class NexusBrowserOverlay(tk.Frame):
         # Flip every panel's matching card to "Reinstall" once the install lands,
         # so the button updates without needing a manual refresh.
         def _on_complete():
-            for panel in (
-                self._browse_panel, self._tracked_panel,
-                self._endorsed_panel, self._trending_panel,
-            ):
+            # Only the panels that have actually been built (lazily) exist;
+            # un-viewed tabs refresh from scratch when first opened anyway.
+            for panel in self._panels.values():
                 try:
                     panel.mark_installed(mod_id)
                 except Exception:

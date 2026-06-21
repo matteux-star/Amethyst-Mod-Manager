@@ -49,7 +49,7 @@ from Utils.profile_state import (
     write_collection_install_paused,
 )
 from gui.install_mod import install_mod_from_archive, FOMOD_DEFERRED, BAIN_DEFERRED, ExtractionMemoryBudget, get_uncompressed_size
-from gui.mod_card import CARD_PAD, make_placeholder_image
+from gui.mod_card import CARD_PAD, make_placeholder_image, LRUImageCache, destroy_widget_tree
 from gui.tk_tooltip import TkTooltip
 from gui.wheel_compat import LEGACY_WHEEL_REDUNDANT
 from Utils.ui_config import get_ui_scale
@@ -709,12 +709,20 @@ class CollectionCard:
         self._coll_h = self._coll_img_h + _img_pady + _btn_row_h + text_h
 
         # Outer card frame — fixed size, content clips if too long.
-        self.card = tk.Frame(
+        # MUST be a CTkFrame (not plain tk.Frame): the card holds CTk children
+        # (CTkLabel/CTkButton/CTkImage). When a plain tk.Frame parent is
+        # destroyed, Tk tears down the subtree at the Tcl level but the nested
+        # CTk widgets' Python destroy() never runs, so they stay registered in
+        # CTk's global Scaling/AppearanceMode trackers forever — a hard memory
+        # leak (every paged/searched collection card stranded its images). A
+        # CTkFrame parent cascades destroy() to its CTk descendants.
+        self.card = ctk.CTkFrame(
             parent,
             width=self._coll_w, height=self._coll_h,
-            bg=BG_PANEL,
-            highlightbackground=BORDER,
-            highlightthickness=1,
+            fg_color=BG_PANEL,
+            border_color=BORDER,
+            border_width=1,
+            corner_radius=0,
         )
         self.card.pack_propagate(False)
         self.card.grid_propagate(False)
@@ -739,7 +747,10 @@ class CollectionCard:
         text_frame = tk.Frame(self.card, bg=BG_PANEL, height=text_h)
         text_frame.pack_propagate(False)
 
-        btn_frame = tk.Frame(self.card, bg=BG_PANEL, height=_btn_row_h)
+        # CTkFrame (not tk.Frame): holds a CTkButton — see the card-frame note
+        # above. A plain-tk parent would strand the button in CTk's trackers.
+        btn_frame = ctk.CTkFrame(self.card, fg_color=BG_PANEL, height=_btn_row_h,
+                                 corner_radius=0)
         btn_frame.pack_propagate(False)
         # CTk scales widget width/height via set_widget_scaling(); use unscaled design
         # values so CTk scales once to fit the card (avoid double-scaling overflow)
@@ -6050,6 +6061,21 @@ class CollectionDetailDialog(tk.Frame):
         # _switch_to_profile has reconciled plugins.txt against disk.
         self._schedule_loot_after_filemap()
 
+        # A collection install does a lot of transient work (downloads, parsing,
+        # profile build). Hand the freed heap back to the OS so RSS settles back
+        # down instead of staying pinned by glibc. Deferred so the post-install
+        # refresh/sort settles first.
+        def _trim():
+            try:
+                from Utils.mem_release import release_memory
+                release_memory()
+            except Exception:
+                pass
+        try:
+            self.after(2000, _trim)
+        except Exception:
+            pass
+
     def _on_pause_install(self):
         """Called when the Pause button in the overlay is clicked."""
         slug = self._collection.slug or ""
@@ -6869,7 +6895,7 @@ class CollectionsDialog(tk.Frame):
         self._page: int = 0
         self._loading: bool = False
         self._search_active: bool = False
-        self._img_cache: dict = {}
+        self._img_cache: LRUImageCache = LRUImageCache()
         self._img_loading: set = set()
         self._cols: int = _COLL_COLS
         self._loader: CTkLoader | None = None
@@ -7228,7 +7254,10 @@ class CollectionsDialog(tk.Frame):
 
     def _clear_cards(self):
         for c in self._cards:
-            c.card.destroy()
+            # destroy_widget_tree (not card.destroy()) so nested CTk children
+            # unregister from CTk's global trackers — a plain card.destroy()
+            # leaks them. See destroy_widget_tree in mod_card.py.
+            destroy_widget_tree(c.card)
         self._cards.clear()
 
     def _find_installed_profile_dir(self, slug: str) -> Path | None:
@@ -7371,8 +7400,12 @@ class CollectionsDialog(tk.Frame):
     def _close_detail(self):
         panel = getattr(self, "_detail_panel", None)
         if panel is not None:
+            # Recursive CTk-safe teardown: the detail dialog is a plain tk.Frame
+            # holding a large CTk subtree (buttons, labels, revision picker). A
+            # bare panel.destroy() would strand every CTk child in CTk's global
+            # trackers — the main per-action leak when opening/closing details.
             try:
-                panel.destroy()
+                destroy_widget_tree(panel)
             except Exception:
                 pass
             self._detail_panel = None
