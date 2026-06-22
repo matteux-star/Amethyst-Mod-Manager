@@ -1,0 +1,129 @@
+{
+  "name": "RuneScape: Dragonwilds",
+  "game_id": "RuneScape__Dragonwilds",
+  "exe_name": "RSDragonwilds/Binaries/Win64/RSDragonwilds-Win64-Shipping.exe",
+  "deploy_type": "ue5",
+  "mod_data_path": "RSDragonwilds",
+  "steam_id": "1374490",
+  "nexus_game_domain": "runescapedragonwilds",
+  "image_url": "https://cdn2.steamgriddb.com/icon_thumb/5feee1d34cec9c997857ddfb0e483115.png",
+  "mod_folder_strip_prefixes": [
+    "RSDragonwilds",
+    "Binaries",
+    "Content",
+    "Win64",
+    "Paks",
+    "~mods"
+  ],
+  "conflict_ignore_filenames": [
+    "*read*.txt",
+    "*.py",
+    "*.pyc",
+    "*read*.md",
+    "*.backup",
+    "license"
+  ],
+  "mod_folder_strip_prefixes_post": [],
+  "mod_install_prefix": "",
+  "mod_required_top_level_folders": [],
+  "mod_auto_strip_until_required": false,
+  "mod_required_file_types": [],
+  "mod_install_as_is_if_no_match": false,
+  "restore_before_deploy": true,
+  "normalize_folder_case": true,
+  "filemap_casing": "upper",
+  "wine_dll_overrides": {
+    "dwmapi": "native,builtin"
+  },
+  "custom_routing_rules": [
+    {
+      "dest": "drive_c/users/steamuser/AppData/Local/RSDragonwilds/Saved/Config/Windows",
+      "filenames": [
+        "Engine.ini"
+      ],
+      "flatten": true,
+      "to_prefix": true
+    },
+    {
+      "dest": "drive_c/users/steamuser/AppData/Local/RSDragonwilds/Saved/Config/Windows",
+      "filenames": [
+        "Scalability.ini"
+      ],
+      "flatten": true,
+      "to_prefix": true
+    },
+    {
+      "dest": "drive_c/users/steamuser/AppData/Local/RSDragonwilds/Saved/SaveGames",
+      "extensions": [
+        ".sav"
+      ],
+      "flatten": true,
+      "to_prefix": true
+    },
+    {
+      "dest": "drive_c/users/steamuser/AppData/Local/RSDragonwilds/Saved/SaveGames",
+      "extensions": [
+        ".json"
+      ],
+      "loose_only": true,
+      "flatten": true,
+      "to_prefix": true
+    },
+    {
+      "dest": "Mods",
+      "folders": [
+        "VTSpectator"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Content/Paks",
+      "folders": [
+        "LogicMods"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Content/Paks/~mods",
+      "extensions": [
+        ".pak"
+      ],
+      "include_siblings": true
+    },
+    {
+      "dest": "Binaries/Win64",
+      "extensions": [
+        ".addon64"
+      ],
+      "companion_extensions": [
+        ".ini"
+      ]
+    },
+    {
+      "dest": "Binaries/Win64",
+      "folders": [
+        "ue4ss"
+      ],
+      "flatten": true
+    },
+    {
+      "dest": "Binaries/Win64/ue4ss/Mods",
+      "folders": [
+        "Scripts"
+      ],
+      "include_siblings": true
+    },
+    {
+      "dest": "Content/Splash",
+      "filenames": [
+        "Splash.bmp"
+      ],
+      "flatten": true
+    }
+  ],
+  "custom_frameworks": {
+    "UE4SS": "Binaries/Win64/dwmapi.dll"
+  },
+  "version": 1,
+  "editable": false
+}
