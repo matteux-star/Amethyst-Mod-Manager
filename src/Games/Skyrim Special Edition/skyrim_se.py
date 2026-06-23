@@ -270,6 +270,12 @@ class SkyrimSE(Fallout_3):
                 dialog_class_path="wizards.sseedit.SSEEditQACWizard",
             ),
             WizardTool(
+                id="run_creationkit_skyrimse",
+                label="Run Creation Kit",
+                description="Install Creation Kit Platform Extended, deploy mods, and run CreationKit.exe.",
+                dialog_class_path="wizards.creationkit.CreationKitWizard",
+            ),
+            WizardTool(
                 id="run_eslifier_skyrimse",
                 label="Run ESLifier",
                 description="Install ESLifier and flag/compact plugins into the light (ESL) space.",
