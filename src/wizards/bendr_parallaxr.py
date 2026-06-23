@@ -368,18 +368,12 @@ class _TextureToolWizard(ctk.CTkFrame):
 
     def _do_deploy(self):
         try:
-            from Utils.filemap import build_filemap
-            from Utils.deploy import (
-                LinkMode,
-                deploy_root_folder,
-                restore_root_folder,
-                load_per_mod_strip_prefixes,
-            )
-            from Utils.profile_state import read_excluded_mod_files
+            # Use the canonical deploy orchestration (same as the Deploy button)
+            # so root-flagged mods are deployed into the game root via
+            # filemap_root.txt + deploy_root_flagged_mods.
+            from Utils.deploy_pipeline import run_deploy_pipeline
 
-            game      = self._game
-            game_root = game.get_game_path()
-
+            game = self._game
             try:
                 root_win = self.winfo_toplevel()
                 profile  = root_win._topbar._profile_var.get()
@@ -389,65 +383,15 @@ class _TextureToolWizard(ctk.CTkFrame):
             def _tlog(msg):
                 self.after(0, lambda m=msg: self._log(m))
 
-            # Activate the last-deployed profile for restore so rescued
-            # runtime files land in *that* profile's overwrite/ — not
-            # the shared default. Critical for profile_specific_mods.
-            last_deployed = game.get_last_deployed_profile()
-            if last_deployed:
-                game.set_active_profile_dir(
-                    game.get_profile_root() / "profiles" / last_deployed
-                )
+            success = run_deploy_pipeline(game, profile, log_fn=_tlog)
 
-            if getattr(game, "restore_before_deploy", True) and hasattr(game, "restore"):
-                try:
-                    game.restore(log_fn=_tlog)
-                except RuntimeError:
-                    pass
-            restore_rf = game.get_effective_root_folder_path()
-            if restore_rf.is_dir() and game_root:
-                restore_root_folder(restore_rf, game_root, log_fn=_tlog)
-
-            game.set_active_profile_dir(
-                game.get_profile_root() / "profiles" / profile
-            )
-
-            profile_root = game.get_profile_root()
-            staging      = game.get_effective_mod_staging_path()
-            modlist_path = profile_root / "profiles" / profile / "modlist.txt"
-            filemap_out  = staging.parent / "filemap.txt"
-
-            if modlist_path.is_file():
-                exc_raw = read_excluded_mod_files(modlist_path.parent, None)
-                exc = {k: set(v) for k, v in exc_raw.items()} if exc_raw else None
-                build_filemap(
-                    modlist_path, staging, filemap_out,
-                    strip_prefixes=game.mod_folder_strip_prefixes or None,
-                    per_mod_strip_prefixes=load_per_mod_strip_prefixes(modlist_path.parent),
-                    allowed_extensions=game.mod_install_extensions or None,
-                    root_deploy_folders=game.mod_root_deploy_folders or None,
-                    excluded_mod_files=exc,
-                    conflict_ignore_filenames=getattr(game, "conflict_ignore_filenames", None) or None,
-                )
-
-            deploy_mode = game.get_deploy_mode() if hasattr(game, "get_deploy_mode") else LinkMode.HARDLINK
-            game.deploy(log_fn=_tlog, profile=profile, mode=deploy_mode)
-
-            from Utils.wine_dll_config import deploy_game_wine_dll_overrides
-            pfx = game.get_prefix_path()
-            if pfx and pfx.is_dir():
-                deploy_game_wine_dll_overrides(game.name, pfx, game.wine_dll_overrides, log_fn=_tlog)
-
-            game.save_last_deployed_profile(profile)
-
-            target_rf  = game.get_effective_root_folder_path()
-            rf_allowed = getattr(game, "root_folder_deploy_enabled", True)
-            if rf_allowed and target_rf.is_dir() and game_root:
-                deploy_root_folder(target_rf, game_root, mode=deploy_mode, log_fn=_tlog)
-
-            self._set_label("_deploy_status", "Deploy complete.", color="#6bc76b")
-            from wizards._proton_prefix import refresh_topbar_deploy_state
-            refresh_topbar_deploy_state(self)
-            self.after(0, self._show_step_run)
+            if success:
+                self._set_label("_deploy_status", "Deploy complete.", color="#6bc76b")
+                from wizards._proton_prefix import refresh_topbar_deploy_state
+                refresh_topbar_deploy_state(self)
+                self.after(0, self._show_step_run)
+            else:
+                self._set_label("_deploy_status", "Deploy failed — see log.", color="#e06c6c")
 
         except Exception as exc:
             self._set_label("_deploy_status", f"Deploy error: {exc}", color="#e06c6c")
