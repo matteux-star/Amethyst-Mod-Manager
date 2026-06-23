@@ -824,6 +824,12 @@ class PluginPanelExeLauncherMixin:
             self._log(f"Run EXE: file not found: {exe_path}")
             return
 
+        # If this exe is the entry point of a wizard tool (e.g. SSEEdit, PGPatcher,
+        # BodySlide), open that wizard instead of launching the exe directly — the
+        # wizard handles install/deploy/prefix setup a bare Proton launch skips.
+        if self._open_wizard_for_exe(exe_path, game):
+            return
+
         # Check for a native wrapper before falling through to Proton
         wrapper_method = self._BAT_WRAPPERS.get(exe_path.name.lower())
         if wrapper_method is not None:
@@ -839,6 +845,37 @@ class PluginPanelExeLauncherMixin:
             return
 
         self._launch_exe(exe_path, game)
+
+    def _open_wizard_for_exe(self, exe_path: "Path", game) -> bool:
+        """Open the wizard tool that owns *exe_path*, if any. Returns True if handled.
+
+        The game's launch exe is never redirected — only helper tools (SSEEdit,
+        PGPatcher, BodySlide, …) that have a dedicated wizard.
+        """
+        if self._is_game_exe(exe_path):
+            return False
+        from Utils.plugin_loader import wizard_tool_for_exe
+        tool = wizard_tool_for_exe(game, exe_path.name)
+        if tool is None:
+            return False
+
+        app = self.winfo_toplevel()
+        show_tool = getattr(app, "_show_wizard_tool", None)
+        if show_tool is None:
+            return False
+
+        from gui.wizard_dialog import _resolve_dialog_class
+        extra = dict(tool.extra)
+        pre_resolved = extra.pop("_dialog_class", None)
+        try:
+            cls = pre_resolved if pre_resolved is not None else _resolve_dialog_class(tool.dialog_class_path)
+        except Exception as exc:
+            self._log(f"Run EXE: could not open {tool.label} wizard — {exc}")
+            return False
+
+        self._log(f"Run EXE: opening {tool.label} wizard for {exe_path.name}.")
+        show_tool(cls, game, self._log, extra)
+        return True
 
     def _run_deploy_then_launch(self, exe_path: "Path", game):
         """Delegate to top_bar._run_deploy so Play uses the same flow as the

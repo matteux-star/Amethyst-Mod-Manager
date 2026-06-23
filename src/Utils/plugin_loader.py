@@ -165,6 +165,69 @@ def get_all_wizard_tools(game: BaseGame) -> list[WizardTool]:
 
 
 # ---------------------------------------------------------------------------
+# Exe → wizard mapping
+# ---------------------------------------------------------------------------
+#
+# When a user runs one of these executables from the exe dropdown, the matching
+# wizard tool is opened instead of launching the exe directly through Proton.
+# The wizards handle install/deploy/prefix setup that a bare Proton launch skips.
+#
+# Keyed by the tool's ``dialog_class_path``; the value is the set of exe
+# basenames (lowercase) the wizard launches.  Tools whose exe name varies per
+# game (the xEdit family) are handled dynamically below via ``extra`` instead.
+
+_WIZARD_CLASS_EXES: dict[str, set[str]] = {
+    "wizards.pandora.PandoraWizard": {"pandora behaviour engine+.exe"},
+    "wizards.bodyslide.BodySlideWizard": {"bodyslide.exe", "bodyslide x64.exe"},
+    "wizards.bodyslide.OutfitStudioWizard": {"outfitstudio.exe", "outfitstudio x64.exe"},
+    "wizards.pgpatcher.PGPatcherWizard": {"pgpatcher.exe"},
+    "wizards.eslifier.ESLifierWizard": {"eslifier.exe"},
+    "wizards.dyndolod.TexGenWizard": {"texgenx64.exe"},
+    "wizards.dyndolod.DynDOLODWizard": {"dyndolodx64.exe"},
+    "wizards.dyndolod.xLODGenWizard": {"xlodgenx64.exe", "xlodgen.exe"},
+    "wizards.bethini.BethINIWizard": {"bethini.exe"},
+    "wizards.wrye_bash.WryeBashWizard": {"wrye bash.exe"},
+    "wizards.script_merger_tw3.ScriptMergerWizard": {"witcherscriptmerger.exe"},
+}
+
+
+def _tool_exe_names(tool: WizardTool) -> set[str]:
+    """Return the lowercase exe basenames that *tool* launches, if any.
+
+    Covers the static class→exe registry plus the parametrised xEdit family,
+    whose exe name is supplied per-game via ``extra['xedit_exe']`` (with a
+    ``QuickAutoClean`` variant for the QAC wizard).
+    """
+    path = tool.dialog_class_path
+    if path in _WIZARD_CLASS_EXES:
+        return _WIZARD_CLASS_EXES[path]
+    if path in ("wizards.sseedit.SSEEditWizard", "wizards.sseedit.SSEEditQACWizard"):
+        base = (tool.extra.get("xedit_exe") or "SSEEdit.exe")
+        if path.endswith("QACWizard") and base.lower().endswith(".exe"):
+            base = base[: -len(".exe")] + "QuickAutoClean.exe"
+        return {base.lower()}
+    return set()
+
+
+def wizard_tool_for_exe(game: BaseGame, exe_name: str) -> WizardTool | None:
+    """Return the wizard tool that should open when *exe_name* is run, or None.
+
+    *exe_name* is matched case-insensitively against the exe basenames each of
+    *game*'s available wizard tools launches.  The plain xEdit wizard is
+    preferred over its QuickAutoClean sibling when both could match.
+    """
+    target = exe_name.lower()
+    qac_match: WizardTool | None = None
+    for tool in get_all_wizard_tools(game):
+        if target in _tool_exe_names(tool):
+            if tool.dialog_class_path.endswith("QACWizard"):
+                qac_match = tool
+            else:
+                return tool
+    return qac_match
+
+
+# ---------------------------------------------------------------------------
 # Logging helper
 # ---------------------------------------------------------------------------
 

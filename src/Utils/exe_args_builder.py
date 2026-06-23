@@ -170,6 +170,12 @@ EXE_FILTER_DEFAULTS: frozenset[str] = frozenset({
     "script.bat",
     "lodgenx64win.exe",
     "dip.exe",
+    "lodgenx64win10.exe",
+    "lodgenx64win6.exe",
+    "bsarch.exe",
+    "sseedit.exe",
+    "xlodgen.exe",
+    
 
     # Bethesda script extender loaders — users should launch the game via
     # Steam (with the extender wired up through launch options / proxy),
