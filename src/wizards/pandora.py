@@ -26,6 +26,7 @@ Workflow
 from __future__ import annotations
 
 import subprocess
+from Utils.steam_finder import proton_run_command
 import threading
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -297,7 +298,7 @@ class PandoraWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
             self._log("Pandora Wizard: launching .NET 10 installer in Pandora's prefix \u2026")
 
             proc = subprocess.run(
-                ["python3", str(proton_script), "run", str(cache_path), "/quiet", "/norestart"],
+                proton_run_command(proton_script, "run", str(cache_path), "/quiet", "/norestart"),
                 env=env,
                 cwd=str(cache_path.parent),
             )
@@ -420,7 +421,7 @@ class PandoraWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         env["PROTON_USE_WINED3D"] = "1"
         env["WINE_D3D_CONFIG"] = "renderer=gdi"
 
-        cmd = ["python3", str(proton_script), "run", str(exe), game_arg]
+        cmd = proton_run_command(proton_script, "run", str(exe), game_arg)
         self._log(f"Pandora Wizard: launching {exe} via Proton")
         self._log(f"  cmd: {' '.join(cmd)}")
         self._log(

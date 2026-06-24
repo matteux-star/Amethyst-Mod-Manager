@@ -30,6 +30,7 @@ import os
 import re as _re
 import shutil
 import subprocess
+from Utils.steam_finder import proton_run_command
 import threading
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -772,7 +773,7 @@ class SSEEditWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         self._log(f"{name} Wizard: launching {exe} via Proton with {data_arg}")
         try:
             proc = subprocess.Popen(
-                ["python3", str(proton_script), "run", str(exe), data_arg],
+                proton_run_command(proton_script, "run", str(exe), data_arg),
                 env=env,
                 cwd=str(exe.parent),
                 stdout=subprocess.DEVNULL,

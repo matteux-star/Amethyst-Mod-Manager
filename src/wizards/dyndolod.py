@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+from Utils.steam_finder import proton_run_command
 import threading
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -516,7 +517,7 @@ class _DynDOLODBaseWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         self._log(f"  args: {data_arg}  {output_arg}  -sse")
         try:
             proc = subprocess.Popen(
-                ["python3", str(proton_script), "run", str(exe), data_arg, output_arg, "-sse"],
+                proton_run_command(proton_script, "run", str(exe), data_arg, output_arg, "-sse"),
                 env=env,
                 cwd=str(exe.parent),
                 stdout=subprocess.DEVNULL,

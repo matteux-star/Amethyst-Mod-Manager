@@ -13,6 +13,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+from Utils.steam_finder import proton_run_command
 import tarfile
 import tempfile
 import threading
@@ -428,7 +429,7 @@ class FalloutDowngradeWizard(ctk.CTkFrame):
             raise RuntimeError("Could not determine Proton version for this game.")
 
         proc = subprocess.Popen(
-            ["python3", str(proton_script), "run", str(patcher_exe)],
+            proton_run_command(proton_script, "run", str(patcher_exe)),
             env=env,
             cwd=str(game_root),
             stdout=subprocess.PIPE,

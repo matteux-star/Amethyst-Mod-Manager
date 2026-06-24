@@ -448,9 +448,10 @@ def install_vcredist(
         else:
             _log("Using cached VC++ Redistributable installer.")
         _log("Installing VC++ Redistributable in game prefix (silent) — please wait …")
+        from Utils.steam_finder import proton_run_command
         proc = subprocess.run(
-            ["python3", str(proton_script), "run",
-             str(cache_path), "/install", "/quiet", "/norestart"],
+            proton_run_command(proton_script, "run",
+             str(cache_path), "/install", "/quiet", "/norestart"),
             env=env, cwd=cache_path.parent,
         )
         # 0 = success, 1638 = already installed, 3010 = reboot required, 1641 = reboot initiated

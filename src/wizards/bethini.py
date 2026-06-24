@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+from Utils.steam_finder import proton_run_command
 import threading
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -399,7 +400,7 @@ class BethINIWizard(ctk.CTkFrame):
         self._log(f"BethINI Wizard: launching {exe} via Proton")
         try:
             proc = subprocess.Popen(
-                ["python3", str(proton_script), "run", str(exe)],
+                proton_run_command(proton_script, "run", str(exe)),
                 env=env,
                 cwd=str(exe.parent),
                 stdout=subprocess.DEVNULL,

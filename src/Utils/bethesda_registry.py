@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+from Utils.steam_finder import proton_run_command
 from pathlib import Path
 from typing import Callable
 
@@ -76,14 +77,14 @@ def register_bethesda_game_path(
     _log(f"Bethesda registry: registering {registry_game_name} → {wine_value}")
     all_ok = True
     for key in keys:
-        cmd = [
-            "python3", str(proton_script), "run",
+        cmd = proton_run_command(
+            proton_script, "run",
             "reg", "add", key,
             "/v", "Installed Path",
             "/t", "REG_SZ",
             "/d", wine_value,
             "/f",
-        ]
+        )
         try:
             result = subprocess.run(
                 cmd, env=env,

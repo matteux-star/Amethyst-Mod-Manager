@@ -13,6 +13,7 @@ extraction step is skipped and the wizard goes straight to running it.
 from __future__ import annotations
 
 import subprocess
+from Utils.steam_finder import proton_run_command
 import threading
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -314,7 +315,7 @@ class MCPWizard(ctk.CTkFrame):
 
             self._log(f"MCP Wizard: launching {patch_exe} via Proton")
             proc = subprocess.Popen(
-                ["python3", str(proton_script), "run", str(patch_exe)],
+                proton_run_command(proton_script, "run", str(patch_exe)),
                 env=env,
                 cwd=str(self._game_root),
                 stdout=subprocess.PIPE,

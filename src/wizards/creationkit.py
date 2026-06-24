@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+from Utils.steam_finder import proton_run_command
 import threading
 import urllib.request
 from pathlib import Path
@@ -542,7 +543,7 @@ class CreationKitWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         self._log(f"Creation Kit Wizard: launching {exe} via Proton from {game_path}")
         try:
             proc = subprocess.Popen(
-                ["python3", str(proton_script), "run", str(exe)],
+                proton_run_command(proton_script, "run", str(exe)),
                 env=env,
                 cwd=str(game_path),
                 stdout=subprocess.DEVNULL,

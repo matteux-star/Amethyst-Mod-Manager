@@ -970,6 +970,7 @@ class PluginPanelExeLauncherMixin:
             find_any_installed_proton,
             find_proton_for_game,
             find_steam_root_for_proton_script,
+            proton_run_command,
         )
 
         # Check for a per-exe Proton override (user-selected version with own prefix)
@@ -1142,7 +1143,7 @@ class PluginPanelExeLauncherMixin:
 
         self._log(f"Run EXE: launching {exe_path.name} via {proton_script.parent.name} ...")
 
-        base_cmd = ["python3", str(proton_script), "run", str(launch_path)] + extra_args
+        base_cmd = proton_run_command(proton_script, "run", str(launch_path)) + extra_args
         launch_opts = self._load_launch_options(exe_path.name)
         if not launch_opts:
             final_cmd = base_cmd

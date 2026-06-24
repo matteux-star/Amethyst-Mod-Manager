@@ -25,6 +25,7 @@ from __future__ import annotations
 import os
 import re
 import subprocess
+from Utils.steam_finder import proton_run_command
 import threading
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -564,7 +565,7 @@ class _BodySlideBaseWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         self._log(f"{self._wizard_title} Wizard: launching {exe} via Proton (cwd={exe.parent})")
         try:
             proc = subprocess.Popen(
-                ["python3", str(proton_script), "run", str(exe)],
+                proton_run_command(proton_script, "run", str(exe)),
                 env=env,
                 cwd=str(exe.parent),
                 stdout=(gl_log or subprocess.DEVNULL),

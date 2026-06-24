@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+from Utils.steam_finder import proton_run_command
 import threading
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -506,7 +507,7 @@ class ScriptMergerWizard(ctk.CTkFrame):
             self._log("Script Merger Wizard: launching .NET 8 installer in game prefix \u2026")
 
             proc = subprocess.run(
-                ["python3", str(proton_script), "run", str(cache_path), "/quiet", "/norestart"],
+                proton_run_command(proton_script, "run", str(cache_path), "/quiet", "/norestart"),
                 env=env,
                 cwd=str(cache_path.parent),
             )
@@ -597,7 +598,7 @@ class ScriptMergerWizard(ctk.CTkFrame):
         self._log(f"Script Merger Wizard: launching {exe} via Proton")
         try:
             proc = subprocess.Popen(
-                ["python3", str(proton_script), "run", str(exe)],
+                proton_run_command(proton_script, "run", str(exe)),
                 env=env,
                 cwd=str(exe.parent),
                 stdout=subprocess.DEVNULL,

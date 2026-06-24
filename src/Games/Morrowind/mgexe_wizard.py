@@ -22,6 +22,7 @@ Detection order (Downloads folder scan, most-recently-modified first):
 from __future__ import annotations
 
 import subprocess
+from Utils.steam_finder import proton_run_command
 import threading
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -307,7 +308,7 @@ class MGEXEWizard(ctk.CTkFrame):
                     raise RuntimeError("Could not determine Proton version for this game.")
 
                 proc = subprocess.Popen(
-                    ["python3", str(proton_script), "run", str(installer_exe)],
+                    proton_run_command(proton_script, "run", str(installer_exe)),
                     env=env,
                     cwd=str(self._game_root),
                     stdout=subprocess.PIPE,

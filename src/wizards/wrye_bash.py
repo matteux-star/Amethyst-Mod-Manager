@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+from Utils.steam_finder import proton_run_command
 import tempfile
 import threading
 import urllib.request
@@ -380,7 +381,7 @@ class WryeBashWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         self._log(f"Wrye Bash Wizard: launching {exe} via Proton" + (f" with -o C:\\wb_games\\{game_path.resolve().name}" if game_path else ""))
         try:
             proc = subprocess.Popen(
-                ["python3", str(proton_script), "run", str(exe)] + game_arg,
+                proton_run_command(proton_script, "run", str(exe)) + game_arg,
                 env=env,
                 cwd=str(exe.parent),
                 stdout=subprocess.DEVNULL,

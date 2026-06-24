@@ -79,6 +79,7 @@ from gui.ctk_components import CTkAlert, CTkLoader, ICON_PATH
 from gui.tk_tooltip import TkTooltip
 from gui.wheel_compat import LEGACY_WHEEL_REDUNDANT, bind_scrollable_wheel
 from Utils.xdg import xdg_open, open_url
+from Utils.steam_finder import proton_run_command
 
 
 def _resolve_exe_args_file(game) -> "Path":
@@ -1232,7 +1233,7 @@ class ProtonToolsPanel(ctk.CTkFrame):
                 f"(checked: {', '.join(checked)}); falling back to "
                 "'proton run', which boots the steam.exe shim and may crash "
                 "with an lsteamclient assertion if Steam is unavailable.")
-            return ["python3", str(proton_script), "run", tool]
+            return proton_run_command(proton_script, "run", tool)
         log(f"Proton Tools: using bundled wine binary {wine_bin}")
         prefix_path = self._game.get_prefix_path()
         if prefix_path is not None:
@@ -1426,7 +1427,7 @@ class ProtonToolsPanel(ctk.CTkFrame):
                 return
             log(f"Proton Tools: launching {exe_path.name} via {proton_script.parent.name} …")
             try:
-                subprocess.Popen(["python3", str(proton_script), "run", str(exe_path)],
+                subprocess.Popen(proton_run_command(proton_script, "run", str(exe_path)),
                                  env=env, cwd=exe_path.parent,
                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             except Exception as e:
@@ -1506,8 +1507,8 @@ class ProtonToolsPanel(ctk.CTkFrame):
                         plog(f"Using cached .NET {version} installer.")
                     plog(f"Installing .NET {version} in game prefix (silent) — may take a few minutes …")
                     proc = subprocess.run(
-                        ["python3", str(proton_script), "run",
-                         str(cache_path), "/quiet", "/norestart"],
+                        proton_run_command(proton_script, "run",
+                         str(cache_path), "/quiet", "/norestart"),
                         env=env, cwd=cache_path.parent,
                     )
                     # 0 = success, 102 = already installed/no-op, 1638 = newer present, 3010 = reboot required
@@ -2512,7 +2513,7 @@ def _get_tool_prefix_env(
         # Initialise the prefix synchronously before returning
         try:
             subprocess.run(
-                ["python3", str(proton_script), "run", "wineboot", "--init"],
+                proton_run_command(proton_script, "run", "wineboot", "--init"),
                 env=env,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
@@ -2525,9 +2526,9 @@ def _get_tool_prefix_env(
         # checkbox: HKCU\Software\Wine\ShowDotFiles = "Y".
         try:
             subprocess.run(
-                ["python3", str(proton_script), "run", "reg", "add",
+                proton_run_command(proton_script, "run", "reg", "add",
                  r"HKCU\Software\Wine", "/v", "ShowDotFiles",
-                 "/t", "REG_SZ", "/d", "Y", "/f"],
+                 "/t", "REG_SZ", "/d", "Y", "/f"),
                 env=env,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
@@ -3188,7 +3189,7 @@ class ExeConfigPanel(ctk.CTkFrame):
             self._log(f"Prefix tools: launching {exe.name} …")
             try:
                 subprocess.Popen(
-                    ["python3", str(proton_script), "run", str(exe)],
+                    proton_run_command(proton_script, "run", str(exe)),
                     env=env, cwd=exe.parent,
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                 )

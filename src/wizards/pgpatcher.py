@@ -20,6 +20,7 @@ Workflow
 from __future__ import annotations
 
 import subprocess
+from Utils.steam_finder import proton_run_command
 import tempfile
 import threading
 import urllib.request
@@ -345,7 +346,7 @@ class PGPatcherWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
             self._log("PGPatcher Wizard: launching .NET 8 installer in PGPatcher's prefix \u2026")
 
             proc = subprocess.run(
-                ["python3", str(proton_script), "run", str(cache_path), "/quiet", "/norestart"],
+                proton_run_command(proton_script, "run", str(cache_path), "/quiet", "/norestart"),
                 env=env,
                 cwd=str(cache_path.parent),
             )
@@ -665,7 +666,7 @@ class PGPatcherWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
             self._log(f"PGPatcher Wizard: settings re-apply error: {exc}")
 
         # MO2 mode requires either real USVFS or this bypass flag on Linux.
-        launch_cmd = ["python3", str(proton_script), "run", str(exe)]
+        launch_cmd = proton_run_command(proton_script, "run", str(exe))
         if self._mo2_dummy_dir is not None:
             launch_cmd.append("--ignore-mo2vfscheck")
 
