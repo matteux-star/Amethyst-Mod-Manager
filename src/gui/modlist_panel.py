@@ -4648,6 +4648,12 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         # first group in reverse mode).
         _is_full_sep_block = self._drag_is_block and not self._drag_sel_indices
 
+        _rf_idx = next((i for i, e in enumerate(self._entries)
+                        if e.is_separator and e.name == ROOT_FOLDER_NAME), None)
+        _first_user_sep = (_rf_idx + 1 if (_rf_idx is not None
+                           and _rf_idx + 1 < len(self._entries)
+                           and self._entries[_rf_idx + 1].is_separator) else None)
+
         if slot == 0 and len(vis_without_drag) > 0:
             _pre_removal_insert = vis_without_drag[0]
         elif slot >= len(vis_without_drag):
@@ -4667,10 +4673,16 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                     # this slot stays reachable.  (Dropping below the divider is
                     # the next slot down, handled by below_ei == first float mod.)
                     _pre_removal_insert = below_ei
-                elif _inverted_physical and not _is_full_sep_block:
-                    # Join the group this separator heads (insert after it).
-                    # Only for lone-mod / multi-select drags — a full separator
-                    # block stays above the separator (see _is_full_sep_block).
+                elif (_inverted_physical and not _is_full_sep_block
+                      and below_ei == _first_user_sep):
+                    # Dropping just above the FIRST user separator would land in
+                    # the Root-adjacent gap (uninverts to highest priority / the
+                    # #165 jump-to-0).  Fall through into that separator's group
+                    # instead (insert after it).  For every other separator,
+                    # "just above" legitimately means the bottom of the group
+                    # that ends there — handled by the else (insert before it).
+                    # A full separator block stays above the separator regardless
+                    # (see _is_full_sep_block).
                     _pre_removal_insert = below_ei + 1
                 else:
                     _pre_removal_insert = below_ei
@@ -4690,13 +4702,9 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         # uninverts to the very top / highest priority).  A full separator block
         # is exempt: dropping it above the first user separator legitimately makes
         # it the lowest-priority group, not a stray priority-0 mod.
-        if _inverted_physical and not _is_full_sep_block:
-            _rf_idx = next((i for i, e in enumerate(self._entries)
-                            if e.is_separator and e.name == ROOT_FOLDER_NAME), None)
-            if _rf_idx is not None and _rf_idx + 1 < len(self._entries) \
-                    and self._entries[_rf_idx + 1].is_separator:
-                # A user separator immediately follows Root — floor is just after it.
-                _pre_removal_insert = max(_pre_removal_insert, _rf_idx + 2)
+        if _inverted_physical and not _is_full_sep_block and _first_user_sep is not None:
+            # A user separator immediately follows Root — floor is just after it.
+            _pre_removal_insert = max(_pre_removal_insert, _first_user_sep + 1)
 
         # Confine drags inside a locked separator's block (Alt bypasses).
         # Re-check Alt each tick so the user can press/release Alt mid-drag.
