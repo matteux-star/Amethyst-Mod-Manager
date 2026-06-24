@@ -316,6 +316,7 @@ class ProtonPrefixStepMixin:
             return self._get_game_prefix_env()
 
         from gui.dialogs import _get_tool_prefix_env
+        from Utils.steam_finder import game_steam_id
         name = self._proton_name or load_saved_proton(self._game, self._tool_exe_name)
         target = None
         if mode == PREFIX_MODE_SHARED:
@@ -324,7 +325,9 @@ class ProtonPrefixStepMixin:
             if proton_script is None:
                 return None, None, None
             target = shared_prefix_dir(proton_script.parent.name)
-        result = _get_tool_prefix_env(self._exe, name, prefix_dir=target)
+        result = _get_tool_prefix_env(
+            self._exe, name, prefix_dir=target, steam_id=game_steam_id(self._game),
+        )
         if result is None:
             return None, None, None
         proton_script, compat_data, env = result
@@ -368,6 +371,9 @@ class ProtonPrefixStepMixin:
         env = os.environ.copy()
         env["STEAM_COMPAT_DATA_PATH"] = str(compat_data)
         env["STEAM_COMPAT_CLIENT_INSTALL_PATH"] = str(steam_root)
+        if steam_id:
+            env.setdefault("SteamAppId", str(steam_id))
+            env.setdefault("SteamGameId", str(steam_id))
         extra = parse_env_overrides(load_tool_launch_env(self._exe))
         if extra:
             env.update(extra)

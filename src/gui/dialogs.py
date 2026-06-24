@@ -2471,6 +2471,7 @@ _PGPATCHER_DEFAULT_PROTON = ""  # empty string = "Game default"
 
 def _get_tool_prefix_env(
     exe_path: "Path", proton_name: str, prefix_dir: "Path | None" = None,
+    steam_id: "str | None" = None,
 ) -> "tuple[Path, Path, dict] | None":
     """Resolve (proton_script, prefix_dir, env) for a tool's isolated prefix.
 
@@ -2500,6 +2501,12 @@ def _get_tool_prefix_env(
     env = os.environ.copy()
     env["STEAM_COMPAT_DATA_PATH"] = str(prefix_dir)
     env["STEAM_COMPAT_CLIENT_INSTALL_PATH"] = str(steam_root)
+    # lsteamclient's steamclient_main.c asserts (Expression: "!status") when it
+    # tries to attach to the Steam client with no app context. Tools running in
+    # their own isolated prefix have no AppId from Steam, so set one explicitly.
+    if steam_id:
+        env.setdefault("SteamAppId", steam_id)
+        env.setdefault("SteamGameId", steam_id)
 
     if is_new:
         # Initialise the prefix synchronously before returning
@@ -3126,7 +3133,10 @@ class ExeConfigPanel(ctk.CTkFrame):
         if selected == "Game default":
             self._log("Prefix tools: select a specific Proton version first.")
             return None
-        result = _get_tool_prefix_env(self._exe_path, selected)
+        from Utils.steam_finder import game_steam_id
+        result = _get_tool_prefix_env(
+            self._exe_path, selected, steam_id=game_steam_id(self._game),
+        )
         if result is None:
             self._log(f"Prefix tools: could not find Proton '{selected}'.")
             return None
