@@ -94,7 +94,7 @@ class ResidentEvilRequiem(BaseGame):
 
     @property
     def conflict_ignore_filenames(self) -> set[str]:
-        return {"modinfo.ini","readme.txt","*.png","*.jpg"}
+        return {"modinfo.ini","*.txt","*.png","*.jpg"}
 
     @property
     def wine_dll_overrides(self) -> dict[str, str]:
@@ -125,6 +125,7 @@ class ResidentEvilRequiem(BaseGame):
                 dest="reframework/autorun",
                 extensions=[".lua"],
                 flatten=True,
+                loose_only=True,
             ),
         ]
 

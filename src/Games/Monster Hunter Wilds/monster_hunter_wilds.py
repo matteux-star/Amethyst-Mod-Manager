@@ -79,22 +79,7 @@ class MonsterHunterRise(ResidentEvilRequiem):
     @property
     def custom_routing_rules(self) -> list:
         from Utils.deploy import CustomRule
-        return [
-            CustomRule(
-                dest="pak_mods",
-                extensions=[".pak"],
-                flatten=True,
-            ),
-            CustomRule(
-                dest="pak_mods",
-                extensions=[".patch_metadata.json"],
-                flatten=True,
-            ),
-            CustomRule(
-                dest="reframework/autorun",
-                extensions=[".lua"],
-                flatten=True,
-            ),
+        return super().custom_routing_rules + [
             CustomRule(
                 dest="reframework/quests",
                 extensions=[".json"],
