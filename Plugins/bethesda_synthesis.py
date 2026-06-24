@@ -749,8 +749,18 @@ def _step_nuget_config(pfx: Path, wine: Path, log: Callable[[str], None]) -> boo
     despite the untrusted timestamp roots in Wine's near-empty cert store.
     The three nuget.org repository fingerprints are the current set; the
     seven Microsoft author fingerprints cover its rotating author certs.
+
+    Crucially, ``System.Reactive`` and ``System.Linq.Async`` are NOT authored
+    by Microsoft — their author is "Reactive Extensions for .NET (.NET
+    Foundation)", signed under the ".NET Foundation Projects Code Signing CA".
+    Without a trustedSigners author entry for that CA, NuGet never excuses
+    their expired author signature and fails with NU3037/NU3028 even in
+    ``accept`` mode. The dotnet-foundation block below covers them: the CA
+    fingerprint (024F162B…) is stable across both packages and future Rx
+    releases; the two leaf fingerprints pin the exact 5.0.0 / 6.0.1 signing
+    certs.
     """
-    if _is_done(pfx, "nuget_config_v8"):
+    if _is_done(pfx, "nuget_config_v9"):
         return True
     cfg = (
         pfx / "drive_c" / "users" / "steamuser"
@@ -776,6 +786,11 @@ def _step_nuget_config(pfx: Path, wine: Path, log: Callable[[str], None]) -> boo
         '      <certificate fingerprint="9DC17888B5CFAD98B3CB35C1994E96227F061675955B6C5B0C842BE5B89E5885" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
         '      <certificate fingerprint="AFCEA55DD42024B8B1D07F6E5D5DD0E4A0DAF12A78AEF80C4D7C11880BE21E45" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
         '    </author>\n'
+        '    <author name="dotnet-foundation">\n'
+        '      <certificate fingerprint="024F162B1D09F6A0868C38B4C8B4257C1EEA6C5A31589416D520CF1624917EB3" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+        '      <certificate fingerprint="0ED671B806A0FAFC2571A7C4901EBF424CE38698872CF6B8047AD0343DC2D697" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+        '      <certificate fingerprint="8983371A2FF43E674DD3179E22A70934BBB3243FB38DC2EF12C6030E85DBAA81" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+        '    </author>\n'
         '    <repository name="nuget.org" serviceIndex="https://api.nuget.org/v3/index.json">\n'
         '      <certificate fingerprint="0E5F38F57DC1BCC806D8494F4F90FBCEDD988B46760709CBEEC6F4219AA6157D" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
         '      <certificate fingerprint="5A2901D6ADA3D18260B9C6DFE2133C95D74B9EEF6AE0E5DC334C8454D1477DF4" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
@@ -785,7 +800,7 @@ def _step_nuget_config(pfx: Path, wine: Path, log: Callable[[str], None]) -> boo
         '</configuration>\n'
     )
     cfg.write_text(content, encoding="utf-8")
-    _mark_done(pfx, "nuget_config_v8")
+    _mark_done(pfx, "nuget_config_v9")
     log("  NuGet.Config written with trustedSigners (allowUntrustedRoot).")
     return True
 
