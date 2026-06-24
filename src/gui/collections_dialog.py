@@ -7661,7 +7661,7 @@ class CollectionsDialog(tk.Frame):
         # alphabetically, otherwise Workshop exports lose priority information.
         entries = [
             e for e in reversed(read_modlist(modlist_path))
-            if e.enabled and not e.is_separator
+            if not e.is_separator
         ]
 
         if self._on_open_workshop:

@@ -1079,12 +1079,24 @@ class WorkshopDialog(tk.Frame):
                             )
                         else:
                             zf.write(fp, (Path("profile") / fname).as_posix())
+                    # Legacy: root-level *.ini files
                     for fp in pdir.glob("*.ini"):
                         if fp.is_file():
                             zf.write(
                                 fp,
                                 (Path("profile") / fp.name).as_posix(),
                             )
+                    # Bundle whole profile subfolders
+                    for sub in ("ini files", "Saves"):
+                        sub_dir = pdir / sub
+                        if not sub_dir.is_dir():
+                            continue
+                        for fp in sub_dir.rglob("*"):
+                            if fp.is_file():
+                                arcname = (
+                                    Path("profile") / sub / fp.relative_to(sub_dir)
+                                )
+                                zf.write(fp, arcname.as_posix())
 
             CTkAlert(state="info", title="Workshop",
                      body_text=f"Manifest exported to:\n{out_path}",
