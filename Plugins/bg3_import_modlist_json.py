@@ -4,9 +4,12 @@ apply it to the active Baldur's Gate 3 profile's modlist.txt.
 
 BG3MM identifies mods by UUID (each entry in the JSON's "Order" array has a
 UUID + Name).  Our modlist.txt orders mods by their *staging folder name*.
-To bridge the two we scan every enabled staged mod's .pak file(s), read the
-meta.lsx UUID out of each (reusing the manager's own modsettings/pak_reader
-code), and build a {uuid -> staging folder name} map.  We then rewrite
+To bridge the two we scan every staged mod's .pak file(s), read the meta.lsx
+UUID out of each (reusing the manager's own modsettings/pak_reader code), and
+order the installed mods by where their UUID appears in the JSON.  A staging
+folder may hold several paks (different UUIDs); it sorts to the earliest JSON
+position among them.  A mod whose folder has no pak / no meta.lsx UUID falls
+back to a case-insensitive match on the JSON entry's Name.  We then rewrite
 modlist.txt so the matched mods follow the JSON's order, with:
 
   - BG3MM's list (and modsettings.lsx) is lowest-priority-first: entries
@@ -214,8 +217,15 @@ def _active_profile_modlist(game) -> Path | None:
 # Reorder logic
 # ---------------------------------------------------------------------------
 
-def _build_uuid_to_mod(game) -> dict[str, str]:
-    """Scan all enabled+disabled staged mods → {uuid: staging folder name}.
+def _scan_staging_uuids(game) -> tuple[dict[str, str], dict[str, list[str]]]:
+    """Scan all enabled+disabled staged mods for their pak UUIDs.
+
+    Returns ``(uuid_to_mod, mod_to_uuids)`` where:
+      - ``uuid_to_mod``  maps each meta.lsx UUID -> staging folder name.
+      - ``mod_to_uuids`` maps each staging folder name -> list of UUIDs it
+        contributes (a folder may hold several .pak files, e.g. a load-order
+        divider pack).  Folders with no .pak / no meta.lsx are absent here,
+        which is how the caller detects mods that need the name fallback.
 
     We scan disabled mods too so an imported order can re-enable a mod the
     user had turned off.
@@ -226,13 +236,23 @@ def _build_uuid_to_mod(game) -> dict[str, str]:
     # non-separator entries regardless of enabled state.
     mod_entries = [e for e in entries if not e.is_separator]
     by_uuid = scan_mod_paks(staging, mod_entries)
-    return {uuid: info.source_mod for uuid, info in by_uuid.items() if info.source_mod}
+
+    uuid_to_mod: dict[str, str] = {}
+    mod_to_uuids: dict[str, list[str]] = {}
+    for uuid, info in by_uuid.items():
+        mod = info.source_mod
+        if not mod:
+            continue
+        uuid_to_mod[uuid] = mod
+        mod_to_uuids.setdefault(mod, []).append(uuid)
+    return uuid_to_mod, mod_to_uuids
 
 
 def _plan_reorder(
     existing: list[ModEntry],
     order_uuids: list[tuple[str, str]],
     uuid_to_mod: dict[str, str],
+    mod_to_uuids: dict[str, list[str]],
 ) -> tuple[list[ModEntry], list[str], list[tuple[str, str]]]:
     """Compute the new modlist entries plus diagnostics.
 
@@ -243,6 +263,13 @@ def _plan_reorder(
       - missing_json_entries:  (uuid, name) in the JSON with no matching
                                installed mod.
 
+    Ordering is driven by the pak UUIDs read from the staging folders, not by
+    folder names.  Each installed mod is positioned by where its UUID first
+    appears in the JSON's Order array.  A staging folder holding several paks
+    (e.g. a load-order divider pack) sorts to the earliest JSON position among
+    its UUIDs.  Mods whose folder has no pak / no meta.lsx UUID fall back to a
+    case-insensitive match on the JSON entry's Name.
+
     The JSON is lowest-priority-first (BG3MM/modsettings.lsx convention);
     modlist.txt is highest-priority-first, so the matched run is reversed
     before being written (JSON[0] -> bottom, JSON[last] -> top).
@@ -250,19 +277,48 @@ def _plan_reorder(
     separators = [e for e in existing if e.is_separator]
     mods = {e.name: e for e in existing if not e.is_separator}
 
-    ordered_names: list[str] = []
-    seen: set[str] = set()
+    # JSON position of each UUID and each name (first occurrence wins).
+    uuid_pos: dict[str, int] = {}
+    name_pos: dict[str, int] = {}
+    for i, (uuid, name) in enumerate(order_uuids):
+        if uuid and uuid not in uuid_pos:
+            uuid_pos[uuid] = i
+        if name and name.casefold() not in name_pos:
+            name_pos[name.casefold()] = i
+
+    # Position each installed mod by its earliest UUID in the JSON; if the
+    # folder has no UUID at all, fall back to matching the folder name against
+    # a JSON entry's Name.
+    mod_pos: dict[str, int] = {}
+    for name in mods:
+        positions = [uuid_pos[u] for u in mod_to_uuids.get(name, []) if u in uuid_pos]
+        if positions:
+            mod_pos[name] = min(positions)
+        elif not mod_to_uuids.get(name):
+            # No pak UUID for this folder — fall back to a name match.
+            fallback = name_pos.get(name.casefold())
+            if fallback is not None:
+                mod_pos[name] = fallback
+
+    # Matched mods, ordered by JSON position (stable on ties → modlist order).
+    ordered_names = sorted(mod_pos, key=lambda n: mod_pos[n])
+    matched_set = set(ordered_names)
+
+    # JSON entries whose UUID matched no installed mod and whose name also
+    # didn't resolve to an installed folder → "in JSON but not installed".
+    placed_uuids = {u for n in ordered_names for u in mod_to_uuids.get(n, [])}
+    placed_names = {n.casefold() for n in ordered_names}
     missing: list[tuple[str, str]] = []
-
     for uuid, name in order_uuids:
-        mod_name = uuid_to_mod.get(uuid)
-        if mod_name and mod_name in mods and mod_name not in seen:
-            ordered_names.append(mod_name)
-            seen.add(mod_name)
-        elif not mod_name:
-            missing.append((uuid, name))
+        if uuid in placed_uuids:
+            continue
+        if name and name.casefold() in placed_names:
+            continue
+        if uuid_to_mod.get(uuid):
+            continue  # resolved to an installed mod via some other entry
+        missing.append((uuid, name))
 
-    extra = [n for n in mods if n not in seen]
+    extra = [n for n in mods if n not in matched_set]
 
     # Build the new entry list (top = highest priority in modlist.txt):
     #   [separators] + [extra mods, DISABLED] + [imported order, reversed]
@@ -430,10 +486,10 @@ class BG3ImportModlistJsonWizard(ctk.CTkFrame):
                 return
 
             existing = read_modlist(modlist_path)
-            uuid_to_mod = _build_uuid_to_mod(self._game)
+            uuid_to_mod, mod_to_uuids = _scan_staging_uuids(self._game)
 
             new_entries, extra, missing = _plan_reorder(
-                existing, order_uuids, uuid_to_mod,
+                existing, order_uuids, uuid_to_mod, mod_to_uuids,
             )
             self._new_entries = new_entries
 
