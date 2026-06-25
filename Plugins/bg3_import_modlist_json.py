@@ -9,11 +9,13 @@ meta.lsx UUID out of each (reusing the manager's own modsettings/pak_reader
 code), and build a {uuid -> staging folder name} map.  We then rewrite
 modlist.txt so the matched mods follow the JSON's order, with:
 
-  - JSON order is top-of-list = highest priority (same convention as BG3MM's
-    list and our modlist.txt, where line 0 is highest priority).
+  - BG3MM's list (and modsettings.lsx) is lowest-priority-first: entries
+    nearer the bottom load later and win.  Our modlist.txt is the opposite
+    (line 0 = highest priority), so the JSON order is REVERSED when written:
+    JSON[0] lands at the bottom of modlist.txt, JSON[last] at the top.
   - Matched mods are all enabled.
-  - Mods installed but absent from the JSON are kept enabled and placed ABOVE
-    the imported order (higher priority).  Nothing is disabled.
+  - Mods installed but absent from the JSON are DISABLED (placed above the
+    imported order, but turned off so they don't deploy).
   - Separators are preserved at the top so groupings survive.
 
 After writing, the dialog asks the running app to reload the modlist panel so
@@ -237,9 +239,13 @@ def _plan_reorder(
     Returns (new_entries, extra_mod_names, missing_json_entries) where:
       - new_entries:           reordered ModEntry list to write.
       - extra_mod_names:       installed mods not referenced by the JSON
-                               (kept enabled, placed above the imported order).
+                               (DISABLED, placed above the imported order).
       - missing_json_entries:  (uuid, name) in the JSON with no matching
                                installed mod.
+
+    The JSON is lowest-priority-first (BG3MM/modsettings.lsx convention);
+    modlist.txt is highest-priority-first, so the matched run is reversed
+    before being written (JSON[0] -> bottom, JSON[last] -> top).
     """
     separators = [e for e in existing if e.is_separator]
     mods = {e.name: e for e in existing if not e.is_separator}
@@ -258,15 +264,17 @@ def _plan_reorder(
 
     extra = [n for n in mods if n not in seen]
 
-    # Build the new entry list:
-    #   [separators] + [extra mods, enabled] + [imported order, enabled]
+    # Build the new entry list (top = highest priority in modlist.txt):
+    #   [separators] + [extra mods, DISABLED] + [imported order, reversed]
+    # The imported run is reversed so JSON[0] (lowest priority in BG3MM)
+    # ends up at the bottom of modlist.txt and JSON[last] at the top.
     new_entries: list[ModEntry] = list(separators)
     for n in extra:
         e = mods[n]
-        e.enabled = True
+        e.enabled = False
         e.locked = False
         new_entries.append(e)
-    for n in ordered_names:
+    for n in reversed(ordered_names):
         e = mods[n]
         e.enabled = True
         e.locked = False
@@ -433,23 +441,23 @@ class BG3ImportModlistJsonWizard(ctk.CTkFrame):
             self._set_label(
                 summary,
                 f"{matched} of {len(order_uuids)} order entries matched installed "
-                f"mods.   {len(extra)} extra installed mod(s) kept on top.   "
-                f"{len(missing)} not installed.",
+                f"mods.   {len(extra)} extra installed mod(s) DISABLED (not in "
+                f"the order).   {len(missing)} not installed.",
                 TEXT_MAIN,
             )
 
             lines: list[str] = []
             lines.append("=== NEW LOAD ORDER (top = highest priority) ===")
+            extra_set = set(extra)
             idx = 0
             for e in new_entries:
                 if e.is_separator:
                     lines.append(f"   --- {e.display_name} ---")
+                elif e.name in extra_set:
+                    lines.append(f"   ✗ {e.name}   [not in JSON – DISABLED]")
                 else:
                     idx += 1
-                    tag = ""
-                    if e.name in extra:
-                        tag = "   [extra – not in JSON, kept on top]"
-                    lines.append(f"{idx:>3}. {e.name}{tag}")
+                    lines.append(f"{idx:>3}. {e.name}")
             if missing:
                 lines.append("")
                 lines.append("=== IN JSON BUT NOT INSTALLED (skipped) ===")
