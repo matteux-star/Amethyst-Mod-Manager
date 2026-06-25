@@ -7,7 +7,7 @@
 - Tweaked mod installer to work with nexus's new mod filename format
 - Fixed a bcj2 error in some wizard tools in the flatpak version
 - Added open to disable load order prepending to 7DTD mod folders
-- Text Files tab now lists text/config files from the whole profile folder again (e.g. modlist.txt, filemap.txt, collection.json), not just Bethesda "ini files" subfolders
+- Fixed scaling issue in the collection browser
 
 - v1.3.11
 - Reworked RE engine bundle style mods to be detected and presented better, an interface can now be opened for these mods to change the options.
