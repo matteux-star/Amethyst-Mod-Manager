@@ -1250,6 +1250,7 @@ class CollectionDetailDialog(tk.Frame):
         # --- Footer ---
         ftr = tk.Frame(self, bg=BG_HEADER, pady=8, bd=0, highlightthickness=0)
         ftr.pack(fill="x", side="bottom")
+        self._footer = ftr
 
         ctk.CTkButton(
             ftr, text="Close",
@@ -6527,7 +6528,7 @@ class CollectionDetailDialog(tk.Frame):
 
         # Scrollable rows
         ROW_H = scaled(28)
-        MAX_VISIBLE = 4
+        MAX_VISIBLE = 3
         visible = min(len(self._offsite_mods), MAX_VISIBLE)
         rows_frame = tk.Frame(self._offsite_frame, bg=BG_PANEL, height=visible * ROW_H)
         rows_frame.pack(fill="x")
@@ -6589,8 +6590,15 @@ class CollectionDetailDialog(tk.Frame):
                 command=lambda u=_url: open_url(u),
             ).pack(side="right", padx=6, pady=3)
 
-        # Pack the offsite frame below the priority note
-        self._offsite_frame.pack(fill="x", side="top", after=self._priority_note)
+        # Pack the offsite frame directly above the footer. Using side="bottom"
+        # (rather than side="top") means Tk carves out the footer's space first,
+        # then this panel above it, so a long off-site list can never starve the
+        # footer buttons — the expanding treeview gives up the space instead.
+        footer = getattr(self, "_footer", None)
+        if footer is not None and footer.winfo_exists():
+            self._offsite_frame.pack(fill="x", side="bottom", before=footer)
+        else:
+            self._offsite_frame.pack(fill="x", side="bottom")
 
     def _update_open_missing_btn_visibility(self):
         """Show 'Open Missing on Nexus' only when collection is installed and has missing mods."""
