@@ -200,6 +200,8 @@ class GamePickerPanel(tk.Frame):
         self._img_labels: dict = {}           # game_id → (img_lbl, img_frame)
         self._card_widgets: list = []          # list of card frames (in order)
         self._card_names: list[str] = []       # parallel list: game name per card
+        self._card_search: list[str] = []      # parallel list: searchable text per card
+        self._search_query: str = ""           # current lower-cased search filter
         self._curr_cols: int = 4
         self._show_installed_only = tk.BooleanVar(value=False)
         self._installed_game_names: set[str] | None = None  # None = not yet scanned
@@ -244,6 +246,21 @@ class GamePickerPanel(tk.Frame):
             bd=0, highlightthickness=0, cursor="hand2",
             command=self._on_cancel,
         ).pack(side="right", padx=(scaled(4), scaled(12)), pady=scaled(6))
+
+        # Search bar — sits to the left of the Cancel button in the title bar.
+        self._search_var = tk.StringVar()
+        self._search_entry = ctk.CTkEntry(
+            title_bar,
+            textvariable=self._search_var,
+            placeholder_text="Search by name, game ID, or Steam app ID…",
+            width=scaled(280), height=scaled(28),
+            font=FONT_NORMAL,
+            fg_color=BG_DEEP, text_color=TEXT_MAIN, border_color=BORDER,
+        )
+        self._search_entry.pack(side="right", padx=(scaled(4), scaled(8)), pady=scaled(6))
+        self._search_var.trace_add("write", self._on_search_changed)
+        self._search_entry.bind("<Escape>", lambda _e: (self._search_var.set(""), "break")[1])
+        self._bind_select_all(self._search_entry)
 
         # Separator under title bar
         tk.Frame(self, bg=BORDER, height=1).grid(row=0, column=0, sticky="ews")
@@ -376,6 +393,40 @@ class GamePickerPanel(tk.Frame):
             self._loader = None
 
     # ------------------------------------------------------------------
+    # Search-text helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _game_search_text(name: str, game) -> str:
+        """Build a lower-cased haystack of name + game_id + steam appids."""
+        parts: list[str] = [name]
+        if game is not None:
+            gid = getattr(game, "game_id", None)
+            if gid:
+                parts.append(str(gid))
+            sid = getattr(game, "steam_id", None)
+            if sid:
+                parts.append(str(sid))
+            for alt in getattr(game, "alt_steam_ids", []) or []:
+                if alt:
+                    parts.append(str(alt))
+        return " ".join(parts).lower()
+
+    @staticmethod
+    def _remote_search_text(display_name: str, parsed: dict) -> str:
+        """Searchable haystack for a remote (not-yet-downloaded) handler card."""
+        parts: list[str] = [display_name]
+        if isinstance(parsed, dict):
+            for key in ("game_id", "steam_id"):
+                val = parsed.get(key)
+                if val:
+                    parts.append(str(val))
+            for alt in parsed.get("alt_steam_ids", []) or []:
+                if alt:
+                    parts.append(str(alt))
+        return " ".join(parts).lower()
+
+    # ------------------------------------------------------------------
     # Card building
     # ------------------------------------------------------------------
 
@@ -462,6 +513,7 @@ class GamePickerPanel(tk.Frame):
 
         self._card_widgets.append(card)
         self._card_names.append(name)
+        self._card_search.append(self._game_search_text(name, game))
 
     # ------------------------------------------------------------------
     # Scroll helpers
@@ -528,12 +580,17 @@ class GamePickerPanel(tk.Frame):
         for c in range(cols):
             self._inner.grid_columnconfigure(c, weight=0, minsize=slot_w)
 
-        # Determine which cards are visible (installed filter)
+        # Determine which cards are visible (installed filter + search query)
         installed = self._installed_game_names
         filter_on = self._show_installed_only.get() and installed is not None
+        query = self._search_query
         visible_idx = 0
-        for i, (card, name) in enumerate(zip(self._card_widgets, self._card_names)):
+        for i, (card, name, haystack) in enumerate(
+            zip(self._card_widgets, self._card_names, self._card_search)
+        ):
             if filter_on and name not in installed:
+                card.grid_remove()
+            elif query and query not in haystack:
                 card.grid_remove()
             else:
                 col = visible_idx % cols
@@ -595,6 +652,37 @@ class GamePickerPanel(tk.Frame):
     # ------------------------------------------------------------------
     # Installed-only filter
     # ------------------------------------------------------------------
+
+    # ------------------------------------------------------------------
+    # Search filter
+    # ------------------------------------------------------------------
+
+    def _bind_select_all(self, entry: "ctk.CTkEntry") -> None:
+        """Make Ctrl+A select the whole entry (CTk doesn't bind this by default)."""
+        def _select_all(_event=None):
+            try:
+                inner = entry._entry  # underlying tk.Entry
+                inner.select_range(0, "end")
+                inner.icursor("end")
+            except Exception:
+                pass
+            return "break"
+        entry.bind("<Control-a>", _select_all)
+        entry.bind("<Control-A>", _select_all)
+
+    def _on_search_changed(self, *_args):
+        # Debounce: coalesce rapid keystrokes into a single regrid.
+        if getattr(self, "_search_after_id", None):
+            try:
+                self.after_cancel(self._search_after_id)
+            except Exception:
+                pass
+        self._search_after_id = self.after(120, self._apply_search)
+
+    def _apply_search(self):
+        self._search_after_id = None
+        self._search_query = self._search_var.get().strip().lower()
+        self._regrid_cards()
 
     def _on_installed_filter_toggle(self):
         if self._show_installed_only.get() and self._installed_game_names is None:
@@ -929,9 +1017,13 @@ class GamePickerPanel(tk.Frame):
             self._build_remote_card(h)
         # Re-sort all cards alphabetically so remote/custom handlers
         # appear in the correct position rather than always at the end.
-        paired = sorted(zip(self._card_names, self._card_widgets), key=lambda x: x[0].lower())
-        self._card_names[:] = [n for n, _ in paired]
-        self._card_widgets[:] = [w for _, w in paired]
+        paired = sorted(
+            zip(self._card_names, self._card_widgets, self._card_search),
+            key=lambda x: x[0].lower(),
+        )
+        self._card_names[:] = [n for n, _, _ in paired]
+        self._card_widgets[:] = [w for _, w, _ in paired]
+        self._card_search[:] = [s for _, _, s in paired]
         self._regrid_cards()
         # If the installed filter is already active and scan is done, re-run regrid
         # (scan may have finished before remote cards arrived)
@@ -1018,6 +1110,7 @@ class GamePickerPanel(tk.Frame):
 
         self._card_widgets.append(card)
         self._card_names.append(display_name)
+        self._card_search.append(self._remote_search_text(display_name, parsed))
 
     def _download_and_select(self, download_url: str, filename: str, display_name: str, card):
         """Download the handler JSON, save it, then trigger game selection."""
@@ -1066,6 +1159,7 @@ class GamePickerPanel(tk.Frame):
                 pass
         self._card_widgets.clear()
         self._card_names.clear()
+        self._card_search.clear()
         self._img_labels.clear()
         self._img_refs.clear()
         # Rebuild cards

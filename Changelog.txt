@@ -9,6 +9,8 @@
 - Added open to disable load order prepending to 7DTD mod folders
 - Fixed scaling issue in the collection browser
 - Added update checking for bg3 mods installed via mod.io (Api key is set in the wizard menu for bg3)
+- Double clicking a mod will now open it on disk
+- Added a search bar to the add game menu
 
 - v1.3.11
 - Reworked RE engine bundle style mods to be detected and presented better, an interface can now be opened for these mods to change the options.
