@@ -287,7 +287,7 @@ class ModListNexusActionsMixin:
         install/update time, fetching it on the fly if it's missing.
         """
         import configparser
-        import webbrowser
+        from Utils.xdg import open_url
         meta_path = self._staging_root / mod_name / "meta.ini"
         if not meta_path.is_file():
             self._log(f"mod.io: No metadata for {mod_name}")
@@ -322,7 +322,7 @@ class ModListNexusActionsMixin:
             return
         self._log(f"mod.io: Opening {url}")
         try:
-            webbrowser.open(url)
+            open_url(url)
         except Exception as exc:
             self._log(f"mod.io: Could not open browser — {exc}")
 
