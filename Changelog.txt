@@ -2,6 +2,7 @@
 - Runtime generated files that appear in a games root folder are now rescued and sent to the profiles root folder (the root folder separator)
 - Added a right click option to the overwrite separator to display a log of files that entered the overwrite folder
 - Added a right click option to move a mod to another profile
+- Reworked the dtkit patcher wizard as it was using an outdated version
 
 - v1.3.12
 ## Additions
