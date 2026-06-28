@@ -27,6 +27,7 @@ from Utils.deploy_shared import (
     _do_link,
     _do_link_ex,
     _get_staging_source_path,
+    _append_overwrite_log,
     _mkdir_leaves,
     _move_crash_safe,
     _path_under_root,
@@ -1375,6 +1376,8 @@ def restore_data_core(
                 _log(f"  Rescued {rescued_to_overwrite} runtime-created file(s) → overwrite/.")
             if rescued_edited_vanilla:
                 _log(f"  Preserved {rescued_edited_vanilla} edited vanilla file(s) (e.g. xEdit-cleaned).")
+            if rescued_overwrite_rels:
+                _append_overwrite_log(overwrite_dir, rescued_overwrite_rels, _log)
             # Update modindex.bin so the next build_filemap call immediately
             # sees the rescued files under [Overwrite] without a full rescan.
             # We append the rel_strs we recorded as we rescued — far cheaper

@@ -1429,6 +1429,39 @@ def _load_deploy_snapshot(snapshot_path: Path) -> set[str]:
         return set()
 
 
+# Per-restore log written at the destination root (overwrite/ or Root_Folder/).
+# Excluded from the filemap scan via filemap._EXCLUDE_NAMES.
+OVERWRITE_LOG_NAME = ".mm_overwrite_log.txt"
+_OVERWRITE_LOG_MAX_SECTIONS = 200
+
+
+def _append_overwrite_log(dest_dir: Path, rels: "list[str]", log_fn=None) -> None:
+    """Append one timestamped section listing *rels* to dest_dir's overwrite log.
+
+    Best-effort: OSErrors are swallowed so logging can never break a restore."""
+    log_path = dest_dir / OVERWRITE_LOG_NAME
+    ts = _time.strftime("%Y-%m-%d %H:%M:%S")
+    header = f"# {ts} — {len(rels)} file(s) moved on restore"
+    section = "\n".join([header, *sorted(rels)]) + "\n\n"
+    try:
+        try:
+            existing = log_path.read_text(encoding="utf-8")
+        except OSError:
+            existing = ""
+        combined = existing + section
+        headers = [i for i, ln in enumerate(combined.splitlines())
+                   if ln.startswith("# ")]
+        if len(headers) > _OVERWRITE_LOG_MAX_SECTIONS:
+            lines = combined.splitlines()
+            cut = headers[len(headers) - _OVERWRITE_LOG_MAX_SECTIONS]
+            combined = "\n".join(lines[cut:]) + "\n"
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        log_path.write_text(combined, encoding="utf-8")
+    except OSError as e:
+        if log_fn is not None:
+            log_fn(f"  WARN: could not write overwrite log: {e}")
+
+
 def _move_runtime_files(
     game_root: Path,
     snapshot_path: Path,
@@ -1520,6 +1553,7 @@ def _move_runtime_files(
 
     made_dirs: set[str] = set()
     emptied_dirs: set[Path] = set()
+    moved_rels: list[str] = []
     moved = 0
     for rel in candidate_rels:
         src_path = game_root_str + "/" + rel
@@ -1536,11 +1570,15 @@ def _move_runtime_files(
         except OSError:
             continue
         emptied_dirs.add(Path(src_path).parent)
+        moved_rels.append(rel)
         moved += 1
 
     # Prune any directories left empty after moving runtime files out
     if emptied_dirs:
         _prune_empty_dirs(emptied_dirs, stop_dirs={game_root})
+
+    if moved_rels:
+        _append_overwrite_log(dest_dir, moved_rels, _log)
 
     return moved
 
@@ -1715,6 +1753,8 @@ __all__ = [
     "_write_deploy_snapshot",
     "_load_deploy_snapshot",
     "_move_runtime_files",
+    "_append_overwrite_log",
+    "OVERWRITE_LOG_NAME",
     "_path_under_root",
     "_get_staging_source_path",
     "_build_mod_index",

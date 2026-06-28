@@ -109,7 +109,7 @@ from Utils.bsa_filemap import (
     rebuild_bsa_index,
     remove_from_bsa_index,
 )
-from Utils.deploy import deploy_root_folder, restore_root_folder, LinkMode, load_per_mod_strip_prefixes, undeploy_mod_files, restore_custom_deploy_backup_for_path
+from Utils.deploy import deploy_root_folder, restore_root_folder, LinkMode, load_per_mod_strip_prefixes, undeploy_mod_files, restore_custom_deploy_backup_for_path, OVERWRITE_LOG_NAME
 from Utils.modlist import (
     ModEntry,
     read_modlist,
@@ -5680,6 +5680,10 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         if c.mod_folder is not None and not c.is_multi:
             menu.add_command("Open folder", lambda f=c.mod_folder: self._open_folder(f))
 
+        # Log (Overwrite row only) — show what restores have swept into overwrite/
+        if c.is_overwrite and not c.is_multi:
+            menu.add_command("Log", lambda: self._show_overwrite_log())
+
         # Bundle options… (RE/Fluffy single-mod bundles)
         if (not c.is_separator and not c.is_multi
                 and self._bundle_spec_path(idx) is not None):
@@ -8113,6 +8117,155 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             self._overwrites_window = None
             try:
                 win.destroy()
+            except Exception:
+                pass
+
+    def _overwrite_log_path(self) -> Path | None:
+        """Resolve the active profile's overwrite-log file, or None if unknown."""
+        game = self._game
+        if game is None:
+            return None
+        try:
+            return game.get_effective_overwrite_path() / OVERWRITE_LOG_NAME
+        except Exception:
+            return None
+
+    @staticmethod
+    def _parse_overwrite_log(text: str) -> list[tuple[str, list[str]]]:
+        """Split the overwrite log into (header, files) sections, newest first."""
+        sections: list[tuple[str, list[str]]] = []
+        cur_header: str | None = None
+        cur_files: list[str] = []
+        for raw in text.splitlines():
+            line = raw.rstrip("\n")
+            if line.startswith("# "):
+                if cur_header is not None:
+                    sections.append((cur_header, cur_files))
+                cur_header = line[2:].strip()
+                cur_files = []
+            elif line.strip():
+                if cur_header is not None:
+                    cur_files.append(line)
+        if cur_header is not None:
+            sections.append((cur_header, cur_files))
+        sections.reverse()
+        return sections
+
+    def _show_overwrite_log(self) -> None:
+        """Show a read-only overlay listing files swept into overwrite/ per restore."""
+        log_path = self._overwrite_log_path()
+        text = ""
+        if log_path is not None:
+            try:
+                text = log_path.read_text(encoding="utf-8")
+            except OSError:
+                text = ""
+        sections = self._parse_overwrite_log(text) if text else []
+
+        self._close_overwrite_log()
+
+        overlay = ctk.CTkFrame(self, fg_color=BG_DEEP, corner_radius=0)
+        overlay.place(relx=0, rely=0, relwidth=1, relheight=1)
+        overlay.lift()
+        overlay.grid_rowconfigure(1, weight=1)
+        overlay.grid_columnconfigure(0, weight=1)
+        self._overwrite_log_overlay = overlay
+
+        # Header bar: title on the left, close button on the right.
+        header_bar = ctk.CTkFrame(overlay, fg_color=BG_DEEP, corner_radius=0)
+        header_bar.grid(row=0, column=0, sticky="ew",
+                        padx=scaled(12), pady=(scaled(10), scaled(4)))
+        header_bar.grid_columnconfigure(0, weight=1)
+        ctk.CTkLabel(
+            header_bar, text="Files swept into Overwrite (newest restore first)",
+            text_color=TEXT_DIM, anchor="w",
+        ).grid(row=0, column=0, sticky="ew")
+        ctk.CTkButton(
+            header_bar, text="Close", width=80, height=28,
+            fg_color=BTN_DANGER, hover_color=BTN_DANGER_HOV, text_color=TEXT_WHITE,
+            font=_theme.FONT_BOLD, cursor="hand2",
+            command=self._close_overwrite_log,
+        ).grid(row=0, column=1, sticky="e")
+
+        body = ctk.CTkScrollableFrame(overlay, fg_color=BG_PANEL)
+        body.grid(row=1, column=0, sticky="nsew", padx=scaled(12), pady=(0, scaled(12)))
+        body.grid_columnconfigure(0, weight=1)
+
+        if not sections:
+            ctk.CTkLabel(
+                body, text="No files have entered overwrite yet.",
+                text_color=TEXT_DIM, anchor="w",
+            ).grid(row=0, column=0, sticky="ew", padx=scaled(8), pady=scaled(10))
+        else:
+            row = 0
+            for header, files in sections:
+                ctk.CTkLabel(
+                    body, text=header, text_color=ACCENT, anchor="w",
+                    font=ctk.CTkFont(weight="bold"),
+                ).grid(row=row, column=0, sticky="ew",
+                       padx=scaled(8), pady=(scaled(10), scaled(2)))
+                row += 1
+                listing = "\n".join(f"  {f}" for f in files) if files else "  (no files)"
+                ctk.CTkLabel(
+                    body, text=listing, text_color=TEXT_MAIN,
+                    anchor="w", justify="left",
+                ).grid(row=row, column=0, sticky="ew",
+                       padx=scaled(8), pady=(0, scaled(4)))
+                row += 1
+
+        self._bind_wheel_to_scrollframe(body)
+
+        try:
+            overlay.bind_all("<Escape>", lambda _e: self._close_overwrite_log())
+        except Exception:
+            pass
+
+    @staticmethod
+    def _bind_wheel_to_scrollframe(body) -> None:
+        """Forward Button-4/5 wheel notches from every child to body's canvas (Tk 8.6)."""
+        try:
+            canvas = body._parent_canvas
+        except Exception:
+            return
+
+        def _on_wheel(event):
+            if event.num == 4:
+                canvas.yview_scroll(-3, "units")
+            elif event.num == 5:
+                canvas.yview_scroll(3, "units")
+            else:
+                delta = -1 * int(event.delta / 40) if event.delta else 0
+                if delta:
+                    canvas.yview_scroll(delta, "units")
+            return "break"
+
+        def _walk(w):
+            try:
+                if not LEGACY_WHEEL_REDUNDANT:
+                    w.bind("<Button-4>", _on_wheel, add="+")
+                    w.bind("<Button-5>", _on_wheel, add="+")
+            except Exception:
+                pass
+            for child in w.winfo_children():
+                _walk(child)
+
+        _walk(body)
+
+    def _close_overwrite_log(self) -> None:
+        """Tear down the overwrite-log overlay if present."""
+        overlay = getattr(self, "_overwrite_log_overlay", None)
+        if overlay is not None:
+            self._overwrite_log_overlay = None
+            try:
+                overlay.unbind_all("<Escape>")
+            except Exception:
+                pass
+            try:
+                overlay.place_forget()
+            except Exception:
+                pass
+            try:
+                overlay.destroy()
             except Exception:
                 pass
 
