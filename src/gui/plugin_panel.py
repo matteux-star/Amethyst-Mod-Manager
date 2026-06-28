@@ -1031,7 +1031,6 @@ class PluginPanel(PluginPanelExeLauncherMixin, PluginPanelLOOTMixin,
     def _on_pack_bsa_click(self) -> None:
         """Pack the currently-selected mod's loose files into a BSA in that
         mod's folder. Runs on a background thread with a progress popup."""
-        import threading
         from Utils.ba2_writer import Ba2WriteError, write_ba2, write_ba2_textures
         from Utils.bsa_writer import (
             BsaWriteError, bsa_version_for_game, write_bsa, write_stub_plugin,
@@ -1462,7 +1461,6 @@ class PluginPanel(PluginPanelExeLauncherMixin, PluginPanelLOOTMixin,
         Runs on a background thread with one shared progress popup so a
         multi-archive plugin (e.g. ``- Main.ba2`` + ``- Textures.ba2``)
         looks like one operation to the user."""
-        import threading
         from Utils.ba2_extract import Ba2ExtractError, extract_ba2
         from Utils.bsa_extract import BsaExtractError, extract_bsa
         from Utils.bsa_writer import is_our_stub_plugin

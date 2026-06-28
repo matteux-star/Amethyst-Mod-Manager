@@ -617,7 +617,6 @@ class TopBar(ctk.CTkFrame):
         if game is not None:
             profile_dir = game.get_profile_root() / "profiles" / profile
         else:
-            from Utils.config_paths import get_profiles_dir
             profile_dir = get_profiles_dir() / game_name / "profiles" / profile
 
         # Restore deployed mod files before deleting the profile so we don't

@@ -284,7 +284,6 @@ class PGPatcherWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         threading.Thread(target=self._do_install_deps, daemon=True).start()
 
     def _do_install_deps(self):
-        import urllib.request
         from Utils.config_paths import get_dotnet_cache_dir
         from Utils.protontricks import install_d3dcompiler_47
 
