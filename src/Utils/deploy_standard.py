@@ -1121,6 +1121,32 @@ def restore_data_core(
                         rel_lower = rel_str.lower()
                         filemap_lower.add(rel_lower)
                         filemap_rel_to_mod[rel_lower] = mod_name
+        # Files owned by root-flagged mods (filemap_root.txt) may target paths
+        # *inside* deploy_dir — e.g. a root-flagged mod that ships its own
+        # Data/Fallout4.esm deploys to <game>/Data/Fallout4.esm, the same path
+        # a vanilla file occupies.  Those files are backed up to and restored
+        # from Root_Backup/ by restore_root_folder(); they are NOT edited
+        # vanilla.  Without this set the rescue walk below sees a regular file
+        # (nlink==1 under copy/cross-device deploy) sitting at a core_lower path
+        # whose inode/size differs from the vanilla backup, mistakes it for an
+        # xEdit-cleaned vanilla plugin, and os.replace()s it OVER the vanilla
+        # copy in core_dir — destroying the only good backup.  Record their
+        # deploy-dir-relative paths so the walk leaves them for the root
+        # restore.  filemap_root rels are full game-root paths (e.g.
+        # "Data/Fallout4.esm"); strip the deploy_dir's name to match rel_lower.
+        filemap_root_lower: set[str] = set()
+        _filemap_root_path = overwrite_dir.parent / "filemap_root.txt"
+        if _filemap_root_path.is_file():
+            _deploy_prefix = (deploy_dir.name + "/").lower()
+            with _filemap_root_path.open(encoding="utf-8") as _fmr:
+                for _line in _fmr:
+                    _line = _line.rstrip("\n")
+                    if "\t" not in _line:
+                        continue
+                    _rel_str = _line.split("\t", 1)[0]
+                    _rel_norm = _rel_str.replace("\\", "/").lower()
+                    if _rel_norm.startswith(_deploy_prefix):
+                        filemap_root_lower.add(_rel_norm[len(_deploy_prefix):])
         # Build a set of every file known to any mod in the index (all profiles,
         # all mods, enabled or disabled).  Runtime-created files won't appear here,
         # so any hit means "this is a mod file, don't rescue it".
@@ -1233,6 +1259,14 @@ def restore_data_core(
                     if (_ds is not None and st.st_size == _ds[0]
                             and abs(st.st_mtime_ns - _ds[1]) <= _MTIME_TOLERANCE_NS):
                         continue  # unmodified deployed file — discard, don't rescue
+                    if rel_lower in filemap_root_lower:
+                        # Root-flagged mod file deployed into deploy_dir (e.g. a
+                        # mod shipping its own Data/Fallout4.esm).  Owned by
+                        # restore_root_folder() via Root_Backup/ — never treat
+                        # as edited vanilla (which would overwrite core_dir's
+                        # real backup).  Leave it for the rmtree below; the root
+                        # restore puts the genuine vanilla copy back.
+                        continue
                     if rel_lower in core_lower:
                         # Vanilla path — but the file might have been replaced by
                         # an external tool (e.g. xEdit Quick Auto Clean deletes

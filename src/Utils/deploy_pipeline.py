@@ -373,7 +373,13 @@ def run_deploy_pipeline(
                 log_fn(f"Restore before deploy failed: {restore_err} — continuing.")
         last_root_folder_dir = game.get_effective_root_folder_path()
         if last_root_folder_dir.is_dir() and game_root:
-            restore_root_folder(last_root_folder_dir, game_root, log_fn=log_fn)
+            restore_root_folder(
+                last_root_folder_dir, game_root, log_fn=log_fn,
+                data_deploy_dirs=(
+                    game.root_restore_protect_dirs()
+                    if hasattr(game, "root_restore_protect_dirs") else None
+                ),
+            )
 
         # Switch to the target profile before filemap + deploy.
         game.set_active_profile_dir(

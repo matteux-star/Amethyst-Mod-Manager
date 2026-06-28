@@ -649,7 +649,11 @@ class TopBar(ctk.CTkFrame):
                 root_folder_dir = game.get_effective_root_folder_path()
                 game_root = game.get_game_path()
                 if root_folder_dir.is_dir() and game_root:
-                    restore_root_folder(root_folder_dir, game_root)
+                    restore_root_folder(
+                        root_folder_dir, game_root,
+                        data_deploy_dirs=game.root_restore_protect_dirs()
+                        if hasattr(game, "root_restore_protect_dirs") else None,
+                    )
             except Exception:
                 pass
             # Clear the stale active-profile reference; _reload_mod_panel will
@@ -1085,7 +1089,11 @@ class TopBar(ctk.CTkFrame):
                 # Restore Root_Folder using the last-deployed profile's Root_Folder.
                 root_folder_dir = game.get_effective_root_folder_path()
                 if root_folder_dir.is_dir() and game_root:
-                    restore_root_folder(root_folder_dir, game_root, log_fn=_tlog)
+                    restore_root_folder(
+                        root_folder_dir, game_root, log_fn=_tlog,
+                        data_deploy_dirs=game.root_restore_protect_dirs()
+                        if hasattr(game, "root_restore_protect_dirs") else None,
+                    )
             except Exception as e:
                 _success[0] = False
                 self.after(0, lambda err=e: self._log(f"Restore error: {err}"))

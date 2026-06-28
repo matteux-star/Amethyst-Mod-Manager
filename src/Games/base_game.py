@@ -1263,6 +1263,18 @@ class BaseGame(ABC):
         """
         return None
 
+    def root_restore_protect_dirs(self) -> set[str]:
+        """Top-level dir names owned by the standard data deploy (Data_Core).
+
+        restore_root_folder() uses this to avoid deleting a root-flagged file
+        sitting at a path the standard deploy also restores (e.g. a root mod
+        shipping its own Data/Fallout4.esm).  Defaults to the deploy subfolder
+        reported by runtime_snapshot_exclude_dirs(); games without a Data-style
+        deploy return an empty set so all their root files are removed normally.
+        """
+        excl = self.runtime_snapshot_exclude_dirs()
+        return set(excl) if excl else set()
+
     def snapshot_root_for_runtime_capture(self, exclude_dirs=None, log_fn=None) -> None:
         """Snapshot the game root at deploy time for later runtime capture.
 

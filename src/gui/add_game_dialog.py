@@ -1252,7 +1252,11 @@ class ReconfigureGamePanel(ctk.CTkFrame):
             root_folder_dir = profile_root / "Root_Folder"
             game_root = self._game.get_game_path()
             if root_folder_dir.is_dir() and game_root:
-                restore_root_folder(root_folder_dir, game_root)
+                restore_root_folder(
+                    root_folder_dir, game_root,
+                    data_deploy_dirs=self._game.root_restore_protect_dirs()
+                    if hasattr(self._game, "root_restore_protect_dirs") else None,
+                )
         except Exception:
             pass
 
