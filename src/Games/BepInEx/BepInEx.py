@@ -15,7 +15,6 @@ import stat
 
 from Games.base_game import BaseGame, WizardTool
 from Utils.deploy import LinkMode, deploy_core, deploy_custom_rules, deploy_filemap, load_per_mod_strip_prefixes, load_separator_deploy_paths, expand_separator_deploy_paths, expand_separator_link_modes, expand_separator_raw_deploy, cleanup_custom_deploy_dirs, move_to_core, restore_custom_rules, restore_data_core
-from Utils.deploy_shared import _FILEMAP_SNAPSHOT_NAME, _write_deploy_snapshot, _move_runtime_files
 from Utils.modlist import read_modlist
 from Utils.config_paths import get_profiles_dir
 
@@ -72,6 +71,11 @@ class Subnautica(BaseGame):
     @property
     def mods_dir(self) -> str:
         return "BepInEx/plugins"
+
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        # plugins/ is reverted via its _Core backup; capture everything else
+        # (BepInEx/config, caches, root loader files) into Root_Folder/.
+        return {self.mods_dir}
     
     @property
     def plugin_extensions(self) -> list[str]:
@@ -255,15 +259,8 @@ class Subnautica(BaseGame):
             f"= {linked_mod + linked_core} total file(s) in {plugins_dir.name}/."
         )
 
-        # Snapshot the whole game root so restore() can sweep up files that
-        # mods generate at runtime *outside* the plugins folder (e.g. configs
-        # written to BepInEx/config) into overwrite/.  restore_data_core only
-        # rescues runtime files inside the plugins dir; this widens the net.
-        snapshot_path = filemap.parent / _FILEMAP_SNAPSHOT_NAME
-        try:
-            _write_deploy_snapshot(self._game_path, snapshot_path, log_fn=_log)
-        except Exception as exc:
-            _log(f"  WARN: could not write deploy snapshot: {exc}")
+        # Capture runtime files generated outside plugins/ on the next restore.
+        self.snapshot_root_for_runtime_capture(log_fn=_log)
 
     def restore(self, log_fn=None, progress_fn=None) -> None:
         """Restore BepInEx/Plugins/ to its vanilla state."""
@@ -295,23 +292,12 @@ class Subnautica(BaseGame):
             restored = restore_data_core(plugins_dir, core_dir=core_dir, overwrite_dir=self.get_effective_overwrite_path(), log_fn=_log)
             _log(f"  Restored {restored} file(s). {core}/ removed.")
 
-        # Sweep up runtime-generated files anywhere in the game root (e.g. mod
-        # configs written to BepInEx/config) into overwrite/ so they survive the
-        # next deploy.  Runs after the plugins dir and custom-routed files have
-        # been restored/removed, so only genuinely new files are caught.  Uses
-        # the snapshot written at deploy time; if absent we silently skip.
-        snapshot_path = self.get_effective_filemap_path().parent / _FILEMAP_SNAPSHOT_NAME
-        if snapshot_path.is_file():
-            _log("Restore: scanning game root for runtime-generated files ...")
-            moved = _move_runtime_files(
-                self._game_path, snapshot_path,
-                self.get_effective_overwrite_path(), log_fn=_log,
-            )
-            _log(f"  Moved {moved} runtime-generated file(s) to overwrite/.")
-            try:
-                snapshot_path.unlink()
-            except OSError:
-                pass
+        # Sweep runtime files generated outside plugins/ (BepInEx/config, caches,
+        # root loader files) into Root_Folder/ so they re-deploy next time.  Runs
+        # after the plugins dir and custom-routed files have been restored/removed.
+        moved = self.capture_runtime_files_to_root_folder(log_fn=_log)
+        if moved:
+            _log(f"  Moved {moved} runtime file(s) to Root_Folder/.")
 
         # BepInEx/plugins (and BepInEx itself) are mod-introduced folders, not
         # vanilla like Skyrim's Data.  A truly vanilla state has no BepInEx dir,

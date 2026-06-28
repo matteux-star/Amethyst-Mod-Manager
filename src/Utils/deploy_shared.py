@@ -1348,6 +1348,16 @@ def _resolve_root_path_str(base_str: str, rel_str: str,
 _FILEMAP_SNAPSHOT_NAME = "deploy_snapshot.txt"
 
 
+def _normalize_exclude_dirs(exclude_dirs):
+    """Return a set of lowercased, forward-slash relative dir paths, or None.
+
+    Accepts plain top-level names ("Data") or nested paths ("BepInEx/plugins").
+    """
+    if not exclude_dirs:
+        return None
+    return {d.replace("\\", "/").strip("/").lower() for d in exclude_dirs}
+
+
 def _write_deploy_snapshot(
     game_root: Path,
     snapshot_path: Path,
@@ -1371,11 +1381,12 @@ def _write_deploy_snapshot(
     see the restored vanilla as a brand-new file and wrongly sweep it into
     overwrite/.  Recording symlinks keeps every deploy-time path "known".
 
-    exclude_dirs — top-level dir names (case-insensitive) to skip; standard
-    games pass their deploy subfolder so its files stay on the Data_Core path.
+    exclude_dirs — dir paths (case-insensitive, relative to game_root) to skip;
+    standard games pass their deploy subfolder so its files stay on the
+    Data_Core path.  Nested paths like "BepInEx/plugins" are supported.
     """
     _log = _safe_log(log_fn)
-    excluded = {d.lower() for d in exclude_dirs} if exclude_dirs else None
+    excluded = _normalize_exclude_dirs(exclude_dirs)
     count = 0
     game_root_str = str(game_root)
     prefix_len = len(game_root_str) + 1          # +1 for trailing separator
@@ -1390,8 +1401,8 @@ def _write_deploy_snapshot(
                         for entry in it:
                             if entry.is_dir(follow_symlinks=False):
                                 if (excluded is not None
-                                        and cur == game_root_str
-                                        and entry.name.lower() in excluded):
+                                        and entry.path[prefix_len:].replace(
+                                            "\\", "/").lower() in excluded):
                                     continue
                                 stack.append(entry.path)
                             elif (entry.is_file(follow_symlinks=False)
@@ -1495,7 +1506,7 @@ def _move_runtime_files(
         _log("  WARN: deploy snapshot empty or unreadable — skipping runtime file detection.")
         return 0
 
-    excluded = {d.lower() for d in exclude_dirs} if exclude_dirs else None
+    excluded = _normalize_exclude_dirs(exclude_dirs)
     game_root_str = str(game_root)
     prefix_len = len(game_root_str) + 1
     overwrite_str = str(dest_dir)
@@ -1518,8 +1529,8 @@ def _move_runtime_files(
                 for entry in it:
                     if entry.is_dir(follow_symlinks=False):
                         if (excluded is not None
-                                and cur == game_root_str
-                                and entry.name.lower() in excluded):
+                                and entry.path[prefix_len:].replace(
+                                    "\\", "/").lower() in excluded):
                             continue
                         stack.append(entry.path)
                     elif entry.is_file(follow_symlinks=False):
