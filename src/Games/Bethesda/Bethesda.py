@@ -202,6 +202,10 @@ class Fallout_3(BaseGame):
     def mods_dir(self) -> str:
         return "Data"
 
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        # Data/ is reverted via Data_Core; capture only files outside it.
+        return {self.mods_dir}
+
     @property
     def mod_folder_strip_prefixes(self) -> set[str]:
         return {"Data","oblivion"}
@@ -1412,6 +1416,9 @@ class Fallout_3(BaseGame):
             f"= {linked_mod + linked_core} total file(s) in Data/."
         )
 
+        # Capture runtime files generated outside Data/ on the next restore.
+        self.snapshot_root_for_runtime_capture(log_fn=_log)
+
     def restore(self, log_fn=None, progress_fn=None) -> None:
         """Restore Data/ to its vanilla state by moving Data_Core/ back."""
         _log = log_fn or (lambda _: None)
@@ -1454,6 +1461,12 @@ class Fallout_3(BaseGame):
 
         self._remove_plugins_txt_symlink(_log)
         self._restore_launcher(_log)
+
+        # After Data/ + launcher are restored, so the launcher .bak (created by
+        # swap_launcher *after* the deploy snapshot) isn't swept as a runtime file.
+        moved = self.capture_runtime_files_to_root_folder(log_fn=_log)
+        if moved:
+            _log(f"  Moved {moved} runtime file(s) to Root_Folder/.")
 
         _active = self._active_profile_dir
         if _active is not None:

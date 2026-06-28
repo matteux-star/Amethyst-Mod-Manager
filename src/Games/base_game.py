@@ -1252,6 +1252,57 @@ class BaseGame(ABC):
         return self.get_profile_root() / "Root_Folder"
 
     # -----------------------------------------------------------------------
+    # Runtime-file capture (standard-deployed games)
+    # -----------------------------------------------------------------------
+
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        """Top-level game-root dir names to exclude from the runtime snapshot.
+
+        Standard games override this to return their deploy subfolder (e.g.
+        ``{"Data"}``); ``None`` (default) snapshots the whole game root.
+        """
+        return None
+
+    def snapshot_root_for_runtime_capture(self, exclude_dirs=None, log_fn=None) -> None:
+        """Snapshot the game root at deploy time for later runtime capture.
+
+        Standard games call this at the end of deploy(); restore() then uses
+        capture_runtime_files_to_root_folder() to detect files generated
+        outside the deploy subfolder.
+        """
+        from Utils.deploy import _write_deploy_snapshot, _FILEMAP_SNAPSHOT_NAME
+        gp = self.get_game_path()
+        if not gp:
+            return
+        if exclude_dirs is None:
+            exclude_dirs = self.runtime_snapshot_exclude_dirs()
+        snap = self.get_effective_filemap_path().parent / _FILEMAP_SNAPSHOT_NAME
+        _write_deploy_snapshot(Path(gp), snap, exclude_dirs=exclude_dirs, log_fn=log_fn)
+
+    def capture_runtime_files_to_root_folder(self, exclude_dirs=None, log_fn=None) -> int:
+        """Sweep files generated since deploy (outside the deploy subfolder)
+        into Root_Folder/ so they re-deploy to the game root next time.
+
+        No-op if no snapshot exists.  Deletes the snapshot after sweeping.
+        """
+        from Utils.deploy import _move_runtime_files, _FILEMAP_SNAPSHOT_NAME
+        gp = self.get_game_path()
+        snap = self.get_effective_filemap_path().parent / _FILEMAP_SNAPSHOT_NAME
+        if not (gp and snap.is_file()):
+            return 0
+        if exclude_dirs is None:
+            exclude_dirs = self.runtime_snapshot_exclude_dirs()
+        moved = _move_runtime_files(
+            Path(gp), snap, self.get_effective_root_folder_path(),
+            log_fn=log_fn, exclude_dirs=exclude_dirs,
+        )
+        try:
+            snap.unlink()
+        except OSError:
+            pass
+        return moved
+
+    # -----------------------------------------------------------------------
     # Configuration persistence
     # -----------------------------------------------------------------------
 

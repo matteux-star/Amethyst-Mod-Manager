@@ -77,6 +77,10 @@ class RedDeadRedemption2(BaseGame):
     def mods_dir(self) -> str:
         return "lml"
 
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        # lml/ is reverted via its _Core backup; capture only files outside it.
+        return {self.mods_dir.split("/")[0]}
+
     @property
     def mod_required_top_level_folders(self) -> set[str]:
         return {"lml"}
@@ -251,6 +255,9 @@ class RedDeadRedemption2(BaseGame):
             f"= {linked_mod + linked_core} total file(s) in {data_dir.name}/."
         )
 
+        # Capture runtime files generated outside lml/ on the next restore.
+        self.snapshot_root_for_runtime_capture(log_fn=_log)
+
     def restore(self, log_fn=None, progress_fn=None) -> None:
         """Restore lml/ to vanilla and remove custom-routed loader binaries."""
         _log = log_fn or (lambda _: None)
@@ -282,4 +289,9 @@ class RedDeadRedemption2(BaseGame):
         )
         if restored > 0:
             _log(f"  Restored {restored} file(s). {core}/ removed.")
+
+        moved = self.capture_runtime_files_to_root_folder(log_fn=_log)
+        if moved:
+            _log(f"  Moved {moved} runtime file(s) to Root_Folder/.")
+
         _log("Restore complete.")

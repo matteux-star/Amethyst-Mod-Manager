@@ -453,7 +453,13 @@ def run_deploy_pipeline(
             )
             if snapshot_path.is_file():
                 try:
-                    _write_deploy_snapshot(Path(game_root), snapshot_path, log_fn=log_fn)
+                    # Refresh after root files landed; honour the game's
+                    # exclusion so the deploy subfolder isn't reintroduced.
+                    _excl = None
+                    if hasattr(game, "runtime_snapshot_exclude_dirs"):
+                        _excl = game.runtime_snapshot_exclude_dirs()
+                    _write_deploy_snapshot(Path(game_root), snapshot_path,
+                                           exclude_dirs=_excl, log_fn=log_fn)
                 except Exception as exc:
                     log_fn(f"WARN: could not refresh deploy snapshot: {exc}")
 

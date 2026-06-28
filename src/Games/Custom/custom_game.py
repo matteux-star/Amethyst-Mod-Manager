@@ -364,6 +364,15 @@ class StandardCustomGame(BaseGame):
             return self._game_path / rel
         return self._game_path
 
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        # Exclude the configured deploy subfolder. No subfolder = deploy target
+        # is the game root, so there is nothing to snapshot around — None.
+        rel = self._defn.get("mod_data_path", "").strip("/\\")
+        if not rel:
+            return None
+        top = rel.replace("\\", "/").split("/")[0]
+        return {top} if top else None
+
     def get_mod_staging_path(self) -> Path:
         if self._staging_path is not None:
             return self._staging_path / "mods"
@@ -467,6 +476,10 @@ class StandardCustomGame(BaseGame):
         _log(f"  Transferred {linked_core} vanilla file(s).")
         _log(f"Deploy complete. {linked_mod} mod + {linked_core} vanilla = {linked_mod + linked_core} total file(s).")
 
+        # Capture runtime files on next restore (only if mods deploy to a subfolder).
+        if self.runtime_snapshot_exclude_dirs():
+            self.snapshot_root_for_runtime_capture(log_fn=_log)
+
     def restore(self, log_fn=None, progress_fn=None) -> None:
         _log = log_fn or (lambda _: None)
         if self._game_path is None:
@@ -494,6 +507,12 @@ class StandardCustomGame(BaseGame):
             log_fn=_log,
         )
         _log(f"  Restored {restored} file(s). {data_dir.name}_Core/ removed.")
+
+        if self.runtime_snapshot_exclude_dirs():
+            moved = self.capture_runtime_files_to_root_folder(log_fn=_log)
+            if moved:
+                _log(f"  Moved {moved} runtime file(s) to Root_Folder/.")
+
         _log("Restore complete.")
 
 
@@ -507,6 +526,10 @@ class RootCustomGame(StandardCustomGame):
     def get_mod_data_path(self) -> Path | None:
         """Root deploy: the 'data' path is the game root itself."""
         return self._game_path
+
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        # Mods deploy to the game root — no subfolder, so capture does not apply.
+        return None
 
     def deploy(self, log_fn=None, mode: LinkMode = LinkMode.HARDLINK,
                profile: str = "default", progress_fn=None) -> None:

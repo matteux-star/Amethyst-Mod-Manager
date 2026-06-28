@@ -1,3 +1,7 @@
+- v1.3.13
+- Runtime generated files that appear in a games root folder are now rescued and sent to the profiles root folder (the root folder separator)
+
+
 - v1.3.12
 ## Additions
 - Added a wizard for Creation kit
