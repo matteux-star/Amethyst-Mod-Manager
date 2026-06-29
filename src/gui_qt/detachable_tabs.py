@@ -89,6 +89,8 @@ class DetachableTabWidget(QTabWidget):
         self.setTabsClosable(True)
         self.setMovable(True)
         self.setDocumentMode(True)
+        self._bar.setDrawBase(False)        # no baseline frame under the tabs
+        self._bar.setExpanding(False)       # tabs hug their text (left-aligned)
         self._permanent: set[int] = set()      # indices that can't be closed
         self._keys: dict[str, QWidget] = {}     # key → page (focus-if-open)
         self._floats: list[_FloatingTab] = []
@@ -125,6 +127,25 @@ class DetachableTabWidget(QTabWidget):
         self.setCurrentIndex(idx)
         self._update_bar_visibility()
         return widget
+
+    def close_tab(self, key: str):
+        """Close the tab/float registered under *key* (no-op if not open)."""
+        widget = self._keys.get(key)
+        if widget is None:
+            return
+        # Docked tab?
+        idx = self.indexOf(widget)
+        if idx != -1:
+            self.removeTab(idx)
+            self._forget(widget)
+            widget.deleteLater()
+            self._update_bar_visibility()
+            return
+        # Otherwise a floating window — close it (its `closed` drops the key).
+        for flt in list(self._floats):
+            if flt.centralWidget() is widget:
+                flt.close()
+                return
 
     # -- close / detach -----------------------------------------------------
     def _on_close_requested(self, index: int):

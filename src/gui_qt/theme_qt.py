@@ -8,6 +8,8 @@ mechanism the Tk app uses.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from gui.themes import load_palettes
 from Utils.ui_config import get_appearance_mode
 
@@ -15,6 +17,14 @@ from Utils.ui_config import get_appearance_mode
 # Fallback used if a palette is missing a key, so QSS never renders with an
 # empty colour string.
 _FALLBACK = "#1a1a1a"
+
+_ICONS_DIR = Path(__file__).resolve().parent.parent / "icons"
+
+
+def _icon_url(name: str) -> str:
+    """Forward-slash absolute path to icons/<name> for QSS `image: url(...)`
+    (QSS wants POSIX separators even on the path form)."""
+    return _ICONS_DIR.joinpath(name).as_posix()
 
 
 # The Qt app defaults to the original near-black "dark" palette. (Breeze Dark
@@ -123,23 +133,40 @@ def build_qss(pal: dict | None = None) -> str:
         border-bottom: 1px solid {c('BORDER')};
     }}
 
-    /* Detachable tabs (overlay replacement) */
-    QTabWidget::pane {{ border: none; }}
+    /* Detachable tabs (overlay replacement) — modern flat look: rounded top,
+       no boxy borders, an accent underline on the selected tab. */
+    QTabWidget::pane {{ border: none; top: 0; }}
     QTabBar {{ background: {c('BG_HEADER')}; }}
     QTabBar::tab {{
-        background: {c('BG_PANEL')};
+        background: transparent;
         color: {c('TEXT_DIM')};
-        padding: 6px 14px;
-        border: 1px solid {c('BORDER')};
-        border-bottom: none;
-        margin-right: 2px;
+        /* extra right padding gives the close button its own square area */
+        padding: 8px 10px 8px 16px;
+        margin: 3px 1px 0 1px;
+        border: none;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+        /* reserve space for the selected underline so text doesn't shift */
+        border-bottom: 2px solid transparent;
     }}
-    QTabBar::tab:selected {{
-        background: {c('BG_DEEP')};
+    QTabBar::tab:hover {{
+        background: {c('BG_ROW_HOVER')};
         color: {c('TEXT_MAIN')};
     }}
-    QTabBar::tab:hover {{ color: {c('TEXT_MAIN')}; }}
-    QTabBar::close-button {{ subcontrol-position: right; }}
+    QTabBar::tab:selected {{
+        background: {c('BG_PANEL')};
+        color: {c('TEXT_MAIN')};
+        border-bottom: 2px solid {c('ACCENT')};
+    }}
+    /* Close button — a clear square on the right of the tab (matches the
+       mockup). Larger hit area, subtle by default, soft rounded red on hover. */
+    QTabBar::close-button {{
+        image: url({_icon_url('close_white.png')});
+        subcontrol-position: right;
+        margin: 3px 6px 3px 4px;
+        border-radius: 4px;
+    }}
+    QTabBar::close-button:hover {{ background: {c('BTN_DANGER')}; }}
 
     /* Slim modern scrollbars — applied globally (modlist, plugins, log, …) */
     QScrollBar:vertical {{
@@ -205,6 +232,25 @@ def build_qss(pal: dict | None = None) -> str:
         background: {c('BG_PANEL')};
         color: {c('TEXT_FAINT')};
     }}
+
+    /* Add-Game picker cards */
+    #GameCard {{
+        background: {c('BG_PANEL')};
+        border: 1px solid {c('BORDER')};
+        border-radius: 8px;
+    }}
+    #GameCard:hover {{ border: 1px solid {c('ACCENT')}; }}
+    #GameCardName {{ color: {c('TEXT_MAIN')}; font-weight: 600; font-size: 12px; }}
+    #GameSelectBtn {{
+        background: {c('BTN_SUCCESS')}; color: #fff; font-weight: 600;
+        border: none; border-radius: 4px; padding: 5px 0;
+    }}
+    #GameSelectBtn:hover {{ background: {c('BTN_SUCCESS_HOV')}; }}
+    #GameAddBtn {{
+        background: {c('ACCENT')}; color: {c('TEXT_ON_ACCENT')}; font-weight: 600;
+        border: none; border-radius: 4px; padding: 5px 0;
+    }}
+    #GameAddBtn:hover {{ background: {c('ACCENT_HOV')}; }}
 
     /* Header bars (left two-tier header + right play bar) */
     #HeaderBar {{
@@ -330,6 +376,23 @@ def _apply_qpalette(app, p: dict) -> None:
     app.setPalette(pal)
 
 
+def _make_proxy_style(base):
+    """Wrap *base* QStyle in a ProxyStyle that enlarges the tab close indicator
+    so the close button fills the tab height (QSS width/height alone is clamped
+    by the style's PM_TabCloseIndicator metric)."""
+    from PySide6.QtWidgets import QProxyStyle, QStyle
+
+    class _TabProxyStyle(QProxyStyle):
+        def pixelMetric(self, metric, option=None, widget=None):
+            if metric in (QStyle.PM_TabCloseIndicatorWidth,
+                          QStyle.PM_TabCloseIndicatorHeight):
+                return 22
+            return super().pixelMetric(metric, option, widget)
+
+    proxy = _TabProxyStyle(base) if base is not None else _TabProxyStyle()
+    return proxy
+
+
 def _resolve_base_style(p: dict):
     """Return a created QStyle for the theme's declared base style. A palette may
     set BASE_QSTYLE (MO2-style 'base style per theme'); default Fusion, and a
@@ -347,13 +410,12 @@ def _resolve_base_style(p: dict):
 
 def apply_theme(app) -> None:
     """Apply the active theme: a base QStyle (Fusion, or the theme's declared
-    BASE_QSTYLE / system Breeze when present) + a role-based QPalette + the QSS
-    overlay. This mirrors MO2's QStyle+QSS model, with QPalette added so Fusion's
-    disabled/tooltip/frame/inactive states look right (MO2 leans on native styles
-    for those; Fusion needs the palette seeded)."""
+    BASE_QSTYLE / system Breeze when present) wrapped in a ProxyStyle (enlarged
+    tab close button) + a role-based QPalette + the QSS overlay. Mirrors MO2's
+    QStyle+QSS model, with QPalette added so Fusion's disabled/tooltip/frame/
+    inactive states look right (MO2 leans on native styles for those)."""
     p = active_palette()
-    style = _resolve_base_style(p)
-    if style is not None:
-        app.setStyle(style)
+    base = _resolve_base_style(p)
+    app.setStyle(_make_proxy_style(base))
     _apply_qpalette(app, p)
     app.setStyleSheet(build_qss(p))

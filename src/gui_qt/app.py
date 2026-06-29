@@ -418,15 +418,28 @@ class MainWindow(QMainWindow):
             self._append_log(f"[game] {which} (not wired yet)")
 
     def _open_add_game_tab(self):
-        """Open the Add Game view as a (detachable) tab. Placeholder content for
-        now — the real picker fills it in later."""
-        page = QWidget()
-        v = QVBoxLayout(page)
-        lbl = QLabel("Add Game\n(picker coming soon)")
-        lbl.setAlignment(Qt.AlignCenter)
-        lbl.setStyleSheet(f"color:{_c(self._pal,'TEXT_FAINT')}; font-size:16px;")
-        v.addWidget(lbl)
+        """Open the Add Game card-grid picker as a (detachable) tab."""
+        from gui_qt.add_game_view import AddGameView
+        from gui.game_helpers import _load_games, _GAMES
+        _load_games()   # refresh registry (populates _GAMES with ALL games)
+        page = AddGameView(dict(_GAMES),
+                           on_select=self._on_add_game_select,
+                           on_add=self._on_add_game_add)
         self._tabs.open_tab(page, "Add game", key="add_game")
+
+    def _on_add_game_select(self, name: str):
+        """A configured game was picked in the Add-Game view → switch to it and
+        close the tab."""
+        self._tabs.close_tab("add_game")
+        if name in self._gs.game_names:
+            self._on_game_changed(name)
+            self._game_selector.set_current(name)
+        self._append_log(f"[game] selected {name}")
+
+    def _on_add_game_add(self, name: str):
+        """An unconfigured game was picked → start the configure flow (the
+        configure dialog isn't ported to Qt yet; logged for now)."""
+        self._append_log(f"[game] configure {name} (configure dialog not wired yet)")
 
     def _on_profile_action(self, which):
         self._append_log(f"[profile] {which} (not wired yet)")
