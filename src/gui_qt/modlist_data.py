@@ -69,13 +69,40 @@ def read_meta_for_entries(entries: list[ModEntry], staging_dir: Path):
     return versions, installed, flags
 
 
-def conflicts_from_filemap(overrides: dict, overridden_by: dict):
-    """Map the filemap's override data to per-mod conflict codes.
+# Qt display conflict codes (drawn by the delegate). Mirrors the Tk app's
+# icon mapping: WINS→winner, LOSES→loser, PARTIAL→mixed, FULL→redundant.
+DISP_NONE = 0
+DISP_WINS = 1
+DISP_LOSES = -1
+DISP_PARTIAL = 2
+DISP_FULL = 3
 
-    overrides[mod]      -> set/list of mods this mod overrides (it wins)
-    overridden_by[mod]  -> set/list of mods that override this one (it loses)
-    Returns {mod_name: code} where 1=wins, -1=loses, 2=both.
-    """
+
+def display_codes_from_conflict_map(conflict_map: dict):
+    """Map the backend's full conflict_map (CONFLICT_* from Utils.filemap:
+    NONE=0 WINS=1 LOSES=2 PARTIAL=3 FULL=4) to the Qt delegate's display codes.
+    This preserves FULL (fully-overridden / redundant) which the old
+    override-set re-derivation lost."""
+    from Utils.filemap import (
+        CONFLICT_WINS, CONFLICT_LOSES, CONFLICT_PARTIAL, CONFLICT_FULL,
+    )
+    out: dict[str, int] = {}
+    for name, code in (conflict_map or {}).items():
+        if code == CONFLICT_WINS:
+            out[name] = DISP_WINS
+        elif code == CONFLICT_LOSES:
+            out[name] = DISP_LOSES
+        elif code == CONFLICT_PARTIAL:
+            out[name] = DISP_PARTIAL
+        elif code == CONFLICT_FULL:
+            out[name] = DISP_FULL
+    return out
+
+
+def conflicts_from_filemap(overrides: dict, overridden_by: dict):
+    """[legacy] Re-derive per-mod codes from override sets (no FULL). Kept for
+    BSA conflicts which only expose override maps; prefer
+    display_codes_from_conflict_map for loose conflicts."""
     codes: dict[str, int] = {}
     wins = {m for m, v in (overrides or {}).items() if v}
     loses = {m for m, v in (overridden_by or {}).items() if v}

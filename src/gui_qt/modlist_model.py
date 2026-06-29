@@ -311,9 +311,17 @@ class ModListModel(QAbstractTableModel):
 
     def _locked_block_of(self, row: int) -> "range | None":
         """If *row* sits inside a locked separator's block, return that block's
-        mod-row range, else None. (The separator row itself is not included.)"""
+        mod-row range, else None. (The separator row itself is not included.)
+
+        *row* may be a real entry row or a drop-insert position. A position
+        landing on a separator's own row is the boundary BEFORE that block —
+        i.e. the END of the preceding block — not inside the locked one, so it
+        scans from the entry just above it."""
+        start = min(row, len(self._entries) - 1)
+        if 0 <= start < len(self._entries) and self._entries[start].is_separator:
+            start -= 1
         sep = None
-        for i in range(min(row, len(self._entries) - 1), -1, -1):
+        for i in range(start, -1, -1):
             if self._entries[i].is_separator:
                 sep = i
                 break

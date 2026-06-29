@@ -8,7 +8,9 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QSize, Signal
+from pathlib import Path
+
+from PySide6.QtCore import Qt, QSize, Signal, QTimer
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QMainWindow, QToolButton, QWidget, QSplitter,
@@ -30,6 +32,14 @@ class MainWindow(QMainWindow):
     # Carries (generation, ConflictData) from a worker thread to the UI thread
     # (queued connection — thread-safe). See _rebuild_conflicts_async.
     _conflicts_ready = Signal(int, object)
+    # Deploy/restore worker → UI thread (thread-safe queued connections).
+    _op_progress = Signal(int, int, object)   # (done, total, phase|None)
+    _op_log = Signal(str)
+    _op_done = Signal(str, bool, object)       # (kind, success, warnings-list)
+    # Install worker → UI thread.
+    _install_done = Signal(int, int, object)   # (ok_count, total, names-list)
+    _prepared_ready = Signal(object)           # (PreparedInstall|None)
+    _one_install_done = Signal(object)         # (installed name|None)
 
     _PLAY_BAR_W = 380       # play-bar (header right) fixed width
     _FOOTER_RIGHT_W = 400   # narrower than play bar so the 7 mod-tool buttons fit
@@ -45,6 +55,18 @@ class MainWindow(QMainWindow):
         self._gs = GameState()
         self._gs.load()
         self._conflicts_ready.connect(self._on_conflicts_ready)
+        # Deploy/restore state + notification host.
+        self._deploy_running = False
+        self._deploy_rerun_pending = False
+        self._progress_popup = None
+        self._notifier = None
+        self._op_progress.connect(self._on_op_progress)
+        self._op_log.connect(self._append_log)
+        self._op_done.connect(self._on_op_done)
+        self._install_running = False
+        self._install_done.connect(self._on_install_done)
+        self._prepared_ready.connect(self._on_prepared_ready)
+        self._one_install_done.connect(self._on_one_install_done)
         self.setWindowTitle("Amethyst Mod Manager")
         self.setMinimumSize(1280, 800)   # Steam Deck is the floor
         self.resize(1280, 800)
@@ -101,6 +123,7 @@ class MainWindow(QMainWindow):
         self._populate_selectors()
         self._reload_modlist()
         self._reload_plugins()
+        self._update_deployed_profile_highlight()
 
     def _populate_selectors(self):
         """Fill the game/profile selectors from the current GameState."""
@@ -319,6 +342,8 @@ class MainWindow(QMainWindow):
 
         # Plain mod-action buttons.
         self._action_buttons = []
+        _handlers = {"Install Mod": self._on_install_mod,
+                     "Deploy": self._on_deploy, "Restore": self._on_restore}
         for label, ico in [
             ("Install Mod", "install.png"),
             ("Deploy",      "deploy.png"),
@@ -328,6 +353,14 @@ class MainWindow(QMainWindow):
             b.setFixedHeight(self._BTN_H)
             b.setToolTip(label)
             b._full_label = label
+            if label in _handlers:
+                b.clicked.connect(_handlers[label])
+                if label == "Deploy":
+                    self._deploy_btn = b
+                elif label == "Restore":
+                    self._restore_btn = b
+                elif label == "Install Mod":
+                    self._install_btn = b
             self._action_buttons.append(b)
             h.addWidget(b)
 
@@ -402,6 +435,7 @@ class MainWindow(QMainWindow):
         self._play_game_selector.set_current(name)
         self._reload_modlist()
         self._reload_plugins()
+        self._update_deployed_profile_highlight()
 
     def _on_profile_changed(self, name):
         if name == self._gs.profile:
@@ -410,6 +444,7 @@ class MainWindow(QMainWindow):
         self._profile_selector.set_current(name)
         self._reload_modlist()
         self._reload_plugins()
+        self._update_deployed_profile_highlight()
 
     def _on_game_action(self, which):
         if which == "add":
@@ -478,8 +513,318 @@ class MainWindow(QMainWindow):
     def _on_profile_action(self, which):
         self._append_log(f"[profile] {which} (not wired yet)")
 
+    def _update_deployed_profile_highlight(self):
+        """Green-highlight the deployed profile in the profile dropdown. Reads the
+        same backend state the Tk app writes (game deploy-state JSON via
+        get_deploy_active / get_last_deployed_profile)."""
+        game = self._gs.game
+        deployed = None
+        try:
+            if game is not None and game.get_deploy_active():
+                deployed = game.get_last_deployed_profile()
+        except Exception:
+            deployed = None
+        if hasattr(self, "_profile_selector"):
+            self._profile_selector.set_highlighted_item(deployed)
+
     def _on_play_action(self, which):
         self._append_log(f"[play] {which} (not wired yet)")
+
+    # ------------------------------------------------------------- deploy/restore
+    def _ensure_feedback(self):
+        """Lazily create the progress popup + notifier (host = central widget)."""
+        if self._notifier is None:
+            from gui_qt.notifications import ProgressPopup, NotificationManager
+            host = self.centralWidget() or self
+            self._progress_popup = ProgressPopup(host)
+            self._notifier = NotificationManager(host)
+
+    def _notify(self, text: str, state: str = "info"):
+        self._ensure_feedback()
+        self._notifier.notify(text, state)
+
+    def _set_deploy_buttons_enabled(self, enabled: bool):
+        for b in (getattr(self, "_deploy_btn", None), getattr(self, "_restore_btn", None)):
+            if b is not None:
+                b.setEnabled(enabled)
+
+    def _on_deploy(self):
+        game = self._gs.game
+        if game is None or not game.is_configured():
+            self._notify("No configured game selected.", "warning")
+            return
+        if not hasattr(game, "deploy"):
+            self._notify(f"'{game.name}' does not support deployment.", "warning")
+            return
+        # Serialize: coalesce a request that arrives mid-deploy into one re-run.
+        if self._deploy_running:
+            self._deploy_rerun_pending = True
+            return
+        self._deploy_running = True
+        self._op_is_restore = False
+        self._op_title = "Deploying"
+        self._set_deploy_buttons_enabled(False)
+        self._ensure_feedback()
+        self._notify(f"Deploying {game.name}…", "info")
+        profile = self._gs.profile
+        rf_enabled = True   # Root_Folder toggle lives in the modlist; default on
+
+        import threading
+
+        def worker():
+            from Utils.deploy_pipeline import run_deploy_pipeline
+            ok = False
+            warns = []
+            try:
+                ok = run_deploy_pipeline(
+                    game, profile,
+                    log_fn=lambda m: self._op_log.emit(str(m)),
+                    progress_fn=lambda d, t, p=None: self._op_progress.emit(d, t, p),
+                    root_folder_enabled=rf_enabled,
+                    confirm_cet=None,
+                    do_backup=True,
+                )
+            except Exception as exc:
+                self._op_log.emit(f"Deploy error: {exc}")
+            finally:
+                try:
+                    warns = list(game.pop_deploy_warnings())
+                except Exception:
+                    warns = []
+                self._op_done.emit("deploy", bool(ok), warns)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_restore(self):
+        game = self._gs.game
+        if game is None or not game.is_configured():
+            self._notify("No configured game selected.", "warning")
+            return
+        if self._deploy_running:
+            self._notify("A deploy is in progress — try again shortly.", "warning")
+            return
+        self._deploy_running = True
+        self._op_is_restore = True
+        self._op_title = "Restoring"
+        self._set_deploy_buttons_enabled(False)
+        self._ensure_feedback()
+        self._notify(f"Restoring {game.name}…", "info")
+        profile = self._gs.profile
+
+        import threading
+        from Utils.deploy import restore_root_folder
+
+        def worker():
+            ok = True
+            try:
+                from Utils.deploy_pipeline import check_paths_mounted
+                err = check_paths_mounted(game)
+                if err:
+                    self._op_log.emit(f"Restore aborted: {err}")
+                    ok = False
+                else:
+                    last = game.get_last_deployed_profile()
+                    if last:
+                        game.set_active_profile_dir(
+                            game.get_profile_root() / "profiles" / last)
+                        game.load_paths()
+                    game_root = game.get_game_path()
+                    if hasattr(game, "restore"):
+                        game.restore(
+                            log_fn=lambda m: self._op_log.emit(str(m)),
+                            progress_fn=lambda d, t, p=None: self._op_progress.emit(d, t, p))
+                    rf = game.get_effective_root_folder_path()
+                    if rf.is_dir() and game_root:
+                        restore_root_folder(
+                            rf, game_root,
+                            log_fn=lambda m: self._op_log.emit(str(m)),
+                            data_deploy_dirs=(game.root_restore_protect_dirs()
+                                              if hasattr(game, "root_restore_protect_dirs") else None))
+            except Exception as exc:
+                ok = False
+                self._op_log.emit(f"Restore error: {exc}")
+            finally:
+                # Always restore the active profile dir to the selected profile.
+                try:
+                    game.set_active_profile_dir(
+                        game.get_profile_root() / "profiles" / profile)
+                    game.load_paths()
+                    if ok and hasattr(game, "clear_deploy_active"):
+                        game.clear_deploy_active()
+                except Exception:
+                    pass
+                self._op_done.emit("restore", ok, [])
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_op_progress(self, done: int, total: int, phase):
+        if self._progress_popup is not None:
+            title = getattr(self, "_op_title", "Working")
+            self._progress_popup.set_progress(done, total, phase, title=title)
+
+    def _on_op_done(self, kind: str, success: bool, warnings):
+        self._deploy_running = False
+        self._set_deploy_buttons_enabled(True)
+        if self._progress_popup is not None:
+            QTimer.singleShot(1200, self._progress_popup.clear)
+        # Refresh the modlist/conflicts + deployed-profile highlight after the op.
+        self._reload_modlist()
+        self._update_deployed_profile_highlight()
+        verb = "Deployed" if kind == "deploy" else "Restored"
+        if success:
+            self._notify(f"{self._gs.game.name if self._gs.game else 'Game'} {verb}",
+                         "success")
+        else:
+            self._notify(f"{verb.rstrip('ed')} failed — see log.", "error")
+        for w in (warnings or []):
+            self._notify(w, "warning")
+        # Coalesced re-deploy if mod state changed mid-deploy.
+        if kind == "deploy" and self._deploy_rerun_pending:
+            self._deploy_rerun_pending = False
+            QTimer.singleShot(0, self._on_deploy)
+
+    # ----------------------------------------------------------------- install
+    def _on_install_mod(self):
+        game = self._gs.game
+        if game is None or not game.is_configured():
+            self._notify("No configured game selected.", "warning")
+            return
+        if self._install_running:
+            self._notify("An install is already in progress.", "warning")
+            return
+        from PySide6.QtWidgets import QFileDialog
+        paths, _ = QFileDialog.getOpenFileNames(
+            self, "Select mod archive(s)", str(Path.home()),
+            "Mod archives (*.zip *.7z *.rar *.fomod *.tar *.tar.gz *.tgz);;All files (*)")
+        if not paths:
+            return
+        profile_dir = self._gs.profile_dir()
+        if profile_dir is None:
+            self._notify("No active profile.", "warning")
+            return
+        self._install_running = True
+        self._op_is_restore = False
+        self._op_title = "Installing"
+        if hasattr(self, "_install_btn"):
+            self._install_btn.setEnabled(False)
+        self._ensure_feedback()
+        # Process archives ONE AT A TIME so a FOMOD can pause for the wizard.
+        self._install_queue = list(paths)
+        self._install_total = len(paths)
+        self._install_ok = []
+        self._install_game = game
+        self._install_profile_dir = profile_dir
+        self._notify(f"Installing {len(paths)} mod(s)…" if len(paths) > 1
+                     else f"Installing {Path(paths[0]).name}…", "info")
+        self._install_next()
+
+    def _install_next(self):
+        """Pop the next queued archive: prepare it on a worker; the prepared
+        result comes back on _prepared_ready (UI thread)."""
+        if not self._install_queue:
+            self._install_done.emit(len(self._install_ok), self._install_total,
+                                    self._install_ok)
+            return
+        path = self._install_queue.pop(0)
+        idx = self._install_total - len(self._install_queue)
+        self._op_log.emit(f"Installing ({idx}/{self._install_total}): {Path(path).name}")
+
+        import threading
+
+        def worker():
+            from Utils.mod_install import prepare_archive
+            try:
+                prepared = prepare_archive(
+                    path, self._install_game, self._install_profile_dir,
+                    log_fn=lambda m: self._op_log.emit(str(m)),
+                    progress_fn=lambda d, t, ph=None: self._op_progress.emit(d, t, ph))
+            except Exception as exc:
+                self._op_log.emit(f"Prepare error ({Path(path).name}): {exc}")
+                prepared = None
+            self._prepared_ready.emit(prepared)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_prepared_ready(self, prepared):
+        if prepared is None:
+            self._one_install_done.emit(None)
+            return
+        if prepared.is_fomod():
+            # Open the wizard tab; finish on the user's selections (or cancel).
+            # Hide the progress popup while the wizard is up (no work running).
+            if self._progress_popup is not None:
+                self._progress_popup.clear()
+            from gui_qt.fomod_wizard_view import FomodWizardView
+
+            self._fomod_done = False   # set True on finish/cancel to avoid double-fire
+
+            def _finish(selections):
+                if self._fomod_done:
+                    return
+                self._fomod_done = True
+                self._tabs.close_tab("fomod_wizard")
+                self._run_finish_install(prepared, selections)
+
+            def _cancel():
+                if self._fomod_done:
+                    return
+                self._fomod_done = True
+                self._tabs.close_tab("fomod_wizard")
+                self._op_log.emit(f"FOMOD install cancelled: {prepared.mod_name}")
+                prepared.cleanup()
+                self._notify(f"Install cancelled: {prepared.mod_name}", "info")
+                self._one_install_done.emit(None)
+
+            view = FomodWizardView(prepared.fomod_config, prepared.fomod_base,
+                                   prepared.mod_name, on_finish=_finish,
+                                   on_cancel=_cancel)
+            # Closing the tab (× / detached-window close) cancels the install.
+            view.destroyed.connect(lambda *_: _cancel())
+            self._tabs.open_tab(view, f"Install: {prepared.mod_name}",
+                                key="fomod_wizard")
+        else:
+            self._run_finish_install(prepared, None)
+
+    def _run_finish_install(self, prepared, selections):
+        import threading
+
+        def worker():
+            from Utils.mod_install import finish_install
+            try:
+                name = finish_install(
+                    prepared, selections,
+                    log_fn=lambda m: self._op_log.emit(str(m)),
+                    progress_fn=lambda d, t, ph=None: self._op_progress.emit(d, t, ph))
+            except Exception as exc:
+                self._op_log.emit(f"Install error ({prepared.mod_name}): {exc}")
+                name = None
+            self._one_install_done.emit(name)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_one_install_done(self, name):
+        if name:
+            self._install_ok.append(name)
+        self._install_next()   # continue the queue
+
+    def _on_install_done(self, ok: int, total: int, names):
+        self._install_running = False
+        if hasattr(self, "_install_btn"):
+            self._install_btn.setEnabled(True)
+        if self._progress_popup is not None:
+            QTimer.singleShot(1200, self._progress_popup.clear)
+        self._reload_modlist()
+        self._reload_plugins()
+        if ok == total and ok > 0:
+            if ok == 1:
+                self._notify(f"Installed {names[0]}", "success")
+            else:
+                self._notify(f"Installed {ok} mods", "success")
+        elif ok > 0:
+            self._notify(f"Installed {ok} of {total} mods — see log for failures.",
+                         "warning")
+        else:
+            self._notify("Install failed — see log.", "error")
 
     def _build_modlist(self) -> QWidget:
         self._modlist_model = ModListModel([])

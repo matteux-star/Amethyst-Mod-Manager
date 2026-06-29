@@ -116,14 +116,15 @@ class GameState:
         if g is None or not self.profile:
             return ConflictData()
         from Utils.deploy_pipeline import _build_filemap_for_game
-        from gui_qt.modlist_data import conflicts_from_filemap
+        from gui_qt.modlist_data import display_codes_from_conflict_map
         log = log_fn or (lambda _m: None)
         result = _build_filemap_for_game(g, self.profile, log_fn=log)
         if not result:
             return ConflictData()
         _count, _conflict_map, overrides, overridden_by = result
         data = ConflictData(
-            loose_codes=conflicts_from_filemap(overrides, overridden_by),
+            # Use the backend's real conflict_map so FULL (redundant) is kept.
+            loose_codes=display_codes_from_conflict_map(_conflict_map),
             overrides={k: set(v) for k, v in (overrides or {}).items()},
             overridden_by={k: set(v) for k, v in (overridden_by or {}).items()},
         )

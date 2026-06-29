@@ -35,6 +35,7 @@ class SelectorButton(QToolButton):
         self._prefix = prefix
         self._icon = icon
         self._current = current or (self._items[0] if self._items else "")
+        self._highlighted: str | None = None   # green "active/deployed" item
         self.setObjectName("ActionButton")   # share the flat toolbar styling
         self.setProperty("split", True)       # gets the arrow-room padding
         # Split button: a text section + a separate arrow section on the right
@@ -85,12 +86,25 @@ class SelectorButton(QToolButton):
             self._current = label
             self._rebuild()
 
+    def set_highlighted_item(self, label: str | None):
+        """Mark one item as 'active' — its menu entry is coloured green and, when
+        it's also the current selection, the button itself goes green. Used to
+        show the deployed profile (or active game). None clears it."""
+        if getattr(self, "_highlighted", None) != label:
+            self._highlighted = label
+            self._rebuild()
+
     # -- internals ----------------------------------------------------------
     def _rebuild(self):
         if self._icon is None:
             label = self._current or "—"
             # No trailing glyph — the split-button's arrow section shows it now.
             self.setText(f"{self._prefix}{label}")
+        # Tint the button green (via the `deployed` property) when the current
+        # selection IS the highlighted/active item; QSS reads the property.
+        self.setProperty("deployed", self._highlighted is not None
+                         and self._current == self._highlighted)
+        self.style().unpolish(self); self.style().polish(self)
         self._menu.clear()
         # Exclusive action group → the selectable items render as radio buttons.
         self._group = QActionGroup(self._menu)
@@ -99,6 +113,11 @@ class SelectorButton(QToolButton):
             a = self._menu.addAction(label)
             a.setCheckable(True)
             a.setChecked(label == self._current)
+            if self._highlighted is not None and label == self._highlighted:
+                # QAction can't set foreground colour; mark the deployed item
+                # with a green check + bold so it reads as active in the list.
+                a.setText(f"{label}   ✓ deployed")
+                f = a.font(); f.setBold(True); a.setFont(f)
             self._group.addAction(a)
             a.triggered.connect(lambda _=False, l=label: self._choose(l))
         if self._items and self._actions:

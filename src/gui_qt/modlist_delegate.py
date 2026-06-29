@@ -34,6 +34,7 @@ _CONFLICT_ICONS = {
     1: "conflict-winner.png",
     -1: "conflict-loser.png",
     2: "conflict-mixed.png",
+    3: "conflict-redundant.png",   # FULL — fully overridden / redundant
 }
 
 # BSA/BA2 archive conflict gets its own icon set (drawn right of the loose one).
@@ -268,11 +269,15 @@ class ModRowDelegate(QStyledItemDelegate):
 
         def _summarise(codes, icons):
             # Both winners + losers (or any mixed) → one mixed icon, else lone.
+            # A fully-redundant (3) member is shown with its own icon if present,
+            # else folds into the "loses" bucket.
             if 2 in codes or (1 in codes and -1 in codes):
                 return [icons[2]]
+            if 3 in codes and 3 in icons:
+                return [icons[3]]
             if 1 in codes:
                 return [icons[1]]
-            if -1 in codes:
+            if -1 in codes or 3 in codes:
                 return [icons[-1]]
             return []
 

@@ -253,6 +253,26 @@ def build_qss(pal: dict | None = None) -> str:
     }}
     QSplitter::handle {{ background: {c('BORDER')}; }}
     QSplitter::handle:horizontal {{ width: 2px; }}
+    /* FOMOD wizard divider — a visible, grabbable handle. */
+    #FomodSplit::handle {{ background: {c('BORDER')}; }}
+    #FomodSplit::handle:horizontal {{ width: 6px; }}
+    #FomodSplit::handle:hover {{ background: {c('ACCENT')}; }}
+    /* FOMOD option groups — larger text + indicators for readability. */
+    #FomodGroup {{
+        background: {c('BG_PANEL')};
+        border: 1px solid {c('BORDER')};
+        border-radius: 8px;
+    }}
+    #FomodGroupTitle {{ font-size: 15px; font-weight: 600; }}
+    #FomodGroup QRadioButton, #FomodGroup QCheckBox {{
+        font-size: 14px;
+        padding: 4px 0;
+        spacing: 10px;
+    }}
+    #FomodGroup QRadioButton::indicator,
+    #FomodGroup QCheckBox::indicator {{ width: 20px; height: 20px; }}
+    #FomodGroup QRadioButton::indicator,
+    #FomodGroup QRadioButton::indicator:checked {{ border-radius: 10px; }}
 
     #StatusChip {{
         background: {c('ACCENT')};
@@ -301,6 +321,9 @@ def build_qss(pal: dict | None = None) -> str:
     /* Split buttons (with a dropdown arrow) need extra right padding so the
        label never runs under the 22px arrow section. */
     #ActionButton[split="true"] {{ padding: 6px 28px 6px 12px; }}
+    /* Deployed profile: only the TEXT goes green when the current selection is
+       the deployed one (button chrome stays normal). */
+    #ActionButton[deployed="true"] {{ color: {c('TEXT_OK_BRIGHT')}; }}
     #ActionButton:hover {{ background: {c('BG_ROW_HOVER')}; }}
     /* Menu open (menuOpen property) OR pressed → whole button + arrow go blue. */
     #ActionButton:pressed, #ActionButton[menuOpen="true"] {{
@@ -398,6 +421,31 @@ def build_qss(pal: dict | None = None) -> str:
         font-family: monospace;
         font-size: 12px;
     }}
+
+    /* Deploy/restore progress popup + notification toasts. */
+    #ProgressPopup {{
+        background: {c('BG_PANEL')};
+        border: 1px solid {c('BORDER')};
+        border-radius: 8px;
+    }}
+    QProgressBar {{
+        background: {c('BG_DEEP')};
+        border: none;
+        border-radius: 4px;
+    }}
+    QProgressBar::chunk {{
+        background: {c('ACCENT')};
+        border-radius: 4px;
+    }}
+    #Toast {{
+        background: {c('BG_PANEL')};
+        border: 1px solid {c('BORDER')};
+        border-radius: 8px;
+    }}
+    #ToastDot[state="info"] {{ color: {c('ACCENT')}; }}
+    #ToastDot[state="success"] {{ color: {c('TEXT_OK_BRIGHT')}; }}
+    #ToastDot[state="warning"] {{ color: {c('TEXT_WARN_BRIGHT')}; }}
+    #ToastDot[state="error"] {{ color: {c('STATUS_ERR_BRIGHT')}; }}
     """
 
 

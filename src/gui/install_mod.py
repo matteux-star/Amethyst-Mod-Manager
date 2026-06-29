@@ -1074,6 +1074,20 @@ def _copy_file_list(file_list: list[tuple[str, str, bool]],
     log_fn(f"Copied {copied} item(s) to staging area.")
 
 
+# Single source of truth: the case-insensitive copy core now lives in the
+# toolkit-neutral Utils.mod_install (so the Qt app reuses the SAME proven copier).
+# Override the local definitions above with the shared ones — they are identical;
+# this guarantees Tk + Qt never drift. (The defs above are kept as documentation
+# of the algorithm and a fallback if the import ever fails.)
+try:
+    from Utils.mod_install import (
+        _resolve_src_case, _resolve_dst_case, _link_or_copy,
+        _copytree_case_insensitive, _copy_file_list,
+    )
+except Exception:
+    pass
+
+
 FOMOD_DEFERRED = "__FOMOD_DEFERRED__"
 BAIN_DEFERRED = "__BAIN_DEFERRED__"
 
