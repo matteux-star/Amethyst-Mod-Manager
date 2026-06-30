@@ -48,6 +48,8 @@ class MainWindow(QMainWindow):
     _proton_done = Signal(str, bool)           # (title, success)
     # Nexus validate() worker → UI thread (username or None).
     _nexus_validated = Signal(object)          # (username str | None)
+    # LOOT Sort Plugins worker → UI thread (SortResult | None on error).
+    _sort_plugins_ready = Signal(object)
 
     _PLAY_BAR_W = 380       # play-bar (header right) fixed width
     _BTN_H = 42          # consistent height for all header buttons (~30% bigger)
@@ -77,6 +79,8 @@ class MainWindow(QMainWindow):
         self._need_prefix.connect(self._on_need_prefix_ui)
         self._proton_busy = False
         self._proton_done.connect(self._on_proton_done)
+        self._sort_running = False
+        self._sort_plugins_ready.connect(self._on_sort_plugins_ready)
         self.setWindowTitle("Amethyst Mod Manager")
         self.setMinimumSize(1280, 800)   # Steam Deck is the floor
         self.resize(1280, 800)
@@ -469,6 +473,7 @@ class MainWindow(QMainWindow):
 
         btns = QHBoxLayout()
         btns.setSpacing(4)
+        _made = {}
         for label, key in [
             ("Sort Plugins", "BTN_SUCCESS"),
             ("Groups", "BTN_INFO"),
@@ -478,8 +483,17 @@ class MainWindow(QMainWindow):
             b = self._color_button(label, _c(self._pal, key), compact=True)
             b.setFixedHeight(self._FOOT_BTN_H)
             btns.addWidget(b)
+            _made[label] = b
         btns.addStretch(1)
         v.addLayout(btns)
+        # Store + wire the buttons that are implemented (Groups / Plugin Rules
+        # are deferred — they stay as inert placeholders for now).
+        self._plugin_sort_btn = _made["Sort Plugins"]
+        self._plugin_groups_btn = _made["Groups"]
+        self._plugin_rules_btn = _made["Plugin Rules"]
+        self._plugin_filters_btn = _made["Filters"]
+        self._plugin_sort_btn.clicked.connect(self._on_sort_plugins)
+        self._plugin_filters_btn.clicked.connect(self._toggle_plugin_filters)
 
         # (Plugin count / ESL status removed — to be relocated later.)
 
@@ -1697,6 +1711,10 @@ class MainWindow(QMainWindow):
         self._text_files_filter_panel = self._build_text_files_filter_panel()
         self._text_files_filter_panel.setVisible(False)
         h.addWidget(self._text_files_filter_panel)
+        # The Plugins filter panel shares the slot too.
+        self._plugin_filter_panel = self._build_plugin_filter_panel()
+        self._plugin_filter_panel.setVisible(False)
+        h.addWidget(self._plugin_filter_panel)
         h.addWidget(col, 1)
         return area
 
@@ -1717,6 +1735,7 @@ class MainWindow(QMainWindow):
             self._mod_files_filter_panel.setVisible(False)
             self._data_filter_panel.setVisible(False)
             self._downloads_filter_panel.setVisible(False)
+            self._plugin_filter_panel.setVisible(False)
             panel.setVisible(True)
             self._sync_text_files_filter_list()
         else:
@@ -1729,6 +1748,51 @@ class MainWindow(QMainWindow):
         if b is not None:
             b.setProperty("active", active)
             b.style().unpolish(b); b.style().polish(b)
+
+    def _build_plugin_filter_panel(self):
+        from gui_qt.filter_panel import FilterSidePanel
+        from gui_qt.modlist_filter import PLUGIN_STATUS_FILTERS
+        items = [(key, label, True) for key, label in PLUGIN_STATUS_FILTERS]
+        spec = [{"title": "By status", "type": "checks", "items": items}]
+        panel = FilterSidePanel(spec, title="Filters")
+        panel.changed.connect(self._on_plugin_filter_changed)
+        panel.close_requested.connect(self._toggle_plugin_filters)
+        self._plugin_filter_state: dict = {}
+        return panel
+
+    def _toggle_plugin_filters(self):
+        panel = self._plugin_filter_panel
+        show = not panel.isVisible()
+        if show:
+            self._modlist_filter_panel.setVisible(False)
+            self._mod_files_filter_panel.setVisible(False)
+            self._data_filter_panel.setVisible(False)
+            self._downloads_filter_panel.setVisible(False)
+            self._text_files_filter_panel.setVisible(False)
+            self._plugin_filter_panel.setVisible(False)
+            panel.setVisible(True)
+            self._apply_plugin_filters()
+        else:
+            panel.setVisible(False)
+
+    def _on_plugin_filter_changed(self, state: dict):
+        self._plugin_filter_state = state
+        self._apply_plugin_filters()
+        active = self._plugin_filter_panel.any_active()
+        b = getattr(self, "_plugin_filters_btn", None)
+        if b is not None:
+            b.setProperty("active", active)
+            b.style().unpolish(b); b.style().polish(b)
+
+    def _apply_plugin_filters(self):
+        """Push the filter-hidden row set to the plugin view (composes with the
+        plugin search via the view's search/filter union)."""
+        if not hasattr(self, "_plugin_view"):
+            return
+        from gui_qt.modlist_filter import plugin_filter_hidden_rows
+        state = getattr(self, "_plugin_filter_state", None) or {}
+        hide = plugin_filter_hidden_rows(self._plugin_model._rows, state)
+        self._plugin_view.set_filter_hidden(hide)
 
     def _sync_text_files_filter_list(self):
         if not self._text_files_filter_panel.isVisible():
@@ -1753,6 +1817,7 @@ class MainWindow(QMainWindow):
             self._mod_files_filter_panel.setVisible(False)
             self._data_filter_panel.setVisible(False)
             self._text_files_filter_panel.setVisible(False)
+            self._plugin_filter_panel.setVisible(False)
             panel.setVisible(True)
             self._sync_downloads_filter_list()
         else:
@@ -1793,6 +1858,7 @@ class MainWindow(QMainWindow):
             self._mod_files_filter_panel.setVisible(False)
             self._downloads_filter_panel.setVisible(False)
             self._text_files_filter_panel.setVisible(False)
+            self._plugin_filter_panel.setVisible(False)
             panel.setVisible(True)
             self._sync_data_filter_list()
         else:
@@ -1836,6 +1902,7 @@ class MainWindow(QMainWindow):
             self._data_filter_panel.setVisible(False)
             self._downloads_filter_panel.setVisible(False)
             self._text_files_filter_panel.setVisible(False)
+            self._plugin_filter_panel.setVisible(False)
             panel.setVisible(True)
             self._sync_mod_files_filter_list()
         else:
@@ -2259,8 +2326,140 @@ class MainWindow(QMainWindow):
                                     profile=self._gs.profile,
                                     profile_dir=self._gs.profile_dir())
         self._apply_plugin_search()
+        # Row indices/flags changed — re-apply any active plugin filter.
+        if getattr(self, "_plugin_filter_panel", None) is not None:
+            self._apply_plugin_filters()
         self._refresh_framework_banner()
         print(f"[gui_qt] plugins: {len(rows)} entries")
+
+    # ---- Sort Plugins (LOOT) ----------------------------------------------
+    def _on_sort_plugins(self):
+        """LOOT-sort the load order on a worker thread (reuses the Tk backend
+        LOOT/loot_sorter.sort_plugins). Result applied on the UI thread."""
+        from LOOT.loot_sorter import is_available
+        if not is_available():
+            self._notify("LOOT library not available — cannot sort.", "warning")
+            return
+        game = self._gs.game
+        if game is None or not game.is_configured():
+            self._notify("No configured game selected.", "warning")
+            return
+        if not getattr(game, "loot_sort_enabled", False):
+            self._notify("LOOT sorting isn't supported for this game.", "warning")
+            return
+        rows = list(self._plugin_model._rows)
+        if not rows:
+            self._notify("No plugins to sort.", "warning")
+            return
+        if self._sort_running:
+            self._notify("A sort is already running.", "info")
+            return
+
+        # Locked plugins stay put; LOOT sorts the rest. (Qt model already carries
+        # vanilla rows pinned at the top, so — unlike Tk — we don't inject them.)
+        locked_indices = {i: r for i, r in enumerate(rows)
+                          if self._plugin_model.is_locked(i)}
+        unlocked = [r for i, r in enumerate(rows) if i not in locked_indices]
+        plugin_names = [r.name for r in unlocked]
+        enabled_set = {r.name for r in unlocked if r.enabled}
+
+        pdir = self._gs.profile_dir()
+        userlist_path = None
+        try:
+            prof_ul = (pdir / "userlist.yaml") if pdir else None
+            if prof_ul and prof_ul.is_file():
+                userlist_path = prof_ul
+            else:
+                from Utils.config_paths import get_loot_game_dir
+                g_ul = get_loot_game_dir(game.game_id) / "userlist.yaml"
+                userlist_path = g_ul if g_ul.is_file() else None
+        except Exception:
+            userlist_path = None
+
+        include_vanilla = bool(getattr(game, "plugins_include_vanilla", False))
+        # Snapshot what the apply step needs (no model access mid-flight).
+        self._sort_ctx = {
+            "rows": rows, "locked_indices": locked_indices,
+            "plugin_names": plugin_names, "include_vanilla": include_vanilla,
+            "profile_dir": pdir, "game_id": game.game_id,
+            "game": game, "profile": self._gs.profile,
+        }
+
+        kw = dict(
+            plugin_names=plugin_names, enabled_set=enabled_set,
+            game_name=getattr(game, "name", self._gs.game_name),
+            game_path=game.get_game_path(),
+            staging_root=game.get_effective_mod_staging_path(),
+            game_type_attr=getattr(game, "loot_game_type", ""),
+            game_id=game.game_id,
+            masterlist_url=getattr(game, "loot_masterlist_url", ""),
+            masterlist_repo=getattr(game, "loot_masterlist_repo", ""),
+            game_data_dir=(game.get_vanilla_plugins_path()
+                           if hasattr(game, "get_vanilla_plugins_path") else None),
+            userlist_path=userlist_path,
+        )
+
+        self._sort_running = True
+        self._plugin_sort_btn.setEnabled(False)
+        self._notify(f"Running LOOT on {len(plugin_names)} plugins…", "info")
+
+        import threading
+
+        def worker():
+            from LOOT.loot_sorter import sort_plugins
+            try:
+                result = sort_plugins(
+                    log_fn=lambda m: print(f"[loot] {m}", flush=True), **kw)
+            except Exception as exc:
+                print(f"[loot] sort failed: {exc}", flush=True)
+                self._sort_plugins_ready.emit(None)
+                return
+            self._sort_plugins_ready.emit(result)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_sort_plugins_ready(self, result):
+        self._sort_running = False
+        if hasattr(self, "_plugin_sort_btn"):
+            self._plugin_sort_btn.setEnabled(True)
+        ctx = getattr(self, "_sort_ctx", None) or {}
+        self._sort_ctx = None
+        if result is None:
+            self._notify("LOOT sort failed — see log.", "error")
+            return
+        for w in getattr(result, "warnings", []) or []:
+            self._append_log(f"[loot] warning: {w}")
+
+        # Persist evaluated LOOT metadata so PF_LOOT/DIRTY/TAGS light up on reload.
+        try:
+            from LOOT.loot_sorter import write_loot_info
+            write_loot_info(ctx.get("profile_dir"), result.plugin_info,
+                            result.general_messages, game_id=ctx.get("game_id", ""))
+        except Exception as exc:
+            self._append_log(f"[loot] could not write loot.json: {exc}")
+
+        from gui_qt.plugin_state import apply_loot_sort, save_plugins
+        new_rows, moved = apply_loot_sort(
+            ctx.get("rows", []), ctx.get("locked_indices", {}),
+            list(result.sorted_names), ctx.get("include_vanilla", False))
+
+        game, profile = ctx.get("game"), ctx.get("profile")
+        if game is not None and profile:
+            self._plugin_model._rows = new_rows
+            try:
+                save_plugins(game, profile, new_rows)
+            except Exception as exc:
+                self._notify(f"Failed to write load order: {exc}", "error")
+                return
+        # Reload (rebuilds rows + flags) and recompute BSA conflicts (a sort
+        # changes plugin order → BSA winners follow plugin load order).
+        self._reload_plugins()
+        self._rebuild_conflicts_async()
+        if moved == 0 and not ctx.get("locked_indices"):
+            self._notify("Load order is already sorted.", "info")
+        else:
+            self._notify(f"Sorted — {moved} plugin{'s' if moved != 1 else ''} moved.",
+                         "success")
 
     def _refresh_framework_banner(self):
         """Re-detect modding frameworks and update the Plugins-tab banner. Called

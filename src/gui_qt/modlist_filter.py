@@ -147,6 +147,70 @@ def plugin_search_hidden_rows(rows, query: str, owner: dict | None = None) -> se
     return hide
 
 
+# Plugin filter keys → display labels (the plugins-tab Filters side panel).
+PLUGIN_STATUS_FILTERS = [
+    ("filter_enabled",        "Enabled plugins"),
+    ("filter_disabled",       "Disabled plugins"),
+    ("filter_esl_flagged",    "ESL-flagged (light)"),
+    ("filter_esl_not_flagged","Not ESL-flagged"),
+    ("filter_ext_esl",        "Extension .esl"),
+    ("filter_ext_esm",        "Extension .esm"),
+    ("filter_ext_esp",        "Extension .esp"),
+    ("filter_missing",        "Missing masters"),
+    ("filter_dirty",          "Dirty (needs cleaning)"),
+]
+
+
+def plugin_filter_hidden_rows(rows, state: dict) -> set[int]:
+    """Rows to HIDE for the plugins-tab filter side panel.
+
+    `rows` is the PluginModel row list (each has .name/.enabled/.flags/.vanilla);
+    `state` maps each filter_* key → tri-state int (0 off / 1 include / 2 exclude).
+    Include narrows (keep only rows where the predicate holds); exclude drops
+    (hide rows where it holds). AND across includes, OR across excludes — same
+    convention as compute_hidden_rows. No active keys → hide nothing.
+    """
+    from gui_qt.plugin_state import PF_ESL, PF_MISSING, PF_DIRTY
+
+    def _has(key):
+        def pred(r):
+            if key == "filter_enabled":
+                return r.enabled or r.vanilla
+            if key == "filter_disabled":
+                return not r.enabled and not r.vanilla
+            if key == "filter_esl_flagged":
+                return bool(r.flags & PF_ESL)
+            if key == "filter_esl_not_flagged":
+                return not (r.flags & PF_ESL)
+            if key == "filter_ext_esl":
+                return r.name.lower().endswith(".esl")
+            if key == "filter_ext_esm":
+                return r.name.lower().endswith(".esm")
+            if key == "filter_ext_esp":
+                return r.name.lower().endswith(".esp")
+            if key == "filter_missing":
+                return bool(r.flags & PF_MISSING)
+            if key == "filter_dirty":
+                return bool(r.flags & PF_DIRTY)
+            return True
+        return pred
+
+    includes = [k for k, _l in PLUGIN_STATUS_FILTERS if state.get(k) == 1]
+    excludes = [k for k, _l in PLUGIN_STATUS_FILTERS if state.get(k) == 2]
+    if not includes and not excludes:
+        return set()
+
+    keep = list(range(len(rows)))
+    for k in includes:
+        pred = _has(k)
+        keep = [i for i in keep if pred(rows[i])]
+    for k in excludes:
+        pred = _has(k)
+        keep = [i for i in keep if not pred(rows[i])]
+    kept = set(keep)
+    return {i for i in range(len(rows)) if i not in kept}
+
+
 def _apply_include(entries, keep: list[int], mod_pred, sep_pred) -> list[int]:
     """Keep mods passing mod_pred + separators whose block satisfies sep_pred."""
     out = []

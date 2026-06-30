@@ -40,11 +40,103 @@ class PluginRow:
 
 _EXT_ORDER = {".esm": 0, ".esp": 1, ".esl": 2}
 
+_OVERWRITE_NAME = "[Overwrite]"
+
 
 def plugins_path(game, profile: str) -> Path | None:
     if game is None or not profile:
         return None
     return game.get_profile_root() / "profiles" / profile / "plugins.txt"
+
+
+def _find_plugin_in_mod_dir(mod_dir: Path, filename: str) -> Path | None:
+    """Search *mod_dir* one level deep for *filename* (case-insensitive). Used
+    when the filemap strips a prefix (e.g. 'Data Files') so the staging file
+    lives in a subdir not reflected in the rel path. Ported from
+    gui/plugin_panel.py:_find_plugin_in_mod_dir (pure Path logic)."""
+    name_lower = filename.lower()
+    if not mod_dir.is_dir():
+        return None
+    try:
+        for entry in mod_dir.iterdir():
+            if entry.is_file() and entry.name.lower() == name_lower:
+                return entry
+            if entry.is_dir():
+                candidate = entry / filename
+                if candidate.is_file():
+                    return candidate
+                for sub in entry.iterdir():
+                    if sub.is_file() and sub.name.lower() == name_lower:
+                        return sub
+    except OSError:
+        return None
+    return None
+
+
+def _resolve_plugin_paths(staging_dir: Path | None, data_dir: Path | None,
+                          filemap_path: Path | None,
+                          plugin_exts: tuple[str, ...]) -> dict[str, Path]:
+    """Map plugin filename (lowercase) → its on-disk path, from THREE sources in
+    priority order (Tk parity: gui/plugin_panel.py:_check_all_masters).
+
+    Mod plugins live in staging / overwrite (resolved via filemap.txt), NOT in
+    the vanilla Data dir, so reading a plugin header needs this resolver — using
+    only data_dir misses every mod-added (incl. ESL-flagged) plugin.
+    """
+    paths: dict[str, Path] = {}
+    exts = tuple(e.lower() for e in plugin_exts)
+
+    # 1. filemap.txt → staging mods (and overwrite).
+    overwrite_dir = staging_dir.parent / "overwrite" if staging_dir else None
+    if filemap_path is not None and staging_dir is not None and filemap_path.is_file():
+        try:
+            for line in filemap_path.read_text(encoding="utf-8").splitlines():
+                if "\t" not in line:
+                    continue
+                rel_path, mod_name = line.split("\t", 1)
+                rel_path = rel_path.replace("\\", "/")
+                if "/" in rel_path:
+                    continue
+                if not rel_path.lower().endswith(exts):
+                    continue
+                low = rel_path.lower()
+                if mod_name == _OVERWRITE_NAME and overwrite_dir is not None:
+                    paths[low] = overwrite_dir / rel_path
+                else:
+                    direct = staging_dir / mod_name / rel_path
+                    if direct.is_file():
+                        paths[low] = direct
+                    else:
+                        found = _find_plugin_in_mod_dir(
+                            staging_dir / mod_name, rel_path)
+                        paths[low] = found or direct
+        except OSError:
+            pass
+
+    # 2. overwrite/ + overwrite/Data/ direct scan (plugins not yet in filemap).
+    if overwrite_dir is not None and overwrite_dir.is_dir():
+        for scan in (overwrite_dir, overwrite_dir / "Data"):
+            if not scan.is_dir():
+                continue
+            try:
+                for entry in scan.iterdir():
+                    if entry.is_file() and entry.name.lower().endswith(exts):
+                        paths.setdefault(entry.name.lower(), entry)
+            except OSError:
+                pass
+
+    # 3. vanilla Data dir (or <data>_Core if present) via setdefault.
+    if data_dir is not None and data_dir.is_dir():
+        vanilla_dir = data_dir.parent / (data_dir.name + "_Core")
+        scan_dir = vanilla_dir if vanilla_dir.is_dir() else data_dir
+        try:
+            for entry in scan_dir.iterdir():
+                if entry.is_file() and entry.name.lower().endswith(exts):
+                    paths.setdefault(entry.name.lower(), entry)
+        except OSError:
+            pass
+
+    return paths
 
 
 def load_plugins(game, profile: str) -> list[PluginRow]:
@@ -93,16 +185,29 @@ def load_plugins(game, profile: str) -> list[PluginRow]:
 
     data_dir = (game.get_vanilla_plugins_path()
                 if hasattr(game, "get_vanilla_plugins_path") else None)
-    rows = [_to_row(e, vanilla, data_dir) for e in ordered]
-    _apply_master_checks(rows, data_dir)
+    # Resolve each plugin's REAL path (staging mod / overwrite / Data) so header
+    # flags (ESL, master, missing-master) work for mod plugins, not just vanilla.
+    resolved: dict[str, Path] = {}
+    try:
+        staging = (game.get_effective_mod_staging_path()
+                   if hasattr(game, "get_effective_mod_staging_path") else None)
+        filemap_path = (staging.parent / "filemap.txt") if staging else None
+        exts = tuple(x.lower() for x in (getattr(game, "plugin_extensions", []) or ())) \
+            or (".esp", ".esm", ".esl")
+        resolved = _resolve_plugin_paths(staging, data_dir, filemap_path, exts)
+    except Exception:
+        resolved = {}
+    rows = [_to_row(e, vanilla, resolved, data_dir) for e in ordered]
+    _apply_master_checks(rows, resolved, data_dir)
     _apply_loot_flags(rows, p.parent)
     return rows
 
 
-def _to_row(e: PluginEntry, vanilla: dict, data_dir: Path | None) -> PluginRow:
+def _to_row(e: PluginEntry, vanilla: dict, resolved: dict[str, Path],
+            data_dir: Path | None) -> PluginRow:
     low = e.name.lower()
     flags = 0
-    path = (data_dir / e.name) if data_dir else None
+    path = resolved.get(low) or ((data_dir / e.name) if data_dir else None)
     if path and path.is_file():
         try:
             from Utils.plugin_parser import is_esl_flagged, is_master_flagged
@@ -123,20 +228,29 @@ def _to_row(e: PluginEntry, vanilla: dict, data_dir: Path | None) -> PluginRow:
     return PluginRow(e.name, e.enabled, flags, low in vanilla)
 
 
-def _apply_master_checks(rows: list[PluginRow], data_dir: Path | None) -> None:
-    """Flag missing / late / version-mismatched masters using the deployed
-    plugin files in the Data dir."""
-    if data_dir is None or not data_dir.is_dir():
-        return
+def _apply_master_checks(rows: list[PluginRow], resolved: dict[str, Path],
+                         data_dir: Path | None) -> None:
+    """Flag missing / late / version-mismatched masters from each plugin's
+    resolved on-disk path (staging/overwrite/Data), not just the Data dir — so
+    the checks work for mod plugins on un-deployed profiles too. The check_*
+    functions index plugin_paths by name.lower(), so key the dict that way."""
     names = [r.name for r in rows]
-    paths = {r.name: data_dir / r.name for r in rows}
+    # Lowercase-keyed paths: resolved path wins; fall back to data_dir/name.
+    paths = {r.name.lower(): (resolved.get(r.name.lower())
+                              or ((data_dir / r.name) if data_dir else None))
+             for r in rows}
+    paths = {k: v for k, v in paths.items() if v is not None}
+    if not paths:
+        return
     try:
         from Utils.plugin_parser import (
             check_missing_masters, check_late_masters,
             check_version_mismatched_masters)
         missing = check_missing_masters(names, paths)
         late = check_late_masters(names, paths)
-        vmm = check_version_mismatched_masters(names, paths, data_dir)
+        # vmm needs the vanilla Data dir for master sizes; skip if unavailable.
+        vmm = (check_version_mismatched_masters(names, paths, data_dir)
+               if data_dir is not None and data_dir.is_dir() else {})
     except Exception:
         return
     for r in rows:
@@ -173,6 +287,48 @@ def _apply_loot_flags(rows: list[PluginRow], profile_dir: Path) -> None:
             r.flags |= PF_DIRTY
         if d.get("tags"):
             r.flags |= PF_TAGS
+
+
+def apply_loot_sort(rows: list[PluginRow], locked_indices: dict[int, PluginRow],
+                    sorted_names: list[str],
+                    include_vanilla: bool) -> "tuple[list[PluginRow], int]":
+    """Re-interleave a LOOT sort result back into the row list.
+
+    *rows* is the pre-sort order; *locked_indices* maps an index in *rows* → the
+    locked PluginRow that must stay at that index; *sorted_names* is LOOT's order
+    for the UNLOCKED plugins only. Returns (new_rows, visible_moved_count).
+
+    Pure (no Qt) so it's unit-testable. Mirrors gui/plugin_panel_loot.py
+    _apply_result (264-295).
+    """
+    vanilla_lower = {r.name.lower() for r in rows if r.vanilla}
+    name_to_enabled = {r.name: r.enabled for r in rows}
+    total = len(rows)
+    pre_unlocked = [r.name for i, r in enumerate(rows) if i not in locked_indices]
+    if len(sorted_names) != len(pre_unlocked):
+        # Set mismatch (shouldn't happen — LOOT preserves the input set). Bail
+        # to the original order rather than risk a bad interleave.
+        return list(rows), 0
+    it = iter(sorted_names)
+    new_rows: list[PluginRow] = []
+    for i in range(total):
+        if i in locked_indices:
+            new_rows.append(locked_indices[i])
+        else:
+            name = next(it)
+            new_rows.append(PluginRow(
+                name, name_to_enabled.get(name, True), 0,
+                name.lower() in vanilla_lower))
+
+    # Moved count over plugins the user actually sees (exclude hidden vanilla).
+    def _visible(names):
+        return [n for n in names
+                if include_vanilla or n.lower() not in vanilla_lower]
+    before = _visible([r.name for r in rows])
+    after = _visible([r.name for r in new_rows])
+    moved = sum(1 for i, n in enumerate(after)
+                if i >= len(before) or before[i] != n)
+    return new_rows, moved
 
 
 def save_plugins(game, profile: str, rows: list[PluginRow]) -> None:

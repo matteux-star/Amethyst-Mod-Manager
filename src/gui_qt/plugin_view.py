@@ -214,6 +214,7 @@ class PluginView(QTreeView):
 
         self._plugin_owner: dict = {}
         self._search_hidden: set[int] = set()
+        self._filter_hidden: set[int] = set()
         # Custom drag-reorder (vanilla pinned at top, locked rows immovable).
         self._drag_rows: list[int] = []
         self._drag_active = False
@@ -246,15 +247,26 @@ class PluginView(QTreeView):
         from gui_qt.marker_strip import reposition_marker_strip
         reposition_marker_strip(self)
 
-    # ---- search filtering ------------------------------------------------
-    def set_search_hidden(self, rows: set[int]) -> None:
-        """Hide the given rows (search box). Empty set shows everything."""
-        self._search_hidden = set(rows or ())
+    # ---- search + filter row hiding --------------------------------------
+    def _apply_hidden(self) -> None:
+        """Hide the UNION of search-hidden and filter-hidden rows so the search
+        box and the Filters panel compose instead of clobbering each other."""
+        srch, flt = self._search_hidden, self._filter_hidden
         for r in range(self.model().rowCount()):
-            self.setRowHidden(r, self.rootIndex(), r in self._search_hidden)
+            self.setRowHidden(r, self.rootIndex(), r in srch or r in flt)
         sb = self.verticalScrollBar()
         if sb is not None:
             sb.update()
+
+    def set_search_hidden(self, rows: set[int]) -> None:
+        """Hide the given rows (search box). Empty set shows everything."""
+        self._search_hidden = set(rows or ())
+        self._apply_hidden()
+
+    def set_filter_hidden(self, rows: set[int]) -> None:
+        """Hide the given rows (Filters panel). Empty set clears the filter."""
+        self._filter_hidden = set(rows or ())
+        self._apply_hidden()
 
     # ---- cross-panel highlights ------------------------------------------
     def set_plugin_owner(self, owner: dict):
