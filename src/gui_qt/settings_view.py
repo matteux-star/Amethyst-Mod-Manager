@@ -19,7 +19,7 @@ colour-override system yet).
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal, QThread, QObject
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea, QFrame,
     QLabel, QCheckBox, QComboBox, QSlider, QLineEdit, QPushButton, QGroupBox,
@@ -31,27 +31,20 @@ from Utils import ui_config as uc
 
 
 # ---------------------------------------------------------------------------
-# Background size scan for the Manage Caches button (rglob can be slow).
 # ---------------------------------------------------------------------------
-class _CacheSizeWorker(QObject):
-    done = Signal(int)
-
-    def run(self):
-        try:
-            from Utils.cache_tools import total_cache_size
-            size = total_cache_size()
-        except Exception:
-            size = 0
-        self.done.emit(size)
-
-
 class SettingsView(QWidget):
+    # Carries the cache-size scan result from a daemon worker thread to the UI
+    # thread (queued — thread-safe). A plain QThread crashed on app exit if the
+    # rglob was still running; a daemon thread is safely abandoned instead.
+    _cache_size_ready = Signal(int)
+
     def __init__(self, window):
         super().__init__()
         self._window = window          # main window — for _notify, threads
         self._pal = active_palette()
         self.setObjectName("SettingsView")
-        self._cache_thread: QThread | None = None
+        self._cache_scanning = False
+        self._cache_size_ready.connect(self._on_cache_size)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -405,41 +398,30 @@ class SettingsView(QWidget):
 
     # ---- Manage Caches ----------------------------------------------------
     def _refresh_cache_size(self):
-        """Scan the cache size off-thread and update the button label."""
-        if self._cache_thread is not None:
+        """Scan the cache size on a daemon thread and push the result to the UI
+        thread via _cache_size_ready. Daemon (not QThread) so app exit mid-scan
+        doesn't abort — the thread is just abandoned, and the queued signal is
+        dropped if the widget is gone."""
+        if self._cache_scanning:
             return
-        thread = QThread(self)
-        worker = _CacheSizeWorker()
-        worker.moveToThread(thread)
-        thread.started.connect(worker.run)
-        worker.done.connect(self._on_cache_size)
-        worker.done.connect(thread.quit)
-        worker.done.connect(worker.deleteLater)
-        thread.finished.connect(thread.deleteLater)
-        thread.finished.connect(self._clear_cache_thread_ref)
-        self._cache_thread = thread
-        thread.start()
+        self._cache_scanning = True
+        import threading
 
-    def _clear_cache_thread_ref(self):
-        self._cache_thread = None
-
-    def _stop_cache_thread(self):
-        """Block until the cache-size worker finishes so the QThread is never
-        destroyed while running (the tab is deleteLater'd on close)."""
-        t = self._cache_thread
-        if t is not None:
+        def worker():
             try:
-                t.quit()
-                t.wait(2000)
+                from Utils.cache_tools import total_cache_size
+                size = total_cache_size()
+            except Exception:
+                size = 0
+            try:
+                self._cache_size_ready.emit(size)
             except RuntimeError:
-                pass
-            self._cache_thread = None
+                pass   # widget (and its signal) already destroyed
 
-    def closeEvent(self, event):
-        self._stop_cache_thread()
-        super().closeEvent(event)
+        threading.Thread(target=worker, daemon=True).start()
 
     def _on_cache_size(self, size: int):
+        self._cache_scanning = False
         from Utils.cache_tools import format_size
         if self._cache_btn is not None:
             self._cache_btn.setText(f"Manage Caches… ({format_size(size)})")

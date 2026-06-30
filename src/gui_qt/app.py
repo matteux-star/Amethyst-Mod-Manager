@@ -2409,6 +2409,11 @@ class MainWindow(QMainWindow):
         # Page 0: the real Plugins view, with a framework-status banner above the
         # columns (one colored row per framework the game declares).
         self._plugin_model = PluginModel()
+        # A plugin reorder/toggle changes BSA load order (BSAs load at their
+        # plugin's position), so recompute conflicts when the order is saved —
+        # reuses the same rebuild path as mod toggles. _build_bsa_conflicts
+        # re-reads the freshly-written loadorder.txt.
+        self._plugin_model.order_changed.connect(self._rebuild_conflicts_async)
         self._plugin_view = PluginView(self._plugin_model)
         from gui_qt.framework_banner import FrameworkBanner
         self._framework_banner = FrameworkBanner()

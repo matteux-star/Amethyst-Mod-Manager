@@ -6,7 +6,7 @@ delegate). Toggling enable writes back to plugins.txt via plugin_state.save.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QAbstractTableModel, QModelIndex
+from PySide6.QtCore import Qt, QAbstractTableModel, QModelIndex, Signal
 
 from gui_qt.plugin_state import PluginRow, save_plugins
 
@@ -22,6 +22,11 @@ PHighlightRole = Qt.UserRole + 3  # 0 none, 2 anchor(orange), 1 higher, -1 lower
 
 
 class PluginModel(QAbstractTableModel):
+    # Emitted after the plugin order / enable state is persisted (reorder or
+    # toggle). BSA load order follows plugin load order, so the window listens
+    # to this to recompute BSA conflicts. See _save().
+    order_changed = Signal()
+
     def __init__(self, rows: list[PluginRow] | None = None):
         super().__init__()
         self._rows: list[PluginRow] = rows or []
@@ -165,3 +170,7 @@ class PluginModel(QAbstractTableModel):
                 save_plugins(self._game, self._profile, self._rows)
             except Exception as exc:
                 print(f"[gui_qt] plugins.txt save failed: {exc}", flush=True)
+                return
+            # loadorder.txt / plugins.txt are now on disk — let the window
+            # recompute BSA conflicts (BSA winners follow plugin load order).
+            self.order_changed.emit()
