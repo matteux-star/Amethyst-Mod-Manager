@@ -15,7 +15,7 @@ from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QMainWindow, QToolButton, QWidget, QSplitter,
     QLabel, QVBoxLayout, QHBoxLayout, QPlainTextEdit,
-    QFrame, QLineEdit, QPushButton, QMenu,
+    QFrame, QLineEdit, QPushButton, QMenu, QStackedWidget,
 )
 
 from gui_qt.theme_qt import apply_theme, active_palette, _c
@@ -42,7 +42,6 @@ class MainWindow(QMainWindow):
     _one_install_done = Signal(object)         # (installed name|None)
 
     _PLAY_BAR_W = 380       # play-bar (header right) fixed width
-    _FOOTER_RIGHT_W = 400   # narrower than play bar so the 7 mod-tool buttons fit
     _BTN_H = 42          # consistent height for all header buttons (~30% bigger)
     _ICON_PX = 24        # header button icon size
     _FOOT_BTN_H = 28     # compact height for footer tool buttons
@@ -79,7 +78,8 @@ class MainWindow(QMainWindow):
         mc.setSpacing(0)
         mc.addWidget(self._build_header_row())
         mc.addWidget(self._build_body_row(), 1)
-        mc.addWidget(self._build_footer_row())
+        # (The tool footers now live inside each panel — see _build_body_row /
+        # _build_modlist_area — not in a separate window-wide row.)
 
         # The main content is the permanent first tab; overlay-style views (Add
         # Game, Nexus browser, …) open as further tabs that can be detached.
@@ -145,8 +145,11 @@ class MainWindow(QMainWindow):
 
     # ---------------------------------------------------------- body row
     def _build_body_row(self) -> QWidget:
-        # Left: modlist. Right: a column with the Play bar on top + plugins
-        # below. Splitter sits between modlist and the right column.
+        # Each side is a self-contained column: the modlist column owns its tool
+        # footer (buttons + search), and the plugins column owns the Play bar on
+        # top plus the plugins tool footer at the bottom. The footers live INSIDE
+        # the panels (not a separate window-wide row) so they move/resize with
+        # their panel. The splitter divides the two columns.
         right_col = QWidget()
         rc = QVBoxLayout(right_col)
         rc.setContentsMargins(0, 0, 0, 0)
@@ -155,10 +158,22 @@ class MainWindow(QMainWindow):
         self._play_bar_widget = play
         rc.addWidget(play)
         rc.addWidget(self._build_plugins(), 1)
+        # The plugins column footer is a stack: it swaps to the active sub-tab's
+        # tools (Plugins tools ↔ Mod Files Pack/Unpack + search).
+        self._plugin_footer_stack = QStackedWidget()
+        self._plugin_footer_stack.addWidget(self._plugins_footer())       # page 0
+        self._plugin_footer_stack.addWidget(self._mod_files_footer())     # page 1
+        rc.addWidget(self._plugin_footer_stack)
         self._right_col = right_col
 
+        # The modlist column lives in a stack so a panel-scoped tab (e.g. an
+        # image preview) can take over JUST the modlist region while the plugins
+        # panel (with the Mod Files tree) stays live. Page 0 = the real modlist.
+        self._modlist_panel_stack = QStackedWidget()
+        self._modlist_panel_stack.addWidget(self._build_modlist_area())
+
         split = QSplitter(Qt.Horizontal)
-        split.addWidget(self._build_modlist_area())
+        split.addWidget(self._modlist_panel_stack)
         split.addWidget(right_col)
         split.setStretchFactor(0, 5)
         split.setStretchFactor(1, 4)
@@ -213,8 +228,55 @@ class MainWindow(QMainWindow):
                 bsa_index_path=self._gs.bsa_index_path())
             # Picking a mod clears any plugin selection (mutual exclusivity).
             pv.clearSelection()
+            # Feed the Mod Files tab the single selected mod (real mods only).
+            self._update_mod_files_selection(names)
         finally:
             self._xpanel_busy = False
+
+    def _update_mod_files_selection(self, _names):
+        """Show the single selected mod in the Mod Files tab. A separator or a
+        multi-selection shows nothing (the separator overview is a later step)."""
+        mv = getattr(self, "_mod_files_view", None)
+        if mv is None:
+            return
+        rows = self._modlist_view.selectionModel().selectedRows()
+        if len(rows) != 1:
+            mv.show_mod(None)
+            return
+        e = self._modlist_model.entry(rows[0].row())
+        from gui_qt.modlist_model import _BOUNDARY_NAMES
+        if e.is_separator or e.name in _BOUNDARY_NAMES:
+            mv.show_mod(None)
+        else:
+            mv.show_mod(e.name)
+
+    def _open_image_preview_tab(self, path, rel_str):
+        """Open an image/.dds preview as a MODLIST-PANEL-SCOPED tab: it shows in
+        the modlist region (in the shared top tab bar) while the Mod Files tree
+        in the plugins panel stays live. Reuses one preview tab — browsing to a
+        new image swaps it in place (Tk parity)."""
+        from pathlib import Path as _P
+        from gui_qt.image_preview import ImagePreview
+        name = rel_str.replace("\\", "/").rsplit("/", 1)[-1]
+        existing = getattr(self, "_image_preview_widget", None)
+        if existing is not None and self._tabs.has_key("mf_image_preview"):
+            existing.set_image(_P(path), name)
+            self._tabs.focus_key("mf_image_preview")
+            self._tabs.set_tab_title("mf_image_preview", name)
+            return
+        widget = ImagePreview(_P(path), name)
+        self._image_preview_widget = widget
+        self._tabs.open_scoped_tab(
+            widget, name, self._modlist_panel_stack, key="mf_image_preview")
+
+    def _on_mod_files_changed(self):
+        """A Top Level / Disable edit changed deploy state — force a full index
+        rescan (strip prefixes apply at scan time) + rebuild conflicts."""
+        # Instant feedback: update the modlist "modified in Mod Files" eye flag
+        # now (the async rescan below refreshes the rest a moment later).
+        if hasattr(self, "_modlist_model"):
+            self._modlist_model.set_modified_mf(self._build_modified_mf_mods())
+        self._rebuild_conflicts_async(rescan_index=True)
 
     def _on_plugin_selection_changed(self):
         if self._suppress_xpanel():
@@ -231,23 +293,9 @@ class MainWindow(QMainWindow):
         finally:
             self._xpanel_busy = False
 
-    # ---------------------------------------------------------- footer row
-    def _build_footer_row(self) -> QWidget:
-        """Mod tools | plugin tools, fixed split (mirrors the header row)."""
-        row = QWidget()
-        h = QHBoxLayout(row)
-        h.setContentsMargins(0, 0, 0, 0)
-        h.setSpacing(0)
-        left = self._modlist_footer()
-        right = self._plugins_footer()
-        right.setFixedWidth(self._FOOTER_RIGHT_W)
-        self._plugins_footer_widget = right
-        h.addWidget(left, 1)
-        h.addWidget(right, 0)
-        return row
-
+    # ---------------------------------------------------------- panel footers
     def _modlist_footer(self) -> QWidget:
-        """Buttons row + search box, under the modlist."""
+        """Buttons row + search box — lives at the bottom of the modlist panel."""
         bar = QWidget()
         bar.setObjectName("HeaderBar")
         v = QVBoxLayout(bar)
@@ -347,6 +395,52 @@ class MainWindow(QMainWindow):
         search.textChanged.connect(self._on_plugin_search)
         v.addWidget(search)
         self._plugins_search = search
+        return bar
+
+    def _mod_files_footer(self) -> QWidget:
+        """Pack/Unpack BSA + Filters buttons + search, shown under the plugins
+        column when the Mod Files sub-tab is active (replaces the plugin tools)."""
+        bar = QWidget()
+        bar.setObjectName("HeaderBar")
+        v = QVBoxLayout(bar)
+        v.setContentsMargins(8, 6, 8, 6)
+        v.setSpacing(6)
+
+        btns = QHBoxLayout()
+        btns.setSpacing(4)
+        self._mf_pack_btn = self._color_button(
+            "Pack BSA", _c(self._pal, "BTN_SUCCESS"), compact=True)
+        self._mf_pack_btn.setFixedHeight(self._FOOT_BTN_H)
+        self._mf_pack_btn.setEnabled(False)
+        self._mf_pack_btn.clicked.connect(
+            lambda: self._mod_files_view._on_pack())
+        self._mf_unpack_btn = self._color_button(
+            "Unpack BSA", _c(self._pal, "BTN_DANGER"), compact=True)
+        self._mf_unpack_btn.setFixedHeight(self._FOOT_BTN_H)
+        self._mf_unpack_btn.setEnabled(False)
+        self._mf_unpack_btn.clicked.connect(
+            lambda: self._mod_files_view._on_unpack())
+        self._mf_filters_btn = self._color_button(
+            "Filters", _c(self._pal, "BTN_INFO"), compact=True)
+        self._mf_filters_btn.setFixedHeight(self._FOOT_BTN_H)
+        self._mf_filters_btn.clicked.connect(self._toggle_mod_files_filters)
+        self._mf_expand_btn = self._text_button("⊞ Expand all", compact=True)
+        self._mf_expand_btn.setFixedHeight(self._FOOT_BTN_H)
+        self._mf_expand_btn.clicked.connect(self._on_mf_expand_clicked)
+        btns.addWidget(self._mf_pack_btn)
+        btns.addWidget(self._mf_unpack_btn)
+        btns.addWidget(self._mf_filters_btn)
+        btns.addWidget(self._mf_expand_btn)
+        btns.addStretch(1)
+        v.addLayout(btns)
+
+        search = QLineEdit()
+        search.setPlaceholderText("Search files…")
+        search.setClearButtonEnabled(True)
+        search.textChanged.connect(
+            lambda t: self._mod_files_view._on_search(t))
+        v.addWidget(search)
+        self._mod_files_search = search
         return bar
 
     def _left_header(self) -> QWidget:
@@ -881,8 +975,17 @@ class MainWindow(QMainWindow):
         return self._modlist_view
 
     def _build_modlist_area(self) -> QWidget:
-        """Modlist view with a collapsible filter side panel docked on its left
-        (Tk parity — the filter panel pushes the list right, not an overlay)."""
+        """Modlist column: the list + its tool footer (buttons + search) stacked
+        vertically, with a collapsible filter side panel docked on the left (Tk
+        parity — the filter panel pushes the column right, not an overlay)."""
+        # The list + footer share one vertical column.
+        col = QWidget()
+        cv = QVBoxLayout(col)
+        cv.setContentsMargins(0, 0, 0, 0)
+        cv.setSpacing(0)
+        cv.addWidget(self._build_modlist(), 1)
+        cv.addWidget(self._modlist_footer())
+
         area = QWidget()
         h = QHBoxLayout(area)
         h.setContentsMargins(0, 0, 0, 0)
@@ -890,8 +993,65 @@ class MainWindow(QMainWindow):
         self._modlist_filter_panel = self._build_modlist_filter_panel()
         self._modlist_filter_panel.setVisible(False)
         h.addWidget(self._modlist_filter_panel)
-        h.addWidget(self._build_modlist(), 1)
+        # The Mod Files filter panel shares this window-left slot so it opens in
+        # the same place as the modlist filters (just a different filter set).
+        self._mod_files_filter_panel = self._build_mod_files_filter_panel()
+        self._mod_files_filter_panel.setVisible(False)
+        h.addWidget(self._mod_files_filter_panel)
+        h.addWidget(col, 1)
         return area
+
+    def _build_mod_files_filter_panel(self):
+        from gui_qt.filter_panel import FilterSidePanel
+        from gui_qt.mod_files_view import ModFilesView
+        panel = FilterSidePanel(ModFilesView.filter_spec(), title="Filters")
+        panel.changed.connect(self._on_mod_files_filter_changed)
+        panel.close_requested.connect(self._toggle_mod_files_filters)
+        # Keep the panel's file-type list + Pack/Unpack enablement in sync.
+        self._mod_files_view.filetypes_changed.connect(
+            self._sync_mod_files_filter_list)
+        self._mod_files_view.mod_changed.connect(
+            lambda _n: self._update_mf_footer_buttons())
+        return panel
+
+    def _toggle_mod_files_filters(self):
+        """Open/close the Mod Files filter panel in the window-left slot. Unlike
+        the modlist filter, this does NOT hide the plugins column — the Mod Files
+        tree lives there, so hiding it would hide what you're filtering."""
+        panel = self._mod_files_filter_panel
+        show = not panel.isVisible()
+        if show:
+            self._modlist_filter_panel.setVisible(False)  # share the slot
+            panel.setVisible(True)
+            self._sync_mod_files_filter_list()
+        else:
+            panel.setVisible(False)
+
+    def _on_mod_files_filter_changed(self, state: dict):
+        self._mod_files_view.apply_filter_state(state)
+        active = self._mod_files_filter_panel.any_active()
+        b = getattr(self, "_mf_filters_btn", None)
+        if b is not None:
+            b.setProperty("active", active)
+            b.style().unpolish(b); b.style().polish(b)
+
+    def _sync_mod_files_filter_list(self):
+        if not self._mod_files_filter_panel.isVisible():
+            return
+        self._mod_files_filter_panel.set_dynamic_items(
+            "filetypes", self._mod_files_view.filetype_items())
+
+    def _update_mf_footer_buttons(self):
+        ok = self._mod_files_view.has_mod()
+        for attr in ("_mf_pack_btn", "_mf_unpack_btn"):
+            b = getattr(self, attr, None)
+            if b is not None:
+                b.setEnabled(ok)
+
+    def _on_mf_expand_clicked(self):
+        expanded = self._mod_files_view._toggle_expand_all()
+        self._mf_expand_btn.setText("⊟ Collapse all" if expanded
+                                    else "⊞ Expand all")
 
     def _build_modlist_filter_panel(self):
         from gui_qt.filter_panel import FilterSidePanel
@@ -903,7 +1063,7 @@ class MainWindow(QMainWindow):
         #  PBR, updates, categories, file types are all wired.)
         _UNWIRED = {
             "filter_missing_reqs", "filter_has_disabled_plugins",
-            "filter_has_disabled_files", "filter_has_notes",
+            "filter_has_notes",
         }
         items = [(key, label, key not in _UNWIRED)
                  for key, label in STATUS_FILTERS]
@@ -931,6 +1091,10 @@ class MainWindow(QMainWindow):
         show = not panel.isVisible()
         right = getattr(self, "_right_col", None)
         if show:
+            # The Mod Files filter shares this slot — close it first.
+            mfp = getattr(self, "_mod_files_filter_panel", None)
+            if mfp is not None and mfp.isVisible():
+                self._toggle_mod_files_filters()
             self._filter_plugins_was_visible = bool(
                 right is not None and right.isVisible())
             panel.setVisible(True)
@@ -1085,6 +1249,9 @@ class MainWindow(QMainWindow):
         data.category_names = dict(getattr(self, "_mod_categories", {}))
         data.fomod_mods = set(getattr(self, "_mod_fomod", set()))
         data.bain_mods = set(getattr(self, "_mod_bain", set()))
+        data.modified_mf_mods = self._build_modified_mf_mods()
+        # Overlay the "modified in Mod Files" eye flag in the modlist Flags column.
+        self._modlist_model.set_modified_mf(data.modified_mf_mods)
         if staging_parent is not None:
             counts, mod_ft, pbr = build_index_data(staging_parent)
             data.filetype_counts = counts
@@ -1108,6 +1275,26 @@ class MainWindow(QMainWindow):
         # Relabel / re-enable game-specific filters, then reapply.
         self._refresh_filter_game_specific()
         self._apply_modlist_filters()
+
+    def _build_modified_mf_mods(self) -> set:
+        """Mods with Mod Files tab modifications — any excluded file OR a strip
+        prefix (Tk `_mod_is_modified_in_mf`)."""
+        pdir = self._gs.profile_dir()
+        if pdir is None:
+            return set()
+        out: set[str] = set()
+        try:
+            from Utils.profile_state import (
+                read_excluded_mod_files, read_mod_strip_prefixes)
+            for mod, keys in (read_excluded_mod_files(pdir, None) or {}).items():
+                if keys:
+                    out.add(mod)
+            for mod, prefixes in (read_mod_strip_prefixes(pdir, None) or {}).items():
+                if any(p for p in prefixes):
+                    out.add(mod)
+        except Exception:
+            pass
+        return out
 
     def _refresh_filter_game_specific(self):
         """Relabel BSA→BA2 + enable/disable PGPatcher per the active game."""
@@ -1175,6 +1362,12 @@ class MainWindow(QMainWindow):
         self._modlist_view.staging_dir = staging
         self._modlist_view.profile_dir = self._gs.profile_dir()
         self._modlist_view.load_separator_state()
+        # Point the Mod Files tab at this game/profile (index next to filemap).
+        if hasattr(self, "_mod_files_view"):
+            idx = (staging.parent / "modindex.bin") if staging is not None else None
+            self._mod_files_view.configure(
+                self._gs.game, self._gs.profile_dir(), idx)
+            self._mod_files_view.show_mod(None)
         self._refresh_footer_toggle_labels()
         # Re-apply an active search against the fresh row indices.
         self._apply_modlist_search()
@@ -1201,12 +1394,21 @@ class MainWindow(QMainWindow):
         import threading
         gen = getattr(self, "_conflict_gen", 0) + 1
         self._conflict_gen = gen
+        # Serialize the actual build: rapid triggers (e.g. a Mod Files edit while
+        # a previous rescan is still running) otherwise run two rebuild_mod_index
+        # writes concurrently and collide on modindex.bin.tmp. The generation
+        # check still drops superseded RESULTS.
+        if not hasattr(self, "_conflict_build_lock"):
+            self._conflict_build_lock = threading.Lock()
 
         def worker():
             # log to stderr (not the widget) — we're off the UI thread.
-            data = self._gs.build_conflicts(
-                log_fn=lambda m: print(f"[filemap] {m}", flush=True),
-                rescan_index=rescan_index)
+            with self._conflict_build_lock:
+                if gen != self._conflict_gen:
+                    return   # a newer build was queued while we waited — skip
+                data = self._gs.build_conflicts(
+                    log_fn=lambda m: print(f"[filemap] {m}", flush=True),
+                    rescan_index=rescan_index)
             self._conflicts_ready.emit(gen, data)
 
         threading.Thread(target=worker, daemon=True).start()
@@ -1297,8 +1499,14 @@ class MainWindow(QMainWindow):
         self._plugin_model = PluginModel()
         self._plugin_view = PluginView(self._plugin_model)
         self._plugin_stack.addWidget(self._plugin_view)
+        # Page 1: the real Mod Files view.
+        from gui_qt.mod_files_view import ModFilesView
+        self._mod_files_view = ModFilesView()
+        self._mod_files_view.changed.connect(self._on_mod_files_changed)
+        self._mod_files_view.on_open_image = self._open_image_preview_tab
+        self._plugin_stack.addWidget(self._mod_files_view)
         # Other pages: placeholders for now.
-        for t in self._plugin_tab_names[1:]:
+        for t in self._plugin_tab_names[2:]:
             ph = QLabel(f"{t}\n(coming in a later phase)")
             ph.setAlignment(Qt.AlignCenter)
             ph.setStyleSheet(f"color:{_c(self._pal,'TEXT_FAINT')};")
@@ -1321,6 +1529,10 @@ class MainWindow(QMainWindow):
 
     def _select_plugin_tab(self, idx: int):
         self._plugin_stack.setCurrentIndex(idx)
+        # Swap the column footer to match: page 1 = Mod Files tools, else plugins.
+        fstack = getattr(self, "_plugin_footer_stack", None)
+        if fstack is not None:
+            fstack.setCurrentIndex(1 if idx == 1 else 0)
         for i, lbl in enumerate(self._plugin_tab_labels):
             sel = i == idx
             lbl.setStyleSheet(

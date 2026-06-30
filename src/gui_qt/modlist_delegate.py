@@ -20,13 +20,16 @@ from gui_qt.modlist_model import (
     EntryRole, ConflictRole, BsaConflictRole, FlagsRole, HighlightRole,
     COL_NAME, COL_FLAGS, COL_CONFLICTS,
 )
-from gui_qt.modlist_data import FLAG_UPDATE, FLAG_ENDORSED, FLAG_ROOT
+from gui_qt.modlist_data import (
+    FLAG_UPDATE, FLAG_ENDORSED, FLAG_ROOT, FLAG_MODIFIED_MF,
+)
 
 # Flag bit → icon filename, painted left-to-right in the Flags column.
 _FLAG_ICONS = [
     (FLAG_UPDATE, "update.png"),
     (FLAG_ENDORSED, "endorsed.png"),
     (FLAG_ROOT, "root.png"),
+    (FLAG_MODIFIED_MF, "eye2_white.png"),
 ]
 
 # Conflict code → icon (lightning), painted in the Conflicts column (Tk parity).

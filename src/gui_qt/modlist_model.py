@@ -54,6 +54,10 @@ class ModListModel(QAbstractTableModel):
         self._conflicts = conflicts or {}
         self._bsa_conflicts: dict[str, int] = {}
         self._flags: dict[str, int] = {}
+        # Mods modified in the Mod Files tab (excluded files / strip prefixes).
+        # Kept separate from the meta-derived flags so a meta refresh doesn't
+        # drop it; OR'd into the FlagsRole bitmask. See modlist_data.FLAG_MODIFIED_MF.
+        self._modified_mf: set[str] = set()
         # Highlight state: mod names tinted green (wins over selection) / red
         # (loses to selection), and a set of "anchor" mods (orange) — the mod a
         # selected plugin belongs to. Driven by the view's cross-panel wiring.
@@ -91,6 +95,15 @@ class ModListModel(QAbstractTableModel):
 
     def set_flags(self, flags: dict[str, int]) -> None:
         self._flags = flags or {}
+        if self._entries:
+            self.dataChanged.emit(self.index(0, COL_FLAGS),
+                                  self.index(len(self._entries) - 1, COL_FLAGS),
+                                  [FlagsRole, Qt.DisplayRole])
+
+    def set_modified_mf(self, mods: set[str]) -> None:
+        """Set which mods are modified in the Mod Files tab (overlays the
+        FLAG_MODIFIED_MF eye icon in the Flags column)."""
+        self._modified_mf = set(mods or ())
         if self._entries:
             self.dataChanged.emit(self.index(0, COL_FLAGS),
                                   self.index(len(self._entries) - 1, COL_FLAGS),
@@ -195,7 +208,13 @@ class ModListModel(QAbstractTableModel):
                 return -1
             return 0
         if role == FlagsRole:
-            return 0 if e.is_separator else self._flags.get(e.name, 0)
+            if e.is_separator:
+                return 0
+            from gui_qt.modlist_data import FLAG_MODIFIED_MF
+            bits = self._flags.get(e.name, 0)
+            if e.name in self._modified_mf:
+                bits |= FLAG_MODIFIED_MF
+            return bits
         if role == PriorityRole:
             return self._priority_for_row(index.row())
 

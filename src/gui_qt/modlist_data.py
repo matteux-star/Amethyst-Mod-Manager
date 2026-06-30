@@ -17,6 +17,7 @@ from Utils.modlist import ModEntry
 FLAG_UPDATE = 1 << 0       # has_update & not ignored
 FLAG_ENDORSED = 1 << 1
 FLAG_ROOT = 1 << 2
+FLAG_MODIFIED_MF = 1 << 3  # modified in the Mod Files tab (excluded files/strip)
 
 
 def read_meta_for_entries(entries: list[ModEntry], staging_dir: Path):

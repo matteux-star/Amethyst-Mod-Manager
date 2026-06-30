@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt, QPoint, Signal
 from PySide6.QtWidgets import (
-    QTabWidget, QTabBar, QWidget, QVBoxLayout, QMainWindow,
+    QTabWidget, QTabBar, QWidget, QVBoxLayout, QMainWindow, QStackedWidget,
 )
 
 
@@ -205,24 +205,91 @@ class DetachableTabWidget(QTabWidget):
         self._permanent: set[int] = set()      # indices that can't be closed
         self._keys: dict[str, QWidget] = {}     # key → page (focus-if-open)
         self._floats: list[_FloatingTab] = []
+        # Panel-scoped tabs: a tab in this bar that, instead of a full-UI page,
+        # takes over JUST one panel (a target QStackedWidget). id(placeholder) →
+        # (target_stack, scoped_widget, scoped_page_index). When such a tab is
+        # selected we keep the permanent full-UI page visible and flip the
+        # target stack to the scoped page; deselecting restores the stack to 0.
+        self._scoped: dict[int, tuple] = {}
+        self._permanent_widget: QWidget | None = None
+        self._active_scoped: int | None = None
 
         self.tabCloseRequested.connect(self._on_close_requested)
         self._bar.detach_requested.connect(self._detach)
-        # Hide the tab bar when only the permanent tab remains (looks like the
-        # plain single-window app until a second view is opened).
-        self.currentChanged.connect(lambda *_: self._update_bar_visibility())
+        self.currentChanged.connect(self._on_current_changed)
 
     def _update_bar_visibility(self):
         self.tabBar().setVisible(self.count() > 1)
+
+    def _on_current_changed(self, index: int):
+        self._update_bar_visibility()
+        w = self.widget(index)
+        scoped = self._scoped.get(id(w)) if w is not None else None
+        if scoped is not None:
+            # A panel-scoped tab was selected. Its own page is an empty
+            # placeholder — we don't want to show that. Instead snap the content
+            # back to the permanent full-UI page and flip the target panel stack
+            # to the scoped widget, so the full UI stays live with one panel
+            # showing the scoped view. The tab stays HIGHLIGHTED via the bar's
+            # own current index (we leave the bar on the scoped tab; only the
+            # displayed page is forced to the permanent one).
+            target_stack, _sw, page_idx = scoped
+            self._active_scoped = id(w)
+            # Reset other scoped stacks, then activate this one.
+            for pid, (ts, _s, _p) in self._scoped.items():
+                ts.setCurrentIndex(page_idx if pid == id(w) else 0)
+            self._show_permanent_page_keeping_tab(index)
+        else:
+            self._active_scoped = None
+            for (ts, _s, _p) in self._scoped.values():
+                ts.setCurrentIndex(0)
+
+    def _show_permanent_page_keeping_tab(self, scoped_index: int):
+        """Display the permanent full-UI page in the content area while leaving
+        the tab BAR highlighting the scoped tab at *scoped_index*. Done by
+        reaching into the QTabWidget's private QStackedWidget so the bar and the
+        shown page can differ (Qt normally keeps them in lockstep)."""
+        perm = self._permanent_widget
+        if perm is None:
+            return
+        stack = self.findChild(QStackedWidget)
+        if stack is not None:
+            stack.setCurrentWidget(perm)
 
     # -- adding tabs --------------------------------------------------------
     def add_permanent(self, widget: QWidget, title: str) -> int:
         """Add a tab that can't be closed or detached (e.g. the Mods view)."""
         idx = self.addTab(widget, title)
         self._permanent.add(id(widget))
+        self._permanent_widget = widget
         self._refresh_close_buttons()
         self._update_bar_visibility()
         return idx
+
+    def open_scoped_tab(self, scoped_widget: QWidget, title: str,
+                        target_stack, key: str | None = None):
+        """Open a PANEL-SCOPED tab: it appears in the shared tab bar, but selecting
+        it keeps the permanent full-UI page visible and shows *scoped_widget* in
+        *target_stack* (one panel's QStackedWidget). The rest of the UI — the
+        other panel, headers, footers — stays live and interactive.
+
+        Re-opening the same *key* focuses the existing tab. Returns the tab's
+        placeholder widget (the handle used as its identity)."""
+        if key is not None and key in self._keys:
+            self._focus(self._keys[key])
+            return self._keys[key]
+        # The tab page itself is an empty placeholder — the real content lives in
+        # target_stack. addTab needs a widget; this 0-size stub never shows.
+        placeholder = QWidget()
+        page_idx = target_stack.addWidget(scoped_widget)
+        self._scoped[id(placeholder)] = (target_stack, scoped_widget, page_idx)
+        idx = self.addTab(placeholder, title)
+        if key is not None:
+            self._keys[key] = placeholder
+            placeholder.setProperty("_tab_key", key)
+        self.setCurrentIndex(idx)
+        self._update_bar_visibility()
+        return placeholder
 
     def open_tab(self, widget: QWidget, title: str, key: str | None = None):
         """Open *widget* as a tab and focus it. If *key* is already open
@@ -268,9 +335,33 @@ class DetachableTabWidget(QTabWidget):
         w = self.widget(index)
         if id(w) in self._permanent:
             return
+        if id(w) in self._scoped:
+            self._close_scoped(w)
+            return
         self.removeTab(index)
         self._forget(w)
         w.deleteLater()
+        self._update_bar_visibility()
+
+    def _close_scoped(self, placeholder: QWidget):
+        """Tear down a panel-scoped tab: remove its widget from the target stack,
+        reset that stack to page 0, drop the tab, and show the permanent page."""
+        target_stack, scoped_widget, _idx = self._scoped.pop(id(placeholder))
+        target_stack.setCurrentIndex(0)
+        target_stack.removeWidget(scoped_widget)
+        scoped_widget.deleteLater()
+        tab_idx = self.indexOf(placeholder)
+        if tab_idx != -1:
+            self.removeTab(tab_idx)
+        self._forget(placeholder)
+        placeholder.deleteLater()
+        self._active_scoped = None
+        # Snap to the permanent tab.
+        perm = self._permanent_widget
+        if perm is not None:
+            pi = self.indexOf(perm)
+            if pi != -1:
+                self.setCurrentIndex(pi)
         self._update_bar_visibility()
 
     def _detach(self, index: int, drop_pos: QPoint):
@@ -420,6 +511,23 @@ class DetachableTabWidget(QTabWidget):
         key = widget.property("_tab_key")
         if key and key in self._keys:
             del self._keys[key]
+
+    # -- key-based helpers --------------------------------------------------
+    def has_key(self, key: str) -> bool:
+        return key in self._keys
+
+    def focus_key(self, key: str):
+        w = self._keys.get(key)
+        if w is not None:
+            self._focus(w)
+
+    def set_tab_title(self, key: str, title: str):
+        w = self._keys.get(key)
+        if w is None:
+            return
+        idx = self.indexOf(w)
+        if idx != -1:
+            self.setTabText(idx, title)
 
     def _refresh_close_buttons(self):
         """Permanent tabs show no close button."""

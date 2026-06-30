@@ -89,7 +89,11 @@ class TkStyleHeader(QHeaderView):
     def mouseReleaseEvent(self, event):
         if self._drag_boundary is not None:
             self._drag_boundary = None
-            self._view._schedule_save()
+            # The modlist/plugins views persist column widths; the Mod Files tree
+            # doesn't need to, so only call the hook when the view provides it.
+            save = getattr(self._view, "_schedule_save", None)
+            if callable(save):
+                save()
             return
         super().mouseReleaseEvent(event)
 
