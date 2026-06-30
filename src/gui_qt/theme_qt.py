@@ -252,7 +252,12 @@ def build_qss(pal: dict | None = None) -> str:
         padding: 4px 8px;
     }}
     QSplitter::handle {{ background: {c('BORDER')}; }}
-    QSplitter::handle:horizontal {{ width: 2px; }}
+    QSplitter::handle:horizontal {{ width: 6px; }}
+    QSplitter::handle:vertical {{ height: 6px; }}
+    /* Highlight the grip on hover/drag so a fully-collapsed panel's handle is
+       easy to find and grab. */
+    QSplitter::handle:hover {{ background: {c('ACCENT')}; }}
+    QSplitter::handle:pressed {{ background: {c('ACCENT')}; }}
     /* FOMOD wizard divider — a visible, grabbable handle. */
     #FomodSplit::handle {{ background: {c('BORDER')}; }}
     #FomodSplit::handle:horizontal {{ width: 6px; }}
@@ -397,6 +402,13 @@ def build_qss(pal: dict | None = None) -> str:
     }}
     #FooterButton:hover {{ background: {c('BG_ROW_HOVER')}; }}
     #FooterButton:pressed {{ background: {c('ACCENT')}; color: {c('TEXT_ON_ACCENT')}; }}
+    /* Filters footer button lights up while any filter is active. */
+    #FooterButton[active="true"] {{
+        background: {c('ACCENT')};
+        color: {c('TEXT_ON_ACCENT')};
+        border: 1px solid {c('ACCENT')};
+    }}
+    #FooterButton[active="true"]:hover {{ background: {c('ACCENT_HOV')}; }}
     #PlayButton {{
         background: {c('BTN_SUCCESS')};
         color: #fff;

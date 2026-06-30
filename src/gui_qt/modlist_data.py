@@ -20,20 +20,28 @@ FLAG_ROOT = 1 << 2
 
 
 def read_meta_for_entries(entries: list[ModEntry], staging_dir: Path):
-    """Return (versions, installed, flags) dicts keyed by mod name.
+    """Return a MetaInfo-ish tuple keyed by mod name.
 
-    versions[name]  -> version string ("" if none)
-    installed[name] -> short date string ("" if none)
-    flags[name]     -> int bitmask of FLAG_* above
+    versions[name]   -> version string ("" if none)
+    installed[name]  -> short date string ("" if none)
+    flags[name]      -> int bitmask of FLAG_* above
+    categories[name] -> Nexus category display name ("" if none)
+    updates          -> set of mod names with a pending update
+    fomod            -> set of mod names installed via FOMOD (meta.is_fomod)
+    bain             -> set of mod names installed via BAIN (meta.is_bain)
     """
     versions: dict[str, str] = {}
     installed: dict[str, str] = {}
     flags: dict[str, int] = {}
+    categories: dict[str, str] = {}
+    updates: set[str] = set()
+    fomod: set[str] = set()
+    bain: set[str] = set()
 
     try:
         from Nexus.nexus_meta import read_meta
     except Exception:
-        return versions, installed, flags
+        return versions, installed, flags, categories, updates, fomod, bain
 
     for e in entries:
         if e.is_separator:
@@ -56,9 +64,18 @@ def read_meta_for_entries(entries: list[ModEntry], staging_dir: Path):
             except Exception:
                 installed[e.name] = meta.installed[:10]
 
+        if meta.category_name:
+            categories[e.name] = meta.category_name
+
+        if getattr(meta, "is_fomod", False):
+            fomod.add(e.name)
+        if getattr(meta, "is_bain", False):
+            bain.add(e.name)
+
         bits = 0
         if meta.has_update and meta.latest_version != meta.ignored_version:
             bits |= FLAG_UPDATE
+            updates.add(e.name)
         if meta.endorsed:
             bits |= FLAG_ENDORSED
         if meta.root_folder:
@@ -66,7 +83,7 @@ def read_meta_for_entries(entries: list[ModEntry], staging_dir: Path):
         if bits:
             flags[e.name] = bits
 
-    return versions, installed, flags
+    return versions, installed, flags, categories, updates, fomod, bain
 
 
 # Qt display conflict codes (drawn by the delegate). Mirrors the Tk app's

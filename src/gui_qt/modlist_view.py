@@ -76,6 +76,8 @@ class ModListView(QTreeView):
 
         # Separator state persistence (profile dir set by the window on reload).
         self.profile_dir = None
+        # Rows hidden by the filter side panel (unioned with collapse hiding).
+        self._filter_hidden: set[int] = set()
         self.doubleClicked.connect(self._on_double_click)
 
         self._restoring = True
@@ -146,10 +148,21 @@ class ModListView(QTreeView):
                                        m.entry(r).is_separator)
 
     def apply_collapse(self):
-        """Hide rows under collapsed separators (Qt setRowHidden)."""
+        """Hide rows under collapsed separators OR the active filter (union)."""
         hidden = self.model().hidden_rows()
+        flt = self._filter_hidden
         for r in range(self.model().rowCount()):
-            self.setRowHidden(r, self.rootIndex(), r in hidden)
+            self.setRowHidden(r, self.rootIndex(),
+                              r in hidden or r in flt)
+
+    def set_filter_hidden(self, rows: set[int]) -> None:
+        """Set the rows the filter panel wants hidden, then reapply visibility.
+        Empty set clears the filter. Repaints the marker strip too."""
+        self._filter_hidden = set(rows or ())
+        self.apply_collapse()
+        sb = self.verticalScrollBar()
+        if sb is not None:
+            sb.update()
 
     def _on_double_click(self, index):
         if index.isValid() and self.model().entry(index.row()).is_separator:
