@@ -794,12 +794,21 @@ def install_archive(archive_path: str, game, profile_dir: Path, *,
 
 # ---------------------------------------------------------------- helpers
 def _clean_mod_name(stem: str, game) -> str:
-    """Best-effort folder name from the archive stem (strips Nexus -NNNNN- id /
-    version tails) + sanitises reserved chars."""
+    """Best-effort folder name from the archive stem.
+
+    Uses the same derivation as the Tk installer: ``_suggest_mod_names(stem)[0]``
+    — the *least-destructive* candidate, which strips only the Nexus id/version
+    tail (and the new underscore ``_<version>_<slug>`` tail / mod.io UUID tail)
+    while preserving the actual title, including meaningful parentheses and
+    edition tags (``(SE)``, ``(CP)``, ``(Black)`` …).  ``_strip_title_metadata``
+    is deliberately NOT used here: it aggressively removes those and was demoted
+    from the Tk default because it silently destroyed real titles.
+    """
     name = stem
     try:
-        from gui.mod_name_utils import _strip_title_metadata, sanitize_mod_folder_name
-        name = _strip_title_metadata(stem) or stem
+        from gui.mod_name_utils import _suggest_mod_names, sanitize_mod_folder_name
+        suggestions = _suggest_mod_names(stem)
+        name = (suggestions[0] if suggestions else stem) or stem
         name = sanitize_mod_folder_name(name) or name
     except Exception:
         # mod_name_utils may pull Tk transitively — fall back to a basic clean.
