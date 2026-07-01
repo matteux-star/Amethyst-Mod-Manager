@@ -61,6 +61,8 @@ class MainWindow(QMainWindow):
     # Install-a-Nexus-mod-by-id flow (used by Missing Requirements) → UI thread.
     _req_install_files = Signal(object, object)   # (ctx dict, files|None)
     _req_install_dl = Signal(object, object)      # (archive|None, meta|None)
+    # Collection reset-load-order worker → UI thread (result dict).
+    _reset_done = Signal(object)
 
     _PLAY_BAR_W = 380       # play-bar (header right) fixed width
     _BTN_H = 42          # consistent height for all header buttons (~30% bigger)
@@ -181,6 +183,8 @@ class MainWindow(QMainWindow):
         self._req_installing = False
         self._req_install_files.connect(self._on_req_install_files)
         self._req_install_dl.connect(self._on_req_install_dl)
+        self._reset_done.connect(self._on_reset_done)
+        self._reset_running = False
         QTimer.singleShot(0, self._ensure_nexus_api)
 
     def _populate_selectors(self):
@@ -946,7 +950,10 @@ class MainWindow(QMainWindow):
                     ("Clear credentials", self._nexus_clear_credentials),
                     (self._nxm_menu_label(), self._nexus_toggle_nxm),
                 ]),
-                ("Collections…", None),
+                ("Collections", [
+                    ("Browse collections…", self._open_collections_tab),
+                    ("Reset load order", self._reset_collection_load_order),
+                ]),
             ]),
         ]:
             b = self._menu_action_button(label, ico, items)
@@ -1021,6 +1028,10 @@ class MainWindow(QMainWindow):
             v = getattr(self, "_profile_settings_view", None)
             if v is not None:
                 v.set_current_profile(name)
+        # The collections browser's "Open Current" depends on the active profile.
+        cv = getattr(self, "_collections_view", None)
+        if cv is not None:
+            cv.refresh_open_current()
 
     def _on_game_action(self, which):
         if which == "add":
@@ -1112,6 +1123,160 @@ class MainWindow(QMainWindow):
         # Drop the reference when the tab/window is gone so we stop refreshing it.
         view.destroyed.connect(lambda *_: setattr(self, "_nexus_view", None))
         self._tabs.open_tab(view, "Nexus", key="nexus_browser")
+
+    def _open_collections_tab(self):
+        """Open the Nexus Collections browser as a detachable tab (view-only —
+        the install/detail flow is a separate feature). Same guards as the mods
+        browser: a configured game with a Nexus domain + OAuth tokens."""
+        if self._tabs.has_key("collections"):
+            cv = getattr(self, "_collections_view", None)
+            if cv is not None:
+                cv.refresh_open_current()
+            self._tabs.focus_key("collections")
+            return
+        game = self._gs.game
+        if game is None or not game.is_configured():
+            self._notify("No configured game selected.", "warning")
+            return
+        domain = getattr(game, "nexus_game_domain", "") or ""
+        if not domain:
+            self._notify(f"'{game.name}' has no Nexus Mods page.", "warning")
+            return
+        api = self._ensure_nexus_api()
+        if api is None:
+            self._notify("Log in first: Nexus ▸ Login to Nexus ▸ Login via SSO.",
+                         "warning")
+            self._append_log("[nexus] no OAuth tokens — login required")
+            return
+        from gui_qt.collections_browser_view import CollectionsBrowserView
+        view = CollectionsBrowserView(
+            api, domain, game, log_fn=self._append_log,
+            on_open_detail=self._open_collection_detail_tab)
+        self._collections_view = view
+        view.destroyed.connect(
+            lambda *_: setattr(self, "_collections_view", None))
+        self._tabs.open_tab(view, "Collections", key="collections")
+
+    def _open_collection_detail_tab(self, collection, revision_number=None):
+        """Open a collection's detail panel as a NEW detachable tab (the
+        collections browser tab stays open). Card View passes no revision (latest);
+        the browser's 'Open Current' passes the installed revision."""
+        # Key by slug when the id is 0 (Open Current builds a bare NexusCollection).
+        key = f"collection_detail_{collection.id or collection.slug}"
+        if revision_number is not None:
+            key = f"{key}_r{revision_number}"
+        if self._tabs.has_key(key):
+            self._tabs.focus_key(key)
+            return
+        game = self._gs.game
+        if game is None or not game.is_configured():
+            self._notify("No configured game selected.", "warning")
+            return
+        domain = (getattr(game, "nexus_game_domain", "")
+                  or getattr(collection, "game_domain", "") or "")
+        api = self._ensure_nexus_api()
+        if api is None:
+            self._notify("Log in first: Nexus ▸ Login to Nexus ▸ Login via SSO.",
+                         "warning")
+            return
+        from gui_qt.collection_detail_view import CollectionDetailView
+        view = CollectionDetailView(
+            api, collection, game, log_fn=self._append_log,
+            revision_number=revision_number,
+            on_install=lambda chosen, skipped: self._notify(
+                "Collection install isn't wired yet.", "info"))
+        title = f"Collection: {collection.name or collection.slug}"
+        self._tabs.open_tab(view, title, key=key)
+
+    # ---- Collections ▸ Reset load order ----------------------------------
+    def _reset_collection_load_order(self):
+        """Re-apply the active collection profile's intended load order from its
+        manifest. No-op (with a toast) unless the active profile is a collection
+        profile. Runs the file rewrites on a worker → toast + modlist reload."""
+        if self._reset_running:
+            self._notify("A load-order reset is already running.", "warning")
+            return
+        game = self._gs.game
+        if game is None or not game.is_configured():
+            self._notify("No configured game selected.", "warning")
+            return
+        pdir = self._gs.profile_dir()
+        from gui.game_helpers import get_collection_url_from_profile
+        url = get_collection_url_from_profile(pdir) if pdir is not None else None
+        if not url:
+            self._notify("The active profile isn't a collection profile.",
+                         "warning")
+            return
+
+        self._reset_running = True
+        self._notify("Resetting collection load order…", "info")
+        domain = getattr(game, "nexus_game_domain", "") or ""
+        game_name = getattr(game, "name", "") or ""
+        # slug from the stored URL: …/collections/<slug>[/revisions/N]
+        slug = ""
+        try:
+            after = url.split("/collections/", 1)[1]
+            slug = after.split("/", 1)[0]
+        except Exception:
+            slug = ""
+
+        import threading, json
+
+        def worker():
+            res = {"error": "unknown"}
+            try:
+                from Utils.collection_manifest import load_collection_manifest
+                from Utils.collection_reset import reset_collection_load_order
+                # Prefer the profile's already-saved collection.json (offline).
+                manifest = {}
+                saved = pdir / "collection.json"
+                if saved.is_file():
+                    try:
+                        manifest = json.loads(saved.read_text(encoding="utf-8"))
+                    except Exception:
+                        manifest = {}
+                if not manifest and slug:
+                    api = self._ensure_nexus_api()
+                    if api is not None:
+                        (_n, _s, _c, _mods, dl_path,
+                         revs) = api.get_collection_detail(slug, domain)
+                        rev = None
+                        try:
+                            pub = [int(r.get("revisionNumber") or 0)
+                                   for r in (revs or [])
+                                   if (r.get("revisionStatus") or "").lower()
+                                   == "published"]
+                            rev = max(pub) if pub else None
+                        except Exception:
+                            rev = None
+                        manifest = load_collection_manifest(
+                            api, game_name, slug, rev, dl_path,
+                            log_fn=lambda m: self._op_log.emit(str(m)))
+                if not manifest:
+                    res = {"error": "no_manifest"}
+                else:
+                    res = reset_collection_load_order(
+                        pdir, manifest,
+                        log_fn=lambda m: self._op_log.emit(str(m)))
+            except Exception as exc:
+                self._op_log.emit(f"Reset load order failed: {exc}")
+                res = {"error": str(exc)}
+            self._reset_done.emit(res)
+
+        threading.Thread(target=worker, daemon=True,
+                         name="collection-reset").start()
+
+    def _on_reset_done(self, res):
+        self._reset_running = False
+        if not isinstance(res, dict) or res.get("error"):
+            reason = (res or {}).get("error", "unknown") if isinstance(res, dict) else "unknown"
+            self._notify(f"Load order reset failed: {reason}", "warning")
+            return
+        self._notify(
+            f"Load order reset — {res.get('ordered', 0)} mods ordered"
+            + (f", {res['unordered']} at top."
+               if res.get("unordered") else "."), "info")
+        self._reload_modlist()
 
     # ---- Nexus login (header menu ▸ Login to Nexus) ------------------------
     # Thin wiring over the toolkit-neutral OAuth/NXM backend in src/Nexus/,
@@ -3712,9 +3877,22 @@ class MainWindow(QMainWindow):
             w.setVisible(open_)
 
     def _append_log(self, message: str):
-        """Backend log_fn target — append a line to the log text area."""
+        """Backend log_fn target — append a line to the log text area.
+
+        Thread-safe: worker threads pass this as their ``log_fn`` (Nexus browser,
+        collection detail/reset, installs …). Qt widgets may ONLY be touched on
+        the GUI thread — touching ``_log_view`` from a worker is a data race that
+        can segfault — so when called off-thread we marshal through the queued
+        ``_op_log`` signal instead of writing the widget directly."""
         try:
-            self._log_view.appendPlainText(message.rstrip("\n"))
+            from PySide6.QtCore import QThread
+            if QThread.currentThread() is not self.thread():
+                self._op_log.emit(str(message))
+                return
+        except Exception:
+            pass
+        try:
+            self._log_view.appendPlainText(str(message).rstrip("\n"))
         except Exception:
             pass
 

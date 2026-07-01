@@ -64,6 +64,27 @@ def _parse_iso(s: str):
         return None
 
 
+def cap_summary(text: str, limit: int = 180) -> str:
+    """Truncate a card summary to ~*limit* chars at a word boundary and append an
+    ellipsis (Nexus-style), so it never overflows the card's fixed-height box."""
+    text = " ".join((text or "").split())          # collapse whitespace/newlines
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    sp = cut.rfind(" ")
+    if sp > limit * 0.6:                            # prefer a word boundary
+        cut = cut[:sp]
+    return cut.rstrip(" ,.;:-") + "…"
+
+
+def wrap_tooltip(text: str, width: int = 60) -> str:
+    """Return a rich-text tooltip that word-wraps instead of running off one long
+    line. A ``<qt width=...>`` tooltip makes Qt wrap at that pixel width."""
+    from html import escape
+    text = " ".join((text or "").split())
+    return f"<qt width='{width * 6}'>{escape(text)}</qt>" if text else ""
+
+
 def _ago(s: str) -> str:
     """ISO timestamp → '3 days ago' / '4 months ago' (matches the Nexus card)."""
     dt = _parse_iso(s)
@@ -114,17 +135,20 @@ def _cover_scale(pm: QPixmap, w: int, h: int) -> QPixmap:
 
 
 class ThumbnailLoader(QObject):
-    """Fetches mod thumbnails off the UI thread; emits `loaded(mod_id, QPixmap)`
+    """Fetches thumbnails off the UI thread; emits `loaded(mod_id, QPixmap)`
     on the UI thread. Caches scaled pixmaps in an LRU dict (cover-cropped to the
-    card image size)."""
+    card image size). *crop_w*/*crop_h* set the target cover size — default is the
+    mod card (300×150 landscape); the collections browser passes a portrait size."""
 
     loaded = Signal(int, object)         # (mod_id, QPixmap)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, crop_w: int = CARD_W, crop_h: int = IMG_H):
         super().__init__(parent)
         self._cache: "OrderedDict[str, QPixmap]" = OrderedDict()
         self._inflight: set[str] = set()
         self._lock = threading.Lock()
+        self._crop_w = crop_w
+        self._crop_h = crop_h
 
     def cached(self, url: str) -> QPixmap | None:
         with self._lock:
@@ -155,7 +179,8 @@ class ThumbnailLoader(QObject):
             if resp.ok:
                 img = QImage.fromData(resp.content)
                 if not img.isNull():
-                    pm = _cover_scale(QPixmap.fromImage(img), CARD_W, IMG_H)
+                    pm = _cover_scale(QPixmap.fromImage(img),
+                                      self._crop_w, self._crop_h)
         except Exception:
             pm = QPixmap()
         with self._lock:
@@ -281,11 +306,15 @@ class NexusModCard(QFrame):
             dates.setStyleSheet(f"color:{dim}; font-size:10px;")
             bl.addWidget(dates)
 
-        # Description (the summary) — fills the remaining space, clipped.
-        desc = QLabel((entry.summary or "").strip())
+        # Description (the summary) — fills the remaining space, length-capped
+        # (Nexus-style) with the full text word-wrapped in the tooltip.
+        _summary = (entry.summary or "").strip()
+        desc = QLabel(cap_summary(_summary))
         desc.setWordWrap(True)
         desc.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        desc.setStyleSheet(f"color:{dim}; font-size:11px;")
+        desc.setStyleSheet(f"color:{dim}; font-size:12px;")
+        if _summary:
+            desc.setToolTip(wrap_tooltip(_summary))
         desc.setSizePolicy(desc.sizePolicy().horizontalPolicy(),
                            desc.sizePolicy().Policy.Ignored)
         bl.addWidget(desc, 1)
