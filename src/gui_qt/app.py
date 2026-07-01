@@ -1032,6 +1032,10 @@ class MainWindow(QMainWindow):
         if self._tabs.has_key("dll_overrides"):
             self._tabs.close_tab("dll_overrides")
             self._dll_overrides_view = None
+        # Retarget the Nexus / Collections browsers (if open) at the new game so
+        # they show the new game's mods instead of holding a stale domain. A
+        # missing/empty Nexus domain closes them (nothing to show).
+        self._retarget_browsers_for_game()
         # Reflect the new game's profiles + keep both game selectors in sync.
         profs = self._gs.profiles()
         if profs:
@@ -1041,6 +1045,37 @@ class MainWindow(QMainWindow):
         self._reload_modlist()
         self._reload_plugins()
         self._update_deployed_profile_highlight()
+
+    def _retarget_browsers_for_game(self):
+        """On game switch, point any open Nexus / Collections browser at the new
+        game (or close them if the new game has no Nexus domain). Per-collection
+        detail tabs are game-specific, so they're closed unconditionally."""
+        game = self._gs.game
+        domain = (getattr(game, "nexus_game_domain", "") or "") if game else ""
+
+        # Close per-collection detail tabs (they belong to the previous game).
+        try:
+            for key in [k for k in list(self._tabs._keys)
+                        if k.startswith("collection_detail_")]:
+                self._tabs.close_tab(key)
+        except Exception:
+            pass
+
+        for attr, tab_key in (("_nexus_view", "nexus_browser"),
+                              ("_collections_view", "collections")):
+            view = getattr(self, attr, None)
+            if view is None:
+                continue
+            if not domain:
+                # New game can't show Nexus content — close the tab.
+                if self._tabs.has_key(tab_key):
+                    self._tabs.close_tab(tab_key)
+                setattr(self, attr, None)
+                continue
+            try:
+                view.set_game(game, domain)
+            except Exception as exc:
+                self._append_log(f"[nexus] retarget failed: {exc}")
 
     def _on_profile_changed(self, name):
         if name == self._gs.profile:
@@ -1722,6 +1757,10 @@ class MainWindow(QMainWindow):
         from gui_qt.fomod_wizard_view import FomodWizardView
         holder, ev = payload["holder"], payload["event"]
         done = {"v": False}
+        # Hide the install overlay while the wizard is up — it covers the tab
+        # and would otherwise block the deferred FOMOD picker (no work is running
+        # while we wait for the user, so nothing to display).
+        self._hide_col_overlay()
 
         def _finish_ev(result):
             if done["v"]:
@@ -1729,6 +1768,7 @@ class MainWindow(QMainWindow):
             done["v"] = True
             holder["result"] = result
             self._tabs.close_tab("col_fomod_wizard")
+            self._show_col_overlay()
             ev.set()
 
         view = FomodWizardView(payload["config"], payload["base"], payload["name"],
@@ -1756,6 +1796,8 @@ class MainWindow(QMainWindow):
         from gui_qt.bain_picker_view import BainPickerView
         holder, ev = payload["holder"], payload["event"]
         done = {"v": False}
+        # Hide the install overlay while the BAIN picker is up (see FOMOD above).
+        self._hide_col_overlay()
 
         def _finish_ev(result):
             if done["v"]:
@@ -1763,6 +1805,7 @@ class MainWindow(QMainWindow):
             done["v"] = True
             holder["result"] = result
             self._tabs.close_tab("col_bain_picker")
+            self._show_col_overlay()
             ev.set()
 
         view = BainPickerView(payload["subpkgs"], payload["root"], payload["name"],
@@ -1770,6 +1813,27 @@ class MainWindow(QMainWindow):
         view.destroyed.connect(lambda *_: _finish_ev(None))
         self._tabs.open_tab(view, f"Install: {payload['name']}",
                             key="col_bain_picker")
+
+    def _hide_col_overlay(self):
+        """Hide the collection install overlay (e.g. while a deferred FOMOD/BAIN
+        wizard tab is up so it isn't covered)."""
+        ov = self._col_install_overlay
+        if ov is not None:
+            try:
+                ov.hide()
+            except Exception:
+                pass
+
+    def _show_col_overlay(self):
+        """Re-show the collection install overlay after a deferred wizard closes
+        (no-op if the install already finished + dismissed the overlay)."""
+        ov = self._col_install_overlay
+        if ov is not None:
+            try:
+                ov.show()
+                ov.raise_()
+            except Exception:
+                pass
 
     # ---- pause / cancel --------------------------------------------------
     def _on_col_pause_clicked(self):

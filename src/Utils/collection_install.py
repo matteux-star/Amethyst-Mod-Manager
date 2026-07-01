@@ -474,10 +474,24 @@ def run_collection_install(
     install_order: list[tuple[int, str]] = []
     to_download: list = []
 
+    # Per-mod outcome tracker for the end-of-install verification summary. Maps
+    # file_id -> {name, status, detail}. Every mod that should end up staged is
+    # recorded so we can loudly report any that silently fell out of the pipeline
+    # (the "N mods missing" bug). status ∈ existing/queued/installed/deferred/
+    # download_failed/stage_empty/error/no_file_id.
+    _mod_outcomes: "dict[int, dict]" = {}
+
+    def _record_outcome(mod, status, detail=""):
+        fid = getattr(mod, "file_id", 0) or 0
+        _mod_outcomes[fid] = {"name": getattr(mod, "mod_name", "") or "",
+                              "mod_id": getattr(mod, "mod_id", 0) or 0,
+                              "status": status, "detail": detail}
+
     # Classify: already-installed (skip) vs needs downloading
     for mod in ordered_mods:
         if not mod.file_id:
             log(f"Collection install: skipping '{mod.mod_name}' — no file ID")
+            _record_outcome(mod, "no_file_id")
             skipped += 1
             continue
         existing_folder: str = _match_existing(mod)
@@ -490,10 +504,12 @@ def run_collection_install(
         if existing_folder:
             log(f"Collection install: '{mod.mod_name}' already installed as "
                 f"'{existing_folder}' — skipping")
+            _record_outcome(mod, "existing", existing_folder)
             if not skip_existing:
                 install_order.append((_sort_key(mod), existing_folder))
             installed += 1
         else:
+            _record_outcome(mod, "queued")
             to_download.append(mod)
 
     # ------------------------------------------------------------------
@@ -502,13 +518,27 @@ def run_collection_install(
     _col_cfg = load_collection_settings()
     _DL_WORKERS = _col_cfg["max_concurrent"]
     _INSTALL_WORKERS = _col_cfg.get("max_extract_workers", 4)
-    _PIPELINE_QUEUE_SIZE = max(_INSTALL_WORKERS + 1, 5)
+    # Decouple downloads from installs: size the hand-off queue so all download
+    # workers can deposit a finished archive without blocking even when every
+    # install worker is busy extracting. Downloaded archives live on disk; queue
+    # items are cheap (mod, result) tuples, and _mem_budget still caps concurrent
+    # extraction — so a generous queue lets the 8 download slots stay saturated
+    # (matching Tk's observed behaviour) instead of stalling in bursts. Was
+    # max(_INSTALL_WORKERS + 1, 5), which blocked producers once installs (slow
+    # per-archive 7z spawns for many tiny mods) fell behind.
+    _PIPELINE_QUEUE_SIZE = max(_DL_WORKERS + _INSTALL_WORKERS + 8, 32)
     _DONE_SENTINEL = None
+    import os as _os_col
+    _COL_TIMING = bool(_os_col.environ.get("MM_COL_TIMING"))
 
     _dl_results: dict[int, tuple] = {}
     _dl_lock = threading.Lock()
     _dl_done = 0
     _dl_total = len(to_download)
+    # file_id → prefetched CDN download links (populated up-front so download
+    # workers don't each block on a per-file get_download_links API round-trip —
+    # for many tiny archives that API latency, not the transfer, gates throughput).
+    _prefetched_links: "dict[int, list]" = {}
 
     _to_download_fids = {getattr(m, "file_id", None) for m in to_download}
     _total_bytes = sum(getattr(m, "size_bytes", 0) or 0 for m in ordered_mods)
@@ -665,7 +695,8 @@ def run_collection_install(
                     progress_cb=_progress_cb, cancel=_col_stop,
                     known_file_name=mod.file_name or "",
                     expected_size_bytes=getattr(mod, "size_bytes", 0) or 0,
-                    dest_dir=get_download_cache_dir_for_game(getattr(game, "name", "") or ""))
+                    dest_dir=get_download_cache_dir_for_game(getattr(game, "name", "") or ""),
+                    prefetched_links=_prefetched_links.get(mod.file_id))
         except Exception as exc:
             import traceback as _tb
             log(f"Collection install: download exception for '{mod.mod_name}' "
@@ -688,7 +719,20 @@ def run_collection_install(
         cb.on_dl_mod_finish(mod.file_id)
         if result and result.success and result.file_path:
             cb.on_extract_queue(mod.file_id, mod.mod_name or mod.file_name or "")
-        _install_queue.put((mod, result, effective_domain))
+        # The install queue is bounded; if it ever fills (installs falling far
+        # behind downloads) this put() blocks the download worker so it can't
+        # start the next download. The queue is now sized generously so that
+        # shouldn't happen, but MM_COL_TIMING=1 logs any block >0.05s to confirm.
+        if _COL_TIMING:
+            _t_put = _time_mod.monotonic()
+            _install_queue.put((mod, result, effective_domain))
+            _blocked = _time_mod.monotonic() - _t_put
+            if _blocked > 0.05:
+                log(f"[timing] download worker blocked {_blocked:.2f}s on install "
+                    f"queue for '{mod.mod_name}' (queue full — install is the "
+                    f"bottleneck)")
+        else:
+            _install_queue.put((mod, result, effective_domain))
 
     # ---- install consumer --------------------------------------------
     def _install_one(mod, result, effective_domain):
@@ -710,6 +754,7 @@ def run_collection_install(
             log(f"Collection install: download failed for '{mod.mod_name}' "
                 f"(mod_id={mod.mod_id}, file_id={mod.file_id}): {_reason}")
             with _install_lock:
+                _record_outcome(mod, "download_failed", _reason)
                 _install_counters["skipped"] += 1
                 _install_counters["done"] += 1
             cb.on_extract_remove(mod.file_id)
@@ -747,19 +792,31 @@ def run_collection_install(
         if folder_name == FOMOD_DEFERRED:
             with _install_lock:
                 _fomod_deferred.append((mod, result, effective_domain))
+                _record_outcome(mod, "deferred", "fomod")
                 _install_counters["done"] += 1
             return
         if folder_name == BAIN_DEFERRED:
             with _install_lock:
                 _bain_deferred.append((mod, result, effective_domain))
+                _record_outcome(mod, "deferred", "bain")
                 _install_counters["done"] += 1
             return
 
         with _install_lock:
             if folder_name:
                 _install_results[mod.file_id] = folder_name
+                _record_outcome(mod, "installed", folder_name)
                 _install_counters["installed"] += 1
             else:
+                # install_collection_archive returned falsy — the mod extracted
+                # but nothing was staged (structure not recognised / all files
+                # filtered out). This is the silent-drop path behind "N mods
+                # missing"; log it prominently for the end-of-install summary.
+                log(f"Collection install: '{mod.mod_name}' produced NO staged "
+                    f"files (mod_id={mod.mod_id}, file_id={mod.file_id}, "
+                    f"archive={Path(archive_path).name}) — dropped.")
+                _record_outcome(mod, "stage_empty",
+                                f"archive={Path(archive_path).name}")
                 _install_counters["skipped"] += 1
             _install_counters["done"] += 1
             done_so_far = _install_counters["done"]
@@ -801,8 +858,12 @@ def run_collection_install(
             try:
                 _install_one(mod, result, effective_domain)
             except Exception as exc:
-                log(f"Collection install: unexpected error installing '{mod.mod_name}': {exc}")
+                import traceback as _tbx
+                log(f"Collection install: unexpected error installing "
+                    f"'{mod.mod_name}' (mod_id={getattr(mod,'mod_id',0)}, "
+                    f"file_id={getattr(mod,'file_id',0)}): {exc}\n{_tbx.format_exc()}")
                 with _install_lock:
+                    _record_outcome(mod, "error", str(exc))
                     _install_counters["skipped"] += 1
                     _install_counters["done"] += 1
             finally:
@@ -817,6 +878,53 @@ def run_collection_install(
             reverse=(_col_cfg["download_order"] == "largest"))
         if _total_bytes > 0:
             cb.on_agg_download(_dl_bytes_done, _total_bytes, 0.0)
+
+        # ---- pre-fetch CDN download links up-front -----------------------
+        # Each download normally begins with a get_download_links API round-trip
+        # (~100-300ms) to obtain a fresh signed CDN URL; for the many tiny
+        # archives in a collection that latency, not the transfer, gates
+        # throughput (the "download 8, hitch, download 8" rhythm). Fetch every
+        # link concurrently BEFORE the transfers start — skipping mods whose
+        # archive is already cached (no download needed) — so the download
+        # workers always have a ready URL and stay saturated. Same total number
+        # of link calls as before (one per file), just pipelined ahead → no
+        # extra rate-limit cost. Best-effort: any link that fails to prefetch
+        # falls back to the per-file fetch inside download_file.
+        def _prefetch_link(mod):
+            if _col_stop.is_set():
+                return
+            fid = getattr(mod, "file_id", 0) or 0
+            if not fid:
+                return
+            # Skip if the archive is already cached anywhere (no download).
+            _mdomain = (getattr(mod, "domain_name", "") or "").strip() or game_domain
+            try:
+                for _cdir in list_all_cache_dirs(getattr(game, "name", "") or ""):
+                    _f, _ok = _find_cached_archive(
+                        _cdir, mod.file_name or mod.mod_name or "",
+                        getattr(mod, "size_bytes", 0) or 0, mod.mod_id, fid,
+                        expected_md5=getattr(mod, "md5", "") or "")
+                    if _f and _ok:
+                        return
+            except Exception:
+                pass
+            try:
+                _links = api.get_download_links(
+                    game_domain=_mdomain, mod_id=mod.mod_id, file_id=fid)
+                if _links:
+                    _prefetched_links[fid] = _links
+            except Exception:
+                pass  # fall back to per-file fetch in download_file
+
+        if api is not None:
+            _set_status(f"Fetching download links for {_dl_total} mod(s)…")
+            try:
+                with _cf.ThreadPoolExecutor(max_workers=_DL_WORKERS) as _lpool:
+                    list(_lpool.map(_prefetch_link, _to_download_sorted))
+            except Exception as _pf_exc:
+                log(f"Collection install: link prefetch skipped ({_pf_exc}).")
+            log(f"Collection install: prefetched {len(_prefetched_links)} "
+                f"download link(s).")
 
         _consumer_threads: list[threading.Thread] = []
         for _ci in range(_INSTALL_WORKERS):
@@ -974,6 +1082,39 @@ def run_collection_install(
     except Exception:
         pass
 
+    # End-of-install verification: every non-optional manifest mod SHOULD have
+    # ended up staged. Loudly report any that didn't (the "N mods missing" bug),
+    # with the recorded reason per mod, so a failure is visible + diagnosable
+    # instead of silently swallowed. Only meaningful on a clean finish (a paused
+    # / cancelled run legitimately leaves mods un-installed).
+    if not _col_cancel.is_set() and not _col_pause.is_set():
+        try:
+            _final_staging = game.get_effective_mod_staging_path()
+            _missing: list = []
+            for mod in ordered_mods:
+                fid = getattr(mod, "file_id", 0) or 0
+                if not fid:
+                    continue
+                folder = _install_results.get(fid)
+                staged_ok = bool(folder) and (_final_staging is not None
+                                              and (Path(_final_staging) / folder).is_dir())
+                if not staged_ok:
+                    oc = _mod_outcomes.get(fid, {})
+                    _missing.append((getattr(mod, "mod_name", "") or f"file {fid}",
+                                     getattr(mod, "mod_id", 0) or 0, fid,
+                                     oc.get("status", "unknown"),
+                                     oc.get("detail", "")))
+            if _missing:
+                log(f"⚠ Collection install: {len(_missing)} mod(s) did NOT install "
+                    f"and are missing from the profile:")
+                for _nm, _mid, _fid, _st, _dt in _missing:
+                    log(f"    • {_nm} (mod_id={_mid}, file_id={_fid}) — "
+                        f"{_st}{(': ' + _dt) if _dt else ''}")
+                _set_status(f"Done, but {len(_missing)} mod(s) failed to install "
+                            "— see log.")
+        except Exception as _ver_exc:
+            log(f"Collection install: verification summary failed: {_ver_exc}")
+
     # Terminal handling
     if _col_cancel.is_set():
         _install_state["done"] = True
@@ -1047,6 +1188,9 @@ def _process_deferred(
                 _install_results[mod.file_id] = folder
                 _install_counters["installed"] += 1
             else:
+                log(f"Collection install: deferred mod '{mod.mod_name}' produced "
+                    f"NO staged files (mod_id={getattr(mod,'mod_id',0)}, "
+                    f"file_id={mod.file_id}) — dropped.")
                 _install_counters["skipped"] += 1
         if folder and mod.file_id:
             _install_state["installed_fids"].add(mod.file_id)

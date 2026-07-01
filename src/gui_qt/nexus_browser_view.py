@@ -482,6 +482,39 @@ class NexusBrowserView(QWidget):
             self._reload()
 
     # -- fetch --------------------------------------------------------------
+    def set_game(self, game, domain):
+        """Retarget this browser at a different game (game switched while the tab
+        is open). Resets navigation + filters (categories differ per game) and
+        re-fetches categories + the Browse grid for the new domain."""
+        self._game = game
+        self._domain = domain or ""
+        # Reset navigation + search + filter state to the new game's defaults.
+        self._section = "Browse"
+        self._page = 0
+        self._query = ""
+        self._selected_categories = []
+        self._time_days = None
+        self._fetch_token += 1              # invalidate any in-flight fetch
+        # Clear the search box without re-triggering a search.
+        try:
+            self._search.blockSignals(True)
+            self._search.clear()
+            self._search.blockSignals(False)
+        except Exception:
+            pass
+        # Force categories to reload for the new game.
+        self._cats_loaded = False
+        while self._cat_layout.count():
+            it = self._cat_layout.takeAt(0)
+            w = it.widget()
+            if w is not None:
+                w.deleteLater()
+        self._cat_checks.clear()
+        self._update_section_buttons()
+        self._update_browse_controls_visibility()
+        self._load_categories()
+        self._reload()
+
     def _reload(self):
         if not self._domain:
             self._status.setText("No Nexus domain for this game.")

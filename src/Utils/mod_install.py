@@ -501,9 +501,69 @@ def _choose_extract_parent(archive_path: str, staging_root: Path,
 
 
 # ---------------------------------------------------------------- extraction
+def _debackslash_extracted_tree(extract_dir: str, log_fn: LogFn) -> int:
+    """Repair an extraction that kept Windows backslash path separators.
+
+    Some ZIPs (commonly packed by PowerShell's ``Compress-Archive``, or Nexus
+    mods zipped on Windows) store member names with ``\\`` separators, which
+    violates the ZIP spec. Native extractors (7z/bsdtar) and Python's
+    ``zipfile`` then create *flat* files whose names literally contain
+    backslashes — e.g. a single file called ``r6\\scripts\\foo.reds`` — instead
+    of a nested folder tree. Downstream staging resolves paths with forward
+    slashes, so those flat entries never match and the mod stages 0 files
+    ("nothing staged"). This sweep relocates every backslash-named entry to its
+    proper nested location. Returns the number of entries moved. Idempotent and
+    cheap when no backslash names exist (the common case).
+
+    Faithful port of ``gui/install_mod.py:_debackslash_extracted_tree``.
+    """
+    root = Path(extract_dir)
+    # Collect first so we don't mutate the tree mid-walk. Deepest paths first so
+    # files move before we try to clean up their (now-empty) flat parents.
+    try:
+        offenders = [p for p in root.rglob("*") if "\\" in p.name]
+    except OSError:
+        return 0
+    if not offenders:
+        return 0
+    moved = 0
+    for entry in sorted(offenders, key=lambda p: len(str(p)), reverse=True):
+        if not entry.exists():
+            continue
+        rel = str(entry.relative_to(root)).replace("\\", "/")
+        target = root / rel
+        if target == entry:
+            continue
+        try:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if entry.is_dir():
+                # A backslash-named directory: merge its contents, then drop it.
+                target.mkdir(parents=True, exist_ok=True)
+                for child in entry.iterdir():
+                    dest = target / child.name
+                    if not dest.exists():
+                        shutil.move(str(child), str(dest))
+                try:
+                    entry.rmdir()
+                except OSError:
+                    pass
+            else:
+                if target.exists():
+                    target.unlink()
+                shutil.move(str(entry), str(target))
+                moved += 1
+        except OSError:
+            continue
+    if moved and log_fn is not None:
+        log_fn(f"Normalised {moved} Windows backslash path(s) from archive.")
+    return moved
+
+
 def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn) -> bool:
     """Extract *archive_path* into *dest_dir*. Native 7z → bsdtar → py7zr →
-    Python zipfile/tarfile, mirroring gui.install_mod's fallback chain."""
+    Python zipfile/tarfile, mirroring gui.install_mod's fallback chain. After a
+    successful native/zip extraction, backslash-named members are normalised
+    into a real tree (see _debackslash_extracted_tree)."""
     ext = Path(archive_path).suffix.lower()
 
     # tar.* and plain .tar → tarfile directly.
@@ -518,6 +578,13 @@ def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn) -> bool:
             log_fn(f"tarfile failed ({exc}).")
             # fall through to the generic extractors
 
+    def _ok() -> bool:
+        # Native extractors (7z/bsdtar) and Python zipfile reproduce Windows
+        # backslash member names as literal flat filenames; repair them into a
+        # real tree so staging can resolve the paths (fixes "nothing staged").
+        _debackslash_extracted_tree(dest_dir, log_fn)
+        return True
+
     _7z = (shutil.which("7zzs") or shutil.which("7zz")
            or shutil.which("7z") or shutil.which("7za"))
     if _7z:
@@ -526,7 +593,7 @@ def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn) -> bool:
             stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
         if r.returncode == 0:
             log_fn("Extracted with 7z.")
-            return True
+            return _ok()
         log_fn(f"7z failed ({r.stderr.strip()}), trying bsdtar…")
     if shutil.which("bsdtar"):
         r = subprocess.run(
@@ -534,21 +601,21 @@ def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn) -> bool:
             stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
         if r.returncode == 0 and any(os.scandir(dest_dir)):
             log_fn("Extracted with bsdtar.")
-            return True
+            return _ok()
         log_fn(f"bsdtar failed ({r.stderr.strip()}), trying py7zr…")
     try:
         import py7zr
         with py7zr.SevenZipFile(archive_path, "r") as z:
             z.extractall(dest_dir)
         log_fn("Extracted with py7zr.")
-        return True
+        return _ok()
     except Exception as exc:
         log_fn(f"py7zr failed ({exc}), trying zipfile…")
     try:
         with zipfile.ZipFile(archive_path, "r") as z:
             z.extractall(dest_dir)
         log_fn("Extracted with zipfile.")
-        return True
+        return _ok()
     except Exception as exc:
         log_fn(f"zipfile failed ({exc}).")
     return False
@@ -963,6 +1030,15 @@ def install_collection_archive(
         if prepared.is_fomod():
             config = prepared.fomod_config
             fomod_base = prepared.fomod_base
+            # resolve_files returns paths relative to the FOMOD BASE (the folder
+            # containing fomod/ModuleConfig.xml), NOT the raw extract dir. When
+            # the archive wraps the FOMOD in a top-level folder (e.g. "WTNC
+            # Config/fomod/…"), fomod_base != extract_dir, so the copier must
+            # stage from fomod_base or every source path is off by the wrapper
+            # prefix → 0 files staged. (This is what _install_fomod does for the
+            # manual path; the collection path previously left stage_src_root as
+            # extract_dir, silently dropping nested-FOMOD collection mods.)
+            stage_src_root = str(fomod_base)
             installed_files, active_files, loose_files = _collection_plugin_context(
                 game, profile_dir)
             try:
@@ -1086,9 +1162,33 @@ def install_collection_archive(
                 game, stage_src_root, is_root_install=is_root,
                 mod_name=prepared.mod_name, on_need_prefix=None, log_fn=log_fn)
             if staged is None:
+                # stage_file_list only returns None when a prefix was required
+                # but no resolver was supplied — for a collection mod that means
+                # the structure wasn't recognised. Log the extract contents so a
+                # live re-run pinpoints why (the "missing mods" investigation).
+                try:
+                    _preview = []
+                    for _r, _ds, _fs in os.walk(stage_src_root):
+                        for _f in _fs:
+                            _preview.append(os.path.relpath(
+                                os.path.join(_r, _f), stage_src_root))
+                            if len(_preview) >= 12:
+                                break
+                        if len(_preview) >= 12:
+                            break
+                    log_fn(f"Collection install: '{prepared.mod_name}' — "
+                           f"stage_file_list returned None (structure not "
+                           f"recognised). Extract root={stage_src_root}; "
+                           f"first files: {_preview}")
+                except Exception:
+                    pass
                 cancelled = True
             else:
                 dest_root.mkdir(parents=True, exist_ok=True)
+                if not staged:
+                    log_fn(f"Collection install: '{prepared.mod_name}' — "
+                           f"stage_file_list produced an EMPTY file list "
+                           f"(0 files to copy).")
                 _copy_file_list(staged, stage_src_root, dest_root, log_fn)
     finally:
         prepared.cleanup()
@@ -1097,7 +1197,8 @@ def install_collection_archive(
         shutil.rmtree(dest_root, ignore_errors=True)
         return None
     if not dest_root.is_dir() or not any(dest_root.iterdir()):
-        log_fn(f"Collection install: nothing staged for '{prepared.mod_name}'.")
+        log_fn(f"Collection install: nothing staged for '{prepared.mod_name}' "
+               f"(file_list={'explicit' if file_list is not None else 'auto'}).")
         try:
             dest_root.rmdir()
         except OSError:

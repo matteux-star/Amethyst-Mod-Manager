@@ -216,6 +216,24 @@ class CollectionsBrowserView(QWidget):
             self._reload()
 
     # -- fetch --------------------------------------------------------------
+    def set_game(self, game, domain):
+        """Retarget this browser at a different game (game switched while the tab
+        is open). Resets paging + search and re-fetches the collection grid for
+        the new domain."""
+        self._game = game
+        self._domain = domain or ""
+        self._page = 0
+        self._query = ""
+        self._fetch_token += 1              # invalidate any in-flight fetch
+        try:
+            self._search.blockSignals(True)
+            self._search.clear()
+            self._search.blockSignals(False)
+        except Exception:
+            pass
+        self.refresh_open_current()
+        self._reload()
+
     def _reload(self):
         if not self._domain:
             self._status.setText("No Nexus domain for this game.")
