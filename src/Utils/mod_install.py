@@ -605,6 +605,16 @@ class PreparedInstall:
         # auto-strip fails — the toolkit shows the Set-Prefix dialog. None = the
         # neutral default (install as-is).
         self.on_need_prefix = on_need_prefix
+        # BAIN complex-package detection (mutually exclusive with FOMOD — a
+        # non-FOMOD archive is probed for a BAIN sub-package layout at prepare
+        # time so the caller can show the picker before finish_install stages it).
+        # bain_subpkgs is a list[BainSubPackage] (or None); bain_root is the
+        # single-folder-unwrapped extract dir the sub-package paths are relative
+        # to. readme_text / saved_bain_selections feed the picker.
+        self.bain_subpkgs = None
+        self.bain_root = None
+        self.readme_text = None
+        self.saved_bain_selections = None
         # Set by finish_install when the user chose to Replace an existing mod:
         # keep its modlist position + carry its endorsed flag onto the new install.
         self._preserve_position = False
@@ -612,6 +622,9 @@ class PreparedInstall:
 
     def is_fomod(self) -> bool:
         return self.fomod_base is not None and self.fomod_config is not None
+
+    def is_bain(self) -> bool:
+        return bool(self.bain_subpkgs)
 
     def cleanup(self):
         shutil.rmtree(self.extract_dir, ignore_errors=True)
@@ -660,17 +673,40 @@ def prepare_archive(archive_path: str, game, profile_dir: Path, *,
         except Exception as exc:
             log_fn(f"FOMOD parse failed ({exc}); will install verbatim.")
             fomod_base = None
-    return PreparedInstall(archive, game, profile_dir, mod_name,
-                           extract_dir, src_root, fomod_base, config,
-                           prebuilt_meta=prebuilt_meta,
-                           on_need_prefix=on_need_prefix)
+    prepared = PreparedInstall(archive, game, profile_dir, mod_name,
+                               extract_dir, src_root, fomod_base, config,
+                               prebuilt_meta=prebuilt_meta,
+                               on_need_prefix=on_need_prefix)
+
+    # BAIN is mutually exclusive with FOMOD (Tk parity): only probe a non-FOMOD
+    # archive. Detect a complex BAIN layout so the caller can show the picker.
+    if fomod_base is None and getattr(game, "supports_bain", True):
+        try:
+            from Utils.bain_installer import detect_bain, bain_unwrap_single_folder
+            bain_root = bain_unwrap_single_folder(str(extract_dir))
+            subpkgs = detect_bain(
+                bain_root, extra_exts=getattr(game, "plugin_extensions", None))
+        except Exception as exc:
+            log_fn(f"BAIN detection failed ({exc}); will install verbatim.")
+            subpkgs = None
+            bain_root = str(extract_dir)
+        if subpkgs:
+            prepared.bain_subpkgs = subpkgs
+            prepared.bain_root = bain_root
+            prepared.readme_text = _read_bain_readme(bain_root)
+            prepared.saved_bain_selections = _read_saved_bain_selections(
+                game, mod_name, log_fn)
+            log_fn(f"BAIN package detected — {len(subpkgs)} sub-package(s).")
+    return prepared
 
 
 def finish_install(prepared: "PreparedInstall", fomod_selections, *,
                    log_fn: LogFn, progress_fn: Optional[ProgressFn] = None,
-                   on_exists=None) -> str | None:
+                   on_exists=None, bain_selections=None) -> str | None:
     """Stage the prepared archive. *fomod_selections* is the wizard's
     {step_idx: {group: [plugins]}} dict (or None → FOMOD defaults / plain copy).
+    *bain_selections* is the BAIN picker's ``{"selected": [name, ...]}`` dict for
+    a BAIN package (or None → its default "00"-prefixed sub-packages).
     Always cleans up the extract dir. Returns the installed mod name (None on
     cancel).
 
@@ -732,6 +768,7 @@ def finish_install(prepared: "PreparedInstall", fomod_selections, *,
                 return None
 
     cancelled = False
+    bain_selected: "list[str] | None" = None
     try:
         if p.is_fomod():
             ok = _install_fomod(p.fomod_base, p.fomod_config, dest_root,
@@ -739,6 +776,23 @@ def finish_install(prepared: "PreparedInstall", fomod_selections, *,
             if not ok:
                 log_fn("FOMOD resolve failed — installing all files verbatim.")
                 _copy_tree(p.src_root, dest_root, log_fn, _pp)
+        elif p.is_bain():
+            # BAIN: merge the selected sub-packages (later ones override earlier),
+            # with paths relative to the unwrapped bain_root — mirroring the
+            # collection install path.
+            from Utils.bain_installer import resolve_bain_files
+            if bain_selections is not None and isinstance(
+                    bain_selections.get("selected"), list):
+                bain_selected = list(bain_selections["selected"])
+            else:
+                bain_selected = [pkg.name for pkg in p.bain_subpkgs
+                                 if pkg.default_selected]
+                log_fn("BAIN: using default sub-package selection.")
+            file_list = resolve_bain_files(p.bain_subpkgs, set(bain_selected))
+            log_fn(f"BAIN: {len(bain_selected)} sub-package(s), "
+                   f"{len(file_list)} file(s) to install.")
+            dest_root.mkdir(parents=True, exist_ok=True)
+            _copy_file_list(file_list, p.bain_root, dest_root, log_fn)
         else:
             # Non-FOMOD: build + normalise the file list to the game's expected
             # structure (strip/required-top-level/auto-strip/prefix), EXACTLY like
@@ -777,7 +831,12 @@ def finish_install(prepared: "PreparedInstall", fomod_selections, *,
 
     _write_install_meta(dest_root, p.archive, p.game, log_fn,
                         prebuilt_meta=getattr(p, "prebuilt_meta", None),
-                        endorsed=getattr(p, "_preserved_endorsed", False))
+                        endorsed=getattr(p, "_preserved_endorsed", False),
+                        is_bain=bain_selected is not None)
+    # Persist the BAIN sub-package selection (global + profile) so a re-install
+    # restores the user's choices (Tk parity).
+    if bain_selected is not None:
+        _persist_bain_selection(p.game, p.mod_name, {"selected": bain_selected})
     _pp(0, 0, "Indexing")
     _update_indexes(p.game, p.profile_dir, p.mod_name, dest_root, log_fn)
     _add_to_modlist(p.profile_dir, p.mod_name, log_fn,
@@ -1127,6 +1186,65 @@ def _write_profile_bain_selection(game, mod_name: str, result) -> None:
         pass
 
 
+def _read_bain_readme(bain_root: str) -> "str | None":
+    """Return the text of a package readme at *bain_root* (``package.txt`` or
+    ``readme.txt``, case-insensitive) — shown alongside the BAIN picker. A Wrye
+    Bash installer *script* (``wizard.txt``) is deliberately NOT treated as a
+    readme (Tk parity)."""
+    try:
+        root_files = {e.name.lower(): e.path
+                      for e in os.scandir(bain_root) if e.is_file()}
+    except OSError:
+        return None
+    for rn in ("package.txt", "readme.txt"):
+        rp = root_files.get(rn)
+        if rp:
+            try:
+                return Path(rp).read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                return None
+    return None
+
+
+def _read_saved_bain_selections(game, mod_name: str, log_fn: LogFn) -> "dict | None":
+    """Load a previously-saved BAIN selection for *mod_name* (global config) so
+    the picker restores the user's last choices (Tk parity)."""
+    game_name = getattr(game, "name", "")
+    if not game_name:
+        return None
+    try:
+        import json
+        from Utils.config_paths import get_bain_selections_path
+        sel_path = get_bain_selections_path(game_name, mod_name)
+        if sel_path.is_file():
+            with open(sel_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            log_fn("Restored previous BAIN selections.")
+            return data
+    except (OSError, ValueError, Exception):
+        pass
+    return None
+
+
+def _persist_bain_selection(game, mod_name: str, result) -> None:
+    """Persist a BAIN selection to BOTH the global config
+    (``get_bain_selections_path``) and the profile (``<profile>/bain/<mod>.json``),
+    matching the Tk installer."""
+    _write_profile_bain_selection(game, mod_name, result)
+    game_name = getattr(game, "name", "")
+    if not game_name:
+        return
+    try:
+        import json
+        from Utils.config_paths import get_bain_selections_path
+        sel_path = get_bain_selections_path(game_name, mod_name)
+        sel_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(sel_path, "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2)
+    except OSError:
+        pass
+
+
 # ---------------------------------------------------------------- helpers
 def _clean_mod_name(stem: str, game) -> str:
     """Best-effort folder name from the archive stem.
@@ -1210,7 +1328,8 @@ def _install_fomod(fomod_base: Path, config, dest_root: Path,
 
 
 def _write_install_meta(dest_root: Path, archive: Path, game, log_fn: LogFn,
-                        prebuilt_meta=None, endorsed: bool = False) -> None:
+                        prebuilt_meta=None, endorsed: bool = False,
+                        is_bain: bool = False) -> None:
     try:
         from Nexus.nexus_meta import (
             write_meta, resolve_nexus_meta_for_archive, NexusModMeta)
@@ -1237,6 +1356,10 @@ def _write_install_meta(dest_root: Path, archive: Path, game, log_fn: LogFn,
         # Carry the endorsed flag from a replaced install (Tk parity).
         if endorsed:
             meta.endorsed = True
+        # Stamp the BAIN install-method flag so the modlist BAIN filter / is_bain
+        # set picks it up (Tk parity).
+        if is_bain:
+            meta.is_bain = True
         write_meta(meta_path, meta)
     except Exception as exc:
         log_fn(f"meta.ini write skipped ({exc}).")

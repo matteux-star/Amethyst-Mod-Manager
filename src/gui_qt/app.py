@@ -2956,10 +2956,42 @@ class MainWindow(QMainWindow):
             view.destroyed.connect(lambda *_: _cancel())
             self._tabs.open_tab(view, f"Install: {prepared.mod_name}",
                                 key="fomod_wizard")
+        elif prepared.is_bain():
+            # BAIN package: open the sub-package picker tab; finish on the user's
+            # selection (or cancel). Mirrors the FOMOD handshake above.
+            if self._progress_popup is not None:
+                self._progress_popup.clear()
+            from gui_qt.bain_picker_view import BainPickerView
+
+            self._bain_done = False   # guard against double-fire
+
+            def _bfinish(result):
+                if self._bain_done:
+                    return
+                self._bain_done = True
+                self._tabs.close_tab("bain_picker")
+                if result is None:
+                    self._op_log.emit(
+                        f"BAIN install cancelled: {prepared.mod_name}")
+                    prepared.cleanup()
+                    self._notify(f"Install cancelled: {prepared.mod_name}", "info")
+                    self._one_install_done.emit(None)
+                    return
+                self._run_finish_install(prepared, None, bain_selections=result)
+
+            view = BainPickerView(
+                prepared.bain_subpkgs, prepared.bain_root, prepared.mod_name,
+                on_done=_bfinish,
+                readme_text=getattr(prepared, "readme_text", None),
+                saved_selections=getattr(prepared, "saved_bain_selections", None))
+            # Closing the tab (× / detached-window close) cancels the install.
+            view.destroyed.connect(lambda *_: _bfinish(None))
+            self._tabs.open_tab(view, f"Install: {prepared.mod_name}",
+                                key="bain_picker")
         else:
             self._run_finish_install(prepared, None)
 
-    def _run_finish_install(self, prepared, selections):
+    def _run_finish_install(self, prepared, selections, bain_selections=None):
         import threading
 
         def worker():
@@ -2969,7 +3001,8 @@ class MainWindow(QMainWindow):
                     prepared, selections,
                     log_fn=lambda m: self._op_log.emit(str(m)),
                     progress_fn=lambda d, t, ph=None: self._op_progress.emit(d, t, ph),
-                    on_exists=self._make_exists_cb())
+                    on_exists=self._make_exists_cb(),
+                    bain_selections=bain_selections)
             except Exception as exc:
                 self._op_log.emit(f"Install error ({prepared.mod_name}): {exc}")
                 name = None
