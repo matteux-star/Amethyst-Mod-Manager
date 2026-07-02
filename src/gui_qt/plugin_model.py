@@ -18,7 +18,7 @@ COLUMNS = ["Plugin Name", "Flags", "", "Index"]
 
 RowRole = Qt.UserRole + 1      # the PluginRow
 PFlagsRole = Qt.UserRole + 2   # int flag bitmask
-PHighlightRole = Qt.UserRole + 3  # 0 none, 2 anchor(orange), 1 higher, -1 lower
+PHighlightRole = Qt.UserRole + 3  # 0 none, 3 master(green), 2 anchor(orange), 1 higher, -1 lower
 
 
 class PluginModel(QAbstractTableModel):
@@ -66,7 +66,8 @@ class PluginModel(QAbstractTableModel):
         self._ul_groups = dict(groups or {})
 
     def set_highlights(self, highlights: dict[str, int]) -> None:
-        """highlights maps plugin name (lower) → code (2/1/-1). Repaints."""
+        """highlights maps plugin name (lower) → code (3 master / 2 anchor /
+        1 higher / -1 lower). Replaces the whole map and repaints."""
         self._highlights = dict(highlights or {})
         if self._rows:
             self.dataChanged.emit(self.index(0, 0),

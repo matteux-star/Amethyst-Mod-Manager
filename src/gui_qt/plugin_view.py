@@ -75,6 +75,9 @@ class PluginDelegate(QStyledItemDelegate):
         self.c_hl_higher = QColor("#108d00")
         self.c_hl_lower = QColor("#9a0e0e")
         self.c_hl_anchor = QColor("#A45500")
+        # Masters of the selected plugin get their own green row tint (Tk
+        # BG_GREEN_ROW), distinct from the conflict-higher green.
+        self.c_hl_master = QColor(_c(p, "BG_GREEN_ROW"))
 
     def sizeHint(self, opt, index):
         return QSize(opt.rect.width(), ROW_H)
@@ -90,6 +93,8 @@ class PluginDelegate(QStyledItemDelegate):
         highlighted = False
         if selected:
             p.fillRect(r, self.c_sel)
+        elif hl == 3:
+            p.fillRect(r, self.c_hl_master); highlighted = True
         elif hl == 2:
             p.fillRect(r, self.c_hl_anchor); highlighted = True
         elif hl == 1:
@@ -361,16 +366,19 @@ class PluginView(QTreeView):
         sb.set_persistent_rows(missing=rows)
 
     def set_master_highlight(self, master_names_lower: set) -> None:
-        """Green-tick the marker strip for the rows whose plugin is a master of
-        the currently-selected plugin (Tk parity). Pass an empty set to clear."""
+        """Green-highlight the rows (and marker-strip ticks) whose plugin is a
+        master of the currently-selected plugin (Tk parity). Pass an empty set
+        to clear. Uses highlight code 3 (BG_GREEN_ROW tint), which the delegate
+        prioritises over the cross-panel conflict/anchor tints."""
         sb = getattr(self, "_marker_strip", None)
-        if sb is None:
-            return
         wanted = {n.lower() for n in (master_names_lower or ())}
         m = self.model()
         rows = {i for i in range(m.rowCount())
                 if m.row(i).name.lower() in wanted}
-        sb.set_persistent_rows(master=rows)
+        if sb is not None:
+            sb.set_persistent_rows(master=rows)
+        # Tint the master rows green in the list body too (Tk BG_GREEN_ROW).
+        m.set_highlights({n: 3 for n in wanted})
 
     def set_highlight_from_mods(self, mod_names: set, bsa_higher: set,
                                 bsa_lower: set, owner: dict,
