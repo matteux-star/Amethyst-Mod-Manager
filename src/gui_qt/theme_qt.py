@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from gui.themes import load_palettes
+from Utils.themes import load_palettes
 from Utils.ui_config import get_appearance_mode
 
 

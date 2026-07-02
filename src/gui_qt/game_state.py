@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from gui.game_helpers import (
+from Utils.game_helpers import (
     _load_games, _profiles_for_game, _load_last_game, _save_last_game, _GAMES,
 )
 from Utils.ui_config import load_last_session, save_last_session

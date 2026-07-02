@@ -305,7 +305,7 @@ class MainWindow(QMainWindow):
         # last game is removed). Deferred so the window finishes building first.
         self._onboarding_view = None
         from Utils.ui_config import load_onboarding_complete
-        from gui.game_helpers import _GAMES
+        from Utils.game_helpers import _GAMES
         configured = sum(1 for g in _GAMES.values() if g.is_configured())
         if not load_onboarding_complete() or configured == 0:
             QTimer.singleShot(0, self._open_onboarding_tab)
@@ -1301,7 +1301,7 @@ class MainWindow(QMainWindow):
             self._tabs.close_tab("custom_game")
             if saved_defn is None:
                 return
-            from gui.game_helpers import _load_games, _GAMES
+            from Utils.game_helpers import _load_games, _GAMES
             names = _load_games()
             self._gs.game_names = names
             self._game_selector.set_items(names, current=self._gs.game_name)
@@ -1316,7 +1316,7 @@ class MainWindow(QMainWindow):
     def _open_add_game_tab(self):
         """Open the Add Game card-grid picker as a (detachable) tab."""
         from gui_qt.add_game_view import AddGameView
-        from gui.game_helpers import _load_games, _GAMES
+        from Utils.game_helpers import _load_games, _GAMES
         _load_games()   # refresh registry (populates _GAMES with ALL games)
         page = AddGameView(dict(_GAMES),
                            on_select=self._on_add_game_select,
@@ -1567,7 +1567,7 @@ class MainWindow(QMainWindow):
         the pipeline with the chosen mode. Mirrors Tk _continue_install_collection:
         if this exact collection+revision URL is already in a profile → Continue;
         else → New/Append."""
-        from gui.game_helpers import (
+        from Utils.game_helpers import (
             find_profile_with_collection_url, _profiles_for_game)
         game = info["game"]; slug = info["slug"]; domain = info["domain"]
         rev = info["revision"]
@@ -1605,7 +1605,7 @@ class MainWindow(QMainWindow):
         then continue into the profile that already claims this collection.
         Already-installed mods skip by file_id (Tk parity)."""
         game = info["game"]; slug = info["slug"]
-        from gui.game_helpers import find_profile_with_collection_slug
+        from Utils.game_helpers import find_profile_with_collection_slug
         from Utils.profile_state import write_collection_install_paused
         try:
             pname = find_profile_with_collection_slug(game.name, slug)
@@ -1635,7 +1635,7 @@ class MainWindow(QMainWindow):
         diff, confirm via UpdateOverlay, remove stale/bundled/patched mods, stash
         an order-preserving update_context, then continue-install."""
         game = info["game"]; slug = info["slug"]; mods = info["mods"]
-        from gui.game_helpers import find_profile_with_collection_slug
+        from Utils.game_helpers import find_profile_with_collection_slug
         try:
             pname = find_profile_with_collection_slug(game.name, slug)
         except Exception:
@@ -1817,7 +1817,7 @@ class MainWindow(QMainWindow):
         # an existing profile (append/continue).
         skipped_mods = [m for m in mods if getattr(m, "file_id", None) in skipped]
 
-        from gui.game_helpers import (
+        from Utils.game_helpers import (
             _create_profile, _profiles_for_game, save_collection_url_to_profile)
         from Utils.profile_state import (
             write_collection_revision, write_collection_optional_skipped)
@@ -1912,7 +1912,7 @@ class MainWindow(QMainWindow):
                                   skipped):
         """Record the collection URL + revision + skipped-optionals on a profile
         that claims this collection (new / continue modes)."""
-        from gui.game_helpers import save_collection_url_to_profile
+        from Utils.game_helpers import save_collection_url_to_profile
         from Utils.profile_state import (
             write_collection_revision, write_collection_optional_skipped)
         try:
@@ -2327,7 +2327,7 @@ class MainWindow(QMainWindow):
             self._notify("No configured game selected.", "warning")
             return
         pdir = self._gs.profile_dir()
-        from gui.game_helpers import get_collection_url_from_profile
+        from Utils.game_helpers import get_collection_url_from_profile
         url = get_collection_url_from_profile(pdir) if pdir is not None else None
         if not url:
             self._notify("The active profile isn't a collection profile.",
@@ -3650,7 +3650,7 @@ class MainWindow(QMainWindow):
 
     def _on_add_game_add(self, name: str):
         """An unconfigured game was picked → open the configure-game tab."""
-        from gui.game_helpers import _GAMES
+        from Utils.game_helpers import _GAMES
         game = _GAMES.get(name)
         if game is None:
             self._append_log(f"[game] {name} not found in registry")
@@ -3667,7 +3667,7 @@ class MainWindow(QMainWindow):
             if saved or removed:
                 # Refresh the game registry + selector; switch to the game if it
                 # is now configured, else fall back to the current/ first game.
-                from gui.game_helpers import _load_games
+                from Utils.game_helpers import _load_games
                 names = _load_games()
                 self._gs.game_names = names
                 self._game_selector.set_items(names, current=self._gs.game_name)
@@ -3869,7 +3869,7 @@ class MainWindow(QMainWindow):
         """Create a new profile for the active game and switch to it. Mirrors the
         Tk top_bar._on_add_profile flow: reject an existing name, create via the
         neutral _create_profile, repopulate the selector, select + reload."""
-        from gui.game_helpers import _create_profile, _profiles_for_game
+        from Utils.game_helpers import _create_profile, _profiles_for_game
         game_name = self._gs.game_name
         if not game_name:
             return
@@ -5045,7 +5045,7 @@ class MainWindow(QMainWindow):
         """Rename a mod: staging folder → new, modindex entry, modlist entry,
         then reload. Returns the sanitised new name on success, else None.
         Mirrors the Tk modlist_panel.rename_mod_by_name operation."""
-        from gui.mod_name_utils import sanitize_mod_folder_name
+        from Utils.mod_name_utils import sanitize_mod_folder_name
         new_name = sanitize_mod_folder_name(new_name)
         if not old_name or not new_name or old_name == new_name:
             return None

@@ -180,7 +180,7 @@ def load_plugins(game, profile: str) -> list[PluginRow]:
     # Full vanilla set: base + DLC + Creation Club (.ccc), filtered to files
     # present in Data — same resolver the Tk app uses.
     try:
-        from gui.game_helpers import _vanilla_plugins_for_game
+        from Utils.game_helpers import _vanilla_plugins_for_game
         vanilla = _vanilla_plugins_for_game(game)
     except Exception:
         vanilla = {n.lower(): n for n in getattr(game, "vanilla_plugins", [])}

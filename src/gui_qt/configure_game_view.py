@@ -712,8 +712,8 @@ class ConfigureGameView(QWidget):
 
         # Ensure the profile structure exists (mods/profiles/overwrite + default).
         try:
-            from gui.add_game_dialog import _create_profile_structure
-            _create_profile_structure(g)
+            from Utils.profile_structure import create_profile_structure
+            create_profile_structure(g)
         except Exception as exc:
             print(f"[gui_qt] profile structure create failed: {exc}", flush=True)
 

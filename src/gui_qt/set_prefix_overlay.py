@@ -110,7 +110,7 @@ class SetPrefixOverlay(QWidget):
 
     # -- internals ----------------------------------------------------------
     def _refresh_preview(self, _text=None):
-        from gui.text_utils import build_tree_str
+        from Utils.tree_str import build_tree_str
         prefix = self._entry.text().strip().strip("/").replace("\\", "/")
         paths = []
         for _s, dst, is_folder in self._file_list:

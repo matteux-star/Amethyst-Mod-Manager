@@ -22,19 +22,24 @@ PATH=$(echo "$PATH" | tr ':' '\n' | grep -v '^/tmp/\.mount_' | paste -sd:)
     XDG_DATA_DIRS=$(echo "$XDG_DATA_DIRS" | tr ':' '\n' | grep -v '^/tmp/\.mount_' | paste -sd:)
 export PATH XDG_DATA_DIRS
 
-if [ ! -d .venv ]; then
-    python3 -m venv --system-site-packages .venv
-    [ -f requirements.txt ] && .venv/bin/pip install -r requirements.txt -q
+# The Qt app uses the PROJECT-ROOT .venv (../.venv), which has PySide6 —
+# separate from src/.venv (the Tk app's venv, no PySide6) that run.sh uses.
+VENV="../.venv"
+
+if [ ! -d "$VENV" ]; then
+    python3 -m venv "$VENV"
+    [ -f requirements.txt ] && "$VENV/bin/pip" install -r requirements.txt -q
 fi
 
-# Install any missing or newly added requirements
+# Install any missing or newly added requirements (incl. PySide6 for the Qt UI).
 if [ -f requirements.txt ]; then
-    .venv/bin/pip install -r requirements.txt -q --disable-pip-version-check
+    "$VENV/bin/pip" install -r requirements.txt -q --disable-pip-version-check
 fi
+"$VENV/bin/python3" -c "import PySide6" 2>/dev/null || \
+    "$VENV/bin/pip" install -q PySide6
 
 # Tee stderr to a log so a native crash trace (faulthandler) and the bash
 # "Segmentation fault" line survive after the terminal closes. Still shown live.
-_errlog="${XDG_CONFIG_HOME:-$HOME/.config}/AmethystModManager/run-stderr.log"
+_errlog="${XDG_CONFIG_HOME:-$HOME/.config}/AmethystModManager/run-qt-stderr.log"
 mkdir -p "$(dirname "$_errlog")"
-.venv/bin/python3 gui.py "$@" 2> >(tee -a "$_errlog" >&2)
-
+"$VENV/bin/python3" run_qt.py "$@" 2> >(tee -a "$_errlog" >&2)

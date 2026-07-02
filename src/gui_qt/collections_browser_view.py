@@ -364,7 +364,7 @@ class CollectionsBrowserView(QWidget):
         Call this on profile change (the app does)."""
         url = None
         try:
-            from gui.game_helpers import get_collection_url_from_profile
+            from Utils.game_helpers import get_collection_url_from_profile
             pdir = getattr(self._game, "_active_profile_dir", None)
             if pdir is not None:
                 url = get_collection_url_from_profile(pdir)

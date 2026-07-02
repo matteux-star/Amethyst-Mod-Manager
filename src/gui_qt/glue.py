@@ -75,7 +75,7 @@ def register_all(app, *, log, parent_window, ask_choice=None, warn=None,
 
         def _theme_overrides(mode):
             import importlib
-            mod = importlib.import_module(f"gui.themes.{mode}")
+            mod = importlib.import_module(f"Utils.themes.{mode}")
             raw = getattr(mod, "THEME_DEFAULTS_OVERRIDE", None)
             return raw if isinstance(raw, dict) else {}
 

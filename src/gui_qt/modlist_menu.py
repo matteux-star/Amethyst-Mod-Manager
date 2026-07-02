@@ -521,7 +521,7 @@ def _other_profiles(view):
     if game is None or pdir is None:
         return []
     try:
-        from gui.game_helpers import _profiles_for_game
+        from Utils.game_helpers import _profiles_for_game
         cur = pdir.name
         return [p for p in _profiles_for_game(game.name) if p != cur]
     except Exception:

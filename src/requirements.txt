@@ -1,4 +1,4 @@
-customtkinter
+PySide6
 py7zr
 libarchive-c
 Pillow

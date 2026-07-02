@@ -308,7 +308,7 @@ class SettingsView(QWidget):
     def _build_appearance(self):
         g = self._section("Appearance")
         try:
-            from gui.themes import load_display_names
+            from Utils.themes import load_display_names
             themes = load_display_names() or {"dark": "Dark"}
         except Exception:
             themes = {"dark": "Dark", "light": "Light"}
