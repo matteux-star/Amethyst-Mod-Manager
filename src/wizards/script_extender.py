@@ -8,26 +8,14 @@ Multi-step dialog that walks the user through:
 
 from __future__ import annotations
 
-import os
 import shutil
-import subprocess
-import tarfile
 import threading
-import urllib.request
-import urllib.error
-import json as _json
 from Utils.xdg import open_url
 from Utils.portal_filechooser import pick_file
-import zipfile
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import customtkinter as ctk
-
-try:
-    import py7zr
-except ImportError:
-    py7zr = None  # type: ignore[assignment]
 
 if TYPE_CHECKING:
     from Games.base_game import BaseGame
@@ -40,155 +28,21 @@ from gui.theme import (
 )
 from wizards._install_as_mod import derive_mod_name, register_as_mod
 
-_ARCHIVE_EXTS = {".zip", ".7z", ".rar", ".tar", ".tar.gz", ".tar.bz2", ".tar.xz"}
-
-
 # ---------------------------------------------------------------------------
-# GitHub release fetch
+# Archive download/locate/extract primitives live in the GUI-neutral
+# Utils.wizard_archives (shared with the Qt wizard views and the Morrowind
+# MGE XE / MCP wizards); aliased to the private names used below.
 # ---------------------------------------------------------------------------
-
-def _fetch_latest_github_asset(api_url: str, archive_keywords: list[str]) -> tuple[str, str]:
-    """Return (version_tag, download_url) for the latest release asset matching *archive_keywords*."""
-    req = urllib.request.Request(
-        api_url,
-        headers={"Accept": "application/vnd.github+json", "User-Agent": "ModManager/1.0"},
-    )
-    from Utils.ca_bundle import get_ssl_context
-    with urllib.request.urlopen(req, timeout=15, context=get_ssl_context()) as resp:
-        data = _json.loads(resp.read().decode())
-    tag = data.get("tag_name", "unknown")
-    for asset in data.get("assets", []):
-        name: str = asset.get("name", "").lower()
-        if not any(name.endswith(ext) for ext in _ARCHIVE_EXTS):
-            continue
-        if all(kw in name for kw in archive_keywords):
-            return tag, asset["browser_download_url"]
-    raise RuntimeError(f"No matching asset found in the latest GitHub release ({tag}).")
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def _get_downloads_dir() -> Path:
-    xdg = os.environ.get("XDG_DOWNLOAD_DIR")
-    if xdg:
-        return Path(xdg)
-    return Path.home() / "Downloads"
-
-
-def _is_archive(name: str) -> bool:
-    low = name.lower()
-    return any(low.endswith(ext) for ext in _ARCHIVE_EXTS)
-
-
-def _find_archive(directory: Path, keywords: list[str]) -> Path | None:
-    """Search *directory* for the most-recently-modified archive matching all *keywords*."""
-    if not directory.is_dir() or not keywords:
-        return None
-    for entry in sorted(directory.iterdir(), key=lambda p: p.stat().st_mtime, reverse=True):
-        if not entry.is_file() or not _is_archive(entry.name):
-            continue
-        low = entry.name.lower()
-        if all(kw in low for kw in keywords):
-            return entry
-    return None
-
-
-def _extract_to_dir(archive: Path, dest: Path) -> None:
-    """Extract *archive* into *dest* (low-level, no flattening)."""
-    name_lower = archive.name.lower()
-
-    if name_lower.endswith(".zip"):
-        with zipfile.ZipFile(archive, "r") as zf:
-            zf.extractall(dest)
-
-    elif name_lower.endswith(".7z"):
-        extracted_via_cli = False
-        # Prefer a native 7-zip binary — the Flatpak bundles `7zz` at
-        # /app/bin and the AppImage bundles `7zzs`. py7zr is a last resort:
-        # it can't decode the BCJ2 filter that SKSE-style archives use.
-        _7z_bin = (
-            shutil.which("7zzs") or shutil.which("7zz")
-            or shutil.which("7z") or shutil.which("7za")
-        )
-        if _7z_bin:
-            result = subprocess.run(
-                [_7z_bin, "x", str(archive), f"-o{dest}", "-y"],
-                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
-            )
-            extracted_via_cli = result.returncode == 0
-
-        # bsdtar (libarchive) also handles BCJ2 and is broadly available.
-        if not extracted_via_cli:
-            _bsdtar_bin = shutil.which("bsdtar")
-            if _bsdtar_bin:
-                result = subprocess.run(
-                    [_bsdtar_bin, "-xf", str(archive), "-C", str(dest)],
-                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
-                )
-                extracted_via_cli = result.returncode == 0
-
-        if not extracted_via_cli:
-            if py7zr is None:
-                raise RuntimeError(
-                    "Cannot extract .7z archive: no native 7z/bsdtar command "
-                    "was found and py7zr is not installed."
-                )
-            with py7zr.SevenZipFile(archive, "r") as zf:
-                zf.extractall(dest)
-
-    elif name_lower.endswith((".tar", ".tar.gz", ".tar.bz2", ".tar.xz", ".tgz")):
-        with tarfile.open(archive, "r:*") as tf:
-            tf.extractall(dest)
-    else:
-        raise RuntimeError(f"Unsupported archive format: {archive.name}")
-
-
-def _strip_single_top_dir(tmp: Path) -> Path:
-    """If *tmp* contains a single top-level directory, return it so the
-    caller can copy its *contents* instead of the wrapper folder."""
-    entries = [e for e in tmp.iterdir() if e.name != "__MACOSX"]
-    if len(entries) == 1 and entries[0].is_dir():
-        return entries[0]
-    return tmp
-
-
-def _extract_archive(archive: Path, dest: Path) -> list[Path]:
-    """Extract *archive* into *dest*, stripping a single top-level wrapper
-    directory if present (e.g. ``f4se_0_07_07/`` -> contents go straight
-    into *dest*).
-
-    Returns created paths in **reverse depth order** (deepest first) so
-    callers can delete files before their parent directories.
-    """
-    import tempfile
-    tmp = Path(tempfile.mkdtemp())
-    try:
-        _extract_to_dir(archive, tmp)
-        src = _strip_single_top_dir(tmp)
-
-        created: list[Path] = []
-        for root, _dirs, files in os.walk(src):
-            for f in files:
-                src_file = Path(root) / f
-                rel = src_file.relative_to(src)
-                dst_file = dest / rel
-                dst_file.parent.mkdir(parents=True, exist_ok=True)
-                shutil.move(str(src_file), str(dst_file))
-                created.append(dst_file)
-    finally:
-        shutil.rmtree(tmp, ignore_errors=True)
-
-    dirs: set[Path] = set()
-    for p in created:
-        rel = p.relative_to(dest)
-        for parent in rel.parents:
-            if parent != Path("."):
-                dirs.add(dest / parent)
-
-    return list(created) + sorted(dirs, key=lambda p: len(p.parts), reverse=True)
-
+from Utils.wizard_archives import (  # noqa: E402
+    ARCHIVE_EXTS as _ARCHIVE_EXTS,
+    extract_archive as _extract_archive,
+    extract_to_dir as _extract_to_dir,  # noqa: F401 — re-exported
+    fetch_latest_github_asset as _fetch_latest_github_asset,
+    find_archive as _find_archive,
+    get_downloads_dir as _get_downloads_dir,
+    is_archive as _is_archive,  # noqa: F401 — re-exported
+    _strip_single_top_dir,  # noqa: F401 — re-exported
+)
 
 # ============================================================================
 # Wizard dialog

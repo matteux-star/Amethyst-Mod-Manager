@@ -77,6 +77,14 @@ def _reshade(game, log_fn=None, on_close=None, ctx=None, **extra):
     return ReShadeView(game, log_fn=log_fn, on_close=on_close, ctx=ctx, **extra)
 
 
+def _script_extender(game, log_fn=None, on_close=None, ctx=None, **extra):
+    # extra carries github_api_url / download_url / direct_download_url /
+    # archive_keywords / versions from each game's WizardTool registration.
+    from wizards_qt.script_extender_view import ScriptExtenderView
+    return ScriptExtenderView(game, log_fn=log_fn, on_close=on_close,
+                              ctx=ctx, **extra)
+
+
 # dialog_class_path → QtWizardSpec.  Keyed by the Tk class path (not tool.id,
 # which is per-game suffixed like "run_skygen_skyrimse") so one entry serves
 # every game that registers the tool.
@@ -84,6 +92,7 @@ REGISTRY: dict[str, QtWizardSpec] = {
     "wizards.re_pak_restore.RePakRestoreWizard": QtWizardSpec(_re_pak_restore),
     "wizards.pandora.PandoraWizard": QtWizardSpec(_pandora),
     "wizards.reshade.ReShadeWizard": QtWizardSpec(_reshade),
+    "wizards.script_extender.ScriptExtenderWizard": QtWizardSpec(_script_extender),
 }
 
 
