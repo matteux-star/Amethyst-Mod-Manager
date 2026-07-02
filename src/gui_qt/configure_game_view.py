@@ -21,13 +21,18 @@ from pathlib import Path
 from PySide6.QtCore import Qt, Signal, QObject
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QScrollArea, QFrame, QRadioButton, QCheckBox, QButtonGroup,
+    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QLineEdit,
+    QPushButton, QScrollArea, QFrame, QRadioButton, QCheckBox, QButtonGroup,
     QMessageBox,
 )
 
 from gui_qt.theme_qt import active_palette, _c
+from gui_qt.add_game_view import _game_logo
 from Utils.deploy import LinkMode
+
+# Left column width — the image panel and the options panel share it.
+_LEFT_COL_W = 240
+_LOGO_SQ = 200
 
 
 def _heroic_app_names(game) -> list[str]:
@@ -90,6 +95,18 @@ class ConfigureGameView(QWidget):
         lbl.setStyleSheet(f"font-size:14px; font-weight:600; color:{self._c('TEXT_SEP')};")
         return lbl
 
+    def _panel(self, title: str | None = None) -> tuple[QFrame, QVBoxLayout]:
+        """A bordered card panel. Returns (frame, inner vbox). If *title* is given
+        a section header is added as the first row."""
+        frame = QFrame()
+        frame.setObjectName("ConfigPanel")
+        v = QVBoxLayout(frame)
+        v.setContentsMargins(14, 12, 14, 12)
+        v.setSpacing(6)
+        if title:
+            v.addWidget(self._section_header(title))
+        return frame, v
+
     def _status(self, text: str, tone: str) -> QLabel:
         lbl = QLabel(text)
         lbl.setWordWrap(True)
@@ -135,13 +152,95 @@ class ConfigureGameView(QWidget):
         hb.addWidget(scope_lbl)
         outer.addWidget(header)
 
-        # Scrollable body.
-        scroll = QScrollArea(); scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
+        # Body — four distinct panels in a 2×2 grid: (top-left) image,
+        # (bottom-left) options, (right, spanning both rows) path entries.
         body = QWidget(); body.setObjectName("FormBody")
-        v = QVBoxLayout(body); v.setContentsMargins(16, 14, 16, 14); v.setSpacing(6)
-        scroll.setWidget(body)
-        outer.addWidget(scroll, 1)
+        grid = QGridLayout(body)
+        grid.setContentsMargins(16, 14, 16, 14)
+        grid.setHorizontalSpacing(14)
+        grid.setVerticalSpacing(14)
+        outer.addWidget(body, 1)
+
+        image_panel = self._build_image_panel()
+        options_panel = self._build_options_panel()
+        paths_panel = self._build_paths_panel()
+
+        # Left column (image + options) is a fixed narrow width; the paths panel
+        # takes all remaining width. The options panel gets the taller share so
+        # its scroll area has room.
+        grid.addWidget(image_panel, 0, 0)
+        grid.addWidget(options_panel, 1, 0)
+        grid.addWidget(paths_panel, 0, 1, 2, 1)
+        grid.setColumnStretch(0, 0)
+        grid.setColumnStretch(1, 1)
+        grid.setRowStretch(0, 0)
+        grid.setRowStretch(1, 1)
+
+        # --- Button bar ---
+        bar = QWidget(); bar.setObjectName("BottomBar")
+        bb = QHBoxLayout(bar); bb.setContentsMargins(12, 8, 12, 8)
+        if configured:
+            self._remove_btn = QPushButton("Remove Instance")
+            self._remove_btn.setObjectName("DangerButton")
+            self._remove_btn.setCursor(Qt.PointingHandCursor)
+            self._remove_btn.clicked.connect(self._on_remove)
+            bb.addWidget(self._remove_btn)
+            self._clean_btn = QPushButton("Clean Game Folder")
+            self._clean_btn.setObjectName("DangerButton")
+            self._clean_btn.setCursor(Qt.PointingHandCursor)
+            self._clean_btn.clicked.connect(self._on_clean)
+            bb.addWidget(self._clean_btn)
+        bb.addStretch(1)
+        if configured:
+            reset = self._small_btn("Reset Locations", self._reset_locations)
+            bb.addWidget(reset)
+        self._save_btn = QPushButton("Save")
+        self._save_btn.setObjectName("PrimaryButton")
+        self._save_btn.setCursor(Qt.PointingHandCursor)
+        self._save_btn.setEnabled(False)
+        self._save_btn.clicked.connect(self._on_save)
+        bb.addWidget(self._save_btn)
+        cancel = self._small_btn("Cancel", lambda: self._on_done(False, False))
+        bb.addWidget(cancel)
+        outer.addWidget(bar)
+
+    def _divider(self) -> QFrame:
+        f = QFrame(); f.setFrameShape(QFrame.HLine)
+        f.setStyleSheet(f"color:{self._c('BORDER')};")
+        return f
+
+    # ---- panel builders ---------------------------------------------------
+    def _build_image_panel(self) -> QFrame:
+        """Top-left panel — the game's square logo (same source as Add-Game)."""
+        frame, v = self._panel()
+        frame.setFixedWidth(_LEFT_COL_W)
+        v.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+
+        logo = QLabel()
+        logo.setAlignment(Qt.AlignCenter)
+        logo.setFixedSize(_LOGO_SQ, _LOGO_SQ)
+        game_id = (getattr(self._game, "game_id", None)
+                   or self._game.name.lower().replace(" ", "_"))
+        pm = _game_logo(game_id, _LOGO_SQ)
+        if pm is not None:
+            logo.setPixmap(pm)
+        else:
+            logo.setText("?")
+            logo.setStyleSheet(
+                f"color:{self._c('TEXT_DIM')}; font-size:48px; font-weight:bold;")
+        v.addWidget(logo, 0, Qt.AlignHCenter)
+
+        name = QLabel(self._game.name)
+        name.setAlignment(Qt.AlignCenter)
+        name.setWordWrap(True)
+        name.setStyleSheet("font-size:14px; font-weight:600;")
+        v.addWidget(name)
+        return frame
+
+    def _build_paths_panel(self) -> QFrame:
+        """Right panel — the three location entries (install / prefix / staging)."""
+        frame, v = self._panel()
+        g = self._game
 
         # --- Game install folder ---
         v.addWidget(self._section_header("Game Installation Folder"))
@@ -161,8 +260,8 @@ class ConfigureGameView(QWidget):
 
         # --- Proton prefix ---
         v.addWidget(self._section_header("Proton Prefix (compatdata/pfx)"))
-        has_prefix_src = bool(getattr(self._game, "steam_id", None)
-                              or _heroic_app_names(self._game))
+        has_prefix_src = bool(getattr(g, "steam_id", None)
+                              or _heroic_app_names(g))
         self._prefix_status = self._status(
             "Scanning for prefix…" if has_prefix_src
             else "No launcher ID — prefix not applicable.",
@@ -197,12 +296,30 @@ class ConfigureGameView(QWidget):
         row.addWidget(self._small_btn("Reset to default", self._reset_staging))
         row.addStretch(1)
         v.addLayout(row)
-        v.addWidget(self._divider())
+        v.addStretch(1)
+        return frame
 
-        # --- Deploy method + game-dependent options ---
-        v.addWidget(self._section_header("Deploy Method"))
+    def _build_options_panel(self) -> QFrame:
+        """Bottom-left panel — deploy method + game-dependent options, in an
+        independently-scrolling list so many options never blow out the frame."""
+        frame, v = self._panel("Options")
+        frame.setFixedWidth(_LEFT_COL_W)
+        v.setContentsMargins(14, 12, 8, 12)   # tighter right for the scrollbar
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        v.addWidget(scroll, 1)
+        inner = QWidget(); inner.setObjectName("OptionsList")
+        ov = QVBoxLayout(inner)
+        ov.setContentsMargins(0, 0, 6, 0)
+        ov.setSpacing(6)
+        scroll.setWidget(inner)
+
+        # --- Deploy method ---
+        ov.addWidget(self._section_header("Deploy Method"))
         rec = getattr(self._game, "default_deploy_mode", "symlink")
-        drow = QHBoxLayout()
         self._deploy_group = QButtonGroup(self)
         self._rb_symlink = QRadioButton(
             "Symlink (Recommended)" if rec == "symlink" else "Symlink")
@@ -210,9 +327,9 @@ class ConfigureGameView(QWidget):
             "Hardlink (Recommended)" if rec == "hardlink" else "Hardlink")
         self._deploy_group.addButton(self._rb_symlink)
         self._deploy_group.addButton(self._rb_hardlink)
-        drow.addWidget(self._rb_symlink); drow.addWidget(self._rb_hardlink)
-        drow.addStretch(1)
-        v.addLayout(drow)
+        ov.addWidget(self._rb_symlink)
+        ov.addWidget(self._rb_hardlink)
+        ov.addWidget(self._divider())
 
         # hasattr-gated option checkboxes (mirrors the Tk panel).
         self._opt_checks: dict[str, QCheckBox] = {}
@@ -220,9 +337,22 @@ class ConfigureGameView(QWidget):
         def add_check(key: str, text: str, gate: bool):
             if not gate:
                 return
-            cb = QCheckBox(text)
-            cb.setStyleSheet("padding:2px 0;")
-            v.addWidget(cb)
+            # Pair a bare checkbox indicator with a wrapping label so long option
+            # text reflows inside the narrow column (a plain QCheckBox can't wrap).
+            roww = QWidget()
+            rl = QHBoxLayout(roww)
+            rl.setContentsMargins(0, 2, 0, 2)
+            rl.setSpacing(8)
+            cb = QCheckBox()
+            cb.setFixedWidth(18)
+            rl.addWidget(cb, 0, Qt.AlignTop)
+            lbl = QLabel(text)
+            lbl.setWordWrap(True)
+            lbl.setCursor(Qt.PointingHandCursor)
+            # Click the label to toggle the box.
+            lbl.mousePressEvent = lambda _e, box=cb: box.toggle()
+            rl.addWidget(lbl, 1)
+            ov.addWidget(roww)
             self._opt_checks[key] = cb
 
         add_check("script_extender_swap",
@@ -248,52 +378,18 @@ class ConfigureGameView(QWidget):
         # BG3 patch-version radios.
         self._patch_group = None
         if hasattr(self._game, "get_patch_version"):
-            v.addWidget(self._section_header("Game Patch Version"))
-            prow = QHBoxLayout()
+            ov.addWidget(self._divider())
+            ov.addWidget(self._section_header("Game Patch Version"))
             self._patch_group = QButtonGroup(self)
             self._patch_buttons = {}
             for label, val in (("Patch 8", 8), ("Patch 7", 7), ("Patch 6", 6)):
                 rb = QRadioButton(label)
                 self._patch_group.addButton(rb)
                 self._patch_buttons[val] = rb
-                prow.addWidget(rb)
-            prow.addStretch(1)
-            v.addLayout(prow)
+                ov.addWidget(rb)
 
-        v.addStretch(1)
-
-        # --- Button bar ---
-        bar = QWidget(); bar.setObjectName("BottomBar")
-        bb = QHBoxLayout(bar); bb.setContentsMargins(12, 8, 12, 8)
-        if configured:
-            self._remove_btn = QPushButton("Remove Instance")
-            self._remove_btn.setObjectName("DangerButton")
-            self._remove_btn.setCursor(Qt.PointingHandCursor)
-            self._remove_btn.clicked.connect(self._on_remove)
-            bb.addWidget(self._remove_btn)
-            self._clean_btn = QPushButton("Clean Game Folder")
-            self._clean_btn.setObjectName("DangerButton")
-            self._clean_btn.setCursor(Qt.PointingHandCursor)
-            self._clean_btn.clicked.connect(self._on_clean)
-            bb.addWidget(self._clean_btn)
-        bb.addStretch(1)
-        if configured:
-            reset = self._small_btn("Reset Locations", self._reset_locations)
-            bb.addWidget(reset)
-        self._save_btn = QPushButton("Save")
-        self._save_btn.setObjectName("PrimaryButton")
-        self._save_btn.setCursor(Qt.PointingHandCursor)
-        self._save_btn.setEnabled(False)
-        self._save_btn.clicked.connect(self._on_save)
-        bb.addWidget(self._save_btn)
-        cancel = self._small_btn("Cancel", lambda: self._on_done(False, False))
-        bb.addWidget(cancel)
-        outer.addWidget(bar)
-
-    def _divider(self) -> QFrame:
-        f = QFrame(); f.setFrameShape(QFrame.HLine)
-        f.setStyleSheet(f"color:{self._c('BORDER')};")
-        return f
+        ov.addStretch(1)
+        return frame
 
     # ---- prepopulate ------------------------------------------------------
     def _prepopulate(self):

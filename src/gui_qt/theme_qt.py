@@ -379,7 +379,14 @@ def build_qss(pal: dict | None = None) -> str:
     #IconButton:hover {{ background: {c('BG_ROW_HOVER')}; }}
     #IconButton:pressed {{ background: {c('ACCENT')}; }}
     /* Configure-Game form body + monospace path fields + buttons. */
-    #FormBody {{ background: {c('BG_PANEL')}; }}
+    #FormBody {{ background: {c('BG_DEEP')}; }}
+    /* The four bordered card panels in the Configure-Game view. */
+    #ConfigPanel {{
+        background: {c('BG_PANEL')};
+        border: 1px solid {c('BORDER')};
+        border-radius: 8px;
+    }}
+    #ConfigPanel QLabel {{ background: transparent; }}
     #PathEdit {{
         background: {c('BG_ROW')};
         color: {c('TEXT_MAIN')};
