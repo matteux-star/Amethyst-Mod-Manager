@@ -150,6 +150,38 @@ def write_plugins(path: Path, entries: list[PluginEntry], star_prefix: bool = Tr
         _plugins_parse_cache.pop((str(path), False), None)
 
 
+def deploy_plugins_copy(directory: Path, filename: str, content: str, log_fn=None) -> None:
+    """Write `content` into `directory / filename` as a real file (not a symlink).
+
+    GOG builds of Bethesda games can't read a *symlinked* plugins.txt, so we
+    deploy a real copy. The Proton prefix is case-insensitive, so a single file
+    resolves under any casing; games that write to a real (case-sensitive) game
+    directory pass their own `filename` casing.
+    """
+    _log = log_fn or (lambda _msg: None)
+    directory.mkdir(parents=True, exist_ok=True)
+    target = directory / filename
+    try:
+        if target.exists() or target.is_symlink():
+            target.unlink()
+        target.write_text(content, encoding="utf-8")
+        _log(f"  Wrote {filename} → {target}")
+    except OSError as exc:
+        _log(f"  WARN: could not write {target}: {exc}")
+
+
+def remove_plugins_copy(directory: Path, filename: str, log_fn=None) -> None:
+    """Remove `directory / filename` (a deployed copy or legacy symlink)."""
+    _log = log_fn or (lambda _msg: None)
+    target = directory / filename
+    if target.exists() or target.is_symlink():
+        try:
+            target.unlink()
+            _log(f"  Removed {filename}: {target}")
+        except OSError as exc:
+            _log(f"  WARN: could not remove {target}: {exc}")
+
+
 def read_loadorder(path: Path) -> list[str]:
     """Read loadorder.txt and return plugin names in order.
 
