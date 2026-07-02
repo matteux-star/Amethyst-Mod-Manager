@@ -51,6 +51,34 @@ def icon(name: str, size: int = 18, color: str | None = None) -> QIcon:
     return ic
 
 
+def hamburger_icon(size: int = 18, color: str = "#ffffff") -> QIcon:
+    """Return a drawn 3-bar 'hamburger' menu QIcon tinted to *color*.
+
+    No PNG asset exists for this; drawing it keeps the glyph crisp at any size
+    and theme-tintable. Used for the play-bar exe-menu button so it reads as a
+    menu of run-exe actions rather than a second settings gear."""
+    key = (f"__hamburger#{color}", size)
+    cached = _cache.get(key)
+    if cached is not None:
+        return cached
+    pm = QPixmap(QSize(size, size))
+    pm.fill(Qt.transparent)
+    p = QPainter(pm)
+    p.setRenderHint(QPainter.Antialiasing, False)
+    thickness = max(1, round(size / 9))
+    inset = round(size * 0.22)
+    width = size - inset * 2
+    col = QColor(color)
+    # Three evenly spaced bars at ~28% / 50% / 72% of the height.
+    for frac in (0.28, 0.5, 0.72):
+        y = round(size * frac - thickness / 2)
+        p.fillRect(inset, y, width, thickness, col)
+    p.end()
+    ic = QIcon(pm)
+    _cache[key] = ic
+    return ic
+
+
 def icon_rotated(name: str, degrees: int, size: int = 18,
                  color: str | None = None) -> QIcon:
     """Return a QIcon for icons/<name> rotated *degrees* clockwise, scaled to

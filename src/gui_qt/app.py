@@ -15,11 +15,11 @@ from PySide6.QtGui import QAction, QTextCursor
 from PySide6.QtWidgets import (
     QMainWindow, QToolButton, QWidget, QSplitter, QApplication,
     QLabel, QVBoxLayout, QHBoxLayout, QPlainTextEdit,
-    QFrame, QLineEdit, QPushButton, QMenu, QStackedWidget,
+    QFrame, QLineEdit, QPushButton, QMenu, QStackedWidget, QSizePolicy,
 )
 
 from gui_qt.theme_qt import apply_theme, active_palette, _c
-from gui_qt.icons import icon
+from gui_qt.icons import icon, hamburger_icon
 from gui_qt.modlist_model import ModListModel, COL_SIZE
 from gui_qt.modlist_view import ModListView
 from gui_qt.selector_button import SelectorButton
@@ -85,6 +85,7 @@ class MainWindow(QMainWindow):
     _col_import_done = Signal(object)          # (profile_name, installed, total, skipped)
     _import_file_picked = Signal(object)       # portal picker result (Path|None) → UI thread
     _install_files_picked = Signal(object)     # portal picker result (list[Path]) → UI thread
+    _custom_exe_picked = Signal(object)        # portal picker result (Path|None) → UI thread
     # Worker blocks on these to show the deferred FOMOD / BAIN pickers (holder+Event).
     _col_fomod = Signal(object)
     _col_bain = Signal(object)
@@ -105,6 +106,7 @@ class MainWindow(QMainWindow):
         # Deploy/restore state + notification host.
         self._deploy_running = False
         self._deploy_rerun_pending = False
+        self._post_deploy_action = None   # launch closure run after deploy succeeds
         self._progress_popup = None
         self._notifier = None
         self._op_progress.connect(self._on_op_progress)
@@ -240,6 +242,7 @@ class MainWindow(QMainWindow):
         self._col_import_done.connect(self._on_import_bundle_done)
         self._import_file_picked.connect(self._on_import_file_picked)
         self._install_files_picked.connect(self._on_install_files_picked)
+        self._custom_exe_picked.connect(self._on_custom_exe_picked)
         self._col_fomod.connect(self._on_col_fomod_ui)
         self._col_bain.connect(self._on_col_bain_ui)
         QTimer.singleShot(0, self._ensure_nexus_api)
@@ -249,8 +252,7 @@ class MainWindow(QMainWindow):
         gs = self._gs
         if gs.game_name:
             self._game_selector.set_items(gs.game_names, current=gs.game_name)
-        self._play_game_selector.set_items(
-            gs.game_names or ["—"], current=gs.game_name or "—")
+        self._refresh_play_selector()
         profs = gs.profiles()
         if profs:
             self._profile_selector.set_items(profs, current=gs.profile)
@@ -1123,6 +1125,8 @@ class MainWindow(QMainWindow):
         if self._tabs.has_key("dll_overrides"):
             self._tabs.close_tab("dll_overrides")
             self._dll_overrides_view = None
+        # The exe-settings tab is bound to the previous game's exe.
+        self._close_exe_settings_tab()
         # Userlist tabs/bars hold the previous profile's userlist path.
         self._close_userlist_ui()
         # Retarget the Nexus / Collections browsers (if open) at the new game so
@@ -1134,7 +1138,7 @@ class MainWindow(QMainWindow):
         if profs:
             self._profile_selector.set_items(profs, current=self._gs.profile)
         self._game_selector.set_current(name)
-        self._play_game_selector.set_current(name)
+        self._refresh_play_selector()
         self._clear_search_boxes()
         self._reload_modlist()
         self._reload_plugins()
@@ -1188,6 +1192,9 @@ class MainWindow(QMainWindow):
         self._profile_selector.set_current(name)
         # Userlist tabs/bars are profile-scoped (userlist.yaml lives there).
         self._close_userlist_ui()
+        # Exe selection + exe args are per-profile.
+        self._close_exe_settings_tab()
+        self._refresh_play_selector()
         self._clear_search_boxes()
         self._reload_modlist()
         self._reload_plugins()
@@ -3734,8 +3741,187 @@ class MainWindow(QMainWindow):
         if hasattr(self, "_profile_selector"):
             self._profile_selector.set_highlighted_item(deployed)
 
+    # ------------------------------------------------------------- play bar
+    def _refresh_play_selector(self):
+        """Repopulate the play-bar dropdown: the game + custom exes, restoring
+        this profile's saved selection (Tk stores the label in profile_state)."""
+        game = self._gs.game
+        if game is None:
+            self._play_exe_paths = {}
+            self._play_exe_selector.set_items(["—"], current="—")
+            return
+        from Utils.exe_launch import load_custom_exes
+        self._play_exe_paths = {}
+        items = [game.name]
+        for p in load_custom_exes(game):
+            if p.name not in self._play_exe_paths and p.name != game.name:
+                self._play_exe_paths[p.name] = p
+                items.append(p.name)
+        current = game.name
+        pdir = self._gs.profile_dir()
+        if pdir is not None:
+            from Utils.profile_state import read_selected_exe
+            saved = read_selected_exe(pdir)
+            if saved in self._play_exe_paths:
+                current = saved
+        self._play_exe_selector.set_items(items, current=current)
+        self._update_play_btn_label(current)
+
+    def _update_play_btn_label(self, label: str):
+        game = self._gs.game
+        is_game = game is not None and label == game.name
+        self._play_btn.setText("▶  Play" if is_game else "▶  Run")
+
+    def _on_play_exe_selected(self, label):
+        game = self._gs.game
+        pdir = self._gs.profile_dir()
+        if pdir is not None:
+            from Utils.profile_state import write_selected_exe
+            is_game = game is not None and label == game.name
+            write_selected_exe(pdir, None if is_game else label)
+        self._update_play_btn_label(label)
+
+    def _on_add_custom_exe(self):
+        if self._gs.game is None:
+            self._notify("No game selected.", "warning")
+            return
+        # Picker callback fires on the portal WORKER thread → marshal via Signal.
+        from Utils.exe_launch import EXE_PICKER_FILTERS
+        from Utils.portal_filechooser import pick_file
+        pick_file("Select executable",
+                  lambda p: self._custom_exe_picked.emit(p),
+                  filters=EXE_PICKER_FILTERS)
+
+    def _on_custom_exe_picked(self, path):
+        game = self._gs.game
+        if path is None or game is None:
+            return
+        from Utils.exe_launch import add_custom_exe
+        add_custom_exe(game, path)
+        self._refresh_play_selector()
+        if path.name in self._play_exe_paths:
+            self._play_exe_selector.set_current(path.name)
+            self._on_play_exe_selected(path.name)
+
+    def _on_play(self):
+        game = self._gs.game
+        if game is None or not game.is_configured():
+            self._notify("No configured game selected.", "warning")
+            return
+        import threading
+        from Utils import exe_launch
+        label = self._play_exe_selector.current()
+        exe_path = self._play_exe_paths.get(label)
+        if exe_path is not None:
+            # Custom exe → Proton in the game prefix (or per-exe override).
+            if not exe_path.is_file():
+                self._notify(f"Executable not found: {exe_path}", "warning")
+                return
+            threading.Thread(
+                target=exe_launch.launch_exe_via_proton,
+                args=(exe_path, game), kwargs={"log_fn": self._append_log},
+                daemon=True,
+            ).start()
+            return
+
+        # Game entry → optional deploy first, then Steam/Heroic/Proton routing.
+        def _launch():
+            threading.Thread(
+                target=exe_launch.launch_game,
+                args=(game,), kwargs={"log_fn": self._append_log},
+                daemon=True,
+            ).start()
+
+        if exe_launch.load_deploy_before_launch(game) and hasattr(game, "deploy"):
+            self._post_deploy_action = _launch
+            self._on_deploy()
+        else:
+            _launch()
+
     def _on_play_action(self, which):
-        self._append_log(f"[play] {which} (not wired yet)")
+        game = self._gs.game
+        if game is None:
+            self._append_log(f"[play] {which}: no game selected")
+            return
+        if which == "folder":
+            if not hasattr(game, "get_mod_staging_path"):
+                self._append_log("[play] could not determine the Applications folder")
+                return
+            from Utils.xdg import xdg_open
+            apps_dir = game.get_mod_staging_path().parent / "Applications"
+            try:
+                apps_dir.mkdir(parents=True, exist_ok=True)
+                xdg_open(apps_dir)
+            except Exception as e:
+                self._append_log(f"[play] could not open Applications folder: {e}")
+        elif which == "settings":
+            label = self._play_exe_selector.current()
+            exe_path = self._play_exe_paths.get(label)
+            if exe_path is None:
+                self._open_launcher_settings(game)
+            else:
+                self._open_exe_settings_tab(exe_path)
+
+    def _open_launcher_settings(self, game):
+        """Borderless overlay with the game-launch settings (Tk: game-exe
+        branch of the Configure dialog)."""
+        from Utils import exe_launch
+        from gui_qt.launcher_settings_overlay import LauncherSettingsOverlay
+        exe_key = exe_launch.game_exe_key(game)
+
+        def _done(mode, deploy):
+            if mode is None:
+                return
+            exe_launch.save_launch_mode(game, exe_key, mode)
+            exe_launch.save_deploy_before_launch(game, deploy)
+            self._append_log(f"[play] launch settings saved (via={mode}, "
+                             f"deploy-before-launch={'on' if deploy else 'off'})")
+
+        LauncherSettingsOverlay.show_over(
+            self.centralWidget() or self,
+            game_name=game.name,
+            mode=exe_launch.load_launch_mode(game, exe_key),
+            deploy=exe_launch.load_deploy_before_launch(game),
+            on_done=_done,
+        )
+
+    def _open_exe_settings_tab(self, exe_path):
+        """Per-exe settings as a plugins-panel-scoped tab (Tk: ExeConfigPanel
+        overlay)."""
+        game = self._gs.game
+        if game is None:
+            return
+        if self._tabs.has_key("exe_settings"):
+            self._tabs.close_tab("exe_settings")
+            self._exe_settings_view = None
+        from gui_qt.exe_settings_view import ExeSettingsView
+
+        def _close(removed: bool):
+            self._close_exe_settings_tab()
+            if removed:
+                # Drop a stale per-profile selection pointing at the removed exe.
+                pdir = self._gs.profile_dir()
+                if pdir is not None:
+                    from Utils.profile_state import (read_selected_exe,
+                                                     write_selected_exe)
+                    if read_selected_exe(pdir) == exe_path.name:
+                        write_selected_exe(pdir, None)
+                self._refresh_play_selector()
+
+        view = ExeSettingsView(
+            game=game,
+            exe_path=exe_path,
+            on_close=_close,
+            log_fn=self._append_log,
+        )
+        self._exe_settings_view = view
+        self._tabs.open_scoped_tab(view, f"Configure: {exe_path.name}",
+                                   self._plugins_panel_stack, key="exe_settings")
+
+    def _close_exe_settings_tab(self):
+        if self._tabs.has_key("exe_settings"):
+            self._tabs.close_tab("exe_settings")
+        self._exe_settings_view = None
 
     # ------------------------------------------------------------- deploy/restore
     def _ensure_feedback(self):
@@ -3751,7 +3937,8 @@ class MainWindow(QMainWindow):
         self._notifier.notify(text, state)
 
     def _set_deploy_buttons_enabled(self, enabled: bool):
-        for b in (getattr(self, "_deploy_btn", None), getattr(self, "_restore_btn", None)):
+        for b in (getattr(self, "_deploy_btn", None), getattr(self, "_restore_btn", None),
+                  getattr(self, "_play_btn", None)):
             if b is not None:
                 b.setEnabled(enabled)
 
@@ -3940,6 +4127,12 @@ class MainWindow(QMainWindow):
         if kind == "deploy" and self._deploy_rerun_pending:
             self._deploy_rerun_pending = False
             QTimer.singleShot(0, self._on_deploy)
+        elif kind == "deploy":
+            # Play-button deploy-before-launch: fire the pending launch only
+            # after the FINAL (non-coalesced) deploy, and only on success.
+            action, self._post_deploy_action = self._post_deploy_action, None
+            if action is not None and success:
+                action()
 
     # ----------------------------------------------------------------- install
     def _on_install_mod(self):
@@ -5930,45 +6123,45 @@ class MainWindow(QMainWindow):
         h.setContentsMargins(8, 6, 8, 6)
         h.setSpacing(6)
 
-        # All Play-section controls are anchored to the RIGHT: the stretch sits
-        # FIRST, so extra width from resizing the plugins panel opens up on the
-        # left and the controls stay locked together at the right edge.
-        h.addStretch(1)
-
-        # Game context (fixed-size).
-        self._play_game_selector = SelectorButton(
-            items=["Stardew Valley"],
-            current="Stardew Valley",
+        # Exe selector stretches with the plugins panel: its left edge hugs the
+        # splitter separator, so dragging the split resizes the dropdown while
+        # Play + gear stay fixed at the right edge. Items = the game + manually
+        # added custom exes (no staging scan — wizard tools cover those).
+        self._play_exe_selector = SelectorButton(
+            items=["—"],
+            current="—",
             min_width=0,
-            on_select=self._on_game_changed,
+            on_select=self._on_play_exe_selected,
+            actions=[("+ Add custom EXE…", self._on_add_custom_exe)],
         )
-        self._play_game_selector.setFixedHeight(self._BTN_H)
-        h.addWidget(self._play_game_selector)
+        self._play_exe_selector.setFixedHeight(self._BTN_H)
+        self._play_exe_selector.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        h.addWidget(self._play_exe_selector, 1)
+        self._play_exe_paths: dict[str, Path] = {}
 
-        # ▶ Play — plain fixed-size button (no dropdown).
-        play = QPushButton("▶  Play")
-        play.setObjectName("PlayButton")
-        play.setFixedHeight(self._BTN_H)
-        play.setCursor(Qt.PointingHandCursor)
-        h.addWidget(play)
+        # ▶ Play — plain fixed-size button (label flips to "Run" for exes).
+        self._play_btn = QPushButton("▶  Play")
+        self._play_btn.setObjectName("PlayButton")
+        self._play_btn.setFixedHeight(self._BTN_H)
+        self._play_btn.setCursor(Qt.PointingHandCursor)
+        self._play_btn.clicked.connect(self._on_play)
+        h.addWidget(self._play_btn)
 
-        # Exe / run options — a gear ICON button; its menu holds exe choices and
-        # the settings / refresh / open-folder actions (moved off the toolbar).
-        self._exe_selector = SelectorButton(
-            items=["Default exe"],
-            current="Default exe",
-            icon=icon("settings.png", self._ICON_PX),
+        # Exe menu — a hamburger (not a gear, to avoid reading as a second
+        # settings button next to the header's gear). Its Settings action
+        # depends on the dropdown selection (game → launcher settings overlay,
+        # exe → per-exe settings tab).
+        self._exe_settings_btn = SelectorButton(
+            items=[],
+            icon=hamburger_icon(self._ICON_PX, color=_c(self._pal, "TEXT_MAIN")),
             icon_px=self._ICON_PX,
             actions=[
-                ("Select executable…", lambda: self._on_play_action("select_exe")),
                 ("Settings", lambda: self._on_play_action("settings")),
-                ("Refresh", lambda: self._on_play_action("refresh")),
                 ("Open application folder", lambda: self._on_play_action("folder")),
             ],
-            on_select=lambda _l: None,
         )
-        self._exe_selector.setFixedSize(self._BTN_H, self._BTN_H)
-        h.addWidget(self._exe_selector)
+        self._exe_settings_btn.setFixedSize(self._BTN_H, self._BTN_H)
+        h.addWidget(self._exe_settings_btn)
         return bar
 
     def _plugins_placeholder(self) -> QWidget:

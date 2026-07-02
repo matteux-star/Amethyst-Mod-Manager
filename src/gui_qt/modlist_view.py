@@ -648,6 +648,16 @@ class ModListView(QTreeView):
             idx = self.indexAt(event.position().toPoint())
             self._press_row = idx.row() if idx.isValid() else -1
             self._press_pos = event.position().toPoint()
+            # A real (collapsible) separator is never selectable: clicking one
+            # only expands/collapses it (handled by the delegate on release).
+            # Skip the base press so Qt doesn't change the selection — but keep
+            # _press_row/_press_pos above so a press-and-drag still reorders it.
+            if idx.isValid():
+                e = self.model().entry(idx.row())
+                from gui_qt.modlist_model import _PINNED_NAMES
+                if e.is_separator and e.name not in _PINNED_NAMES:
+                    event.accept()
+                    return
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
@@ -700,8 +710,37 @@ class ModListView(QTreeView):
             self.viewport().update()
             self._press_row = -1
             return
+        # A click (no drag) on a real separator toggles its collapse (arrow or
+        # anywhere on the band) or its lock (lock box). Its press was consumed
+        # in mousePressEvent so the base view never routes it to the delegate.
+        if event.button() == Qt.LeftButton and self._press_row >= 0:
+            row = self._press_row
+            self._press_row = -1
+            if self._handle_separator_click(row, event.position().toPoint()):
+                event.accept()
+                return
         self._press_row = -1
         super().mouseReleaseEvent(event)
+
+    def _handle_separator_click(self, row: int, pos) -> bool:
+        """If *row* is a real (collapsible) separator, toggle its lock (when the
+        release is on the lock box) or its collapse (anywhere else on the band).
+        Returns True when handled."""
+        m = self.model()
+        if not (0 <= row < m.rowCount()):
+            return False
+        e = m.entry(row)
+        from gui_qt.modlist_model import _PINNED_NAMES
+        if not e.is_separator or e.name in _PINNED_NAMES:
+            return False
+        delegate = self.itemDelegate()
+        lock = getattr(delegate, "_lock_rect", None)
+        row_rect = self.visualRect(m.index(row, COL_NAME))
+        if lock is not None and lock(row_rect).contains(pos):
+            self._toggle_lock_row(row)
+        else:
+            self._toggle_collapse_row(row)
+        return True
 
     def _update_drop_slot(self, y: int):
         """Compute the model row the block would insert *before*, from cursor Y.

@@ -527,20 +527,11 @@ class ModRowDelegate(QStyledItemDelegate):
             return False
 
         if e.is_separator:
-            from gui_qt.modlist_model import _PINNED_NAMES
-            if e.name in _PINNED_NAMES:
-                return False    # boundary seps / divider have no controls
-            # Arrow → collapse/expand; right-side box → lock. Handled by the view
-            # (it owns persistence + row hiding); the delegate only hit-tests.
-            view = self.parent()
-            if self._arrow_rect(opt.rect).contains(pos):
-                if hasattr(view, "_toggle_collapse_row"):
-                    view._toggle_collapse_row(index.row())
-                return True
-            if self._lock_rect(opt.rect).contains(pos):
-                if hasattr(view, "_toggle_lock_row"):
-                    view._toggle_lock_row(index.row())
-                return True
+            # Real separators are never selectable: the view consumes their
+            # press (mousePressEvent) and does the collapse/lock toggle on
+            # release (_handle_separator_click), so it never reaches here. The
+            # _arrow_rect/_lock_rect geometry still lives on this delegate and
+            # is reused by that handler.
             return False
 
         # Mod row: checkbox area toggles enabled.

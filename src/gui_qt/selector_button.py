@@ -46,6 +46,15 @@ class SelectorButton(QToolButton):
             self.setIcon(icon)
             self.setIconSize(QSize(icon_px, icon_px))
             self.setToolButtonStyle(Qt.ToolButtonIconOnly)
+            # Icon-only selector (e.g. the play-bar gear): no split arrow
+            # section — the split QSS padding (28px arrow room) would leave no
+            # space for the glyph in a square button. InstantPopup keeps the
+            # whole face clickable; hide the default menu-indicator overlay.
+            self.setProperty("split", False)
+            self.setPopupMode(QToolButton.InstantPopup)
+            self.setStyleSheet(
+                "QToolButton { padding: 0; }"
+                "QToolButton::menu-indicator { image: none; }")
         else:
             self.setToolButtonStyle(Qt.ToolButtonTextOnly)
             self.setMinimumWidth(min_width)
@@ -56,8 +65,10 @@ class SelectorButton(QToolButton):
         # section does natively): waiting for the release made the body
         # highlight first and the arrow section catch up later, which read as
         # lag; on press, aboutToShow sets menuOpen before the next repaint so
-        # both halves light up together with the menu.
-        self.pressed.connect(self.showMenu)
+        # both halves light up together with the menu. (InstantPopup — the
+        # icon-only mode — already opens on press natively.)
+        if icon is None:
+            self.pressed.connect(self.showMenu)
         # A dynamic `menuOpen` property (toggled while the menu is shown) drives
         # the open-state highlight in QSS — reliable across QStyles, unlike the
         # :pressed/:on pseudo-states for a MenuButtonPopup tool button.
