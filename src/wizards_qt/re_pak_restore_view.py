@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
 )
 
 from gui_qt.theme_qt import active_palette, _c
+from gui_qt.safe_emit import safe_emit
 from Utils.re_pak_patcher import (
     ROOT_MANIFEST_NAME,
     restore_from_root_manifest,
@@ -167,7 +168,7 @@ class RePakRestoreView(QWidget):
         def run():
             try:
                 restored = restore_from_root_manifest(
-                    game_root, log_fn=self._log_line.emit)
+                    game_root, log_fn=lambda *a: safe_emit(self._log_line, *a))
                 if restored:
                     msg = (f"Repair complete — restored {restored} entr"
                            f"{'y' if restored == 1 else 'ies'} to vanilla.")
@@ -176,7 +177,7 @@ class RePakRestoreView(QWidget):
                            "vanilla (or no manifest was found).")
             except Exception as e:  # noqa: BLE001 — surface, don't kill the tab
                 msg = f"Error: {e}"
-            self._done.emit(msg)
+            safe_emit(self._done, msg)
 
         threading.Thread(target=run, daemon=True,
                          name="re-pak-restore").start()

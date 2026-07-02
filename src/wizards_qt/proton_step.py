@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 )
 
 from gui_qt.theme_qt import active_palette, _c
+from gui_qt.safe_emit import safe_emit
 from Utils.exe_launch import (
     PREFIX_MODE_GAME, PREFIX_MODE_ISOLATED, PREFIX_MODE_SHARED,
     load_prefix_mode, load_proton_override, load_tool_launch_env,
@@ -49,6 +50,7 @@ class ProtonStepWidget(QWidget):
                  tool_exe_name: str, tool_display_name: str,
                  on_continue, log_fn=None, *,
                  allow_game_prefix: bool = True,
+                 isolated_prefix_dir_fn=None,
                  title: str = "Choose Proton Version",
                  deps_note: str = ("Each version gets its own prefix; "
                                    "dependencies are installed into it "
@@ -61,6 +63,12 @@ class ProtonStepWidget(QWidget):
         self._on_continue = on_continue
         self._log = log_fn or (lambda _m: None)
         self._allow_game_prefix = allow_game_prefix
+        # Hosts whose exe sits somewhere a prefix shouldn't go (e.g. Creation
+        # Kit in the game root) relocate the isolated prefix; the Delete
+        # button must target the same dir (mirrors Tk _isolated_prefix_dir).
+        self._isolated_prefix_dir_fn = (
+            isolated_prefix_dir_fn
+            or (lambda name: self._exe.parent / f"prefix_{name}"))
         self._confirm_delete = False
 
         self._delete_done.connect(self._on_delete_done)
@@ -270,7 +278,7 @@ class ProtonStepWidget(QWidget):
             return None
         if self._shared_chk.isChecked():
             return shared_prefix_dir(name)
-        return self._exe.parent / f"prefix_{name}"
+        return self._isolated_prefix_dir_fn(name)
 
     def _set_prefix_status(self, text: str, color: str | None = None):
         c = color or _c(active_palette(), "TEXT_DIM")
@@ -318,9 +326,9 @@ class ProtonStepWidget(QWidget):
                         f"refusing to delete non-prefix dir: {target}")
                 shutil.rmtree(target)
             except Exception as exc:
-                self._delete_done.emit(False, str(exc))
+                safe_emit(self._delete_done, False, str(exc))
                 return
-            self._delete_done.emit(True, str(target))
+            safe_emit(self._delete_done, True, str(target))
 
         threading.Thread(target=worker, daemon=True,
                          name="wizard-prefix-delete").start()

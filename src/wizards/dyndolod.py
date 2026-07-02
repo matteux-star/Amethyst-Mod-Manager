@@ -21,7 +21,6 @@ Workflow
 
 from __future__ import annotations
 
-import shutil
 import subprocess
 from Utils.steam_finder import proton_run_command
 import threading
@@ -32,6 +31,11 @@ import customtkinter as ctk
 
 from Utils.xdg import open_url
 from Utils.portal_filechooser import pick_file
+from Utils.xedit_tools import (
+    applications_dir as _applications_dir,
+    flatten_subdirs as _flatten_subdirs,
+    tool_exe_path as _tool_exe_path_neutral,
+)
 from gui.path_utils import _to_wine_path
 
 if TYPE_CHECKING:
@@ -57,12 +61,11 @@ _XLODGEN_OUT_DIR  = "xLODGen_Output"
 
 
 def _get_applications_dir(game: "BaseGame", app_dir: str = _APP_DIR) -> Path:
-    return game.get_mod_staging_path().parent / "Applications" / app_dir
+    return _applications_dir(game, app_dir)
 
 
 def _tool_exe_path(game: "BaseGame", exe_name: str, app_dir: str = _APP_DIR) -> Path | None:
-    p = _get_applications_dir(game, app_dir) / exe_name
-    return p if p.is_file() else None
+    return _tool_exe_path_neutral(game, exe_name, app_dir)
 
 
 def _find_archive(downloads_dir: Path, keyword: str) -> Path | None:
@@ -77,22 +80,6 @@ def _find_archive(downloads_dir: Path, keyword: str) -> Path | None:
     if not candidates:
         return None
     return max(candidates, key=lambda p: p.stat().st_mtime)
-
-
-def _flatten_subdirs(dest: Path, exe_name: str) -> None:
-    """Collapse single-subdir wrappers until exe_name is at the top level."""
-    while True:
-        all_entries = [e for e in dest.iterdir() if e.name != "__MACOSX"]
-        subdirs = [e for e in all_entries if e.is_dir()]
-        if len(subdirs) == 1 and not (dest / exe_name).is_file():
-            wrapper = subdirs[0]
-            tmp = dest.parent / (dest.name + "_flatten_tmp")
-            wrapper.rename(tmp)
-            for item in tmp.iterdir():
-                shutil.move(str(item), str(dest / item.name))
-            tmp.rmdir()
-        else:
-            break
 
 
 # ---------------------------------------------------------------------------

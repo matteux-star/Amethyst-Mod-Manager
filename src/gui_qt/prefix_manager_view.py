@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 )
 
 from gui_qt.theme_qt import active_palette, _c
+from gui_qt.safe_emit import safe_emit
 from Utils.prefix_manager import (
     PrefixEntry, enumerate_prefixes, fmt_size, get_dir_size,
     is_deletable_prefix,
@@ -147,7 +148,7 @@ class PrefixManagerView(QWidget):
             except Exception as exc:
                 self._log(f"Prefix manager: scan error: {exc}")
                 entries = []
-            self._entries_ready.emit(entries)
+            safe_emit(self._entries_ready, entries)
 
         threading.Thread(target=worker, daemon=True,
                          name="prefix-scan").start()
@@ -224,9 +225,9 @@ class PrefixManagerView(QWidget):
                     return   # a reload superseded this scan
                 n = get_dir_size(e.path)
                 total += n
-                self._size_ready.emit(e.key, n)
+                safe_emit(self._size_ready, e.key, n)
             if gen == self._scan_gen:
-                self._sizes_done.emit(total)
+                safe_emit(self._sizes_done, total)
 
         threading.Thread(target=worker, daemon=True,
                          name="prefix-sizes").start()
@@ -299,7 +300,7 @@ class PrefixManagerView(QWidget):
                         deleted += 1
                 except Exception as exc:
                     errors.append(f"{e.path}: {exc}")
-            self._delete_done.emit(deleted, errors)
+            safe_emit(self._delete_done, deleted, errors)
 
         threading.Thread(target=worker, daemon=True,
                          name="prefix-delete").start()

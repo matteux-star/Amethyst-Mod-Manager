@@ -731,11 +731,15 @@ def shutdown_prefix_wineserver(proton_script: Path, compat_data: Path,
         pass
 
 
-def get_game_prefix_env(game, log_fn=_noop_log):
+def get_game_prefix_env(game, log_fn=_noop_log, *,
+                        allow_runner_fallback: bool = False):
     """Resolve (proton_script, compat_data, env) for the game's OWN prefix.
 
     Reuses the existing game prefix (already initialised by the game), so no
-    wineboot is run. Picks the Proton version Steam assigns to the game.
+    wineboot is run. Picks the Proton version Steam assigns to the game;
+    with *allow_runner_fallback* it falls back to the prefix's recorded
+    runner / any installed Proton when there is no Steam mapping (Heroic and
+    GOG installs — mirrors the Tk downgrade/Morrowind wizards' resolver).
     Returns None on failure (after logging why).
     """
     from Utils.steam_finder import (
@@ -748,6 +752,14 @@ def get_game_prefix_env(game, log_fn=_noop_log):
         return None
     steam_id = effective_steam_id(game)
     proton_script = find_proton_for_game(steam_id) if steam_id else None
+    if proton_script is None and allow_runner_fallback:
+        from Utils.proton_prefix import read_prefix_runner, resolve_compat_data
+        from Utils.steam_finder import find_any_installed_proton
+        preferred_runner = read_prefix_runner(resolve_compat_data(Path(pfx)))
+        proton_script = find_any_installed_proton(preferred_runner)
+        if proton_script is not None:
+            log_fn(f"using fallback Proton tool {proton_script.parent.name} "
+                   "(no per-game Steam mapping found).")
     if proton_script is None:
         log_fn("could not resolve the game's Proton version — pick a "
                "different prefix option.")
@@ -766,11 +778,15 @@ def get_game_prefix_env(game, log_fn=_noop_log):
 
 
 def resolve_tool_prefix(exe: Path, game, proton_name: str, prefix_mode: str,
-                        log_fn=_noop_log):
+                        log_fn=_noop_log, *,
+                        isolated_prefix_dir: "Path | None" = None):
     """Resolve (proton_script, compat_data, env) for a wizard tool's prefix.
 
     Honours the chosen placement mode:
-      * isolated — creates/initialises prefix_<ProtonName>/ next to the exe
+      * isolated — creates/initialises prefix_<ProtonName>/ next to the exe,
+                   or *isolated_prefix_dir* when given (tools whose exe sits
+                   somewhere a prefix shouldn't go, e.g. Creation Kit in the
+                   game root, relocate it)
       * shared   — creates/initialises wine_prefixes/shared_<ProtonName>/
       * game     — reuses the game's own prefix (no init)
     Saved per-exe env-var overrides (launch_env.json) are merged into env.
@@ -783,7 +799,7 @@ def resolve_tool_prefix(exe: Path, game, proton_name: str, prefix_mode: str,
     if prefix_mode == PREFIX_MODE_GAME:
         result = get_game_prefix_env(game, log_fn=log_fn)
     else:
-        target = None
+        target = isolated_prefix_dir
         if prefix_mode == PREFIX_MODE_SHARED:
             from Utils.steam_finder import find_any_installed_proton
             proton_script = find_any_installed_proton(proton_name)

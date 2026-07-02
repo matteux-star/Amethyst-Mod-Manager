@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
 )
 
 from gui_qt.theme_qt import active_palette, _c
+from gui_qt.safe_emit import safe_emit
 from Utils.wizard_archives import (
     fetch_latest_github_asset, find_archive, get_downloads_dir,
     install_archive_payload,
@@ -277,7 +278,7 @@ class ScriptExtenderView(QWidget):
         def worker():
             try:
                 if api_url:
-                    self._dl_status_sig.emit("Fetching release from GitHub…", "")
+                    safe_emit(self._dl_status_sig, "Fetching release from GitHub…", "")
                     tag, url = fetch_latest_github_asset(api_url, keywords)
                 elif direct:
                     tag, url = "selected version", direct
@@ -285,27 +286,27 @@ class ScriptExtenderView(QWidget):
                     raise RuntimeError("No download URL configured.")
                 filename = url.split("/")[-1]
                 dest = get_downloads_dir() / filename
-                self._dl_status_sig.emit(f"Downloading {tag}…", "")
+                safe_emit(self._dl_status_sig, f"Downloading {tag}…", "")
                 self._log(f"Wizard: downloading {url} → {dest}")
 
                 def _reporthook(block_num, block_size, total_size):
                     if total_size > 0:
                         pct = min(block_num * block_size * 100 // total_size, 100)
-                        self._dl_progress_sig.emit(int(pct))
+                        safe_emit(self._dl_progress_sig, int(pct))
 
                 from Utils.ca_bundle import download_file
                 download_file(url, dest, reporthook=_reporthook)
                 self._archive_path = dest
-                self._dl_status_sig.emit(
+                safe_emit(self._dl_status_sig,
                     f"Downloaded {filename}.\nChoose the install destination, "
                     "then click Next.", _GREEN)
-                self._dl_done_sig.emit(True)
+                safe_emit(self._dl_done_sig, True)
             except Exception as exc:
                 self._log(f"Wizard: download failed: {exc}")
-                self._dl_status_sig.emit(
+                safe_emit(self._dl_status_sig,
                     f"Download failed:\n{exc}\n\nUse Browse… to pick an "
                     "archive you downloaded manually.", _RED)
-                self._dl_done_sig.emit(False)
+                safe_emit(self._dl_done_sig, False)
 
         threading.Thread(target=worker, daemon=True,
                          name="script-extender-dl").start()
@@ -398,7 +399,7 @@ class ScriptExtenderView(QWidget):
         from Utils.portal_filechooser import pick_file
         # Portal callback fires on a WORKER thread — marshal via Signal.
         pick_file("Select the script extender archive",
-                  lambda path: self._picked_sig.emit(path))
+                  lambda path: safe_emit(self._picked_sig, path))
 
     def _on_file_picked(self, path):
         if not path:
@@ -447,21 +448,21 @@ class ScriptExtenderView(QWidget):
         def worker():
             try:
                 if mode == "game":
-                    self._ex_status_sig.emit(
+                    safe_emit(self._ex_status_sig,
                         "Restoring game to vanilla state…", "")
                 dest_label, file_count, _mod = install_archive_payload(
                     game, archive, mode,
                     mod_fallback_name="Script Extender",
                     log_fn=lambda m: self._log(str(m)))
-                self._ex_status_sig.emit(
+                safe_emit(self._ex_status_sig,
                     f"Script extender installed successfully!\n"
                     f"{file_count} file(s) extracted to the {dest_label}.\n\n"
                     "Click Done to close.", _GREEN)
-                self._ex_done_sig.emit(True)
+                safe_emit(self._ex_done_sig, True)
             except Exception as exc:
                 self._log(f"Wizard error: {exc}")
-                self._ex_status_sig.emit(f"Error: {exc}", _RED)
-                self._ex_done_sig.emit(False)
+                safe_emit(self._ex_status_sig, f"Error: {exc}", _RED)
+                safe_emit(self._ex_done_sig, False)
 
         threading.Thread(target=worker, daemon=True,
                          name="script-extender-extract").start()

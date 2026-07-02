@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 )
 
 from gui_qt.theme_qt import active_palette, _c
+from gui_qt.safe_emit import safe_emit
 from Utils.reshade_tools import (
     API_CHOICES, OPTIONAL_SHADER_PACKS, OBSOLETE_PRESET_EFFECTS,
     download_and_extract_reshade_dll, download_and_extract_shaders,
@@ -285,7 +286,7 @@ class ReShadeView(QWidget):
         from Utils.portal_filechooser import pick_preset_file
         # Callback fires on the portal WORKER thread — marshal via Signal.
         pick_preset_file("Select a ReShade preset (.ini)",
-                         lambda path: self._preset_picked_sig.emit(path))
+                         lambda path: safe_emit(self._preset_picked_sig, path))
 
     def _on_preset_picked(self, path):
         if not path:
@@ -346,7 +347,7 @@ class ReShadeView(QWidget):
         self._dl_bar.setVisible(True)
         self._dl_next_btn.setEnabled(False)
         self._dl_next_btn.setText("Next →")
-        self._dl_status_sig.emit("Downloading ReShade and shaders…", "")
+        safe_emit(self._dl_status_sig, "Downloading ReShade and shaders…", "")
 
         arch = self._reshade_arch
         preset = self._preset_path
@@ -394,7 +395,7 @@ class ReShadeView(QWidget):
 
                 ok_msg = "Downloaded ReShade and shaders successfully."
                 if preset is not None and wanted:
-                    self._dl_status_sig.emit("Trimming shaders to preset…", "")
+                    safe_emit(self._dl_status_sig, "Trimming shaders to preset…", "")
                     self._preset_missing = prune_shaders_to_preset(
                         self._extracted_shaders, wanted)
                     kept = len(wanted) - len(self._preset_missing)
@@ -416,14 +417,14 @@ class ReShadeView(QWidget):
                         ok_msg = "\n".join(lines)
                     else:
                         ok_msg = f"Trimmed shaders to {kept} preset effect(s)."
-                self._dl_status_sig.emit(ok_msg, _GREEN)
-                self._dl_done_sig.emit(True)
+                safe_emit(self._dl_status_sig, ok_msg, _GREEN)
+                safe_emit(self._dl_done_sig, True)
             except Exception as exc:
                 self._log(f"ReShade wizard: download failed: {exc}")
-                self._dl_status_sig.emit(
+                safe_emit(self._dl_status_sig,
                     f"Download failed:\n{exc}\n\nCheck your internet connection "
                     "and try again.", _RED)
-                self._dl_done_sig.emit(False)
+                safe_emit(self._dl_done_sig, False)
 
         threading.Thread(target=worker, daemon=True, name="reshade-download").start()
 
@@ -507,10 +508,10 @@ class ReShadeView(QWidget):
             ok = False
             try:
                 ok = install_d3dcompiler_47(
-                    game, log_fn=lambda m: self._d3d_status_sig.emit(str(m), ""))
+                    game, log_fn=lambda m: safe_emit(self._d3d_status_sig, str(m), ""))
             except Exception as exc:
-                self._d3d_status_sig.emit(f"Install error: {exc}", _RED)
-            self._d3d_done_sig.emit(bool(ok))
+                safe_emit(self._d3d_status_sig, f"Install error: {exc}", _RED)
+            safe_emit(self._d3d_done_sig, bool(ok))
 
         threading.Thread(target=worker, daemon=True, name="reshade-d3d").start()
 
@@ -638,12 +639,12 @@ class ReShadeView(QWidget):
                 # Touching widgets from this worker spawns a stray window.
                 msg = install_reshade_files(
                     game, log_fn=lambda m: self._log(str(m)), **args)
-                self._install_status_sig.emit(msg, _GREEN)
-                self._install_done_sig.emit(True)
+                safe_emit(self._install_status_sig, msg, _GREEN)
+                safe_emit(self._install_done_sig, True)
             except Exception as exc:
                 self._log(f"ReShade wizard error: {exc}")
-                self._install_status_sig.emit(f"Error: {exc}", _RED)
-                self._install_done_sig.emit(False)
+                safe_emit(self._install_status_sig, f"Error: {exc}", _RED)
+                safe_emit(self._install_done_sig, False)
 
         threading.Thread(target=worker, daemon=True, name="reshade-install").start()
 

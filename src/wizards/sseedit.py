@@ -26,9 +26,6 @@ the ``WizardTool.extra`` kwargs below (with SSEEdit defaults for back-compat).
 
 from __future__ import annotations
 
-import os
-import re as _re
-import shutil
 import subprocess
 from Utils.steam_finder import proton_run_command
 import threading
@@ -37,10 +34,23 @@ from typing import TYPE_CHECKING
 
 import customtkinter as ctk
 
-from Utils.atomic_write import write_atomic_text
 from Utils.xdg import open_url
 from Utils.portal_filechooser import pick_file
 from gui.path_utils import _to_wine_path
+
+# GUI-neutral helpers now live in Utils.xedit_tools (shared with the Qt wizard
+# views); re-exported under their original private names for back-compat.
+from Utils.xedit_tools import (
+    XEDIT_SAVE_TEMP_RE as _XEDIT_SAVE_TEMP_RE,
+    collect_dirty_plugins as _collect_dirty_plugins_neutral,
+    finalize_xedit_saves as _finalize_xedit_saves,
+    flatten_subdirs as _flatten_subdirs,
+    restore_after_xedit as _restore_after_xedit_neutral,
+    seed_xedit_viewsettings as _seed_xedit_viewsettings,
+    set_winxp_compat as _set_winxp_compat,
+    xedit_settings_ext as _xedit_settings_ext,
+)
+from Utils.xedit_tools import applications_dir as _applications_dir
 
 if TYPE_CHECKING:
     from Games.base_game import BaseGame
@@ -56,48 +66,9 @@ _NEXUS_URL   = "https://www.nexusmods.com/skyrimspecialedition/mods/164?tab=file
 _EXE_NAME         = "SSEEdit.exe"
 _APP_DIR          = "SSEEdit"
 
-# xEdit / QuickAutoClean can save the cleaned plugin to a temp file and queue
-# the rename to the real name "on shutdown" (e.g.
-# ``AlternatePerspective.esp.save.2026_06_19_00_38_14`` -> ``…esp``).  Matches
-# ``<plugin>.save.<timestamp>`` so _finalize_xedit_saves can complete the rename.
-_XEDIT_SAVE_TEMP_RE = _re.compile(r"^(?P<base>.+)\.save\.[0-9_]+$", _re.IGNORECASE)
-
-
-def _finalize_xedit_saves(data_dir: Path, log_fn=None) -> int:
-    """Complete any pending xEdit ``<plugin>.save.<timestamp>`` renames in
-    *data_dir* so the cleaned plugin sits at its real name before we rebuild the
-    filemap/index.  Returns the number of temps finalised.
-
-    Only acts on the top level of Data/ (where xEdit writes plugins).  If both a
-    temp and the base name exist, the temp wins (it is the freshly-saved copy)
-    and replaces the base via ``os.replace`` (atomic, clobbers a stale symlink).
-    """
-    _log = log_fn or (lambda _: None)
-    finalised = 0
-    try:
-        entries = list(data_dir.iterdir())
-    except OSError:
-        return 0
-    for entry in entries:
-        m = _XEDIT_SAVE_TEMP_RE.match(entry.name)
-        if m is None:
-            continue
-        # Only finalise temps for actual plugins; ignore unrelated ".save." names.
-        base_name = m.group("base")
-        if not base_name.lower().endswith((".esp", ".esm", ".esl")):
-            continue
-        base_path = entry.with_name(base_name)
-        try:
-            os.replace(str(entry), str(base_path))
-            finalised += 1
-            _log(f"Finalised xEdit save: {entry.name} -> {base_name}")
-        except OSError as exc:
-            _log(f"WARN: could not finalise xEdit save {entry.name}: {exc}")
-    return finalised
-
 
 def _get_applications_dir(game: "BaseGame", app_dir: str = _APP_DIR) -> Path:
-    return game.get_mod_staging_path().parent / "Applications" / app_dir
+    return _applications_dir(game, app_dir)
 
 
 def _sseedit_exe_path(
@@ -120,170 +91,6 @@ def _find_archive(downloads_dir: Path, name_hint: str = "sseedit") -> Path | Non
     if not candidates:
         return None
     return max(candidates, key=lambda p: p.stat().st_mtime)
-
-
-def _flatten_subdirs(dest: Path, exe_name: str) -> None:
-    """Collapse single-subdir wrappers until exe_name is at the top level."""
-    while True:
-        all_entries = [e for e in dest.iterdir() if e.name != "__MACOSX"]
-        subdirs = [e for e in all_entries if e.is_dir()]
-        if len(subdirs) == 1 and not (dest / exe_name).is_file():
-            wrapper = subdirs[0]
-            tmp = dest.parent / (dest.name + "_flatten_tmp")
-            wrapper.rename(tmp)
-            for item in tmp.iterdir():
-                shutil.move(str(item), str(dest / item.name))
-            tmp.rmdir()
-        else:
-            break
-
-
-def _set_winxp_compat(prefix_path: Path, exe: Path, log_fn=None) -> None:
-    """Set the Wine per-app Windows version for *exe* to Windows XP.
-
-    This writes the same entry that winecfg writes when you select an
-    application and change its Windows Version to "Windows XP":
-        HKCU\\Software\\Wine\\AppDefaults\\<exe.name>  "Version"="winxp"
-    in user.reg.
-    """
-    import time as _time
-
-    _log = log_fn or (lambda _: None)
-
-    # Accept either pfx/ directly or its compatdata parent
-    if not (prefix_path / "user.reg").is_file() and (prefix_path / "pfx" / "user.reg").is_file():
-        prefix_path = prefix_path / "pfx"
-    user_reg = prefix_path / "user.reg"
-    if not user_reg.is_file():
-        _log(f"Warning: user.reg not found at {user_reg}; skipping WinXP version flag.")
-        return
-
-    try:
-        text = user_reg.read_text(encoding="utf-8", errors="replace")
-    except OSError as exc:
-        _log(f"Warning: could not read user.reg: {exc}")
-        return
-
-    section_header = f"[Software\\\\Wine\\\\AppDefaults\\\\{exe.name}]"
-    lines = text.splitlines(keepends=True)
-
-    section_start: int | None = None
-    section_end: int | None = None
-    for i, line in enumerate(lines):
-        stripped = line.strip()
-        if stripped.lower().startswith(section_header.lower()):
-            section_start = i
-        elif section_start is not None and stripped.startswith("["):
-            section_end = i
-            break
-
-    _filetime_hex = format(int((_time.time() + 11644473600) * 1e7), "x")
-    entry_line = '"Version"="winxp"\n'
-
-    if section_start is None:
-        if lines and not lines[-1].endswith("\n"):
-            lines.append("\n")
-        lines.append("\n")
-        lines.append(f"{section_header} {_filetime_hex}\n")
-        lines.append(f"#time={_filetime_hex}\n")
-        lines.append(entry_line)
-        _log(f"SSEEdit: set Windows version to WinXP for {exe.name}.")
-    else:
-        body_start = section_start + 1
-        body_end = section_end if section_end is not None else len(lines)
-        key_lines = lines[body_start:body_end]
-
-        lines[section_start] = f"{section_header} {_filetime_hex}\n"
-        for j, kline in enumerate(key_lines):
-            if kline.lower().startswith("#time="):
-                key_lines[j] = f"#time={_filetime_hex}\n"
-                break
-
-        found = False
-        for j, kline in enumerate(key_lines):
-            if kline.lower().startswith('"version"='):
-                if kline.strip() != entry_line.strip():
-                    key_lines[j] = entry_line
-                    _log(f"SSEEdit: updated Windows version to WinXP for {exe.name}.")
-                found = True
-                break
-        if not found:
-            key_lines.append(entry_line)
-            _log(f"SSEEdit: set Windows version to WinXP for {exe.name}.")
-
-        lines[body_start:body_end] = key_lines
-
-    try:
-        write_atomic_text(user_reg, "".join(lines))
-    except OSError as exc:
-        _log(f"Warning: could not write user.reg: {exc}")
-
-
-def _xedit_settings_ext(xedit_name: str) -> str:
-    """Derive the xEdit viewsettings extension from the build name.
-
-    xEdit names its per-game settings file ``Plugins.<mode>viewsettings``
-    where ``<mode>`` is the build name minus the trailing ``Edit``, lowercased:
-      FO4Edit  -> fo4   (Plugins.fo4viewsettings)
-      SSEEdit  -> sse   (Plugins.sseviewsettings)
-      TES4Edit -> tes4  (Plugins.tes4viewsettings)
-      SF1Edit  -> sf1   (Plugins.sf1viewsettings)
-    """
-    name = xedit_name
-    if name.lower().endswith("edit"):
-        name = name[: -len("edit")]
-    return name.lower()
-
-
-def _seed_xedit_viewsettings(game: "BaseGame", pfx: Path, xedit_name: str, log_fn=None) -> None:
-    """Pre-create the xEdit viewsettings file so the first-run messages
-    ("What's New" + developer message) never appear in a fresh tool prefix.
-
-    A fresh prefix has no ``Plugins.<mode>viewsettings`` next to the game's
-    AppData/Local data dir, so xEdit shows its nag dialogs every time the
-    prefix is recreated. Seeding the gate keys suppresses them:
-
-      [Options]          ShowTip=0            — no Tip of the Day on startup
-      [WhatsNew]         Version=<very high>  — newer than any running build
-      [DeveloperMessage] LastShownOn=<far-future Delphi date serial>
-
-    ``LastShownOn`` is a Delphi ``TDateTime`` integer (days since 1899-12-30);
-    xEdit re-shows the message when it is older than today, so we write a
-    date well in the future. Skips if a settings file already exists (the
-    user's real layout/preferences must win).
-    """
-    _log = log_fn or (lambda _: None)
-
-    subpath = getattr(game, "_APPDATA_SUBPATH", None)
-    if subpath is None:
-        return
-    data_dir = pfx / subpath
-    ext = _xedit_settings_ext(xedit_name)
-    settings_file = data_dir / f"Plugins.{ext}viewsettings"
-
-    if settings_file.exists():
-        return  # real settings already present — don't clobber
-
-    # Far-future Delphi date serial (1899-12-30 epoch) so the developer
-    # message stays dismissed: 2099-01-01 -> 72686.
-    last_shown = 72686
-    content = (
-        "[Options]\r\n"
-        "ShowTip=0\r\n"
-        "\r\n"
-        "[WhatsNew]\r\n"
-        "Version=99999999\r\n"
-        "\r\n"
-        "[DeveloperMessage]\r\n"
-        f"LastShownOn={last_shown}\r\n"
-        "Version=99999999\r\n"
-    )
-    try:
-        data_dir.mkdir(parents=True, exist_ok=True)
-        write_atomic_text(settings_file, content)
-        _log(f"seeded {settings_file.name} to suppress first-run messages")
-    except OSError as exc:
-        _log(f"could not seed {settings_file.name}: {exc}")
 
 
 from wizards._proton_prefix import ProtonPrefixStepMixin, shutdown_prefix_wineserver
@@ -390,82 +197,12 @@ class SSEEditWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         self.after(0, _apply)
 
     def _restore_after_xedit(self) -> None:
-        """Fully un-deploy the game (Data/ + Root_Folder) after xEdit closes,
-        moving any plugin xEdit edited in Data/ back into its owning mod folder
-        BEFORE the panel refresh rescans staging.
-
-        This mirrors the Restore button: ``game.restore()`` undoes the Data/
-        deploy, then ``restore_root_folder()`` removes the root-deployed files
-        from the game directory.  Earlier this only ran ``game.restore()``,
-        leaving root-folder deployed files behind in the game install.
-
-        QuickAutoClean backs the original plugin up into ``Data/<tool> Backups/``
-        — which, under symlink-mode deploy, consumes the staging copy (the Data
-        entry was a symlink into staging) — and writes the cleaned plugin as a
-        fresh regular file in Data/.  If we let the wizard-close ``_reload``
-        rescan staging now, ``rebuild_mod_index`` finds the mod folder missing
-        its plugin and drops it from the index; the next Restore then can't
-        recognise the cleaned file and buries it in overwrite/.
-
-        Running ``restore()`` first walks Data/ while the index still knows the
-        plugin, so its orphan-rescue moves the cleaned file back into the mod
-        folder.  The rescan that follows then sees the restored plugin and keeps
-        it.  No-op for games without ``restore``; failures are logged, not
-        raised (a normal redeploy/restore can still recover).
-        """
-        game = self._game
-        if not hasattr(game, "restore"):
-            return
-        name = self._tool_display_name
-        # Restore against the last-deployed profile so the cleaned file lands in
-        # the right mod staging folder (mirrors the Deploy/Restore button flow).
-        saved_profile_dir = getattr(game, "_active_profile_dir", None)
-        restored_ok = False
-        try:
-            last_deployed = game.get_last_deployed_profile()
-            if last_deployed:
-                game.set_active_profile_dir(
-                    game.get_profile_root() / "profiles" / last_deployed
-                )
-                # Reload so the last-deployed profile's path overrides apply.
-                game.load_paths()
-            try:
-                game.restore(log_fn=lambda m: self._log(f"{name} Wizard: {m}"))
-                # Restore Root_Folder too, so root-deployed files are removed
-                # from the game directory exactly like the Restore button does
-                # (game.restore only handles the Data/ deploy).
-                from Utils.deploy import restore_root_folder
-                root_folder_dir = game.get_effective_root_folder_path()
-                game_root = game.get_game_path()
-                if root_folder_dir.is_dir() and game_root:
-                    restore_root_folder(
-                        root_folder_dir, game_root,
-                        log_fn=lambda m: self._log(f"{name} Wizard: {m}"),
-                        data_deploy_dirs=game.root_restore_protect_dirs()
-                        if hasattr(game, "root_restore_protect_dirs") else None,
-                    )
-                restored_ok = True
-            except RuntimeError as exc:
-                self._log(f"{name} Wizard: restore skipped: {exc}")
-        except Exception as exc:
-            self._log(f"{name} Wizard: post-edit restore failed: {exc}")
-        finally:
-            # Leave the active profile exactly as we found it so _reload_mod_panel
-            # rebuilds the profile the user actually has selected.
-            if saved_profile_dir is not None:
-                try:
-                    game.set_active_profile_dir(saved_profile_dir)
-                    game.load_paths()
-                except Exception:
-                    pass
-        # The game is no longer deployed — drop the deploy-active flag so the
-        # profile dropdown loses its green "deployed" highlight (mirrors what the
-        # Restore button does).  _on_done refreshes the menu colour afterwards.
-        if restored_ok:
-            try:
-                game.clear_deploy_active()
-            except Exception:
-                pass
+        """Fully un-deploy the game after xEdit closes so edited plugins land
+        back in their mod folders.  Logic lives in
+        ``Utils.xedit_tools.restore_after_xedit`` (see its docstring for the
+        QAC-overwrite rationale); shared with the Qt wizard."""
+        _restore_after_xedit_neutral(
+            self._game, self._tool_display_name, log_fn=self._log)
 
     def _on_done(self):
         try:
@@ -709,50 +446,9 @@ class SSEEditWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
     # ------------------------------------------------------------------
 
     def _collect_dirty_plugins(self) -> "list[tuple[str, str]]":
-        """Return [(plugin_name, summary), ...] for plugins LOOT flags as dirty.
-
-        Reads ``loot.json`` from the active profile dir (the same data the
-        Plugins panel uses for its brush icon), so QuickAutoClean users can see
-        which plugins need cleaning without closing the wizard to read the panel
-        underneath it.  Empty list if LOOT has never run or nothing is dirty.
-        """
-        profile_dir = getattr(self._game, "_active_profile_dir", None)
-        if profile_dir is None:
-            return []
-        try:
-            from LOOT.loot_sorter import read_loot_info
-            data = read_loot_info(profile_dir)
-        except Exception:
-            return []
-        plugins = data.get("plugins", {}) if isinstance(data, dict) else {}
-        version = data.get("version", 1) if isinstance(data, dict) else 1
-        if version < 2 or not isinstance(plugins, dict):
-            # v1 stored only a raw message list with no CRC-matched dirty data.
-            return []
-        out: "list[tuple[str, str]]" = []
-        for name, info in plugins.items():
-            if not isinstance(info, dict):
-                continue
-            dirty = info.get("dirty") or []
-            if not dirty:
-                continue
-            parts: list[str] = []
-            for d in dirty:
-                if not isinstance(d, dict):
-                    continue
-                bits = []
-                if d.get("itm"):
-                    bits.append(f"{d['itm']} ITM")
-                if d.get("udr"):
-                    bits.append(f"{d['udr']} UDR")
-                if d.get("nav"):
-                    bits.append(f"{d['nav']} deleted navmesh")
-                if bits:
-                    parts.append(", ".join(bits))
-            summary = "; ".join(parts) if parts else "needs cleaning"
-            out.append((name, summary))
-        out.sort(key=lambda t: t[0].lower())
-        return out
+        """LOOT-flagged dirty plugins for the QAC list — shared with the Qt
+        wizard via ``Utils.xedit_tools.collect_dirty_plugins``."""
+        return _collect_dirty_plugins_neutral(self._game)
 
     def _build_dirty_plugins_panel(self) -> None:
         """Render the dirty-plugin list into step 6 (QAC wizards only).

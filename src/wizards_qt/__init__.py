@@ -57,6 +57,7 @@ class QtWizardContext:
 # Deliberately dropped from the Qt app (not even shown greyed out).
 EXCLUDED: frozenset[str] = frozenset({
     "wizards.dtkit_patch.DtkitPatchWizard",
+    "wizards.bepinex.BepInExWizard",
 })
 
 
@@ -85,6 +86,48 @@ def _script_extender(game, log_fn=None, on_close=None, ctx=None, **extra):
                               ctx=ctx, **extra)
 
 
+def _xedit(game, log_fn=None, on_close=None, ctx=None, **extra):
+    # extra carries xedit_exe / nexus_url / app_dir / display_name from each
+    # game's WizardTool registration (SSEEdit defaults when omitted).
+    from wizards_qt.xedit_view import XEditView
+    return XEditView(game, log_fn=log_fn, on_close=on_close, ctx=ctx, **extra)
+
+
+def _xedit_qac(game, log_fn=None, on_close=None, ctx=None, **extra):
+    from wizards_qt.xedit_view import XEditView
+    return XEditView(game, log_fn=log_fn, on_close=on_close, ctx=ctx,
+                     qac=True, **extra)
+
+
+def _dyndolod_tool(tool: str):
+    def factory(game, log_fn=None, on_close=None, ctx=None, **extra):
+        from wizards_qt.dyndolod_view import DynDOLODView
+        return DynDOLODView(game, log_fn=log_fn, on_close=on_close, ctx=ctx,
+                            tool=tool, **extra)
+    return factory
+
+
+# ---- phase 6 factories ------------------------------------------------------
+
+def _simple(module: str, cls: str):
+    """Factory for a single-class view taking (game, log_fn, on_close, ctx)."""
+    def factory(game, log_fn=None, on_close=None, ctx=None, **extra):
+        import importlib
+        view_cls = getattr(importlib.import_module(module), cls)
+        return view_cls(game, log_fn=log_fn, on_close=on_close, ctx=ctx, **extra)
+    return factory
+
+
+def _param(module: str, cls: str, **fixed):
+    """Factory that injects fixed kwargs (e.g. tool=…) into the view."""
+    def factory(game, log_fn=None, on_close=None, ctx=None, **extra):
+        import importlib
+        view_cls = getattr(importlib.import_module(module), cls)
+        return view_cls(game, log_fn=log_fn, on_close=on_close, ctx=ctx,
+                        **fixed, **extra)
+    return factory
+
+
 # dialog_class_path → QtWizardSpec.  Keyed by the Tk class path (not tool.id,
 # which is per-game suffixed like "run_skygen_skyrimse") so one entry serves
 # every game that registers the tool.
@@ -93,6 +136,59 @@ REGISTRY: dict[str, QtWizardSpec] = {
     "wizards.pandora.PandoraWizard": QtWizardSpec(_pandora),
     "wizards.reshade.ReShadeWizard": QtWizardSpec(_reshade),
     "wizards.script_extender.ScriptExtenderWizard": QtWizardSpec(_script_extender),
+    "wizards.sseedit.SSEEditWizard": QtWizardSpec(_xedit),
+    "wizards.sseedit.SSEEditQACWizard": QtWizardSpec(_xedit_qac),
+    "wizards.dyndolod.TexGenWizard": QtWizardSpec(_dyndolod_tool("texgen")),
+    "wizards.dyndolod.DynDOLODWizard": QtWizardSpec(_dyndolod_tool("dyndolod")),
+    "wizards.dyndolod.xLODGenWizard": QtWizardSpec(_dyndolod_tool("xlodgen")),
+
+    # -- phase 6: plugins-panel tools --
+    "wizards.mewgenics_gpak.MewgenicsGpakWizard":
+        QtWizardSpec(_simple("wizards_qt.gpak_view", "GpakView")),
+    "wizards.modio_settings.ModioSettingsWizard":
+        QtWizardSpec(_simple("wizards_qt.modio_settings_view", "ModioSettingsView")),
+    "wizards.fnv_4gb_patch.Fnv4GbPatchWizard":
+        QtWizardSpec(_simple("wizards_qt.fnv_4gb_view", "Fnv4GbView")),
+    "wizards.fallout_downgrade.FalloutDowngradeWizard":
+        QtWizardSpec(_simple("wizards_qt.fallout_downgrade_view", "FalloutDowngradeView")),
+    "wizards.wrye_bash.WryeBashWizard":
+        QtWizardSpec(_simple("wizards_qt.wrye_bash_view", "WryeBashView")),
+    "wizards.bethini.BethINIWizard":
+        QtWizardSpec(_simple("wizards_qt.bethini_view", "BethiniView")),
+    "wizards.creationkit.CreationKitWizard":
+        QtWizardSpec(_simple("wizards_qt.creationkit_view", "CreationKitView")),
+    "wizards.eslifier.ESLifierWizard":
+        QtWizardSpec(_simple("wizards_qt.eslifier_view", "ESLifierView")),
+    "wizards.pgpatcher.PGPatcherWizard":
+        QtWizardSpec(_simple("wizards_qt.pgpatcher_view", "PGPatcherView")),
+    "wizards.bodyslide.BodySlideWizard":
+        QtWizardSpec(_param("wizards_qt.bodyslide_view", "BodySlideView", tool="bodyslide")),
+    "wizards.bodyslide.OutfitStudioWizard":
+        QtWizardSpec(_param("wizards_qt.bodyslide_view", "BodySlideView", tool="outfitstudio")),
+    "wizards.script_merger_tw3.ScriptMergerWizard":
+        QtWizardSpec(_simple("wizards_qt.script_merger_view", "ScriptMergerView")),
+    "wizards.vramr.VRAMrWizard":
+        QtWizardSpec(_param("wizards_qt.texture_tool_view", "TextureToolView", tool="vramr")),
+    "wizards.bendr_parallaxr.BENDrWizard":
+        QtWizardSpec(_param("wizards_qt.texture_tool_view", "TextureToolView", tool="bendr")),
+    "wizards.bendr_parallaxr.ParallaxRWizard":
+        QtWizardSpec(_param("wizards_qt.texture_tool_view", "TextureToolView", tool="parallaxr")),
+    "wizards.ttw.TTWInstallerWizard":
+        QtWizardSpec(_simple("wizards_qt.ttw_view", "TTWView")),
+    "Games.Morrowind.mgexe_wizard.MGEXEWizard":
+        QtWizardSpec(_simple("Games.Morrowind.mgexe_wizard_qt", "MGEXEView")),
+    "Games.Morrowind.mcp_wizard.MCPWizard":
+        QtWizardSpec(_simple("Games.Morrowind.mcp_wizard_qt", "MCPView")),
+
+    # -- phase 6: modlist-panel tools (Tk _full_width_overlay) --
+    "wizards.sse_display_tweaks.SSEDisplayTweaksWizard":
+        QtWizardSpec(_simple("wizards_qt.sdt_view", "SDTView"), panel="modlist"),
+    "wizards.engine_fixes.EngineFixesWizard":
+        QtWizardSpec(_simple("wizards_qt.engine_fixes_view", "EngineFixesView"), panel="modlist"),
+    "wizards.skygen.SkyGenWizard":
+        QtWizardSpec(_simple("wizards_qt.skygen_view", "SkyGenView"), panel="modlist"),
+    "wizards.plugin_audit.PluginAuditWizard":
+        QtWizardSpec(_simple("wizards_qt.plugin_audit_view", "PluginAuditView"), panel="modlist"),
 }
 
 
