@@ -381,8 +381,55 @@ class ModListView(QTreeView):
             sb.update()
 
     def _on_double_click(self, index):
-        if index.isValid() and self.model().entry(index.row()).is_separator:
+        if not index.isValid():
+            return
+        e = self.model().entry(index.row())
+        from gui_qt.modlist_model import _PINNED_NAMES
+        # A real (user) separator toggles collapse; the synthetic pinned
+        # Overwrite / Root_Folder separators open their folder like a mod.
+        if e.is_separator and e.name not in _PINNED_NAMES:
             self._toggle_collapse_row(index.row())
+            return
+        # Ignore double-clicks that land on the checkbox (the delegate toggles
+        # enable there on single click; a double there is not an open request).
+        if index.column() == COL_NAME:
+            rect = self.visualRect(index)
+            box = QRect(rect.left() + 6, rect.top(), 26, rect.height())
+            pos = self.mapFromGlobal(self.cursor().pos())
+            if box.contains(pos):
+                return
+        folder = self._resolve_entry_folder(index.row())
+        if folder is not None:
+            try:
+                from Utils.xdg import xdg_open
+                xdg_open(str(folder))
+            except Exception:
+                pass
+
+    def _resolve_entry_folder(self, row: int):
+        """On-disk folder for the entry at *row* (Path), or None for real
+        separators / when unresolvable. Mirrors Tk _resolve_entry_folder:
+        normal mods live under staging; the synthetic Overwrite / Root_Folder
+        separators resolve to the game's effective paths."""
+        from gui_qt.modlist_model import OVERWRITE_NAME, ROOT_FOLDER_NAME
+        m = self.model()
+        if not (0 <= row < m.rowCount()):
+            return None
+        e = m.entry(row)
+        staging = getattr(self, "staging_dir", None)
+        if not e.is_separator:
+            return (staging / e.name) if staging is not None else None
+        if e.name == OVERWRITE_NAME:
+            game = getattr(self, "game", None)
+            if game is not None:
+                return game.get_effective_overwrite_path()
+            return (staging.parent / "overwrite") if staging is not None else None
+        if e.name == ROOT_FOLDER_NAME:
+            game = getattr(self, "game", None)
+            if game is not None:
+                return game.get_effective_root_folder_path()
+            return (staging.parent / "Root_Folder") if staging is not None else None
+        return None
 
     def _toggle_collapse_row(self, row):
         self.model().toggle_collapse(row)
@@ -581,6 +628,18 @@ class ModListView(QTreeView):
         return [row]
 
     def mousePressEvent(self, event):
+        if event.button() == Qt.MiddleButton:
+            idx = self.indexAt(event.position().toPoint())
+            if idx.isValid():
+                e = self.model().entry(idx.row())
+                if not e.is_separator:
+                    from gui_qt.modlist_menu import (
+                        _modio_url, _open_on_modio, _open_on_nexus)
+                    if _modio_url(self, e.name):
+                        _open_on_modio(self, e.name)
+                    else:
+                        _open_on_nexus(self, e.name)
+            return
         if event.button() == Qt.LeftButton:
             idx = self.indexAt(event.position().toPoint())
             self._press_row = idx.row() if idx.isValid() else -1

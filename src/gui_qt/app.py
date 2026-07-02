@@ -191,6 +191,11 @@ class MainWindow(QMainWindow):
         self._reload_plugins()
         self._update_deployed_profile_highlight()
 
+        # Global keyboard shortcuts (F2/F5/Ctrl+D/… — Tk parity) + last-panel
+        # tracking so shortcuts route to the modlist or plugins panel.
+        from gui_qt.shortcuts import register_shortcuts
+        register_shortcuts(self)
+
         # Connect to Nexus (if logged in) so the footer can show the username +
         # rate limits; validate runs on a worker so startup isn't blocked.
         self._nexus_api = None
