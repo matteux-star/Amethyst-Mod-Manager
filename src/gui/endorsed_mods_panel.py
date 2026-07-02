@@ -19,7 +19,6 @@ from Utils.xdg import open_url
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-import customtkinter as ctk
 
 from gui.nexus_mod_list_panel_base import _NexusModListPanel
 
@@ -145,7 +144,7 @@ class EndorsedModsPanel(_NexusModListPanel):
                 self._parent.after(0, _done)
 
             except Exception as exc:
-                def _err():
+                def _err(exc=exc):
                     self._hide_loader()
                     self._loading = False
                     self._refresh_btn.configure(state="normal")

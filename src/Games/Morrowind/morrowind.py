@@ -180,6 +180,10 @@ class Morrowind(BaseGame):
             return None
         return self._game_path / "Data Files"
 
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        # 'Data Files/' is reverted via its _Core backup; capture only files outside it.
+        return {"Data Files"}
+
     def get_mod_staging_path(self) -> Path:
         if self._staging_path is not None:
             return self._staging_path / "mods"
@@ -288,6 +292,9 @@ class Morrowind(BaseGame):
             f"= {linked_mod + linked_core} total file(s) in 'Data Files/'."
         )
 
+        # Capture runtime files generated outside 'Data Files/' on the next restore.
+        self.snapshot_root_for_runtime_capture(log_fn=_log)
+
     def restore(self, log_fn=None, progress_fn=None) -> None:
         _log = log_fn or (lambda _: None)
 
@@ -317,5 +324,9 @@ class Morrowind(BaseGame):
             _log(f"  Restored {restored} file(s). 'Data Files_Core/' removed.")
         except RuntimeError as e:
             _log(f"  Skipping data restore: {e}")
+
+        moved = self.capture_runtime_files_to_root_folder(log_fn=_log)
+        if moved:
+            _log(f"  Moved {moved} runtime file(s) to Root_Folder/.")
 
         _log("Restore complete.")

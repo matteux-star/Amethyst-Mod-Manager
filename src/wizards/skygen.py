@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import mmap
 import re
-import struct
 import threading
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -1149,7 +1148,7 @@ class SkyGenWizard(ctk.CTkFrame):
             import traceback
             tb = traceback.format_exc()
             self._log_ui(f"Scan error: {exc}\n{tb}")
-            self.after(0, lambda: self._set_label("_scan_status", f"Error: {exc}", "#e06c6c"))
+            self.after(0, lambda exc=exc: self._set_label("_scan_status", f"Error: {exc}", "#e06c6c"))
 
     # ------------------------------------------------------------------
     # Step 2 — Generate patches
@@ -1344,7 +1343,7 @@ class SkyGenWizard(ctk.CTkFrame):
             import traceback
             tb = traceback.format_exc()
             self._log_ui(f"Generate error: {exc}\n{tb}")
-            self.after(0, lambda: self._set_label("_gen_status", f"Error: {exc}", "#e06c6c"))
+            self.after(0, lambda exc=exc: self._set_label("_gen_status", f"Error: {exc}", "#e06c6c"))
             self.after(0, lambda: self._gen_btn.configure(
                 state="normal", text="Generate", command=self._start_generate
             ))

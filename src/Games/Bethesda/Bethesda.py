@@ -7,7 +7,6 @@ Mod structure:
   Staged mods live in Profiles/Fallout 3/mods/
 """
 
-import json
 import re
 import shutil
 from pathlib import Path
@@ -201,6 +200,10 @@ class Fallout_3(BaseGame):
     @property
     def mods_dir(self) -> str:
         return "Data"
+
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        # Data/ is reverted via Data_Core; capture only files outside it.
+        return {self.mods_dir}
 
     @property
     def mod_folder_strip_prefixes(self) -> set[str]:
@@ -584,6 +587,10 @@ class Fallout_3(BaseGame):
 
     _PLUGINS_TXT_FILENAME = "plugins.txt"
 
+    # GOG builds of Bethesda games can't read a *symlinked* plugins.txt, so we
+    # deploy a real copy (see Utils.plugins.deploy_plugins_copy). Casing follows
+    # each game's _PLUGINS_TXT_FILENAME (lowercase for most, Plugins.txt for
+    # Oblivion/Oblivion Remastered/Starfield).
     def _plugins_txt_targets(self, prefix_root: "Path | None" = None) -> list[Path]:
         """Return every in-prefix path where the game might expect plugins.txt.
 
@@ -615,32 +622,33 @@ class Fallout_3(BaseGame):
         return targets[0] if targets else None
 
     def _symlink_plugins_txt(self, profile: str, log_fn, prefix_root: "Path | None" = None) -> None:
-        """Symlink the active profile's plugins.txt into the Proton prefix."""
+        """Deploy the active profile's plugins.txt into the Proton prefix as a real copy.
+
+        A copy (not a symlink) is required for GOG builds. The prefix is
+        case-insensitive, so a single file resolves under either casing.
+        """
+        from Utils.plugins import deploy_plugins_copy
         _log = log_fn
         targets = self._plugins_txt_targets(prefix_root)
         if not targets:
-            _log("  WARN: Prefix path not set — skipping plugins.txt symlink.")
+            _log("  WARN: Prefix path not set — skipping plugins.txt deploy.")
             return
 
         source = self.get_profile_root() / "profiles" / profile / "plugins.txt"
         if not source.is_file():
-            _log(f"  WARN: plugins.txt not found at {source} — skipping symlink.")
+            _log(f"  WARN: plugins.txt not found at {source} — skipping deploy.")
             return
 
+        content = source.read_text(encoding="utf-8")
         for target in targets:
-            if target.exists() or target.is_symlink():
-                target.unlink()
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.symlink_to(source)
-            _log(f"  Linked plugins.txt → {target}")
+            deploy_plugins_copy(target.parent, target.name, content, _log)
 
     def _remove_plugins_txt_symlink(self, log_fn) -> None:
-        """Remove the plugins.txt symlink from the Proton prefix on restore."""
+        """Remove the deployed plugins.txt copy (or legacy symlink) on restore."""
+        from Utils.plugins import remove_plugins_copy
         _log = log_fn
         for target in self._plugins_txt_targets():
-            if target.is_symlink():
-                target.unlink()
-                _log(f"  Removed plugins.txt symlink: {target}")
+            remove_plugins_copy(target.parent, target.name, _log)
 
     # -----------------------------------------------------------------------
     # Timestamp load order (Oblivion/FO3/FNV)
@@ -1412,6 +1420,9 @@ class Fallout_3(BaseGame):
             f"= {linked_mod + linked_core} total file(s) in Data/."
         )
 
+        # Capture runtime files generated outside Data/ on the next restore.
+        self.snapshot_root_for_runtime_capture(log_fn=_log)
+
     def restore(self, log_fn=None, progress_fn=None) -> None:
         """Restore Data/ to its vanilla state by moving Data_Core/ back."""
         _log = log_fn or (lambda _: None)
@@ -1454,6 +1465,12 @@ class Fallout_3(BaseGame):
 
         self._remove_plugins_txt_symlink(_log)
         self._restore_launcher(_log)
+
+        # After Data/ + launcher are restored, so the launcher .bak (created by
+        # swap_launcher *after* the deploy snapshot) isn't swept as a runtime file.
+        moved = self.capture_runtime_files_to_root_folder(log_fn=_log)
+        if moved:
+            _log(f"  Moved {moved} runtime file(s) to Root_Folder/.")
 
         _active = self._active_profile_dir
         if _active is not None:
@@ -2455,25 +2472,22 @@ class Starfield(Fallout_3):
                 continue
             kept.append(e)
 
-        if target.exists() or target.is_symlink():
-            target.unlink()
-        target.parent.mkdir(parents=True, exist_ok=True)
+        from Utils.plugins import deploy_plugins_copy
         lines = [(f"*{e.name}" if e.enabled else e.name) for e in kept]
-        target.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
+        content = "\n".join(lines) + ("\n" if lines else "")
+        deploy_plugins_copy(target.parent, target.name, content, _log)
         if stripped:
             _log(f"  Stripped {len(stripped)} Blueprint plugin(s) from Plugins.txt: "
                  + ", ".join(stripped))
-        _log(f"  Wrote Plugins.txt → {target}")
 
     def _remove_plugins_txt_symlink(self, log_fn) -> None:
-        """Remove the Plugins.txt copy from the prefix on restore."""
+        """Remove the deployed Plugins.txt copy from the prefix on restore."""
+        from Utils.plugins import remove_plugins_copy
         _log = log_fn
         target = self._plugins_txt_target()
         if target is None:
             return
-        if target.exists() or target.is_symlink():
-            target.unlink()
-            _log("  Removed Plugins.txt from prefix.")
+        remove_plugins_copy(target.parent, target.name, _log)
 
     def swap_launcher(self, log_fn) -> None:
         """Replace Starfield.exe with sfse_loader.exe and write Data/SFSE/sfse.ini.

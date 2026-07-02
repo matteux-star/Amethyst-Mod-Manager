@@ -285,8 +285,7 @@ from Utils.bain_installer import detect_bain, resolve_bain_files, bain_unwrap_si
 from Utils.ui_config import load_dev_mode, load_rename_mod_after_install
 from Utils.config_paths import get_fomod_selections_path, get_bain_selections_path
 from Utils.plugins import read_plugins, append_plugin, read_loadorder, write_loadorder, PluginEntry
-from Utils.modlist import prepend_mod, ensure_mod_preserving_position, read_modlist, write_modlist, ModEntry
-from Utils.profile_state import read_separator_locks, write_separator_locks
+from Utils.modlist import prepend_mod, ensure_mod_preserving_position
 from Utils.re_bundle import (
     detect_re_bundle, detect_multi_mod, BundleLayout,
     layout_to_spec, merge_bundle_spec, read_bundle_spec, write_bundle_spec,
@@ -2222,8 +2221,8 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
                     prebuilt_meta.installation_file = os.path.basename(archive_path)
                     write_meta(meta_path, prebuilt_meta)
                     log_fn(f"Nexus: Saved metadata for '{mod_name}' (mod {prebuilt_meta.mod_id})")
-                except OSError:
-                    pass
+                except OSError as exc:
+                    log_fn(f"Nexus: WARN — could not save metadata for '{mod_name}': {exc}")
             elif _game_domain and _archive.is_file():
                 def _detect_bundle_meta(_mp=meta_path, _mn=mod_name):
                     try:
@@ -2717,8 +2716,8 @@ def install_mod_from_archive(archive_path: str, parent_window, log_fn,
                 write_meta(meta_path, prebuilt_meta)
                 log_fn(f"Nexus: Saved metadata for '{mod_name}' "
                        f"(mod {prebuilt_meta.mod_id})")
-            except OSError:
-                pass
+            except OSError as exc:
+                log_fn(f"Nexus: WARN — could not save metadata for '{mod_name}': {exc}")
         elif _game_domain and _archive.is_file():
             def _detect_meta():
                 try:

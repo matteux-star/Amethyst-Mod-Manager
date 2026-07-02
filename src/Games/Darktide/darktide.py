@@ -20,12 +20,14 @@ Mod structure:
   The game must be patched with dtkit-patch after every game update. Patching
   is owned solely by the dtkit-patch wizard (see wizards/dtkit_patch.py) — it is
   deliberately NOT run during deploy/restore. Those steps don't manage
-  bundle_database.data or its dtkit .bak, so running --patch/--unpatch there can
+  bundle_database.data or its dtkit .bak, so running the patcher there can
   desync the patched state from the backup (stranded/wrong-version .bak →
   black-screen CTD). Users run the wizard after installing mods or game updates.
+  The wizard runs the dtkit-patch.exe that ships with the Darktide Mod Loader
+  (deployed to <game>/tools/) under Proton, mirroring toggle_darktide_mods.bat,
+  so the patcher version always matches the user's DML install.
 """
 
-import json
 from pathlib import Path
 
 from Games.base_game import BaseGame, WizardTool
@@ -94,6 +96,10 @@ class Darktide(BaseGame):
     def mods_dir(self) -> str:
         return "mods"
 
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        # mods/ is reverted via its _Core backup; capture only files outside it.
+        return {self.mods_dir.split("/")[0]}
+
     @property
     def mod_folder_strip_prefixes(self) -> set[str]:
         return {"mods"}
@@ -139,7 +145,8 @@ class Darktide(BaseGame):
                 id="run_dtkit_patch",
                 label="Patch Game (dtkit-patch)",
                 description=(
-                    "Download and run dtkit-patch to enable Darktide Mod Loader. "
+                    "Deploy mods and toggle the Darktide Mod Loader bundle patch "
+                    "(runs the shipped dtkit-patch.exe under Proton). "
                     "Re-run this wizard after every game update."
                 ),
                 dialog_class_path="wizards.dtkit_patch.DtkitPatchWizard",
@@ -273,6 +280,9 @@ class Darktide(BaseGame):
             f"= {linked_mod + linked_core} total file(s) in {mods_dir.name}/."
         )
 
+        # Capture runtime files generated outside mods/ on the next restore.
+        self.snapshot_root_for_runtime_capture(log_fn=_log)
+
     def restore(self, log_fn=None, progress_fn=None) -> None:
         """Restore mods/ to its vanilla state."""
         _log = log_fn or (lambda _: None)
@@ -309,6 +319,10 @@ class Darktide(BaseGame):
             _log(f"  Restored {restored} file(s). {core}/ removed.")
         else:
             _log(f"Restore: no {core}/ found — nothing to restore.")
+
+        moved = self.capture_runtime_files_to_root_folder(log_fn=_log)
+        if moved:
+            _log(f"  Moved {moved} runtime file(s) to Root_Folder/.")
 
         _log("Restore complete.")
 

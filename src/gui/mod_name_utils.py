@@ -68,6 +68,14 @@ _NEW_NEXUS_NO_SLUG_RE = re.compile(
     r"^(?P<name>.+?)_(?P<ver>\d+(?:\.\d+)*[A-Za-z]*)$"
 )
 
+# Later Nexus download format (rolled out 2026-07):
+#   "<mod name> <mod id> <version> <slug>"
+#     e.g. "Shattered Royal Armor 183637 1.4 L5WQbqNIa"
+#          "Skyrim Sewers 12345 1 FpnkHZi8m"          (version "1")
+_NEW_NEXUS_SPACED_RE = re.compile(
+    rf"^(?P<name>.+?) (?P<id>\d+) (?P<ver>\d+(?:\.\d+)*[A-Za-z]*) (?P<slug>{_NEXUS_SLUG})$"
+)
+
 # mod.io download names append a truncated-UUID tail: an underscore, the first
 # two hex groups of the mod's UUID (``<8hex>-<4hex>``), then one or more short
 # trailing groups (1-4 chars each) ending in a random token — e.g.
@@ -96,6 +104,14 @@ def _strip_nexus_new_format(stem: str) -> str | None:
     → spaces).  Returns ``None`` when *stem* does not match, so callers can fall
     back to the legacy parsing untouched.
     """
+    # Newest spaced form "<name> <id> <version> <slug>": anchored on the trailing
+    # slug plus the numeric mod-id, so it is unambiguous and never touches the
+    # underscore or legacy dash formats (different separators).
+    m = _NEW_NEXUS_SPACED_RE.match(stem)
+    if m and _slug_like(m.group("slug")):
+        name = m.group("name").strip()
+        return name or None
+
     # Prefer the slug-anchored form: when the trailing token is a random Nexus
     # slug we can trust the segment before it as the version even if it is a
     # bare integer ("..._1_<slug>").

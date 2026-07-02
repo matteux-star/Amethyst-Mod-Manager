@@ -390,8 +390,14 @@ class SSEEditWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
         self.after(0, _apply)
 
     def _restore_after_xedit(self) -> None:
-        """Move any plugin xEdit edited in Data/ back into its owning mod folder
+        """Fully un-deploy the game (Data/ + Root_Folder) after xEdit closes,
+        moving any plugin xEdit edited in Data/ back into its owning mod folder
         BEFORE the panel refresh rescans staging.
+
+        This mirrors the Restore button: ``game.restore()`` undoes the Data/
+        deploy, then ``restore_root_folder()`` removes the root-deployed files
+        from the game directory.  Earlier this only ran ``game.restore()``,
+        leaving root-folder deployed files behind in the game install.
 
         QuickAutoClean backs the original plugin up into ``Data/<tool> Backups/``
         — which, under symlink-mode deploy, consumes the staging copy (the Data
@@ -425,6 +431,19 @@ class SSEEditWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
                 game.load_paths()
             try:
                 game.restore(log_fn=lambda m: self._log(f"{name} Wizard: {m}"))
+                # Restore Root_Folder too, so root-deployed files are removed
+                # from the game directory exactly like the Restore button does
+                # (game.restore only handles the Data/ deploy).
+                from Utils.deploy import restore_root_folder
+                root_folder_dir = game.get_effective_root_folder_path()
+                game_root = game.get_game_path()
+                if root_folder_dir.is_dir() and game_root:
+                    restore_root_folder(
+                        root_folder_dir, game_root,
+                        log_fn=lambda m: self._log(f"{name} Wizard: {m}"),
+                        data_deploy_dirs=game.root_restore_protect_dirs()
+                        if hasattr(game, "root_restore_protect_dirs") else None,
+                    )
                 restored_ok = True
             except RuntimeError as exc:
                 self._log(f"{name} Wizard: restore skipped: {exc}")
@@ -689,6 +708,137 @@ class SSEEditWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
     # Step 6 — Run xEdit
     # ------------------------------------------------------------------
 
+    def _collect_dirty_plugins(self) -> "list[tuple[str, str]]":
+        """Return [(plugin_name, summary), ...] for plugins LOOT flags as dirty.
+
+        Reads ``loot.json`` from the active profile dir (the same data the
+        Plugins panel uses for its brush icon), so QuickAutoClean users can see
+        which plugins need cleaning without closing the wizard to read the panel
+        underneath it.  Empty list if LOOT has never run or nothing is dirty.
+        """
+        profile_dir = getattr(self._game, "_active_profile_dir", None)
+        if profile_dir is None:
+            return []
+        try:
+            from LOOT.loot_sorter import read_loot_info
+            data = read_loot_info(profile_dir)
+        except Exception:
+            return []
+        plugins = data.get("plugins", {}) if isinstance(data, dict) else {}
+        version = data.get("version", 1) if isinstance(data, dict) else 1
+        if version < 2 or not isinstance(plugins, dict):
+            # v1 stored only a raw message list with no CRC-matched dirty data.
+            return []
+        out: "list[tuple[str, str]]" = []
+        for name, info in plugins.items():
+            if not isinstance(info, dict):
+                continue
+            dirty = info.get("dirty") or []
+            if not dirty:
+                continue
+            parts: list[str] = []
+            for d in dirty:
+                if not isinstance(d, dict):
+                    continue
+                bits = []
+                if d.get("itm"):
+                    bits.append(f"{d['itm']} ITM")
+                if d.get("udr"):
+                    bits.append(f"{d['udr']} UDR")
+                if d.get("nav"):
+                    bits.append(f"{d['nav']} deleted navmesh")
+                if bits:
+                    parts.append(", ".join(bits))
+            summary = "; ".join(parts) if parts else "needs cleaning"
+            out.append((name, summary))
+        out.sort(key=lambda t: t[0].lower())
+        return out
+
+    def _build_dirty_plugins_panel(self) -> None:
+        """Render the dirty-plugin list into step 6 (QAC wizards only).
+
+        Packed with ``expand=True`` so the list fills whatever vertical space is
+        left between the header and the run-status/Done widgets (which are packed
+        ``side="bottom"`` first).  Mouse-wheel scrolling is bound globally so it
+        works while the pointer is over any child row, not just the canvas gaps.
+        """
+        dirty = self._collect_dirty_plugins()
+        if not dirty:
+            return
+
+        ctk.CTkLabel(
+            self._body,
+            text=f"Plugins needing cleaning ({len(dirty)}):",
+            font=FONT_BOLD, text_color=TEXT_MAIN, anchor="w",
+        ).pack(fill="x", padx=4, pady=(0, 4))
+
+        box = ctk.CTkScrollableFrame(self._body, fg_color=BG_DEEP)
+        box.pack(fill="both", expand=True, padx=4, pady=(0, 12))
+
+        for name, summary in dirty:
+            row = ctk.CTkFrame(box, fg_color="transparent")
+            row.pack(fill="x", padx=2, pady=1)
+            ctk.CTkLabel(
+                row, text=name, font=FONT_BOLD, text_color=TEXT_MAIN,
+                anchor="w",
+            ).pack(side="top", fill="x")
+            ctk.CTkLabel(
+                row, text=summary, font=FONT_NORMAL, text_color=TEXT_DIM,
+                anchor="w",
+            ).pack(side="top", fill="x", padx=(12, 0))
+
+        self._bind_dirty_scroll(box)
+
+    def _bind_dirty_scroll(self, box: "ctk.CTkScrollableFrame") -> None:
+        """Make the mouse wheel scroll the dirty-plugin list from anywhere over
+        it.  On Tk 8.6 (Linux) the wheel arrives as Button-4/5 which the
+        CTkScrollableFrame bind_all doesn't cover; supplement them, scoped to
+        when the pointer is actually over the list."""
+        from gui.wheel_compat import LEGACY_WHEEL_REDUNDANT
+        if LEGACY_WHEEL_REDUNDANT:
+            return
+        canvas = getattr(box, "_parent_canvas", None)
+        if canvas is None:
+            return
+
+        def _on_scroll(event):
+            try:
+                if not box.winfo_exists():
+                    return
+                sx, sy = box.winfo_rootx(), box.winfo_rooty()
+                sw, sh = box.winfo_width(), box.winfo_height()
+            except Exception:
+                return
+            if not (sx <= event.x_root < sx + sw and sy <= event.y_root < sy + sh):
+                return
+            num = getattr(event, "num", None)
+            if num == 4:
+                canvas.yview("scroll", -3, "units")
+            elif num == 5:
+                canvas.yview("scroll", 3, "units")
+
+        root = self.winfo_toplevel()
+        self._dirty_scroll_root = root
+        root.bind_all("<Button-4>", _on_scroll, add="+")
+        root.bind_all("<Button-5>", _on_scroll, add="+")
+        # Tear the global handlers down when the wizard is destroyed — a leftover
+        # bind_all referencing the dead canvas would fire on every wheel notch in
+        # any window sharing this Tk interpreter.
+        self.bind("<Destroy>", self._on_dirty_scroll_destroy, add="+")
+
+    def _on_dirty_scroll_destroy(self, event):
+        if event.widget is not self:
+            return  # ignore child-widget destroys bubbling through
+        root = getattr(self, "_dirty_scroll_root", None)
+        if root is None:
+            return
+        for seq in ("<Button-4>", "<Button-5>"):
+            try:
+                root.unbind_all(seq)
+            except Exception:
+                pass
+        self._dirty_scroll_root = None
+
     def _show_step_run(self):
         self._clear_body()
 
@@ -712,12 +862,9 @@ class SSEEditWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
             ).pack(side="bottom")
             return
 
-        self._run_status = ctk.CTkLabel(
-            self._body, text=f"Launching {self._tool_display_name}\u2026",
-            font=FONT_NORMAL, text_color=TEXT_DIM, justify="center", wraplength=460,
-        )
-        self._run_status.pack(pady=(0, 12))
-
+        # Pack the bottom widgets first so they reserve their space; the dirty
+        # list (packed last with expand=True) then absorbs everything between
+        # the header and the run status.
         self._done_btn = ctk.CTkButton(
             self._body, text="Done", width=120, height=36,
             font=FONT_BOLD,
@@ -725,6 +872,15 @@ class SSEEditWizard(ProtonPrefixStepMixin, ctk.CTkFrame):
             command=self._on_done, state="disabled",
         )
         self._done_btn.pack(side="bottom")
+
+        self._run_status = ctk.CTkLabel(
+            self._body, text=f"Launching {self._tool_display_name}\u2026",
+            font=FONT_NORMAL, text_color=TEXT_DIM, justify="center", wraplength=460,
+        )
+        self._run_status.pack(side="bottom", pady=(0, 12))
+
+        if self._qac:
+            self._build_dirty_plugins_panel()
 
         threading.Thread(target=lambda: self._do_run(exe), daemon=True).start()
 

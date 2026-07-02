@@ -1,232 +1,119 @@
 """
 dtkit_patch_helper.py
-Non-GUI helpers for downloading, installing, and running dtkit-patch.
+Non-GUI helpers for running dtkit-patch under Proton.
 
-Shared between the dtkit-patch wizard (wizards/dtkit_patch.py) and the
-Darktide game handler (Games/Darktide/darktide.py) so that deploy/restore
-can invoke dtkit-patch automatically without needing the wizard UI.
+The Darktide Mod Loader (DML) mod ships the current Windows ``dtkit-patch.exe``
+in its ``tools/`` folder.  Once the modlist is deployed, that exe lands in
+``<game>/tools/dtkit-patch.exe`` (via Darktide's custom routing rules).  We run
+it under the game's Proton prefix, mirroring DML's ``toggle_darktide_mods.bat``:
+
+    cd <game>
+    .\\tools\\dtkit-patch --toggle .\\bundle
+
+Running the shipped exe under Proton (instead of a separately-downloaded native
+Linux build) keeps the patcher version in lock-step with the user's DML install,
+which is required after every game update.
 """
 
 from __future__ import annotations
 
-import json
-import shutil
-import stat
 import subprocess
-import tarfile
-import tempfile
-import urllib.request
-import zipfile
 from pathlib import Path
+from typing import Callable
 
 from Utils.app_log import safe_log as _safe_log
-from Utils.config_paths import get_config_dir
 
-try:
-    import py7zr
-except ImportError:
-    py7zr = None  # type: ignore[assignment]
-
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
-
-_GITHUB_API_URL = "https://api.github.com/repos/manshanko/dtkit-patch/releases/latest"
-_ARCHIVE_EXTS   = {".zip", ".tar.gz", ".tar.bz2", ".tar.xz", ".tgz", ".7z"}
-
-# Persistent storage location for the downloaded binary
-_TOOLS_DIR = get_config_dir() / "tools" / "dtkit-patch"
+# Relative location of the patcher exe / bundle inside the deployed game folder
+# (DML's layout, mirrored by Darktide's custom routing rules).
+_DTKIT_REL = "tools/dtkit-patch.exe"
+_BUNDLE_REL = "bundle"
 
 
 # ---------------------------------------------------------------------------
-# Internal helpers
+# Locating the deployed exe
 # ---------------------------------------------------------------------------
 
-def _is_archive(name: str) -> bool:
-    low = name.lower()
-    return any(low.endswith(ext) for ext in _ARCHIVE_EXTS)
+def find_deployed_dtkit_exe(game_path: "Path | None") -> "Path | None":
+    """Return ``<game_path>/tools/dtkit-patch.exe`` if it exists, else None.
 
-
-def _fetch_latest_linux_asset(api_url: str) -> tuple[str, str, str]:
-    """Return (version_tag, asset_name, download_url) for the latest Linux asset."""
-    req = urllib.request.Request(
-        api_url,
-        headers={"Accept": "application/vnd.github+json", "User-Agent": "ModManager/1.0"},
-    )
-    from Utils.ca_bundle import get_ssl_context
-    with urllib.request.urlopen(req, timeout=15, context=get_ssl_context()) as resp:
-        data = json.loads(resp.read().decode())
-    tag = data.get("tag_name", "unknown")
-    for asset in data.get("assets", []):
-        name: str = asset.get("name", "")
-        if "linux" in name.lower():
-            return tag, name, asset["browser_download_url"]
-    raise RuntimeError(
-        f"No Linux asset found in the latest dtkit-patch release ({tag}).\n"
-        "Check https://github.com/manshanko/dtkit-patch/releases manually."
-    )
-
-
-def _extract_to_dir(archive: Path, dest: Path) -> None:
-    name_lower = archive.name.lower()
-    if name_lower.endswith(".zip"):
-        with zipfile.ZipFile(archive, "r") as zf:
-            zf.extractall(dest)
-    elif name_lower.endswith((".tar.gz", ".tar.bz2", ".tar.xz", ".tgz", ".tar")):
-        with tarfile.open(archive, "r:*") as tf:
-            tf.extractall(dest)
-    elif name_lower.endswith(".7z"):
-        extracted = False
-        # Prefer a native 7-zip binary (Flatpak bundles `7zz`, AppImage `7zzs`).
-        # py7zr is a last resort — it can't decode the BCJ2 filter.
-        _7z_bin = (
-            shutil.which("7zzs") or shutil.which("7zz")
-            or shutil.which("7z") or shutil.which("7za")
-        )
-        if _7z_bin:
-            result = subprocess.run(
-                [_7z_bin, "x", str(archive), f"-o{dest}", "-y"],
-                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
-            )
-            extracted = result.returncode == 0
-        if not extracted:
-            _bsdtar_bin = shutil.which("bsdtar")
-            if _bsdtar_bin:
-                result = subprocess.run(
-                    [_bsdtar_bin, "-xf", str(archive), "-C", str(dest)],
-                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
-                )
-                extracted = result.returncode == 0
-        if not extracted:
-            if py7zr is None:
-                raise RuntimeError(
-                    "Cannot extract .7z: no native 7z/bsdtar command found "
-                    "and py7zr is not installed."
-                )
-            with py7zr.SevenZipFile(archive, "r") as zf:
-                zf.extractall(dest)
-    else:
-        raise RuntimeError(f"Unsupported archive format: {archive.name}")
-
-
-def _find_dtkit_binary_in_dir(directory: Path) -> Path | None:
-    """Find the dtkit-patch executable inside *directory* (recursive)."""
-    for candidate in directory.rglob("dtkit-patch*"):
-        low = candidate.name.lower()
-        if not candidate.is_file():
-            continue
-        # Skip Windows .exe files on Linux.
-        if low.endswith(".exe"):
-            continue
-        if "dtkit" in low:
-            return candidate
-    return None
-
-
-def _install_from_archive(archive: Path, tools_dir: Path) -> Path:
-    """Extract *archive* into a temp dir, find the dtkit-patch binary,
-    copy it to *tools_dir*, chmod +x, and return the installed path."""
-    tools_dir.mkdir(parents=True, exist_ok=True)
-    tmp = Path(tempfile.mkdtemp())
-    try:
-        _extract_to_dir(archive, tmp)
-        binary = _find_dtkit_binary_in_dir(tmp)
-        if binary is None:
-            raise RuntimeError("Could not find dtkit-patch binary inside the archive.")
-        dest = tools_dir / "dtkit-patch"
-        shutil.copy2(binary, dest)
-    finally:
-        shutil.rmtree(tmp, ignore_errors=True)
-    dest.chmod(dest.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-    return dest
-
-
-def _install_bare_binary(src: Path, tools_dir: Path) -> Path:
-    """Copy a bare binary file to *tools_dir*, chmod +x, and return the path."""
-    tools_dir.mkdir(parents=True, exist_ok=True)
-    dest = tools_dir / "dtkit-patch"
-    shutil.copy2(src, dest)
-    dest.chmod(dest.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-    return dest
+    The exe is placed there when the Darktide Mod Loader mod is deployed.
+    """
+    if game_path is None:
+        return None
+    candidate = Path(game_path) / _DTKIT_REL
+    return candidate if candidate.is_file() else None
 
 
 # ---------------------------------------------------------------------------
-# Public API
+# Running under Proton
 # ---------------------------------------------------------------------------
 
-def get_installed_dtkit_path() -> Path | None:
-    """Return the path to the installed dtkit-patch binary, or None."""
-    candidate = _TOOLS_DIR / "dtkit-patch"
-    if candidate.is_file():
-        return candidate
-    return None
+def run_dtkit_patch_proton(
+    game,
+    flag: str = "--toggle",
+    log_fn: "Callable[[str], None] | None" = None,
+    line_fn: "Callable[[str], None] | None" = None,
+) -> bool:
+    """Run the deployed ``dtkit-patch.exe`` against ``<game>/bundle`` via Proton.
 
+    Mirrors DML's ``toggle_darktide_mods.bat`` (``--toggle`` flips the patched
+    state).  cwd is the game folder so the relative ``bundle`` path resolves the
+    same way the .bat does.
 
-def ensure_dtkit_binary(log_fn=None) -> Path:
-    """Return the path to dtkit-patch, downloading it from GitHub if needed.
-
-    Raises RuntimeError if the binary cannot be obtained.
+    *log_fn* receives diagnostic/log lines; *line_fn* (optional) receives each
+    line of the patcher's own stdout/stderr for live display.  Returns True on
+    a zero exit code, False otherwise (errors are logged, not raised).
     """
     _log = _safe_log(log_fn)
+    _emit = line_fn or (lambda _l: None)
 
-    existing = get_installed_dtkit_path()
-    if existing is not None:
-        _log(f"dtkit-patch: using cached binary at {existing}")
-        return existing
-
-    _log("dtkit-patch: not found locally, fetching latest release from GitHub...")
-    tag, asset_name, url = _fetch_latest_linux_asset(_GITHUB_API_URL)
-    _log(f"dtkit-patch: downloading {tag} ({asset_name})...")
-
-    tmp_dir = Path(tempfile.mkdtemp())
-    try:
-        filename = url.split("/")[-1]
-        dest_archive = tmp_dir / filename
-        from Utils.ca_bundle import download_file
-        download_file(url, dest_archive)
-        _log(f"dtkit-patch: installing {filename}...")
-        binary = _install_from_archive(dest_archive, _TOOLS_DIR)
-    finally:
-        shutil.rmtree(tmp_dir, ignore_errors=True)
-
-    _log(f"dtkit-patch: installed to {binary}")
-    return binary
-
-
-def run_dtkit_patch(game_path: Path, flag: str, log_fn=None) -> bool:
-    """Ensure dtkit-patch is installed, then run it with *flag* against
-    *game_path*/bundle (e.g. '--patch' or '--unpatch').
-
-    Returns True on success, False on failure (errors are logged, not raised).
-    """
-    _log = _safe_log(log_fn)
-
-    try:
-        binary = ensure_dtkit_binary(log_fn=_log)
-    except Exception as exc:
-        _log(f"dtkit-patch: could not obtain binary: {exc}")
+    game_path = game.get_game_path() if hasattr(game, "get_game_path") else None
+    if game_path is None or not Path(game_path).is_dir():
+        _log("dtkit-patch: game path is not configured.")
         return False
 
-    _log(f"dtkit-patch: running {binary} {flag} bundle (cwd={game_path})")
+    exe = find_deployed_dtkit_exe(game_path)
+    if exe is None:
+        _log(
+            "dtkit-patch: tools/dtkit-patch.exe not found in the game folder. "
+            "Deploy the Darktide Mod Loader mod first."
+        )
+        return False
+
+    from Utils.protontricks import build_proton_env_for_game
+    from Utils.steam_finder import proton_run_command
+
+    proton_script, env = build_proton_env_for_game(game)
+    if proton_script is None:
+        _log(
+            "dtkit-patch: could not resolve a Proton install / prefix for the "
+            "game. Launch the game once through Steam to create its prefix."
+        )
+        return False
+
+    cmd = proton_run_command(proton_script, "run", str(exe), flag, _BUNDLE_REL)
+    _log(f"dtkit-patch: running {exe.name} {flag} {_BUNDLE_REL} via Proton (cwd={game_path})")
     try:
         result = subprocess.run(
-            [str(binary), flag, "bundle"],
+            cmd,
+            env=env,
+            cwd=str(game_path),
             capture_output=True,
             text=True,
-            cwd=str(game_path),
         )
     except Exception as exc:
         _log(f"dtkit-patch: failed to run: {exc}")
         return False
 
     for line in result.stdout.strip().splitlines():
+        _emit(line)
         _log(f"dtkit-patch: {line}")
     for line in result.stderr.strip().splitlines():
+        _emit(f"[stderr] {line}")
         _log(f"dtkit-patch [stderr]: {line}")
 
     if result.returncode == 0:
         _log("dtkit-patch: done.")
         return True
-    else:
-        _log(f"dtkit-patch: exited with code {result.returncode}.")
-        return False
+    _log(f"dtkit-patch: exited with code {result.returncode}.")
+    return False

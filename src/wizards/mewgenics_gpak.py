@@ -189,7 +189,7 @@ class MewgenicsGpakWizard(ctk.CTkFrame):
                 extract_gpak(resources, unpack_dir, try_zlib=True)
                 self.after(0, lambda: self._log("Unpack complete."))
             except Exception as e:
-                self.after(0, lambda: self._log(f"Error: {e}"))
+                self.after(0, lambda e=e: self._log(f"Error: {e}"))
             finally:
                 self.after(0, lambda: setattr(self, "_running", False))
 
@@ -212,7 +212,7 @@ class MewgenicsGpakWizard(ctk.CTkFrame):
                 pack_gpak(unpack_dir, resources, compress=False)
                 self.after(0, lambda: self._log("Repack complete."))
             except Exception as e:
-                self.after(0, lambda: self._log(f"Error: {e}"))
+                self.after(0, lambda e=e: self._log(f"Error: {e}"))
             finally:
                 self.after(0, lambda: setattr(self, "_running", False))
 

@@ -502,6 +502,9 @@ class SkyrimSE(Fallout_3):
             f"= {linked_mod + linked_core} total file(s) in Data/."
         )
 
+        # Capture runtime files generated outside Data/ on the next restore.
+        self.snapshot_root_for_runtime_capture(log_fn=_log)
+
     def restore(self, log_fn=None, progress_fn=None) -> None:
         """Restore Data/ to its vanilla state."""
         _log = log_fn or (lambda _: None)
@@ -556,5 +559,11 @@ class SkyrimSE(Fallout_3):
             _log(f"  Restored {restored} file(s). Data_Core/ removed.")
         except RuntimeError as e:
             _log(f"  Skipping data restore: {e}")
+
+        # After Data/ + launcher are restored, so the launcher .bak (created by
+        # swap_launcher *after* the deploy snapshot) isn't swept as a runtime file.
+        moved = self.capture_runtime_files_to_root_folder(log_fn=_log)
+        if moved:
+            _log(f"  Moved {moved} runtime file(s) to Root_Folder/.")
 
         _log("Restore complete.")

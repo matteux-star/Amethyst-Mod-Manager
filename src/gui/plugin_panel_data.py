@@ -657,6 +657,16 @@ class PluginPanelDataMixin:
         # root, so they don't belong in the Data tab tree — collect them and
         # filter at the end.
         prefix_hidden: set[int] = set()
+        # Entries routed to the bare game root (a rule with dest=="" and not
+        # to_prefix) land outside the game's mods_dir (e.g. Data/), so — like
+        # root-folder-flagged mods — they don't belong in the Data tab tree.
+        # Only applies when the game actually has a distinct mods_dir; for games
+        # where the game root IS the data dir, a root route is legitimate.
+        _mods_dir_set = bool((getattr(game, "mods_dir", None) or "").strip("/ "))
+        root_hidden: set[int] = set()
+
+        def _routes_to_root(rule) -> bool:
+            return _mods_dir_set and not getattr(rule, "to_prefix", False) and not rule.dest
         from Utils.deploy_custom_rules import _sibling_container
         claimed: set[int] = set()
         for rule, folders, exts, filenames in _rules:
@@ -674,6 +684,8 @@ class PluginPanelDataMixin:
                 new_primary_idxs.append(idx)
                 if getattr(rule, "to_prefix", False):
                     prefix_hidden.add(idx)
+                elif _routes_to_root(rule):
+                    root_hidden.add(idx)
             if not getattr(rule, "include_siblings", False) or not new_primary_idxs:
                 continue
             # Build drag specs for this rule's primaries, then claim siblings.
@@ -715,6 +727,8 @@ class PluginPanelDataMixin:
                     claimed.add(sib_idx)
                     if getattr(rule, "to_prefix", False):
                         prefix_hidden.add(sib_idx)
+                    elif _routes_to_root(rule):
+                        root_hidden.add(sib_idx)
 
         # Second pass: mark companions (same folder, same stem, companion ext)
         # with their primary's rule.
@@ -745,11 +759,13 @@ class PluginPanelDataMixin:
                         primary_rules[sib_idx] = (rule, strip_len, c)
                         if getattr(rule, "to_prefix", False):
                             prefix_hidden.add(sib_idx)
+                        elif _routes_to_root(rule):
+                            root_hidden.add(sib_idx)
                         break
 
         resolved = []
         for idx, (rel_path, mod_name) in enumerate(entries):
-            if idx in prefix_hidden:
+            if idx in prefix_hidden or idx in root_hidden:
                 continue
             rel_norm = normalised[idx]
             match = primary_rules.get(idx)

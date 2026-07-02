@@ -9,7 +9,6 @@ Mod structure:
   Root_Folder/ files deploy straight to the game install root (handled by GUI).
 """
 
-import json
 from pathlib import Path
 
 from Games.base_game import BaseGame
@@ -26,7 +25,6 @@ from Utils.deploy import (
 )
 from Utils.modlist import read_modlist
 from Utils.config_paths import get_profiles_dir
-from Utils.steam_finder import find_prefix
 
 _PROFILES_DIR = get_profiles_dir()
 
@@ -67,6 +65,10 @@ class SlayTheSpire2(BaseGame):
     @property
     def mods_dir(self) -> str:
         return "mods"
+
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        # mods/ is reverted via its _Core backup; capture only files outside it.
+        return {self.mods_dir.split("/")[0]}
 
     @property
     def mod_folder_strip_prefixes(self) -> set[str]:
@@ -169,6 +171,9 @@ class SlayTheSpire2(BaseGame):
             f"= {linked_mod + linked_core} total file(s) in {plugins_dir.name}/."
         )
 
+        # Capture runtime files generated outside mods/ on the next restore.
+        self.snapshot_root_for_runtime_capture(log_fn=_log)
+
     def restore(self, log_fn=None, progress_fn=None) -> None:
         """Restore mods/ to its vanilla state."""
         _log = log_fn or (lambda _: None)
@@ -190,5 +195,9 @@ class SlayTheSpire2(BaseGame):
             _log(f"  Restored {restored} file(s). {core}/ removed.")
         else:
             _log(f"Restore: no {core}/ found — nothing to restore.")
+
+        moved = self.capture_runtime_files_to_root_folder(log_fn=_log)
+        if moved:
+            _log(f"  Moved {moved} runtime file(s) to Root_Folder/.")
 
         _log("Restore complete.")

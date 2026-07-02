@@ -39,8 +39,12 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 from pathlib import Path
 from functools import lru_cache
+from typing import TYPE_CHECKING
 
 import msgpack
+
+if TYPE_CHECKING:
+    from typing import Callable
 
 from Utils.atomic_write import atomic_writer
 from Utils.modlist import read_modlist
@@ -59,8 +63,9 @@ OVERWRITE_NAME   = "[Overwrite]"
 # Sentinel name for the root folder — files deploy to the game root, not mod data path
 ROOT_FOLDER_NAME = "[Root_Folder]"
 
-# MO2 metadata files present in every mod folder — not real game files
-_EXCLUDE_NAMES = frozenset({"meta.ini"})
+# Not real game files: MO2 meta.ini + the manager's restore-sweep log
+# (deploy_shared.OVERWRITE_LOG_NAME) — must never reach the filemap.
+_EXCLUDE_NAMES = frozenset({"meta.ini", ".mm_overwrite_log.txt"})
 
 
 def _is_macos_junk(name: str) -> bool:

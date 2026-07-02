@@ -311,6 +311,7 @@ def restore_root_folder(
     root_folder_dir: Path,
     game_root: Path,
     log_fn=None,
+    data_deploy_dirs: "set[str] | None" = None,
 ) -> int:
     """Undo a deploy_root_folder() operation.
 
@@ -320,6 +321,15 @@ def restore_root_folder(
 
     root_folder_dir — Profiles/<game>/Root_Folder/  (used to locate the log)
     game_root       — the game's install directory
+    data_deploy_dirs — top-level dir names (e.g. {"Data"}) that the standard
+                     Data/ deploy also owns.  A placed file under one of these
+                     dirs that is now a plain regular file with no Root_Backup/
+                     original was a deployed-vanilla symlink/hardlink at deploy
+                     time (so we never backed it up) and has since been restored
+                     to genuine vanilla by restore_data_core() — leaving it
+                     intact, not deleting it, keeps that vanilla file.  Defaults
+                     to no protection; callers pass the game's
+                     root_restore_protect_dirs() (e.g. {"Data"} for Bethesda).
     Returns the number of files removed from game_root.
     Silently does nothing if the log file is absent (no prior deploy).
     """
@@ -342,6 +352,31 @@ def restore_root_folder(
     created_dirs = [d for d in dirs_section.splitlines() if d]
     removed = 0
 
+    # A placed file that overwrote a path which *also* belongs to the standard
+    # Data/ deploy (e.g. a root-flagged mod shipping its own Data/Fallout4.esm)
+    # is dangerous to delete blindly.  At deploy time the pre-existing file there
+    # was a deployed-vanilla symlink/hardlink into Data_Core/, so we never copied
+    # an original into Root_Backup/ — only its raw bytes live in Data_Core/.  By
+    # the time this restore runs, restore_data_core() has already wiped Data/ and
+    # renamed Data_Core/ back, so the path now holds the genuine vanilla file.
+    # Unlinking it here (with nothing in Root_Backup/ to put back) destroys the
+    # vanilla copy for good.  Rule: only remove a placed file when Root_Backup/
+    # actually holds its original — otherwise the file is owned by the Data_Core
+    # mechanism (or was already cleared) and must be left alone.
+    def _has_backup(rel_str: str) -> bool:
+        bak = backup_dir / rel_str
+        try:
+            return bak.exists() or os.path.islink(bak)
+        except OSError:
+            return False
+
+    _protect_dirs = {d.lower() for d in (data_deploy_dirs or set())}
+
+    def _under_data_deploy(rel_str: str) -> bool:
+        # First path segment matches a Data-deploy dir (case-insensitively).
+        head = rel_str.replace("\\", "/").split("/", 1)[0].lower()
+        return head in _protect_dirs
+
     # Remove files we placed (parallelised — one lstat + one unlink per worker).
     _game_root_str = str(game_root)
     safe_targets: list[str] = []
@@ -350,12 +385,22 @@ def restore_root_folder(
         if not _path_under_root(dst, game_root):
             _log(f"  SKIP: path traversal blocked — {rel_str}")
             continue
-        safe_targets.append(_game_root_str + "/" + rel_str)
+        # Protect only Data-deploy paths with no Root_Backup original — those are
+        # the files restore_data_core owns.  Pure root-folder mod files (winhttp
+        # .dll, BepInEx/, etc.) are still removed even without a backup.
+        protect = _under_data_deploy(rel_str) and not _has_backup(rel_str)
+        safe_targets.append((_game_root_str + "/" + rel_str, protect))
 
-    def _unlink_one(p: str) -> int:
+    def _unlink_one(item) -> int:
+        p, protect = item
         try:
             st = os.lstat(p)
         except OSError:
+            return 0
+        # A real regular file at a protected Data path is the vanilla file that
+        # restore_data_core put back — leave it (deleting it would lose vanilla).
+        # Symlinks are always our own deploy artifacts: safe to drop.
+        if protect and _stat.S_ISREG(st.st_mode):
             return 0
         if _stat.S_ISLNK(st.st_mode) or _stat.S_ISREG(st.st_mode):
             try:

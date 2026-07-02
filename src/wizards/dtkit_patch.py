@@ -1,63 +1,43 @@
 """
 dtkit_patch.py
-Wizard for downloading and running dtkit-patch for Darktide.
+Wizard for patching Darktide's bundle database with dtkit-patch.
 
-dtkit-patch is a native Linux tool that patches Darktide's executable to
-enable the Darktide Mod Loader.  It must be re-run after every game update.
+The Darktide Mod Loader (DML) mod ships the current Windows ``dtkit-patch.exe``
+in its ``tools/`` folder.  Earlier versions of this wizard downloaded a separate
+native-Linux dtkit-patch build, but that build lags behind and breaks after game
+updates.  Instead we now run the exe that ships with the user's DML install,
+under the game's Proton prefix — mirroring DML's ``toggle_darktide_mods.bat``:
+
+    cd <game>
+    .\\tools\\dtkit-patch --toggle .\\bundle
 
 Workflow:
-  1. Fetch the latest Linux release from GitHub and auto-download it,
-     or let the user browse for a manually downloaded archive/binary.
-     The binary is stored persistently in
-     ~/.config/AmethystModManager/Tools/dtkit-patch/
-     so subsequent wizard runs reuse it without re-downloading.
-  2. Run dtkit-patch natively (no Proton) against
-     <game_path>/binaries/Darktide.exe, showing live output.
+  1. Deploy the modlist (same as the Deploy button) so DML's files — including
+     tools/dtkit-patch.exe and the bundle/ folder — land in the game directory.
+  2. Run dtkit-patch.exe --toggle bundle under Proton from the game folder,
+     showing live output.  --toggle flips the patched/unpatched state.
+
+Re-run after every game update (updates revert the patch).
 """
 
 from __future__ import annotations
 
-import os
-import shutil
-import subprocess
 import threading
-import urllib.request
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import customtkinter as ctk
 
-from Utils.portal_filechooser import pick_file
-from Utils.dtkit_patch_helper import (
-    _ARCHIVE_EXTS,
-    _TOOLS_DIR,
-    _is_archive,
-    _fetch_latest_linux_asset,
-    _install_from_archive,
-    _install_bare_binary,
-    get_installed_dtkit_path,
-    _GITHUB_API_URL,
-)
+from Utils.dtkit_patch_helper import find_deployed_dtkit_exe, run_dtkit_patch_proton
 
 if TYPE_CHECKING:
     from Games.base_game import BaseGame
 
 from gui.theme import (
-    ACCENT, ACCENT_HOV, BG_DEEP, BG_HEADER, BG_PANEL, BORDER,
+    ACCENT, ACCENT_HOV, BG_DEEP, BG_HEADER, BG_PANEL,
     TEXT_ON_ACCENT,
     TEXT_DIM, TEXT_MAIN,
     FONT_NORMAL, FONT_BOLD, FONT_SMALL,
 )
-
-# ---------------------------------------------------------------------------
-# Wizard-only helpers
-# ---------------------------------------------------------------------------
-
-def _get_downloads_dir() -> Path:
-    xdg = os.environ.get("XDG_DOWNLOAD_DIR")
-    if xdg:
-        return Path(xdg)
-    return Path.home() / "Downloads"
 
 
 # ============================================================================
@@ -65,7 +45,7 @@ def _get_downloads_dir() -> Path:
 # ============================================================================
 
 class DtkitPatchWizard(ctk.CTkFrame):
-    """Two-step wizard: download dtkit-patch, then run it against Darktide.exe."""
+    """Two-step wizard: deploy the modlist, then toggle the bundle patch."""
 
     def __init__(
         self,
@@ -80,19 +60,17 @@ class DtkitPatchWizard(ctk.CTkFrame):
         self._on_close_cb = on_close or (lambda: None)
         self._game        = game
         self._log         = log_fn or (lambda msg: None)
-        self._binary_path: Path | None = get_installed_dtkit_path()
-        self._archive_path: Path | None = None
 
         # --- Title bar ---
         title_bar = ctk.CTkFrame(self, fg_color=BG_HEADER, corner_radius=0, height=40)
         title_bar.pack(fill="x")
         title_bar.pack_propagate(False)
         ctk.CTkLabel(
-            title_bar, text=f"Patch Game (dtkit-patch) \u2014 {game.name}",
+            title_bar, text=f"Patch Game (dtkit-patch) — {game.name}",
             font=FONT_BOLD, text_color=TEXT_MAIN, anchor="w",
         ).pack(side="left", padx=12, pady=8)
         ctk.CTkButton(
-            title_bar, text="\u2715", width=32, height=32, font=FONT_BOLD,
+            title_bar, text="✕", width=32, height=32, font=FONT_BOLD,
             fg_color="transparent", hover_color=BG_PANEL, text_color=TEXT_MAIN,
             command=self._on_cancel,
         ).pack(side="right", padx=4, pady=4)
@@ -100,7 +78,7 @@ class DtkitPatchWizard(ctk.CTkFrame):
         self._body = ctk.CTkFrame(self, fg_color=BG_DEEP)
         self._body.pack(fill="both", expand=True, padx=20, pady=20)
 
-        self._show_step_get_binary()
+        self._show_step_deploy()
 
     def _on_cancel(self):
         self._on_close_cb()
@@ -109,198 +87,148 @@ class DtkitPatchWizard(ctk.CTkFrame):
         for w in self._body.winfo_children():
             w.destroy()
 
-    # ------------------------------------------------------------------
-    # Step 1 — Get the dtkit-patch binary
-    # ------------------------------------------------------------------
-
-    def _show_step_get_binary(self):
-        """If we already have dtkit-patch installed, skip straight to running it."""
-        if self._binary_path is not None:
-            self._show_step_run()
+    def _set_label(self, attr: str, text: str, color: str = TEXT_DIM):
+        widget = getattr(self, attr, None)
+        if widget is None:
             return
-        self._show_step_download()
+        try:
+            self.after(0, lambda: widget.configure(text=text, text_color=color))
+        except Exception:
+            pass
 
-    def _show_step_download(self):
+    # ------------------------------------------------------------------
+    # Step 1 — Deploy the modlist
+    # ------------------------------------------------------------------
+
+    def _show_step_deploy(self):
         self._clear_body()
 
+        # If DML is already deployed (exe present in the game folder) we can skip
+        # straight to running the patcher.
+        if find_deployed_dtkit_exe(self._game.get_game_path()) is not None:
+            self._show_step_run()
+            return
+
         ctk.CTkLabel(
-            self._body, text="Step 1: Get dtkit-patch",
+            self._body, text="Step 1: Deploy mods",
             font=FONT_BOLD, text_color=TEXT_MAIN,
         ).pack(pady=(0, 8))
 
         ctk.CTkLabel(
             self._body,
             text=(
-                "dtkit-patch patches Darktide's executable to enable the Mod Loader.\n"
-                "A native Linux binary will be downloaded from GitHub.\n\n"
-                "The binary is saved to:\n"
-                f"{_TOOLS_DIR}\n\n"
-                "It will be reused on future runs without re-downloading."
+                "dtkit-patch.exe ships with the Darktide Mod Loader and runs under "
+                "Proton, so it always matches your installed version.\n\n"
+                "Your mods will be deployed first so the patcher and the bundle "
+                "database are present in the game folder."
             ),
             font=FONT_NORMAL, text_color=TEXT_DIM,
             justify="center", wraplength=500,
         ).pack(pady=(0, 12))
 
-        self._dl_status = ctk.CTkLabel(
-            self._body, text="Checking for the latest release\u2026",
-            font=FONT_SMALL, text_color=TEXT_DIM, justify="center",
-            wraplength=500,
+        self._deploy_status = ctk.CTkLabel(
+            self._body, text="", font=FONT_SMALL, text_color=TEXT_DIM,
+            justify="center", wraplength=500,
         )
-        self._dl_status.pack(pady=(0, 8))
+        self._deploy_status.pack(pady=(0, 8))
 
-        self._dl_progress = ctk.CTkProgressBar(self._body, width=420, mode="indeterminate")
-        self._dl_progress.pack(pady=(0, 12))
-        self._dl_progress.start()
+        self._deploy_progress = ctk.CTkProgressBar(self._body, width=420, mode="indeterminate")
 
         btn_frame = ctk.CTkFrame(self._body, fg_color="transparent")
         btn_frame.pack(side="bottom", pady=(8, 0))
 
-        self._dl_next_btn = ctk.CTkButton(
-            btn_frame, text="Next \u2192", width=120, height=36,
+        self._deploy_btn = ctk.CTkButton(
+            btn_frame, text="Deploy →", width=140, height=36,
             font=FONT_BOLD,
             fg_color=ACCENT, hover_color=ACCENT_HOV, text_color=TEXT_ON_ACCENT,
-            command=self._on_download_next, state="disabled",
+            command=self._on_deploy,
         )
-        self._dl_next_btn.pack(side="right", padx=(8, 0))
+        self._deploy_btn.pack(side="right", padx=(8, 0))
 
         ctk.CTkButton(
-            btn_frame, text="Browse\u2026", width=100, height=36,
+            btn_frame, text="Cancel", width=100, height=36,
             font=FONT_BOLD,
             fg_color=BG_HEADER, hover_color="#3d3d3d", text_color=TEXT_MAIN,
-            command=self._browse_binary,
+            command=self._on_cancel,
         ).pack(side="right")
 
-        threading.Thread(target=self._do_fetch_and_download, daemon=True).start()
+    def _on_deploy(self):
+        """Run the exact same flow as pressing the Deploy button.
 
-    def _do_fetch_and_download(self):
+        We delegate to top_bar._run_deploy (same path Run EXE uses) instead of
+        calling run_deploy_pipeline ourselves, so deploy serialization, the
+        AppData confirm, root-folder state, the CET prompt, the post-deploy
+        mod-panel reload and the deploy-warnings popup all behave identically.
+        On success it chains _on_deploy_done, which advances to the run step.
+        """
+        game_path = self._game.get_game_path()
+        if game_path is None or not game_path.is_dir():
+            self._set_label("_deploy_status", "Game path not configured.", color="#e06c6c")
+            return
+
         try:
-            self._set_dl_status("Fetching latest release from GitHub\u2026")
-            tag, asset_name, url = _fetch_latest_linux_asset(_GITHUB_API_URL)
-            filename = url.split("/")[-1]
-            dest = _get_downloads_dir() / filename
-            self._set_dl_status(f"Downloading {tag} ({asset_name})\u2026")
-            self._log(f"dtkit-patch wizard: downloading {url} → {dest}")
-
-            def _reporthook(block_num, block_size, total_size):
-                if total_size > 0:
-                    pct = min(block_num * block_size / total_size, 1.0)
-                    try:
-                        self.after(0, lambda p=pct: (
-                            self._dl_progress.configure(mode="determinate"),
-                            self._dl_progress.set(p),
-                        ))
-                    except Exception:
-                        pass
-
-            from Utils.ca_bundle import download_file
-            download_file(url, dest, reporthook=_reporthook)
-            self._archive_path = dest
-            self._log(f"dtkit-patch wizard: downloaded {filename}")
-            self.after(0, lambda: self._dl_progress.stop())
-            self.after(0, lambda: self._dl_progress.configure(mode="determinate"))
-            self.after(0, lambda: self._dl_progress.set(1.0))
-            self._set_dl_status(f"Downloaded {tag}: {filename}", color="#6bc76b")
-            self.after(0, lambda: self._dl_next_btn.configure(state="normal"))
-        except Exception as exc:
-            self._log(f"dtkit-patch wizard: download error: {exc}")
-            self.after(0, lambda: self._dl_progress.stop())
-            self._set_dl_status(
-                f"Download failed: {exc}\n\nUse Browse to select a manually downloaded file.",
+            topbar = self.winfo_toplevel()._topbar
+        except AttributeError:
+            self._set_label(
+                "_deploy_status",
+                "Top bar unavailable — cannot deploy from the wizard.",
                 color="#e06c6c",
             )
-            self.after(0, lambda: self._dl_next_btn.configure(state="normal"))
+            return
 
-    def _set_dl_status(self, text: str, color: str = TEXT_DIM):
+        # Keep the button enabled: top_bar._run_deploy only fires on_complete on
+        # success, so on a failed/coalesced deploy the user can simply press
+        # Deploy again (re-runs are coalesced safely by _run_deploy). The status
+        # bar shows real progress; the wizard spinner is just a busy hint.
+        self._deploy_progress.pack(pady=(0, 12))
+        self._deploy_progress.start()
+        self._set_label("_deploy_status", "Deploying mods… (see the status bar for progress)")
+
+        profile = topbar._profile_var.get()
+        topbar._run_deploy(self._game, profile, on_complete=self._on_deploy_done)
+
+    def _on_deploy_done(self):
+        """Main-thread callback fired by top_bar._run_deploy on a successful deploy."""
         try:
-            self.after(0, lambda: self._dl_status.configure(text=text, text_color=color))
+            self._deploy_progress.stop()
+            self._deploy_progress.pack_forget()
         except Exception:
             pass
 
-    def _browse_binary(self):
-        def _on_picked(path: Path | None) -> None:
-            if path and path.is_file():
-                self._archive_path = path
-                low = path.name.lower()
-                if any(low.endswith(ext) for ext in _ARCHIVE_EXTS):
-                    label = f"Selected archive: {path.name}"
-                else:
-                    label = f"Selected binary: {path.name}"
-                self._set_dl_status(label, color="#6bc76b")
-                try:
-                    self.after(0, lambda: self._dl_next_btn.configure(state="normal"))
-                except Exception:
-                    pass
-
-        pick_file("Select dtkit-patch binary or archive", lambda p: self.after(0, lambda: _on_picked(p)))
-
-    def _on_download_next(self):
-        """Install the downloaded file to the persistent tools directory, then proceed."""
-        src = self._archive_path
-        if src is None or not src.is_file():
-            self._set_dl_status("No file selected.", color="#e06c6c")
+        if find_deployed_dtkit_exe(self._game.get_game_path()) is None:
+            self._set_label(
+                "_deploy_status",
+                "Deploy finished, but tools/dtkit-patch.exe was not found in the "
+                "game folder.\nMake sure the Darktide Mod Loader mod is enabled.",
+                color="#e06c6c",
+            )
             return
 
-        self._set_dl_status("Installing dtkit-patch\u2026")
-        self.after(0, lambda: self._dl_next_btn.configure(state="disabled"))
-
-        def _worker():
-            try:
-                if _is_archive(src.name):
-                    binary = _install_from_archive(src, _TOOLS_DIR)
-                else:
-                    binary = _install_bare_binary(src, _TOOLS_DIR)
-                self._binary_path = binary
-                self._log(f"dtkit-patch wizard: installed to {binary}")
-                self.after(0, self._show_step_run)
-            except Exception as exc:
-                self._log(f"dtkit-patch wizard: install error: {exc}")
-                self._set_dl_status(f"Install failed: {exc}", color="#e06c6c")
-                self.after(0, lambda: self._dl_next_btn.configure(state="normal"))
-
-        threading.Thread(target=_worker, daemon=True).start()
+        self._show_step_run()
 
     # ------------------------------------------------------------------
-    # Step 2 — Run dtkit-patch
+    # Step 2 — Run dtkit-patch.exe under Proton
     # ------------------------------------------------------------------
 
     def _show_step_run(self):
         self._clear_body()
 
         ctk.CTkLabel(
-            self._body,
-            text="Step 2: Run dtkit-patch",
+            self._body, text="Step 2: Toggle bundle patch",
             font=FONT_BOLD, text_color=TEXT_MAIN,
         ).pack(pady=(0, 8))
 
         game_path = self._game.get_game_path()
-        binary_path = self._binary_path
-
-        if game_path is None or not game_path.is_dir():
-            status_text = (
-                "Game path not configured.\n\n"
-                "Make sure the game path is set correctly."
-            )
-            ctk.CTkLabel(
-                self._body, text=status_text,
-                font=FONT_NORMAL, text_color="#e06c6c",
-                justify="center", wraplength=500,
-            ).pack(pady=(0, 16))
-            ctk.CTkButton(
-                self._body, text="Close", width=120, height=36,
-                font=FONT_BOLD,
-                fg_color=BG_HEADER, hover_color="#3d3d3d", text_color=TEXT_MAIN,
-                command=self._on_cancel,
-            ).pack(side="bottom")
-            return
+        exe = find_deployed_dtkit_exe(game_path)
 
         ctk.CTkLabel(
             self._body,
             text=(
-                f"dtkit-patch binary:\n{binary_path}\n\n"
+                f"Patcher:\n{exe}\n\n"
                 f"Game folder (cwd):\n{game_path}\n\n"
-                "Patch — enable Darktide Mod Loader.\n"
-                "Unpatch — restore the unmodified database.\n"
-                "Re-patch after every game update."
+                "Toggle flips the patch on or off (same as the Mod Loader's\n"
+                "toggle_darktide_mods.bat). Patch to enable mods; toggle again\n"
+                "to disable. Re-run after every game update."
             ),
             font=FONT_NORMAL, text_color=TEXT_DIM,
             justify="center", wraplength=500,
@@ -330,28 +258,13 @@ class DtkitPatchWizard(ctk.CTkFrame):
         )
         self._done_btn.pack(side="right", padx=(8, 0))
 
-        self._run_btn = ctk.CTkButton(
-            btn_frame, text="Patch", width=120, height=36,
+        self._toggle_btn = ctk.CTkButton(
+            btn_frame, text="Toggle Patch", width=140, height=36,
             font=FONT_BOLD,
             fg_color=ACCENT, hover_color=ACCENT_HOV, text_color=TEXT_ON_ACCENT,
-            command=lambda: self._do_run_dtkit(game_path, "--patch"),
+            command=self._on_toggle,
         )
-        self._run_btn.pack(side="right")
-
-        self._unpatch_btn = ctk.CTkButton(
-            btn_frame, text="Unpatch", width=120, height=36,
-            font=FONT_BOLD,
-            fg_color="#7a3a2d", hover_color="#9e4a38", text_color="white",
-            command=lambda: self._do_run_dtkit(game_path, "--unpatch"),
-        )
-        self._unpatch_btn.pack(side="right", padx=(0, 8))
-
-        ctk.CTkButton(
-            btn_frame, text="Re-download", width=130, height=36,
-            font=FONT_BOLD,
-            fg_color=BG_HEADER, hover_color="#3d3d3d", text_color=TEXT_MAIN,
-            command=self._force_redownload,
-        ).pack(side="right", padx=(0, 8))
+        self._toggle_btn.pack(side="right")
 
     def _append_output(self, text: str) -> None:
         try:
@@ -364,74 +277,37 @@ class DtkitPatchWizard(ctk.CTkFrame):
         except Exception:
             pass
 
-    def _do_run_dtkit(self, game_path: Path, flag: str) -> None:
-        """Run dtkit-patch with *flag* (--patch or --unpatch) in a background thread."""
-        self._run_btn.configure(state="disabled")
-        self._unpatch_btn.configure(state="disabled")
-        binary = self._binary_path
-        if binary is None or not binary.is_file():
-            self._set_run_status("dtkit-patch binary not found. Please complete Step 1 first.", color="#e06c6c")
-            self.after(0, lambda: self._done_btn.configure(state="normal"))
-            self.after(0, lambda: self._run_btn.configure(state="normal"))
-            self.after(0, lambda: self._unpatch_btn.configure(state="normal"))
-            return
+    def _on_toggle(self):
+        self.after(0, lambda: self._toggle_btn.configure(state="disabled"))
+        self._set_label("_run_status", "Running dtkit-patch — toggle…")
+        threading.Thread(target=self._do_toggle, daemon=True).start()
 
-        action = "patch" if flag == "--patch" else "unpatch"
-
-        def _worker():
-            try:
-                self._set_run_status(f"Running dtkit-patch {flag}\u2026")
-                self._log(f"dtkit-patch wizard: running {binary} {flag} bundle (cwd={game_path})")
-                result = subprocess.run(
-                    [str(binary), flag, "bundle"],
-                    capture_output=True,
-                    text=True,
-                    cwd=str(game_path),
-                )
-                stdout = result.stdout.strip()
-                stderr = result.stderr.strip()
-                if stdout:
-                    for line in stdout.splitlines():
-                        self._append_output(line)
-                        self._log(f"dtkit-patch: {line}")
-                if stderr:
-                    for line in stderr.splitlines():
-                        self._append_output(f"[stderr] {line}")
-                        self._log(f"dtkit-patch stderr: {line}")
-                if result.returncode == 0:
-                    if flag == "--patch":
-                        msg = "Patch applied successfully!\nDarktide Mod Loader is now enabled."
-                    else:
-                        msg = "Unpatch applied successfully!\nDarktide Mod Loader is now disabled."
-                    self._set_run_status(msg, color="#6bc76b")
-                    self._log(f"dtkit-patch wizard: {action} succeeded.")
-                else:
-                    self._set_run_status(
-                        f"dtkit-patch exited with code {result.returncode}.\n"
-                        "Check the output above for details.",
-                        color="#e06c6c",
-                    )
-                    self._log(f"dtkit-patch wizard: {action} failed (exit {result.returncode}).")
-            except Exception as exc:
-                self._set_run_status(f"Error running dtkit-patch: {exc}", color="#e06c6c")
-                self._log(f"dtkit-patch wizard: run error: {exc}")
-            finally:
-                self.after(0, lambda: self._done_btn.configure(state="normal"))
-                self.after(0, lambda: self._run_btn.configure(state="normal"))
-                self.after(0, lambda: self._unpatch_btn.configure(state="normal"))
-
-        threading.Thread(target=_worker, daemon=True).start()
-
-    def _set_run_status(self, text: str, color: str = TEXT_DIM):
+    def _do_toggle(self):
         try:
-            self.after(0, lambda: self._run_status.configure(text=text, text_color=color))
-        except Exception:
-            pass
+            ok = run_dtkit_patch_proton(
+                self._game,
+                flag="--toggle",
+                log_fn=self._log,
+                line_fn=self._append_output,
+            )
+        except Exception as exc:
+            self._set_label("_run_status", f"Error running dtkit-patch: {exc}", color="#e06c6c")
+            self._log(f"dtkit-patch wizard: run error: {exc}")
+            ok = False
+        finally:
+            self.after(0, lambda: self._done_btn.configure(state="normal"))
+            self.after(0, lambda: self._toggle_btn.configure(state="normal"))
 
-    def _force_redownload(self):
-        """Remove the cached binary and go back to the download step."""
-        if _TOOLS_DIR.is_dir():
-            shutil.rmtree(_TOOLS_DIR, ignore_errors=True)
-        self._binary_path = None
-        self._archive_path = None
-        self._show_step_download()
+        if ok:
+            self._set_label(
+                "_run_status",
+                "Done. The bundle patch state was toggled.\n"
+                "Launch the game to verify mods load (toggle again to disable).",
+                color="#6bc76b",
+            )
+        else:
+            self._set_label(
+                "_run_status",
+                "dtkit-patch did not complete successfully.\nCheck the output above and the log.",
+                color="#e06c6c",
+            )

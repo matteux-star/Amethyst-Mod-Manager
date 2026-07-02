@@ -59,7 +59,11 @@ class StardewValley(BaseGame):
     @property
     def mods_dir(self) -> str:
         return "Mods"
-    
+
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        # Mods/ is reverted via its _Core backup; capture only files outside it.
+        return {self.mods_dir.split("/")[0]}
+
     @property
     def mod_folder_strip_prefixes(self) -> set[str]:
         return {"mods"}
@@ -201,6 +205,9 @@ class StardewValley(BaseGame):
             f"{linked_mod} mod + {linked_core} vanilla "
             f"= {linked_mod + linked_core} total file(s) in {plugins_dir.name}/."
         )
+
+        # Capture runtime files generated outside Mods/ on the next restore.
+        self.snapshot_root_for_runtime_capture(log_fn=_log)
 
     def _fix_alt_textures_casing(self, filemap: Path, staging: Path) -> int:
         """Canonicalise Alternative Textures content pack casing in the filemap.
@@ -358,5 +365,9 @@ class StardewValley(BaseGame):
             _log(f"  Restored {restored} file(s). {core}/ removed.")
         else:
             _log(f"Restore: no {core}/ found — nothing to restore.")
+
+        moved = self.capture_runtime_files_to_root_folder(log_fn=_log)
+        if moved:
+            _log(f"  Moved {moved} runtime file(s) to Root_Folder/.")
 
         _log("Restore complete.")

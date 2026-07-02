@@ -20,9 +20,7 @@ from gui.theme import (
     BORDER,
     FONT_BOLD,
     FONT_NORMAL,
-    FONT_SMALL,
     TEXT_MAIN,
-    TEXT_DIM,
     load_icon,
 )
 from gui import game_helpers as _gh
@@ -40,12 +38,11 @@ from gui.dialogs import (
     _ProtonToolsDialog,
     _MewgenicsDeployChoiceDialog,
     _MewgenicsLaunchCommandDialog,
-    ask_yes_no,
     confirm_deploy_appdata,
     confirm_cet_symlink,
 )
 from gui.ctk_components import CTkAlert
-from gui.path_utils import pick_file_mod_archive, pick_files_mod_archive
+from gui.path_utils import pick_files_mod_archive
 from gui.install_mod import install_mod_from_archive, _show_mod_notification
 from gui.add_game_dialog import AddGameDialog
 from gui.wizard_dialog import WizardDialog
@@ -617,7 +614,6 @@ class TopBar(ctk.CTkFrame):
         if game is not None:
             profile_dir = game.get_profile_root() / "profiles" / profile
         else:
-            from Utils.config_paths import get_profiles_dir
             profile_dir = get_profiles_dir() / game_name / "profiles" / profile
 
         # Restore deployed mod files before deleting the profile so we don't
@@ -649,7 +645,11 @@ class TopBar(ctk.CTkFrame):
                 root_folder_dir = game.get_effective_root_folder_path()
                 game_root = game.get_game_path()
                 if root_folder_dir.is_dir() and game_root:
-                    restore_root_folder(root_folder_dir, game_root)
+                    restore_root_folder(
+                        root_folder_dir, game_root,
+                        data_deploy_dirs=game.root_restore_protect_dirs()
+                        if hasattr(game, "root_restore_protect_dirs") else None,
+                    )
             except Exception:
                 pass
             # Clear the stale active-profile reference; _reload_mod_panel will
@@ -1085,7 +1085,11 @@ class TopBar(ctk.CTkFrame):
                 # Restore Root_Folder using the last-deployed profile's Root_Folder.
                 root_folder_dir = game.get_effective_root_folder_path()
                 if root_folder_dir.is_dir() and game_root:
-                    restore_root_folder(root_folder_dir, game_root, log_fn=_tlog)
+                    restore_root_folder(
+                        root_folder_dir, game_root, log_fn=_tlog,
+                        data_deploy_dirs=game.root_restore_protect_dirs()
+                        if hasattr(game, "root_restore_protect_dirs") else None,
+                    )
             except Exception as e:
                 _success[0] = False
                 self.after(0, lambda err=e: self._log(f"Restore error: {err}"))

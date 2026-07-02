@@ -4,17 +4,14 @@ Used by App. Imports theme, game_helpers, dialogs, install_mod.
 """
 
 import configparser
-import json
 import os
 import shutil
-import subprocess
 import threading
 
-from Utils.xdg import xdg_open, open_url
+from Utils.xdg import xdg_open
 import tkinter as tk
 import tkinter.font as tkfont
 import tkinter.messagebox
-import tkinter.ttk as ttk
 from pathlib import Path
 from datetime import datetime
 from types import SimpleNamespace
@@ -34,11 +31,9 @@ from gui.theme import (
     BG_ROW,
     BG_ROW_ALT,
     BG_SELECT,
-    BG_SEP,
     BG_OVERLAY_ERR,
     BG_ENTRY,
     BG_BTN_SAVE,
-    BG_SELECT_BAR,
     BORDER,
     BORDER_FAINT,
     TEXT_DIM,
@@ -47,7 +42,6 @@ from gui.theme import (
     TEXT_WHITE,
     TONE_FLAG,
     TONE_BLUE_SOFT,
-    TONE_GREEN,
     STATUS_ERR_BRIGHT,
     BG_DARK_GREEN,
     BG_DARK_BLUE,
@@ -61,16 +55,10 @@ import gui.theme as _theme
 from gui.theme import scaled
 from gui.wheel_compat import LEGACY_WHEEL_REDUNDANT
 from gui.mod_card import destroy_widget_tree
-from gui.ctk_components import CTkAlert, CTkNotification, CTkPopupMenu, CTkProgressPopup
+from gui.ctk_components import CTkAlert, CTkPopupMenu, CTkProgressPopup
 from gui.game_helpers import (
     _GAMES,
-    _load_games,
     _profiles_for_game,
-    _create_profile,
-    _save_last_game,
-    _load_last_game,
-    _handle_missing_profile_root,
-    _vanilla_plugins_for_game,
 )
 from gui.dialogs import (
     _RenameDialog,
@@ -83,9 +71,8 @@ from gui.dialogs import (
     ask_yes_no,
     show_error,
 )
-from gui.install_mod import install_mod_from_archive, _show_mod_notification
-from gui.add_game_dialog import AddGameDialog, sync_modlist_with_mods_folder
-from gui.modlist_filters_dialog import ModlistFiltersDialog
+from gui.install_mod import _show_mod_notification
+from gui.add_game_dialog import sync_modlist_with_mods_folder
 from gui.backup_restore_dialog import BackupRestoreDialog
 
 from Utils.filemap import (
@@ -109,20 +96,16 @@ from Utils.bsa_filemap import (
     rebuild_bsa_index,
     remove_from_bsa_index,
 )
-from Utils.deploy import deploy_root_folder, restore_root_folder, LinkMode, load_per_mod_strip_prefixes, undeploy_mod_files, restore_custom_deploy_backup_for_path
+from Utils.deploy import load_per_mod_strip_prefixes, undeploy_mod_files, restore_custom_deploy_backup_for_path, OVERWRITE_LOG_NAME
 from Utils.modlist import (
     ModEntry,
     read_modlist,
     write_modlist,
-    prepend_mod,
-    ensure_mod_preserving_position,
 )
-from Utils.plugin_parser import check_missing_masters
 from Utils.plugins import (
     read_plugins, write_plugins, PluginEntry,
     read_loadorder, write_loadorder,
 )
-from Utils.profile_backup import create_backup
 from Utils.profile_state import (
     read_profile_state,
     read_collapsed_seps,
@@ -146,13 +129,12 @@ from Utils.profile_state import (
     write_mod_notes,
     write_ignored_missing_requirements,
 )
-from Nexus.nexus_api import NexusAPI, NexusAPIError, NexusModRequirement
 from gui.collections_dialog import CollectionsDialog
 from gui.workshop_dialog import WorkshopDialog
 from gui.nexus_browser_overlay import NexusBrowserOverlay
 from gui.changelog_overlay import ChangelogOverlay
 from Nexus.nexus_meta import ensure_installed_stamp, read_meta, write_meta
-from Utils.config_paths import get_download_cache_dir, list_all_cache_dirs
+from Utils.config_paths import list_all_cache_dirs
 from Utils.ui_config import load_column_widths, load_column_order, load_normalize_folder_case, load_sort_state, save_sort_state, load_column_hidden, load_show_summary_tooltips, load_hide_bsa_conflicts
 from Utils import perftrace
 
@@ -5680,6 +5662,10 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         if c.mod_folder is not None and not c.is_multi:
             menu.add_command("Open folder", lambda f=c.mod_folder: self._open_folder(f))
 
+        # Log (Overwrite row only) — show what restores have swept into overwrite/
+        if c.is_overwrite and not c.is_multi:
+            menu.add_command("Log", lambda: self._show_overwrite_log())
+
         # Bundle options… (RE/Fluffy single-mod bundles)
         if (not c.is_separator and not c.is_multi
                 and self._bundle_spec_path(idx) is not None):
@@ -5837,6 +5823,23 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                     "Copy to profile",
                     lambda profs=c.other_profiles, mn=c.copy_mod_name:
                         self._show_copy_to_profile_picker(
+                            mn, profs, parent_dismiss=menu._withdraw, parent_popup=menu),
+                )
+
+        # Move to profile — copies to the target profile, then removes from this one.
+        if c.other_profiles:
+            if c.is_multi and c.copy_mod_names:
+                menu.add_submenu(
+                    f"Move to profile ({len(c.copy_mod_names)})",
+                    lambda profs=c.other_profiles, mns=c.copy_mod_names:
+                        self._show_move_to_profile_picker_multi(
+                            mns, profs, parent_dismiss=menu._withdraw, parent_popup=menu),
+                )
+            elif not c.is_multi and c.copy_mod_name:
+                menu.add_submenu(
+                    "Move to profile",
+                    lambda profs=c.other_profiles, mn=c.copy_mod_name:
+                        self._show_move_to_profile_picker(
                             mn, profs, parent_dismiss=menu._withdraw, parent_popup=menu),
                 )
 
@@ -7033,11 +7036,13 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             parent_dismiss=parent_dismiss, parent_popup=parent_popup,
         )
 
-    def _make_copy_progress_popup(self, target_profile: str, total: int) -> CTkProgressPopup:
-        """Create a progress popup for a copy-to-profile operation."""
+    def _make_copy_progress_popup(self, target_profile: str, total: int,
+                                  move: bool = False) -> CTkProgressPopup:
+        """Create a progress popup for a copy-/move-to-profile operation."""
+        verb = "Moving" if move else "Copying"
         popup = CTkProgressPopup(
             self.winfo_toplevel(),
-            title=f"Copying to '{target_profile}'",
+            title=f"{verb} to '{target_profile}'",
             label="Starting…",
             message=f"0 / {total}",
         )
@@ -7047,12 +7052,22 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         return popup
 
     def _finish_copy_popup(self, popup: CTkProgressPopup, copied: int, skipped: int,
-                           target_profile: str, copied_names: list[str]) -> None:
-        """Log result and close the copy progress popup."""
+                           target_profile: str, copied_names: list[str],
+                           move: bool = False) -> None:
+        """Log result and close the copy/move progress popup.
+
+        When *move* is True the successfully-copied mods in *copied_names* are
+        removed from the current profile before the popup closes."""
+        verb = "Moved" if move else "Copied"
         self._log(
-            f"Copied {copied} mod(s) → profile '{target_profile}'"
+            f"{verb} {copied} mod(s) → profile '{target_profile}'"
             + (f" ({skipped} skipped)" if skipped else "")
         )
+        if move and copied_names:
+            indices = [i for i, e in enumerate(self._entries)
+                       if e.name in set(copied_names) and not e.is_separator]
+            if indices:
+                self._remove_selected_mods(indices, skip_confirm=True)
         if popup.winfo_exists():
             popup.destroy()
 
@@ -7066,8 +7081,22 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             parent_dismiss=parent_dismiss, parent_popup=parent_popup,
         )
 
-    def _copy_mod_to_profile(self, mod_name: str, target_profile: str) -> None:
-        """Copy a mod's staging folder to another profile's staging folder."""
+    def _show_move_to_profile_picker(self, mod_name: str, profiles: list[str],
+                                     parent_dismiss=None,
+                                     parent_popup=None) -> tk.Toplevel:
+        """Show a popup listing other profiles; clicking one moves the mod there."""
+        return self._show_picker_popup(
+            profiles, profiles,
+            on_pick=lambda profile: self._copy_mod_to_profile(mod_name, profile, move=True),
+            parent_dismiss=parent_dismiss, parent_popup=parent_popup,
+        )
+
+    def _copy_mod_to_profile(self, mod_name: str, target_profile: str,
+                             move: bool = False) -> None:
+        """Copy a mod's staging folder to another profile's staging folder.
+
+        When *move* is True the mod is removed from this profile once the copy
+        to *target_profile* succeeds."""
         if self._game is None or self._modlist_path is None:
             return
         src_folder = self._staging_root / mod_name
@@ -7112,20 +7141,35 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                 shutil.rmtree(dest_folder, onexc=_force_remove)
 
         src_profile_dir = self._modlist_path.parent
-        popup = self._make_copy_progress_popup(target_profile, total=1)
+        # Preserve the mod's enabled state so a moved mod keeps it in the target.
+        _entry_map = {e.name: e for e in self._entries}
+        src_enabled = _entry_map[mod_name].enabled if mod_name in _entry_map else True
+        dest_name = dest_folder.name
+        popup = self._make_copy_progress_popup(target_profile, total=1, move=move)
         popup.update_label(mod_name)
         popup.update_message(f"0 / 1")
+        verb_past = "move" if move else "copy"
 
         def _do_copy():
             try:
                 shutil.copytree(str(src_folder), str(dest_folder))
                 _copy_fomod_choice(src_profile_dir, target_profile_dir, mod_name)
+                # Register the mod in the target profile's modlist so it shows up
+                # there (prepend = highest priority, matching the multi path).
+                target_modlist = target_profile_dir / "modlist.txt"
+                from Utils.modlist import read_modlist, write_modlist, ModEntry
+                entries = read_modlist(target_modlist) if target_modlist.exists() else []
+                if dest_name not in {e.name for e in entries}:
+                    entries = [ModEntry(name=dest_name, enabled=src_enabled,
+                                        locked=False)] + entries
+                    write_modlist(target_modlist, entries)
                 self.after(0, lambda: self._finish_copy_popup(
-                    popup, 1, 0, target_profile, [mod_name]))
+                    popup, 1, 0, target_profile, [mod_name], move=move))
             except Exception as exc:
                 self.after(0, lambda e=exc: (
                     self._finish_copy_popup(popup, 0, 0, target_profile, []),
-                    show_error("Copy Failed", f"Failed to copy mod:\n{e}",
+                    show_error(f"{verb_past.capitalize()} Failed",
+                               f"Failed to {verb_past} mod:\n{e}",
                                parent=self.winfo_toplevel()),
                 ))
 
@@ -7141,8 +7185,22 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             parent_dismiss=parent_dismiss, parent_popup=parent_popup,
         )
 
-    def _copy_mods_to_profile(self, mod_names: list[str], target_profile: str) -> None:
-        """Copy multiple mods' staging folders to another profile's staging folder."""
+    def _show_move_to_profile_picker_multi(self, mod_names: list[str], profiles: list[str],
+                                           parent_dismiss=None,
+                                           parent_popup=None) -> tk.Toplevel:
+        """Show a popup listing other profiles; clicking one moves all mods there."""
+        return self._show_picker_popup(
+            profiles, profiles,
+            on_pick=lambda profile: self._copy_mods_to_profile(mod_names, profile, move=True),
+            parent_dismiss=parent_dismiss, parent_popup=parent_popup,
+        )
+
+    def _copy_mods_to_profile(self, mod_names: list[str], target_profile: str,
+                              move: bool = False) -> None:
+        """Copy multiple mods' staging folders to another profile's staging folder.
+
+        When *move* is True the successfully-copied mods are removed from the
+        current profile once the copy completes."""
         if self._game is None or self._modlist_path is None:
             return
         game = self._game
@@ -7176,7 +7234,8 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         src_profile_dir = self._modlist_path.parent
         src_staging_root = self._staging_root
         total = len(_ordered_mods)
-        popup = self._make_copy_progress_popup(target_profile, total=total)
+        popup = self._make_copy_progress_popup(target_profile, total=total, move=move)
+        verb = "move" if move else "copy"
 
         def _update_popup(done: int, current: str):
             if not popup.winfo_exists() or popup.cancelled:
@@ -7211,10 +7270,13 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                     copied += 1
                     copied_mods.append((mod_name, enabled))
                 except Exception as exc:
+                    # On a partial failure don't remove the source mods even if
+                    # this was a move — leave the copied-so-far in place only.
                     self.after(0, lambda e=exc, n=mod_name: (
                         self._finish_copy_popup(popup, copied, skipped,
                                                 target_profile, [m for m, _ in copied_mods]),
-                        show_error("Copy Failed", f"Failed to copy '{n}':\n{e}",
+                        show_error(f"{verb.capitalize()} Failed",
+                                   f"Failed to {verb} '{n}':\n{e}",
                                    parent=self.winfo_toplevel()),
                     ))
                     return
@@ -7237,7 +7299,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
                     write_modlist(target_modlist, entries)
 
             self.after(0, lambda c=copied, s=skipped: self._finish_copy_popup(
-                popup, c, s, target_profile, [m for m, _ in copied_mods]))
+                popup, c, s, target_profile, [m for m, _ in copied_mods], move=move))
 
         threading.Thread(target=_do_copy, daemon=True).start()
 
@@ -8116,6 +8178,155 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             except Exception:
                 pass
 
+    def _overwrite_log_path(self) -> Path | None:
+        """Resolve the active profile's overwrite-log file, or None if unknown."""
+        game = self._game
+        if game is None:
+            return None
+        try:
+            return game.get_effective_overwrite_path() / OVERWRITE_LOG_NAME
+        except Exception:
+            return None
+
+    @staticmethod
+    def _parse_overwrite_log(text: str) -> list[tuple[str, list[str]]]:
+        """Split the overwrite log into (header, files) sections, newest first."""
+        sections: list[tuple[str, list[str]]] = []
+        cur_header: str | None = None
+        cur_files: list[str] = []
+        for raw in text.splitlines():
+            line = raw.rstrip("\n")
+            if line.startswith("# "):
+                if cur_header is not None:
+                    sections.append((cur_header, cur_files))
+                cur_header = line[2:].strip()
+                cur_files = []
+            elif line.strip():
+                if cur_header is not None:
+                    cur_files.append(line)
+        if cur_header is not None:
+            sections.append((cur_header, cur_files))
+        sections.reverse()
+        return sections
+
+    def _show_overwrite_log(self) -> None:
+        """Show a read-only overlay listing files swept into overwrite/ per restore."""
+        log_path = self._overwrite_log_path()
+        text = ""
+        if log_path is not None:
+            try:
+                text = log_path.read_text(encoding="utf-8")
+            except OSError:
+                text = ""
+        sections = self._parse_overwrite_log(text) if text else []
+
+        self._close_overwrite_log()
+
+        overlay = ctk.CTkFrame(self, fg_color=BG_DEEP, corner_radius=0)
+        overlay.place(relx=0, rely=0, relwidth=1, relheight=1)
+        overlay.lift()
+        overlay.grid_rowconfigure(1, weight=1)
+        overlay.grid_columnconfigure(0, weight=1)
+        self._overwrite_log_overlay = overlay
+
+        # Header bar: title on the left, close button on the right.
+        header_bar = ctk.CTkFrame(overlay, fg_color=BG_DEEP, corner_radius=0)
+        header_bar.grid(row=0, column=0, sticky="ew",
+                        padx=scaled(12), pady=(scaled(10), scaled(4)))
+        header_bar.grid_columnconfigure(0, weight=1)
+        ctk.CTkLabel(
+            header_bar, text="Files swept into Overwrite (newest restore first)",
+            text_color=TEXT_DIM, anchor="w",
+        ).grid(row=0, column=0, sticky="ew")
+        ctk.CTkButton(
+            header_bar, text="Close", width=80, height=28,
+            fg_color=BTN_DANGER, hover_color=BTN_DANGER_HOV, text_color=TEXT_WHITE,
+            font=_theme.FONT_BOLD, cursor="hand2",
+            command=self._close_overwrite_log,
+        ).grid(row=0, column=1, sticky="e")
+
+        body = ctk.CTkScrollableFrame(overlay, fg_color=BG_PANEL)
+        body.grid(row=1, column=0, sticky="nsew", padx=scaled(12), pady=(0, scaled(12)))
+        body.grid_columnconfigure(0, weight=1)
+
+        if not sections:
+            ctk.CTkLabel(
+                body, text="No files have entered overwrite yet.",
+                text_color=TEXT_DIM, anchor="w",
+            ).grid(row=0, column=0, sticky="ew", padx=scaled(8), pady=scaled(10))
+        else:
+            row = 0
+            for header, files in sections:
+                ctk.CTkLabel(
+                    body, text=header, text_color=ACCENT, anchor="w",
+                    font=ctk.CTkFont(weight="bold"),
+                ).grid(row=row, column=0, sticky="ew",
+                       padx=scaled(8), pady=(scaled(10), scaled(2)))
+                row += 1
+                listing = "\n".join(f"  {f}" for f in files) if files else "  (no files)"
+                ctk.CTkLabel(
+                    body, text=listing, text_color=TEXT_MAIN,
+                    anchor="w", justify="left",
+                ).grid(row=row, column=0, sticky="ew",
+                       padx=scaled(8), pady=(0, scaled(4)))
+                row += 1
+
+        self._bind_wheel_to_scrollframe(body)
+
+        try:
+            overlay.bind_all("<Escape>", lambda _e: self._close_overwrite_log())
+        except Exception:
+            pass
+
+    @staticmethod
+    def _bind_wheel_to_scrollframe(body) -> None:
+        """Forward Button-4/5 wheel notches from every child to body's canvas (Tk 8.6)."""
+        try:
+            canvas = body._parent_canvas
+        except Exception:
+            return
+
+        def _on_wheel(event):
+            if event.num == 4:
+                canvas.yview_scroll(-3, "units")
+            elif event.num == 5:
+                canvas.yview_scroll(3, "units")
+            else:
+                delta = -1 * int(event.delta / 40) if event.delta else 0
+                if delta:
+                    canvas.yview_scroll(delta, "units")
+            return "break"
+
+        def _walk(w):
+            try:
+                if not LEGACY_WHEEL_REDUNDANT:
+                    w.bind("<Button-4>", _on_wheel, add="+")
+                    w.bind("<Button-5>", _on_wheel, add="+")
+            except Exception:
+                pass
+            for child in w.winfo_children():
+                _walk(child)
+
+        _walk(body)
+
+    def _close_overwrite_log(self) -> None:
+        """Tear down the overwrite-log overlay if present."""
+        overlay = getattr(self, "_overwrite_log_overlay", None)
+        if overlay is not None:
+            self._overwrite_log_overlay = None
+            try:
+                overlay.unbind_all("<Escape>")
+            except Exception:
+                pass
+            try:
+                overlay.place_forget()
+            except Exception:
+                pass
+            try:
+                overlay.destroy()
+            except Exception:
+                pass
+
     def _add_separator(self, ref_idx: int, above: bool):
         """Prompt for a separator name and insert it above or below ref_idx."""
         dialog = _SeparatorNameDialog(self.winfo_toplevel())
@@ -8124,15 +8335,24 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             return
         sep_name = self._unique_separator_name(dialog.result.strip() + "_separator")
         inverted = (self._sort_column == "priority" and self._sort_ascending)
+        entry = ModEntry(name=sep_name, enabled=True, locked=True, is_separator=True)
         ref_is_sep = self._entries[ref_idx].is_separator
 
+        if inverted and not ref_is_sep:
+            # Inverted display reverses group/mod order, so a natural-order insert
+            # mis-anchors and relocates the mod's own separator. Resolve in display
+            # space and uninvert (see _add_separator_inverted).
+            self._add_separator_inverted(ref_idx, above, entry)
+            self._invalidate_derived_caches()
+            self._save_modlist()
+            self._rebuild_filemap()
+            self._redraw()
+            self._update_info()
+            return
+
         if ref_is_sep:
-            # A separator is a group header that owns the mod block following it
-            # in natural order. Inserting between the header and its mods would
-            # transfer those mods to the new separator, so we must anchor to the
-            # whole group block — and account for inverted display where group
-            # order is reversed (visual-above == natural-after-block, and
-            # visual-below == natural-before-header).
+            # A separator owns the mod block following it, so anchor to the whole
+            # block (not between header and mods). Inverted flips above/below.
             block_end = ref_idx + 1
             while (block_end < len(self._entries)
                    and not self._entries[block_end].is_separator):
@@ -8142,11 +8362,7 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
             else:
                 insert_at = ref_idx if above else block_end
         else:
-            # Under inverted priority sort, visual above/below is flipped in
-            # natural order for mod rows (mods within a group are reversed).
-            visually_above = (not above) if inverted else above
-            insert_at = ref_idx if visually_above else ref_idx + 1
-        entry = ModEntry(name=sep_name, enabled=True, locked=True, is_separator=True)
+            insert_at = ref_idx if above else ref_idx + 1
         self._entries.insert(insert_at, entry)
         # Keep check_vars aligned (None for separators)
         self._check_vars.insert(insert_at, None)
@@ -8157,6 +8373,62 @@ class ModListPanel(ModListFilterPanelMixin, ModListDownloadBarMixin,
         self._rebuild_filemap()
         self._redraw()
         self._update_info()
+
+    def _add_separator_inverted(self, ref_idx: int, above: bool,
+                                entry: "ModEntry") -> None:
+        """Insert a new separator next to a mod row in reverse-priority mode.
+
+        _entries is the inverse of what's shown, so place the separator in display
+        space (above/below literal) and uninvert back to natural order, reusing the
+        drag path's group-reversal math.
+        """
+        # Full inverted display order. _apply_column_sort marks the float divider
+        # with BOUNDARY_ROW (-2); _uninvert_entries_order only recovers the float
+        # via a real BOUNDARY_NAME separator, so materialise the sentinel below.
+        disp = self._apply_column_sort(list(range(len(self._entries))))
+
+        try:
+            vis_pos = disp.index(ref_idx)
+        except ValueError:
+            # ref not visible (shouldn't happen) — plain natural insert.
+            insert_at = ref_idx if above else ref_idx + 1
+            self._entries.insert(insert_at, entry)
+            self._check_vars.insert(insert_at, None)
+            if self._sel_idx >= insert_at:
+                self._sel_idx += 1
+            return
+
+        slot = vis_pos if above else vis_pos + 1
+
+        # Stage _entries/_check_vars in inverted order with the separator spliced
+        # in at the visual slot, then uninvert. _uninvert_entries_order works on
+        # the current _entries contents (treated as inverted).
+        old_entries = list(self._entries)
+        old_vars = list(self._check_vars)
+        disp_entries: list = []
+        disp_vars: list = []
+        for pos, ei in enumerate(disp):
+            if pos == slot:
+                disp_entries.append(entry)
+                disp_vars.append(None)
+            if ei == BOUNDARY_ROW:
+                disp_entries.append(ModEntry(
+                    name=BOUNDARY_NAME, enabled=True, locked=True,
+                    is_separator=True,
+                ))
+                disp_vars.append(None)
+            else:
+                disp_entries.append(old_entries[ei])
+                disp_vars.append(old_vars[ei])
+        if slot >= len(disp):          # inserting at the very bottom
+            disp_entries.append(entry)
+            disp_vars.append(None)
+        self._entries[:] = disp_entries
+        self._check_vars[:] = disp_vars
+        self._uninvert_entries_order()
+        # The reorder invalidates index-based selection.
+        self._sel_idx = -1
+        self._sel_set = set()
 
     def _generate_separators(self) -> None:
         """Button handler: ensure conflict data is fresh, then generate separators.

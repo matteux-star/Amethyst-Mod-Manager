@@ -12,7 +12,6 @@ Mod structure:
   Root_Folder/ files deploy straight to the game install root (handled by GUI).
 """
 
-import json
 from pathlib import Path
 
 from Games.base_game import BaseGame
@@ -77,6 +76,10 @@ class KingdomComeDeliverance2(BaseGame):
     @property
     def mods_dir(self) -> str:
         return "mods"
+
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        # mods/ is reverted via its _Core backup; capture only files outside it.
+        return {self.mods_dir.split("/")[0]}
 
     @property
     def mod_folder_strip_prefixes(self) -> set[str]:
@@ -181,6 +184,9 @@ class KingdomComeDeliverance2(BaseGame):
             f"= {linked_mod + linked_core} total file(s) in {plugins_dir.name}/."
         )
 
+        # Capture runtime files generated outside mods/ on the next restore.
+        self.snapshot_root_for_runtime_capture(log_fn=_log)
+
     def restore(self, log_fn=None, progress_fn=None) -> None:
         """Restore mods/ to vanilla: clear deployed mods and, if present, move mods_Core/ back."""
         _log = log_fn or (lambda _: None)
@@ -203,6 +209,11 @@ class KingdomComeDeliverance2(BaseGame):
         )
         if restored > 0:
             _log(f"  Restored {restored} file(s). {core}/ removed.")
+
+        moved = self.capture_runtime_files_to_root_folder(log_fn=_log)
+        if moved:
+            _log(f"  Moved {moved} runtime file(s) to Root_Folder/.")
+
         _log("Restore complete.")
         
 class KingdomComeDeliverance(KingdomComeDeliverance2):

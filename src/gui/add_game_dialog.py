@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 import os
 import shutil
-import subprocess
 import threading
 from pathlib import Path
 from typing import Optional
@@ -30,7 +29,7 @@ from Utils.steam_finder import (
     find_prefix,
 )
 from Utils.config_paths import get_game_config_path
-from Utils.heroic_finder import find_heroic_game, find_heroic_prefix, find_heroic_app_name_by_exe, find_heroic_game_info_by_exe
+from Utils.heroic_finder import find_heroic_game, find_heroic_prefix, find_heroic_game_info_by_exe
 from Utils.app_log import app_log
 
 from gui.wheel_compat import LEGACY_WHEEL_REDUNDANT
@@ -59,7 +58,7 @@ from gui.theme import (
     scaled,
     TK_FONT_NORMAL,
 )
-from Utils.ui_config import get_ui_scale, load_default_staging_path
+from Utils.ui_config import load_default_staging_path
 from gui.tk_tooltip import TkTooltip
 
 
@@ -1252,7 +1251,11 @@ class ReconfigureGamePanel(ctk.CTkFrame):
             root_folder_dir = profile_root / "Root_Folder"
             game_root = self._game.get_game_path()
             if root_folder_dir.is_dir() and game_root:
-                restore_root_folder(root_folder_dir, game_root)
+                restore_root_folder(
+                    root_folder_dir, game_root,
+                    data_deploy_dirs=self._game.root_restore_protect_dirs()
+                    if hasattr(self._game, "root_restore_protect_dirs") else None,
+                )
         except Exception:
             pass
 

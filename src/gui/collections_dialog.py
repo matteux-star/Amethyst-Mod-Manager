@@ -55,7 +55,7 @@ from Utils.ui_config import get_ui_scale
 from gui.mod_name_utils import _suggest_mod_names
 from Utils.modlist import write_modlist, read_modlist, ModEntry
 from Utils.filemap import rebuild_mod_index
-from Utils.config_paths import get_download_cache_dir, get_download_cache_dir_for_game, list_all_cache_dirs
+from Utils.config_paths import get_download_cache_dir_for_game, list_all_cache_dirs
 from Nexus.nexus_download import delete_archive_and_sidecar, DownloadResult, _find_cached_archive, _get_downloads_dir
 from gui.download_locations_overlay import (
     is_default_downloads_disabled,
@@ -126,7 +126,6 @@ from gui.theme import (
     BTN_SUCCESS_DEEP,
     BTN_SUCCESS_DEEP_HOV,
     BTN_GREY,
-    BTN_GREY_HOV,
     BTN_GREY_ALT,
     BTN_GREY_ALT_HOV,
     TAG_INSTALLED_BG,
@@ -143,7 +142,8 @@ from gui.theme import (
     font_sized_px,
     FONT_FAMILY,
     scaled,
-    TK_FONT_BOLD, TK_FONT_SMALL,
+    TK_FONT_BOLD,
+    TK_FONT_SMALL,
 )
 
 PAGE_SIZE    = 20
@@ -1687,7 +1687,7 @@ class CollectionDetailDialog(tk.Frame):
         except Exception as exc:
             self._log(f"CollectionDetail error: {exc}")
             try:
-                self.after(0, lambda: self._status_var.set(f"Error: {exc}"))
+                self.after(0, lambda exc=exc: self._status_var.set(f"Error: {exc}"))
             except Exception:
                 pass
 
@@ -3811,7 +3811,6 @@ class CollectionDetailDialog(tk.Frame):
                         keep_archive_at=str(_cached_archive) if _slug else None,
                     )
                 if cj_full:
-                    import os as _os
                     from pathlib import Path as _Path
                     _bundled_meta_map = self._installed_bundled_meta_map(
                         staging_path, (self._collection.slug or "").strip())
@@ -6236,7 +6235,11 @@ class CollectionDetailDialog(tk.Frame):
                 root_folder_dir = game.get_effective_root_folder_path()
                 game_root = game.get_game_path()
                 if root_folder_dir.is_dir() and game_root:
-                    restore_root_folder(root_folder_dir, game_root)
+                    restore_root_folder(
+                        root_folder_dir, game_root,
+                        data_deploy_dirs=game.root_restore_protect_dirs()
+                        if hasattr(game, "root_restore_protect_dirs") else None,
+                    )
             except Exception as exc:
                 self._log(f"Cancel: restore_root_folder failed: {exc}")
             game.set_active_profile_dir(None)
@@ -6879,7 +6882,7 @@ class CollectionDetailDialog(tk.Frame):
 
         except Exception as exc:
             self._log(f"Reset load order failed: {exc}")
-            self.after(0, lambda: self._status_var.set(f"Reset failed: {exc}"))
+            self.after(0, lambda exc=exc: self._status_var.set(f"Reset failed: {exc}"))
 
     def _schedule_loot_after_filemap(self):
         """Wrap the filemap-rebuilt callback so LOOT sort runs once after the

@@ -22,7 +22,7 @@ from Utils.deploy import LinkMode
 from Utils.steam_finder import find_prefix as _find_steam_prefix
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Callable
 
 
 # Shared auto_install_deps preset for modern DirectX/x64-runtime games (modern
@@ -1250,6 +1250,69 @@ class BaseGame(ABC):
             except Exception:
                 pass
         return self.get_profile_root() / "Root_Folder"
+
+    # -----------------------------------------------------------------------
+    # Runtime-file capture (standard-deployed games)
+    # -----------------------------------------------------------------------
+
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        """Top-level game-root dir names to exclude from the runtime snapshot.
+
+        Standard games override this to return their deploy subfolder (e.g.
+        ``{"Data"}``); ``None`` (default) snapshots the whole game root.
+        """
+        return None
+
+    def root_restore_protect_dirs(self) -> set[str]:
+        """Top-level dir names owned by the standard data deploy (Data_Core).
+
+        restore_root_folder() uses this to avoid deleting a root-flagged file
+        sitting at a path the standard deploy also restores (e.g. a root mod
+        shipping its own Data/Fallout4.esm).  Defaults to the deploy subfolder
+        reported by runtime_snapshot_exclude_dirs(); games without a Data-style
+        deploy return an empty set so all their root files are removed normally.
+        """
+        excl = self.runtime_snapshot_exclude_dirs()
+        return set(excl) if excl else set()
+
+    def snapshot_root_for_runtime_capture(self, exclude_dirs=None, log_fn=None) -> None:
+        """Snapshot the game root at deploy time for later runtime capture.
+
+        Standard games call this at the end of deploy(); restore() then uses
+        capture_runtime_files_to_root_folder() to detect files generated
+        outside the deploy subfolder.
+        """
+        from Utils.deploy import _write_deploy_snapshot, _FILEMAP_SNAPSHOT_NAME
+        gp = self.get_game_path()
+        if not gp:
+            return
+        if exclude_dirs is None:
+            exclude_dirs = self.runtime_snapshot_exclude_dirs()
+        snap = self.get_effective_filemap_path().parent / _FILEMAP_SNAPSHOT_NAME
+        _write_deploy_snapshot(Path(gp), snap, exclude_dirs=exclude_dirs, log_fn=log_fn)
+
+    def capture_runtime_files_to_root_folder(self, exclude_dirs=None, log_fn=None) -> int:
+        """Sweep files generated since deploy (outside the deploy subfolder)
+        into Root_Folder/ so they re-deploy to the game root next time.
+
+        No-op if no snapshot exists.  Deletes the snapshot after sweeping.
+        """
+        from Utils.deploy import _move_runtime_files, _FILEMAP_SNAPSHOT_NAME
+        gp = self.get_game_path()
+        snap = self.get_effective_filemap_path().parent / _FILEMAP_SNAPSHOT_NAME
+        if not (gp and snap.is_file()):
+            return 0
+        if exclude_dirs is None:
+            exclude_dirs = self.runtime_snapshot_exclude_dirs()
+        moved = _move_runtime_files(
+            Path(gp), snap, self.get_effective_root_folder_path(),
+            log_fn=log_fn, exclude_dirs=exclude_dirs,
+        )
+        try:
+            snap.unlink()
+        except OSError:
+            pass
+        return moved
 
     # -----------------------------------------------------------------------
     # Configuration persistence

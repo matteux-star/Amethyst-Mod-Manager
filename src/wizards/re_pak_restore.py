@@ -217,7 +217,7 @@ class RePakRestoreWizard(ctk.CTkFrame):
                            "(or no manifest was found).")
                 self.after(0, lambda: self._finish(msg))
             except Exception as e:
-                self.after(0, lambda: self._finish(f"Error: {e}"))
+                self.after(0, lambda e=e: self._finish(f"Error: {e}"))
 
         threading.Thread(target=run, daemon=True).start()
 

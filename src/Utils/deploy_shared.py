@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import concurrent.futures
 import errno
-import json
 import os
 import shutil
 import time as _time
@@ -1348,10 +1347,21 @@ def _resolve_root_path_str(base_str: str, rel_str: str,
 _FILEMAP_SNAPSHOT_NAME = "deploy_snapshot.txt"
 
 
+def _normalize_exclude_dirs(exclude_dirs):
+    """Return a set of lowercased, forward-slash relative dir paths, or None.
+
+    Accepts plain top-level names ("Data") or nested paths ("BepInEx/plugins").
+    """
+    if not exclude_dirs:
+        return None
+    return {d.replace("\\", "/").strip("/").lower() for d in exclude_dirs}
+
+
 def _write_deploy_snapshot(
     game_root: Path,
     snapshot_path: Path,
     log_fn=None,
+    exclude_dirs=None,
 ) -> int:
     """Walk game_root and record every file's relative path, one per line.
 
@@ -1369,8 +1379,13 @@ def _write_deploy_snapshot(
     If the deployed symlink path were omitted here, _move_runtime_files would
     see the restored vanilla as a brand-new file and wrongly sweep it into
     overwrite/.  Recording symlinks keeps every deploy-time path "known".
+
+    exclude_dirs — dir paths (case-insensitive, relative to game_root) to skip;
+    standard games pass their deploy subfolder so its files stay on the
+    Data_Core path.  Nested paths like "BepInEx/plugins" are supported.
     """
     _log = _safe_log(log_fn)
+    excluded = _normalize_exclude_dirs(exclude_dirs)
     count = 0
     game_root_str = str(game_root)
     prefix_len = len(game_root_str) + 1          # +1 for trailing separator
@@ -1384,6 +1399,10 @@ def _write_deploy_snapshot(
                     with os.scandir(cur) as it:
                         for entry in it:
                             if entry.is_dir(follow_symlinks=False):
+                                if (excluded is not None
+                                        and entry.path[prefix_len:].replace(
+                                            "\\", "/").lower() in excluded):
+                                    continue
                                 stack.append(entry.path)
                             elif (entry.is_file(follow_symlinks=False)
                                   or entry.is_symlink()):
@@ -1420,24 +1439,63 @@ def _load_deploy_snapshot(snapshot_path: Path) -> set[str]:
         return set()
 
 
+# Per-restore log written at the destination root (overwrite/ or Root_Folder/).
+# Excluded from the filemap scan via filemap._EXCLUDE_NAMES.
+OVERWRITE_LOG_NAME = ".mm_overwrite_log.txt"
+_OVERWRITE_LOG_MAX_SECTIONS = 200
+
+
+def _append_overwrite_log(dest_dir: Path, rels: "list[str]", log_fn=None) -> None:
+    """Append one timestamped section listing *rels* to dest_dir's overwrite log.
+
+    Best-effort: OSErrors are swallowed so logging can never break a restore."""
+    log_path = dest_dir / OVERWRITE_LOG_NAME
+    ts = _time.strftime("%Y-%m-%d %H:%M:%S")
+    header = f"# {ts} — {len(rels)} file(s) moved on restore"
+    section = "\n".join([header, *sorted(rels)]) + "\n\n"
+    try:
+        try:
+            existing = log_path.read_text(encoding="utf-8")
+        except OSError:
+            existing = ""
+        combined = existing + section
+        headers = [i for i, ln in enumerate(combined.splitlines())
+                   if ln.startswith("# ")]
+        if len(headers) > _OVERWRITE_LOG_MAX_SECTIONS:
+            lines = combined.splitlines()
+            cut = headers[len(headers) - _OVERWRITE_LOG_MAX_SECTIONS]
+            combined = "\n".join(lines[cut:]) + "\n"
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        log_path.write_text(combined, encoding="utf-8")
+    except OSError as e:
+        if log_fn is not None:
+            log_fn(f"  WARN: could not write overwrite log: {e}")
+
+
 def _move_runtime_files(
     game_root: Path,
     snapshot_path: Path,
-    overwrite_dir: Path,
+    dest_dir: Path,
     log_fn=None,
+    exclude_dirs=None,
 ) -> int:
-    """Move files that appeared after deploy (runtime-generated) to overwrite_dir.
+    """Move files that appeared after deploy (runtime-generated) to dest_dir.
 
     Compares the current game_root contents against the deploy snapshot.
-    Files present now but absent from the snapshot are moved to overwrite_dir
-    preserving their relative path so they become part of the [Overwrite] mod.
+    Files present now but absent from the snapshot are moved to dest_dir
+    preserving their relative path.  dest_dir is usually the [Overwrite] mod
+    folder, but standard-deployed games pass Root_Folder/ so the captured
+    files re-deploy to the game root next time instead of the data folder.
     Vanilla files (present in snapshot) are left untouched.
     Symlinks are skipped entirely.
+
+    exclude_dirs — must match the value passed to _write_deploy_snapshot so the
+    excluded subtree is never treated as runtime-generated.
 
     Safety net: if the on-disk game root barely overlaps the snapshot (the
     deploy path or sub-folder setting was changed while deployed, so restore
     is walking a different directory than the snapshot describes), the move is
-    skipped entirely rather than wiping the whole folder into overwrite/.
+    skipped entirely rather than wiping the whole folder into dest_dir.
 
     Returns the number of files moved.
     """
@@ -1447,9 +1505,10 @@ def _move_runtime_files(
         _log("  WARN: deploy snapshot empty or unreadable — skipping runtime file detection.")
         return 0
 
+    excluded = _normalize_exclude_dirs(exclude_dirs)
     game_root_str = str(game_root)
     prefix_len = len(game_root_str) + 1
-    overwrite_str = str(overwrite_dir)
+    overwrite_str = str(dest_dir)
 
     # Safety net: a deploy snapshot is taken of the game root resolved at deploy
     # time.  If the game-path or sub-folder setting was changed while deployed,
@@ -1468,6 +1527,10 @@ def _move_runtime_files(
             with os.scandir(cur) as it:
                 for entry in it:
                     if entry.is_dir(follow_symlinks=False):
+                        if (excluded is not None
+                                and entry.path[prefix_len:].replace(
+                                    "\\", "/").lower() in excluded):
+                            continue
                         stack.append(entry.path)
                     elif entry.is_file(follow_symlinks=False):
                         rel = entry.path[prefix_len:]
@@ -1500,6 +1563,7 @@ def _move_runtime_files(
 
     made_dirs: set[str] = set()
     emptied_dirs: set[Path] = set()
+    moved_rels: list[str] = []
     moved = 0
     for rel in candidate_rels:
         src_path = game_root_str + "/" + rel
@@ -1516,11 +1580,15 @@ def _move_runtime_files(
         except OSError:
             continue
         emptied_dirs.add(Path(src_path).parent)
+        moved_rels.append(rel)
         moved += 1
 
     # Prune any directories left empty after moving runtime files out
     if emptied_dirs:
         _prune_empty_dirs(emptied_dirs, stop_dirs={game_root})
+
+    if moved_rels:
+        _append_overwrite_log(dest_dir, moved_rels, _log)
 
     return moved
 
@@ -1695,6 +1763,8 @@ __all__ = [
     "_write_deploy_snapshot",
     "_load_deploy_snapshot",
     "_move_runtime_files",
+    "_append_overwrite_log",
+    "OVERWRITE_LOG_NAME",
     "_path_under_root",
     "_get_staging_source_path",
     "_build_mod_index",

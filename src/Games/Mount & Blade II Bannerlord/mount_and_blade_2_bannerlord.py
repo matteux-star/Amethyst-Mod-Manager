@@ -10,7 +10,6 @@ Mod structure:
   Staged mods live in Profiles/Mount & Blade II: Bannerlord/mods/
 """
 
-import json
 from pathlib import Path
 
 from Games.base_game import BaseGame
@@ -67,6 +66,10 @@ class MountAndBlade2Bannerlord(BaseGame):
     @property
     def mods_dir(self) -> str:
         return "Modules"
+
+    def runtime_snapshot_exclude_dirs(self) -> set[str] | None:
+        # Modules/ is reverted via its _Core backup; capture only files outside it.
+        return {self.mods_dir.split("/")[0]}
 
     @property
     def mod_folder_strip_prefixes(self) -> set[str]:
@@ -171,6 +174,9 @@ class MountAndBlade2Bannerlord(BaseGame):
             f"= {linked_mod + linked_core} total file(s) in {modules_dir.name}/."
         )
 
+        # Capture runtime files generated outside Modules/ on the next restore.
+        self.snapshot_root_for_runtime_capture(log_fn=_log)
+
     def restore(self, log_fn=None, progress_fn=None) -> None:
         """Restore Modules/ to vanilla: clear deployed mods and move Modules_Core/ back."""
         _log = log_fn or (lambda _: None)
@@ -193,4 +199,9 @@ class MountAndBlade2Bannerlord(BaseGame):
         )
         if restored > 0:
             _log(f"  Restored {restored} file(s). {core}/ removed.")
+
+        moved = self.capture_runtime_files_to_root_folder(log_fn=_log)
+        if moved:
+            _log(f"  Moved {moved} runtime file(s) to Root_Folder/.")
+
         _log("Restore complete.")
