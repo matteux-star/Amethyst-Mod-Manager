@@ -915,6 +915,15 @@ class MainWindow(QMainWindow):
                 ("Add game…", lambda: self._on_game_action("add")),
                 ("Configure game…", lambda: self._on_game_action("configure")),
                 ("Define custom game…", lambda: self._on_game_action("custom")),
+                ("Open", [
+                    ("Game folder",     lambda: self._open_game_dir("game")),
+                    ("Prefix folder",   lambda: self._open_game_dir("prefix")),
+                    ("My Games folder", lambda: self._open_game_dir("mygames")),
+                    ("AppData folder",  lambda: self._open_game_dir("appdata")),
+                    ("Staging folder",  lambda: self._open_game_dir("staging")),
+                    ("Profile folder",  lambda: self._open_game_dir("profile")),
+                    (".config folder",  lambda: self._open_game_dir("config")),
+                ]),
             ],
             on_select=self._on_game_changed,
         )
@@ -3570,6 +3579,76 @@ class MainWindow(QMainWindow):
             self._notify("No configured game selected.", "warning")
             return None
         return game
+
+    def _open_folder_path(self, path, descr):
+        """Open *path* in the file manager, or log why it can't be opened.
+        Ported from gui/dialogs ProtonTools._open_folder."""
+        from pathlib import Path
+        if path is None:
+            self._notify(f"{descr} is not configured for this game.", "warning")
+            return
+        path = Path(path)
+        if not path.is_dir():
+            self._notify(f"{descr} not found ({path}).", "warning")
+            return
+        from Utils.xdg import xdg_open
+        try:
+            xdg_open(str(path))
+        except Exception as e:
+            self._append_log(f"Open {descr} error: {e}")
+
+    def _open_game_dir(self, which: str):
+        """Open one of the game's on-disk folders (game selector ▸ Open ▸ …).
+        Mirrors gui/dialogs ProtonTools folder openers."""
+        from pathlib import Path
+        game = self._gs.game
+        if game is None or not game.is_configured():
+            self._notify("No configured game selected.", "warning")
+            return
+        if which == "game":
+            self._open_folder_path(game.get_game_path(), "game folder")
+        elif which == "prefix":
+            self._open_folder_path(game.get_prefix_path(), "prefix folder")
+        elif which == "mygames":
+            getter = getattr(game, "_mygames_path", None)
+            path = getter() if callable(getter) else None
+            if path is None:
+                prefix = game.get_prefix_path()
+                if prefix is not None:
+                    path = prefix / "drive_c/users/steamuser/Documents/My Games"
+            self._open_folder_path(path, "My Games folder")
+        elif which == "appdata":
+            prefix = game.get_prefix_path()
+            if prefix is None:
+                self._open_folder_path(None, "AppData folder")
+                return
+            sub = getattr(game, "_APPDATA_SUBPATH", None)
+            if sub is not None:
+                self._open_folder_path(prefix / sub, "AppData folder")
+            else:
+                self._open_folder_path(
+                    prefix / "drive_c/users/steamuser/AppData/Local",
+                    "AppData folder")
+        elif which == "staging":
+            getter = getattr(game, "get_effective_mod_staging_path", None) \
+                or getattr(game, "get_mod_staging_path", None)
+            path = getter() if callable(getter) else None
+            self._open_folder_path(path, "staging folder")
+        elif which == "profile":
+            path = getattr(game, "_active_profile_dir", None)
+            if path is None:
+                try:
+                    path = game.get_profile_root() / "profiles"
+                except Exception:
+                    path = None
+            self._open_folder_path(path, "profile folder")
+        elif which == "config":
+            try:
+                from Utils.config_paths import get_config_dir
+                path = get_config_dir()
+            except Exception:
+                path = None
+            self._open_folder_path(path, ".config folder")
 
     def _proton_winecfg(self):
         game = self._proton_game()

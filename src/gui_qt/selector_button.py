@@ -126,10 +126,21 @@ class SelectorButton(QToolButton):
             a.triggered.connect(lambda _=False, l=label: self._choose(l))
         if self._items and self._actions:
             self._menu.addSeparator()
-        for label, cb in self._actions:
-            a = self._menu.addAction(label)
-            if cb is not None:
+        self._add_actions(self._menu, self._actions)
+
+    def _add_actions(self, menu, actions):
+        """Append pinned action entries to *menu*. Each entry is (label, cb)
+        where cb is either a callable or a list of (label, cb) pairs (→ a
+        submenu, nested arbitrarily deep)."""
+        for label, cb in actions:
+            if isinstance(cb, list):
+                sub = menu.addMenu(label)
+                self._add_actions(sub, cb)
+            elif cb is not None:
+                a = menu.addAction(label)
                 a.triggered.connect(lambda _=False, c=cb: c())
+            else:
+                menu.addAction(label)
 
     def _choose(self, label):
         if label != self._current:
