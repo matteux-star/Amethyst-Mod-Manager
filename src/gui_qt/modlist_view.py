@@ -112,6 +112,10 @@ class ModListView(QTreeView):
         # Connected AFTER _drop_applied so the hidden-set cache is clear first.
         model.layoutChanged.connect(self._on_model_layout_changed)
         model.modelReset.connect(self._on_model_layout_changed)
+        # A fast-path insert (add_separator/insert_mod) emits rowsInserted, not
+        # layoutChanged — re-apply spanning so a new separator's lock box jumps
+        # to the far right immediately instead of only after the next move.
+        model.rowsInserted.connect(self._on_model_layout_changed)
         self.doubleClicked.connect(self._on_double_click)
 
         self._restoring = True
