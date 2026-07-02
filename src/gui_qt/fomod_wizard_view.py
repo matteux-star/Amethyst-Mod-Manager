@@ -27,6 +27,7 @@ from Utils.fomod_installer import (
     get_visible_steps, get_default_selections, update_flags,
     validate_selections, resolve_plugin_type,
 )
+from Utils.fomod_parser import resolve_path_ci
 
 
 class FomodWizardView(QWidget):
@@ -332,12 +333,14 @@ class FomodWizardView(QWidget):
         self._cur_pixmap = None
         self._cur_image_path = None
         if img_rel:
-            img = self._base / img_rel.replace("\\", "/")
-            if img.is_file():
-                pm = QPixmap(str(img))
+            # Case-insensitive walk: Windows-authored XML paths (Images\x.png)
+            # often mismatch the extracted tree's casing on Linux (Tk parity).
+            resolved = resolve_path_ci(str(self._base), img_rel)
+            if resolved:
+                pm = QPixmap(resolved)
                 if not pm.isNull():
                     self._cur_pixmap = pm
-                    self._cur_image_path = img
+                    self._cur_image_path = Path(resolved)
         self._rescale_image()
 
     def _rescale_image(self):

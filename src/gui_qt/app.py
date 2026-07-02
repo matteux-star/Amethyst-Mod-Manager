@@ -11,7 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QSize, Signal, QTimer
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QTextCursor
 from PySide6.QtWidgets import (
     QMainWindow, QToolButton, QWidget, QSplitter, QApplication,
     QLabel, QVBoxLayout, QHBoxLayout, QPlainTextEdit,
@@ -6148,8 +6148,11 @@ class MainWindow(QMainWindow):
         self._warnings_lbl = QLabel("● Warnings")
         self._warnings_lbl.setStyleSheet(f"color:{_c(self._pal,'TEXT_WARN')};")
         h.addWidget(self._warnings_lbl)
+        self._open_log_tab_btn = self._text_button("Open as tab", compact=True)
+        self._open_log_tab_btn.clicked.connect(self._open_log_tab)
+        h.addWidget(self._open_log_tab_btn)
         self._clear_log_btn = self._text_button("Clear Log", compact=True)
-        self._clear_log_btn.clicked.connect(lambda: self._log_view.clear())
+        self._clear_log_btn.clicked.connect(self._clear_log)
         h.addWidget(self._clear_log_btn)
 
         h.addStretch(1)
@@ -6160,7 +6163,7 @@ class MainWindow(QMainWindow):
         h.addWidget(self._nexus_footer)
 
         self._log_open_widgets = [self._errors_lbl, self._warnings_lbl,
-                                  self._clear_log_btn]
+                                  self._open_log_tab_btn, self._clear_log_btn]
         for w in self._log_open_widgets:
             w.setVisible(False)
         return bar
@@ -6198,10 +6201,48 @@ class MainWindow(QMainWindow):
                 return
         except Exception:
             pass
+        line = str(message).rstrip("\n")
         try:
-            self._log_view.appendPlainText(str(message).rstrip("\n"))
+            self._log_view.appendPlainText(line)
         except Exception:
             pass
+        # Mirror into the full-screen log tab if it is open.
+        tab_view = getattr(self, "_log_tab_view", None)
+        if tab_view is not None:
+            try:
+                tab_view.appendPlainText(line)
+            except Exception:
+                pass
+
+    def _clear_log(self):
+        """Clear both the docked log view and the full-screen log tab (if open)."""
+        try:
+            self._log_view.clear()
+        except Exception:
+            pass
+        tab_view = getattr(self, "_log_tab_view", None)
+        if tab_view is not None:
+            try:
+                tab_view.clear()
+            except Exception:
+                pass
+
+    def _open_log_tab(self):
+        """Open the log as a full-screen (detachable) tab. It mirrors the docked
+        log view: new lines land in both, and Clear Log wipes both."""
+        if self._tabs.has_key("log"):
+            self._tabs.focus_key("log")
+            return
+        view = QPlainTextEdit()
+        view.setReadOnly(True)
+        view.setObjectName("LogView")
+        # Seed with the existing log contents.
+        view.setPlainText(self._log_view.toPlainText())
+        view.moveCursor(QTextCursor.End)
+        self._log_tab_view = view
+        view.destroyed.connect(
+            lambda *_: setattr(self, "_log_tab_view", None))
+        self._tabs.open_tab(view, "Log", key="log")
 
 
 def run() -> int:

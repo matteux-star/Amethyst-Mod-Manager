@@ -14,6 +14,29 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 
+def resolve_path_ci(base: str, rel: str) -> Optional[str]:
+    """
+    Walk each component of *rel* under *base* using case-insensitive
+    matching so that Windows-style FOMOD paths (e.g. 'Fomod\\Screens\\x.jpg')
+    resolve correctly on a case-sensitive Linux filesystem.
+    Returns the real absolute path, or None if not found.
+    """
+    current = str(base)
+    for part in rel.replace("\\", "/").split("/"):
+        if not part:
+            continue
+        try:
+            entries = os.listdir(current)
+        except OSError:
+            return None
+        entries_lower = {e.lower(): e for e in entries}
+        match = entries_lower.get(part.lower())
+        if match is None:
+            return None
+        current = os.path.join(current, match)
+    return current if os.path.isfile(current) else None
+
+
 # ---------------------------------------------------------------------------
 # Dataclasses
 # ---------------------------------------------------------------------------
