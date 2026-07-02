@@ -276,19 +276,17 @@ class OblivionRemastered(UE5Game):
             return
         source = self.get_profile_root() / "profiles" / profile / "plugins.txt"
         if not source.is_file():
-            _log(f"  WARN: plugins.txt not found at {source} — skipping symlink.")
+            _log(f"  WARN: plugins.txt not found at {source} — skipping deploy.")
             return
-        if target.exists() or target.is_symlink():
-            target.unlink()
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.symlink_to(source)
-        _log(f"  Linked Plugins.txt → {target}")
+        from Utils.plugins import deploy_plugins_copy
+        content = source.read_text(encoding="utf-8")
+        deploy_plugins_copy(target.parent, target.name, content, _log)
 
     def _remove_plugins_txt_symlink(self, log_fn) -> None:
+        from Utils.plugins import remove_plugins_copy
         target = self._plugins_txt_target()
-        if target is not None and target.is_symlink():
-            target.unlink()
-            log_fn("  Removed Plugins.txt symlink.")
+        if target is not None:
+            remove_plugins_copy(target.parent, target.name, log_fn)
 
     def deploy(self, log_fn=None, mode: LinkMode = LinkMode.HARDLINK,
                profile: str = "default", progress_fn=None) -> None:
