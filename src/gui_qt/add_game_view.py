@@ -3,7 +3,12 @@
 Qt port of gui/game_picker_dialog.py (v1 scope). Each card shows the game's
 square logo, its name, and a button: "Select" (green) if the game is already
 configured, else "Add" (blue accent) to configure it. A search box filters by
-name. Custom-game / remote-handler / installed-only filters are deferred.
+name.
+
+The grid is split into two sections: "Installed" games (detected on disk via
+Steam/Heroic) on top, and "Not Installed" games below, so users can quickly find
+the games they actually own. A "Show only installed" checkbox hides the bottom
+section entirely.
 
 The view embeds as a detachable tab. It calls back:
     on_select(game_name)  — a configured game was picked (switch to it)
@@ -14,11 +19,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, Signal
 from PySide6.QtGui import QPixmap, QPainter, QColor
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QLineEdit,
-    QScrollArea, QPushButton, QFrame, QSizePolicy,
+    QScrollArea, QPushButton, QFrame, QSizePolicy, QCheckBox,
 )
 
 from gui_qt.theme_qt import active_palette, _c
@@ -100,6 +105,9 @@ class _GameCard(QFrame):
 class AddGameView(QWidget):
     """The reflowing card grid. *on_select(name)* / *on_add(name)* are required."""
 
+    # Emitted (from the scan worker) with the set of installed game names.
+    _installed_scanned = Signal(set)
+
     def __init__(self, games: dict, on_select, on_add, parent=None):
         super().__init__(parent)
         self._games = games
@@ -107,6 +115,9 @@ class AddGameView(QWidget):
         self._on_add = on_add
         self._cards: list[tuple[str, _GameCard]] = []   # (search_text, card)
         self._cols = 0
+        # Installed-only filter state. None = not yet scanned.
+        self._installed_game_names: set[str] | None = None
+        self._installed_scanned.connect(self._on_installed_scanned)
         self._build()
         self._populate()
 
@@ -124,6 +135,10 @@ class AddGameView(QWidget):
         title.setStyleSheet("font-size:15px; font-weight:600;")
         hb.addWidget(title)
         hb.addStretch(1)
+        self._installed_cb = QCheckBox("Show only installed")
+        self._installed_cb.setCursor(Qt.PointingHandCursor)
+        self._installed_cb.toggled.connect(self._on_installed_filter_toggle)
+        hb.addWidget(self._installed_cb)
         self._search = QLineEdit()
         self._search.setPlaceholderText("Search by name…")
         self._search.setClearButtonEnabled(True)
@@ -166,6 +181,10 @@ class AddGameView(QWidget):
             search = self._search_text(name, game)
             self._cards.append((search, card))
         self._relayout()
+        # Detect installed games up front so we can split into sections. Runs on
+        # a worker thread; results marshaled back via _installed_scanned.
+        import threading
+        threading.Thread(target=self._scan_installed_games, daemon=True).start()
 
     @staticmethod
     def _search_text(name: str, game) -> str:
@@ -177,32 +196,136 @@ class AddGameView(QWidget):
                     parts.append(str(val))
         return " ".join(parts).lower()
 
-    def _visible_cards(self) -> list[_GameCard]:
+    def _matching_cards(self) -> list[_GameCard]:
+        """Cards matching the current search query (section split happens later)."""
         q = self._search.text().strip().lower() if hasattr(self, "_search") else ""
         return [c for s, c in self._cards if not q or q in s]
+
+    # ------------------------------------------------------------------
+    # Installed-only filter
+    # ------------------------------------------------------------------
+
+    def _on_installed_filter_toggle(self, _checked: bool):
+        # The scan runs on load, so toggling just re-lays out the sections
+        # (hiding / showing the "Not Installed" section).
+        self._relayout()
+
+    def _scan_installed_games(self):
+        """Runs in a worker thread. Detects installed games via Steam + Heroic.
+
+        Emits _installed_scanned with the set of matching game names. Never
+        touches Qt widgets directly (see project memory on worker threads)."""
+        try:
+            from Utils.steam_finder import (
+                find_steam_libraries, find_game_by_steam_id, find_game_in_libraries)
+            from Utils.heroic_finder import (
+                find_heroic_game, find_heroic_game_info_by_exe)
+        except Exception:
+            self._installed_scanned.emit(set())
+            return
+
+        libraries = find_steam_libraries()
+        installed: set[str] = set()
+        for name, game in self._games.items():
+            found = False
+            all_exe = [game.exe_name] + list(getattr(game, "exe_name_alts", []))
+            steam_id = getattr(game, "steam_id", "")
+            if steam_id and libraries:
+                if find_game_by_steam_id(libraries, steam_id, game.exe_name):
+                    found = True
+            if not found and libraries:
+                for exe in all_exe:
+                    if find_game_in_libraries(libraries, exe):
+                        found = True
+                        break
+            if not found:
+                heroic_names = getattr(game, "heroic_app_names", [])
+                if heroic_names and find_heroic_game(heroic_names):
+                    found = True
+            if not found:
+                for exe in all_exe:
+                    bare_exe = exe.replace("\\", "/").rsplit("/", 1)[-1]
+                    if find_heroic_game_info_by_exe(bare_exe):
+                        found = True
+                        break
+            if found:
+                installed.add(name)
+        self._installed_scanned.emit(installed)
+
+    def _on_installed_scanned(self, installed: set):
+        self._installed_game_names = installed
+        self._relayout()
 
     def _cols_for_width(self) -> int:
         vp_w = self._scroll.viewport().width()
         slot = CARD_W + self._grid.spacing()
         return max(1, (vp_w - 32) // slot)
 
+    def _make_section_header(self, text: str) -> QLabel:
+        lbl = QLabel(text)
+        lbl.setObjectName("GameSectionHeader")
+        lbl.setStyleSheet(
+            f"color:{_c(active_palette(),'TEXT_DIM')}; font-size:13px;"
+            " font-weight:600; padding:4px 0;")
+        return lbl
+
+    def _add_card_run(self, cards: list[_GameCard], cols: int, start_row: int) -> int:
+        """Place *cards* into the grid starting at *start_row*. Cards occupy
+        columns 1..cols; columns 0 and cols+1 are equal-weight spacers so the
+        block is centered. Returns the next free row."""
+        for i, card in enumerate(cards):
+            self._grid.addWidget(
+                card, start_row + i // cols, 1 + (i % cols),
+                Qt.AlignTop | Qt.AlignHCenter)
+            card.show()
+        rows = (len(cards) + cols - 1) // cols
+        return start_row + max(rows, 0)
+
     def _relayout(self):
         cols = self._cols_for_width()
-        # Clear the grid (without deleting the cards).
+        # Clear the grid (without deleting the cards) and drop old section
+        # headers (those are owned by the grid, so deleteLater them).
         while self._grid.count():
-            self._grid.takeAt(0)
+            item = self._grid.takeAt(0)
+            w = item.widget()
+            if isinstance(w, QLabel):   # section header (cards are _GameCard)
+                w.deleteLater()
         for c in self._cards:
             c[1].hide()
-        visible = self._visible_cards()
-        for i, card in enumerate(visible):
-            self._grid.addWidget(card, i // cols, i % cols, Qt.AlignTop | Qt.AlignLeft)
-            card.show()
-        # Reset column stretches, then stretch a trailing spacer column so the
-        # cards left-align and the host never exceeds the viewport width (which
-        # was forcing the horizontal scrollbar).
+
+        matching = self._matching_cards()
+        scanned = self._installed_game_names is not None
+        show_only_installed = self._installed_cb.isChecked()
+
+        if not scanned:
+            # Scan not finished yet — render everything flat (no headers).
+            row = self._add_card_run(matching, cols, 0)
+        else:
+            installed = [c for c in matching if c._name in self._installed_game_names]
+            not_installed = [c for c in matching
+                             if c._name not in self._installed_game_names]
+            row = 0
+            # Only show the "Installed" header when the other section is present
+            # too (otherwise a lone header is just noise).
+            show_headers = bool(installed) and bool(not_installed) \
+                and not show_only_installed
+            if installed:
+                if show_headers:
+                    self._grid.addWidget(
+                        self._make_section_header("Installed"), row, 1, 1, cols)
+                    row += 1
+                row = self._add_card_run(installed, cols, row)
+            if not_installed and not show_only_installed:
+                if show_headers:
+                    self._grid.addWidget(
+                        self._make_section_header("Not Installed"), row, 1, 1, cols)
+                    row += 1
+                row = self._add_card_run(not_installed, cols, row)
+
         for c in range(self._grid.columnCount()):
             self._grid.setColumnStretch(c, 0)
-        self._grid.setColumnStretch(cols, 1)
+        self._grid.setColumnStretch(0, 1)
+        self._grid.setColumnStretch(cols + 1, 1)
         self._cols = cols
 
     def _apply_search(self, _text=None):
