@@ -102,6 +102,9 @@ class CollectionInstallOverlay(QWidget):
         self._extract_active: dict[int, str] = {}
         self._extract_queued: dict[int, str] = {}
         self._finished = False
+        # True collection size (installed/uncompressed) for the aggregate label;
+        # the progress bar itself still tracks compressed download bytes.
+        self._display_total = 0
 
         self.setObjectName("OverlayBackdrop")
         self.setStyleSheet("#OverlayBackdrop { background: rgba(0,0,0,150); }")
@@ -224,13 +227,25 @@ class CollectionInstallOverlay(QWidget):
     def set_status(self, text: str):
         self._status_lbl.setText(text or "")
 
+    def set_display_total(self, n: int):
+        """The true collection size (installed/uncompressed bytes). Shown as the
+        '/ Y GB' figure in the aggregate label so it matches the detail header;
+        the bar's fill % still comes from compressed download bytes."""
+        self._display_total = max(0, int(n or 0))
+
     def set_agg(self, cur: int, tot: int, mbps: float):
         if tot > 0:
             self._agg_bar.setRange(0, 1000)
             self._agg_bar.setValue(max(0, min(1000, int(cur * 1000 / tot))))
-            pct = int(cur * 100 / tot)
+            frac = cur / tot
+            pct = int(frac * 100)
+            # Show the true collection size as the total when known; keep the
+            # label internally consistent by scaling the "current" figure to the
+            # same download fraction the bar shows (compressed cur/tot).
+            shown_tot = self._display_total or tot
+            shown_cur = int(frac * shown_tot)
             self._agg_lbl.setText(
-                f"{_fmt_gb(cur)} / {_fmt_gb(tot)}  ({pct}%)"
+                f"{_fmt_gb(shown_cur)} / {_fmt_gb(shown_tot)}  ({pct}%)"
                 + (f"  —  {mbps:.1f} MB/s" if mbps > 0 else ""))
         else:
             self._agg_bar.setRange(0, 0)

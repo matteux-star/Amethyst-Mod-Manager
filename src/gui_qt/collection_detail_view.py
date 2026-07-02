@@ -100,6 +100,7 @@ class CollectionDetailView(QWidget):
         self._domain = (getattr(game, "nexus_game_domain", "")
                         or getattr(collection, "game_domain", "") or "")
         self._mods = []
+        self._total_size = 0                        # collection totalSize+assetsSizeBytes
         self._dl_path = ""                          # collection-archive download link
         # Local-manifest import: populate from a parsed manifest dict instead of the
         # API, and (optionally) restore bundled mods + profile files from a local
@@ -162,6 +163,7 @@ class CollectionDetailView(QWidget):
                 category_name=(cat.get("name") or "").strip(),
                 domain_name=(m.get("domainName") or "").strip()))
         self._mods = mods
+        self._total_size = int(total_size or 0)
         self._size_lbl.setText(
             f"Total size: {fmt_size(total_size)}  |  {len(mods)} mods")
         self._fill_table()
@@ -411,6 +413,7 @@ class CollectionDetailView(QWidget):
                 return
             self._revision_number = want
         self._mods = list(mods or [])
+        self._total_size = int(total_size or 0)
         self._size_lbl.setText(
             f"Total size: {fmt_size(total_size)}  |  {mod_count} mods")
         self._fill_table()

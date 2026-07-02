@@ -136,6 +136,7 @@ class CollectionInstallCallbacks:
     on_status: Callable[[str], None] = _noop            # status line text
     on_progress: Callable[["float | None"], None] = _noop  # 0..1 or None=hide
     on_agg_download: Callable[[int, int, float], None] = _noop  # bytes cur,total,MB/s
+    on_display_total: Callable[[int], None] = _noop     # true collection size (bytes)
     # RED — active downloads
     on_dl_mod_start: Callable[[int, str, int], None] = _noop   # file_id,name,size
     on_dl_mod_update: Callable[[int, int, int], None] = _noop  # file_id,cur,tot
@@ -227,6 +228,7 @@ def run_collection_install(
         *, game, api, downloader, mods: list, download_link_path: str,
         profile_dir: Path, old_profile_dir: "Path | None",
         collection_slug: str, revision_number: "int | None" = None,
+        collection_total_size: int = 0,
         collection_schema_cache: "dict | None" = None,
         overwrite_existing: "bool | None" = None,
         skipped_fids: "set[int] | None" = None,
@@ -538,6 +540,12 @@ def run_collection_install(
 
     _to_download_fids = {getattr(m, "file_id", None) for m in to_download}
     _total_bytes = sum(getattr(m, "size_bytes", 0) or 0 for m in ordered_mods)
+    # The real collection size (installed/uncompressed = totalSize + assetsSizeBytes,
+    # from get_collection_detail) is what the detail header shows and what the user
+    # expects to see. The download bar tracks compressed archive bytes (_total_bytes),
+    # which is much smaller, so surface the true size separately for the label.
+    if collection_total_size > 0:
+        cb.on_display_total(int(collection_total_size))
     _dl_bytes_done = sum(
         getattr(m, "size_bytes", 0) or 0 for m in ordered_mods
         if getattr(m, "file_id", None) not in _to_download_fids)
