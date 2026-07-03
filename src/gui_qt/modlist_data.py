@@ -29,17 +29,28 @@ FLAG_PRERTX = 1 << 11      # contains pre-RTX (natives/x64) files — filemap-de
 FLAG_ROOT_RULE = 1 << 12   # owns files with a custom root-routing rule — filemap-derived
 
 
-def _parse_missing_req_names(raw: str) -> list[str]:
-    """Names from a meta.ini `missing_requirements` value: semicolon-separated
-    `modId:name` pairs (the name half). Tolerates bare names / blank entries."""
-    names: list[str] = []
+def _parse_missing_req_pairs(raw: str) -> list[tuple[int, str]]:
+    """`(modId, name)` pairs from a meta.ini `missing_requirements` value:
+    semicolon-separated `modId:name` entries. The name half may be blank
+    (locally-seeded requirements — e.g. the TTW installer — store `modId:`
+    with no name), so entries are keyed on the id, not the name."""
+    pairs: list[tuple[int, str]] = []
     for part in (raw or "").split(";"):
-        part = part.strip()
-        if not part:
+        raw_id, _, name = part.partition(":")
+        raw_id = raw_id.strip()
+        if not raw_id:
             continue
-        # "modId:Name" -> "Name"; bare "Name" -> "Name".
-        names.append(part.split(":", 1)[1].strip() if ":" in part else part)
-    return [n for n in names if n]
+        try:
+            pairs.append((int(raw_id), name.strip()))
+        except ValueError:
+            pass
+    return pairs
+
+
+def _parse_missing_req_names(raw: str) -> list[str]:
+    """Display names for a `missing_requirements` value — the stored name, or
+    the id as a string when the name is blank (locally-seeded requirements)."""
+    return [nm or str(mid) for mid, nm in _parse_missing_req_pairs(raw)]
 
 
 def read_meta_for_entries(entries: list[ModEntry], staging_dir: Path,
@@ -70,6 +81,12 @@ def read_meta_for_entries(entries: list[ModEntry], staging_dir: Path,
     fomod: set[str] = set()
     bain: set[str] = set()
     missing_reqs: set[str] = set()
+    # Requirement resolution is a two-pass job (Tk parity): collect every
+    # installed Nexus mod_id first, then flag a mod only for requirement ids
+    # that aren't present. Keyed on id, not name, so locally-seeded id-only
+    # requirements (e.g. the TTW installer) still surface.
+    installed_ids: set[int] = set()
+    raw_missing_pairs: dict[str, list[tuple[int, str]]] = {}
 
     try:
         from Nexus.nexus_meta import read_meta
@@ -123,16 +140,16 @@ def read_meta_for_entries(entries: list[ModEntry], staging_dir: Path,
             bits |= FLAG_ENDORSED
         if meta.root_folder:
             bits |= FLAG_ROOT
-        # "Ignore requirements" in the Missing Requirements panel adds the OWNING
-        # mod's name to `ignored_reqs` (a whole-mod ignore), so gate on e.name
-        # first. The per-requirement-name filter is kept for any future
-        # requirement-level ignores.
+        # Missing requirements are finalized in a post-loop pass, once every
+        # installed mod_id is known (so requirements already satisfied by an
+        # installed mod are filtered out). "Ignore requirements" in the Missing
+        # Requirements panel adds the OWNING mod's name to `ignored_reqs`.
+        if getattr(meta, "mod_id", 0):
+            installed_ids.add(int(meta.mod_id))
         if getattr(meta, "missing_requirements", "") and e.name not in ignored_reqs:
-            unignored = [n for n in _parse_missing_req_names(meta.missing_requirements)
-                         if n not in ignored_reqs]
-            if unignored:
-                bits |= FLAG_MISSING_REQS
-                missing_reqs.add(e.name)
+            pairs = _parse_missing_req_pairs(meta.missing_requirements)
+            if pairs:
+                raw_missing_pairs[e.name] = pairs
         # Collection-install provenance (stamped in meta.ini at install time).
         if getattr(meta, "from_collection_bundled", False):
             bits |= FLAG_COLLECTION_BUNDLED
@@ -166,6 +183,14 @@ def read_meta_for_entries(entries: list[ModEntry], staging_dir: Path,
             bits |= FLAG_NOTE
         if bits:
             flags[e.name] = bits
+
+    # Second pass: flag mods whose requirements aren't satisfied by any
+    # installed mod_id. The full seeded list stays in meta.ini, so a
+    # requirement reappears automatically if its mod is later removed.
+    for name, pairs in raw_missing_pairs.items():
+        if any(mid not in installed_ids for mid, _ in pairs):
+            missing_reqs.add(name)
+            flags[name] = flags.get(name, 0) | FLAG_MISSING_REQS
 
     return (versions, installed, flags, categories, updates, fomod, bain,
             missing_reqs)
