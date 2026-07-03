@@ -26,7 +26,10 @@ url='https://github.com/ChrisDKN/Amethyst-Mod-Manager'
 license=('GPL-3.0-only')
 # qt6-wayland is explicit: pyside6 doesn't hard-depend on it, and quick-sharun
 # only deploys the wayland-*/ Qt plugin dirs when they exist on disk.
-depends=('python' 'pyside6' 'qt6-wayland')
+# qt6-imageformats provides libqwebp.so (omitted from qt6-base): Nexus serves
+# its mod/collection thumbnails as WebP, so without it the browser cards render
+# blank. Same "must exist on disk for quick-sharun to deploy" reasoning.
+depends=('python' 'pyside6' 'qt6-wayland' 'qt6-imageformats')
 # `zenity` is listed as a conflict because we ship our own /usr/bin/zenity
 # (Utils/portal_filechooser.py falls back to it when the portal is missing).
 # If the build host happened to have the stock zenity package installed,
