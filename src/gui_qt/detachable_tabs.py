@@ -318,6 +318,14 @@ class DetachableTabWidget(QTabWidget):
         """Close the tab/float registered under *key* (no-op if not open)."""
         widget = self._keys.get(key)
         if widget is None:
+            for flt in list(self._floats):
+                if getattr(flt, "_tab_key", None) == key:
+                    self._floats = [f for f in self._floats if f is not flt]
+                    page = flt.take_page()      # release without redock
+                    flt.close()
+                    if page is not None:
+                        page.deleteLater()
+                    return
             return
         # Scoped tab? Route through the scoped teardown so the target panel
         # stack is reset to page 0 (a plain removeTab would strand it).
@@ -561,7 +569,11 @@ class DetachableTabWidget(QTabWidget):
 
     # -- key-based helpers --------------------------------------------------
     def has_key(self, key: str) -> bool:
-        return key in self._keys
+        if key in self._keys:
+            return True
+        # A detached SCOPED tab forgets its key from _keys but its float still
+        # carries _tab_key — treat that as open so close_tab/re-open see it.
+        return any(getattr(f, "_tab_key", None) == key for f in self._floats)
 
     def focus_key(self, key: str):
         w = self._keys.get(key)
