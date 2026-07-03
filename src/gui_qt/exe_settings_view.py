@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
 )
 
 from gui_qt.theme_qt import active_palette, _c, danger_close_button
+from gui_qt.wheel_guard import no_wheel
 from Utils import exe_launch
 from Utils.wine_paths import to_wine_path
 
@@ -125,6 +126,7 @@ class ExeSettingsView(QWidget):
         proton_row.setSpacing(8)
         self._proton_combo = QComboBox()
         self._proton_combo.addItems(self._proton_versions)
+        no_wheel(self._proton_combo)
         proton_row.addWidget(self._proton_combo)
         proton_row.addStretch(1)
         sp.addLayout(proton_row)

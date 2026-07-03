@@ -19,6 +19,8 @@ from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal, QObject
 from PySide6.QtGui import QFont
+
+from gui_qt.wheel_guard import no_wheel
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
     QScrollArea, QFrame, QRadioButton, QCheckBox, QButtonGroup, QComboBox,
@@ -329,6 +331,7 @@ class CustomGameView(QWidget):
         self._casing_combo = QComboBox()
         for label, _val in _FILEMAP_CASING_OPTIONS:
             self._casing_combo.addItem(label)
+        no_wheel(self._casing_combo)
         v.addWidget(self._casing_combo)
 
         # Wine DLL overrides (multi-line).
@@ -479,6 +482,7 @@ class CustomGameView(QWidget):
         type_combo.addItems(["extensions", "folders", "filenames"])
         type_combo.setCurrentText(match_type)
         type_combo.setFixedWidth(self._TYPE_COMBO_W)
+        no_wheel(type_combo)
         value_edit = self._mono_edit("File/Folder")
         dest_edit.setText(dest)
         value_edit.setText(match_value)

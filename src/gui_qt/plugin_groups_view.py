@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 )
 
 from gui_qt.theme_qt import active_palette, _c, danger_close_button
+from gui_qt.wheel_guard import no_wheel
 from Utils.userlist import (
     DEFAULT_GROUP, parse_userlist, write_userlist, remove_group,
 )
@@ -214,6 +215,7 @@ class PluginGroupsView(QWidget):
         rule_row.addWidget(self._rule_rel_combo)
         self._rule_b_combo = QComboBox()
         rule_row.addWidget(self._rule_b_combo, 1)
+        no_wheel(self._rule_a_combo, self._rule_rel_combo, self._rule_b_combo)
         add_rule_btn = QPushButton("Add Rule")
         add_rule_btn.setFixedSize(100, 28)
         add_rule_btn.setCursor(Qt.PointingHandCursor)

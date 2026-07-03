@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
 )
 
 from gui_qt.theme_qt import active_palette, _c
+from gui_qt.wheel_guard import no_wheel
 
 _MODES = ["Auto", "Steam", "Heroic", "None"]
 
@@ -61,6 +62,7 @@ class LauncherSettingsOverlay(QWidget):
         self._mode_combo.addItems(_MODES)
         cap = (mode or "auto").capitalize()
         self._mode_combo.setCurrentText(cap if cap in _MODES else "Auto")
+        no_wheel(self._mode_combo)
         row.addWidget(self._mode_combo)
         row.addStretch(1)
         v.addLayout(row)

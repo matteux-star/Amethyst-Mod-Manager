@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
 )
 
 from gui_qt.theme_qt import active_palette, _c
+from gui_qt.wheel_guard import no_wheel
 from Utils import ui_config as uc
 
 
@@ -164,6 +165,7 @@ class SettingsView(QWidget):
             combo.setCurrentIndex(values.index(current_value))
         combo.currentIndexChanged.connect(
             lambda i: self._safe_save(save_fn, values[i]))
+        no_wheel(combo)
         grid.addWidget(combo, row, 1, Qt.AlignLeft)
         if restart_note:
             note = QLabel("Changes take effect after restart.")
@@ -185,6 +187,7 @@ class SettingsView(QWidget):
         val_lbl.setMinimumWidth(48)
         sld.valueChanged.connect(lambda v: val_lbl.setText(str(v)))
         sld.valueChanged.connect(lambda v: on_change(v))
+        no_wheel(sld)
         wrap.addWidget(sld)
         wrap.addWidget(val_lbl)
         wrap.addStretch(1)

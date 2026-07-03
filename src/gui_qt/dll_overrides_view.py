@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 )
 
 from gui_qt.theme_qt import active_palette, _c, danger_close_button
+from gui_qt.wheel_guard import no_wheel
 from Utils.wine_dll_config import (
     load_wine_dll_overrides, save_wine_dll_overrides,
 )
@@ -192,6 +193,7 @@ class DllOverridesView(QWidget):
             combo.addItem(value)
             combo.setCurrentIndex(combo.count() - 1)
         combo.setFixedWidth(150)
+        no_wheel(combo)
         # Connect AFTER setting the index so the initial set doesn't fire.
         combo.currentTextChanged.connect(
             lambda text, d=dll: self._overrides.__setitem__(d, text))
