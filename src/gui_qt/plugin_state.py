@@ -268,11 +268,71 @@ def load_plugins(game, profile: str) -> list[PluginRow]:
     # Resolve each plugin's REAL path (staging mod / overwrite / Data) so header
     # flags (ESL, master, missing-master) work for mod plugins, not just vanilla.
     resolved = resolve_plugin_paths_for_game(game, data_dir)
+
+    # Prune phantom entries: a plugin listed in plugins.txt but not vanilla and
+    # with NO on-disk file anywhere (staging mod / overwrite / Data, per the
+    # resolver) is a stale leftover from a removed mod. It has no owning mod, so
+    # it can't be marker-highlighted and LOOT can't sort it. resolve runs after
+    # the fresh filemap (app._on_conflicts_ready), so an empty resolution is
+    # authoritative. Persist the cleanup so the phantom drops out of the files.
+    #
+    # SAFETY: only prune when the resolver returned a healthy map (the filemap
+    # exists and resolution produced paths). resolve_plugin_paths_for_game
+    # returns {} on ANY failure — pruning on an empty map would wipe every
+    # non-vanilla plugin from plugins.txt. Require the filemap to exist AND the
+    # resolver to have found at least one path before trusting a miss.
+    staging = (game.get_effective_mod_staging_path()
+               if hasattr(game, "get_effective_mod_staging_path") else None)
+    filemap_ok = (staging is not None
+                  and (staging.parent / "filemap.txt").is_file()
+                  and bool(resolved))
+    if filemap_ok:
+        kept: list[PluginEntry] = []
+        pruned: list[str] = []
+        for e in ordered:
+            low = e.name.lower()
+            if low in vanilla:
+                kept.append(e); continue
+            rp = resolved.get(low)
+            if rp is not None and rp.is_file():
+                kept.append(e)
+            else:
+                pruned.append(e.name)
+        if pruned:
+            _prune_phantom_plugins(p, star, set(n.lower() for n in pruned))
+            ordered = kept
+
     rows = [_to_row(e, vanilla, resolved, data_dir) for e in ordered]
     _apply_master_checks(rows, resolved, data_dir)
     _apply_loot_flags(rows, p.parent)
     _apply_userlist_flags(rows, p.parent)
     return rows
+
+
+def _prune_phantom_plugins(plugins_path: Path, star: bool,
+                           phantom_lower: set[str]) -> None:
+    """Remove *phantom_lower* plugin names from plugins.txt + loadorder.txt.
+
+    Called when load_plugins finds a listed plugin with no on-disk file (removed
+    mod). Mirrors Tk, which lets its plugins.txt sync write such entries out once
+    their source plugin disappears. Best-effort — failures are swallowed so a
+    read-only profile still renders (the phantom just re-prunes next reload)."""
+    try:
+        entries = read_plugins(plugins_path, star_prefix=star)
+        new_entries = [e for e in entries if e.name.lower() not in phantom_lower]
+        if len(new_entries) != len(entries):
+            write_plugins(plugins_path, new_entries, star_prefix=star)
+    except Exception:
+        pass
+    try:
+        lo_path = plugins_path.parent / "loadorder.txt"
+        lo = read_loadorder(lo_path)
+        new_lo = [n for n in lo if n.lower() not in phantom_lower]
+        if len(new_lo) != len(lo):
+            write_loadorder(lo_path,
+                            [PluginEntry(name=n, enabled=True) for n in new_lo])
+    except Exception:
+        pass
 
 
 def _to_row(e: PluginEntry, vanilla: dict, resolved: dict[str, Path],
