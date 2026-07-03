@@ -99,6 +99,8 @@ class MissingReqsView(QWidget):
         # install_fn(mod_id, domain, name) — runs the full premium→files→download
         # →install flow (provided by the window). None = install disabled.
         self._install_fn = install_fn
+        # mod_id → card widget, so cards can be pruned once installed.
+        self._cards: dict[int, _ReqCard] = {}
 
         self.setObjectName("MissingReqsView")
         self._reqs_ready.connect(self._on_reqs_ready)
@@ -183,18 +185,29 @@ class MissingReqsView(QWidget):
                 for m in mods:
                     mod_id = int(m.get("mod_id", 0) or 0)
                     domain = m.get("domain", "") or ""
-                    want = m.get("missing_ids") or set()
-                    if mod_id <= 0:
-                        continue   # local mod — per-id resolve deferred
-                    try:
-                        reqs = self._api.get_mod_requirements(domain, mod_id)
-                    except Exception as e:
-                        errors.append(f"{m.get('mod_name','?')}: {e}")
-                        continue
-                    for r in reqs:
-                        if r.mod_id in want and r.mod_id not in seen:
-                            seen.add(r.mod_id)
-                            out.append(r)
+                    want = set(m.get("missing_ids") or set())
+                    # Resolve via the owning mod's requirement graph (carries the
+                    # requirement notes) when the mod is Nexus-hosted.
+                    if mod_id > 0:
+                        try:
+                            reqs = self._api.get_mod_requirements(domain, mod_id)
+                        except Exception as e:
+                            errors.append(f"{m.get('mod_name','?')}: {e}")
+                            reqs = []
+                        for r in reqs:
+                            if r.mod_id in want and r.mod_id not in seen:
+                                seen.add(r.mod_id)
+                                out.append(r)
+                    # Any required ids the graph didn't cover — including every id
+                    # when the owning mod is local (mod_id<=0, e.g. TTW's seeded
+                    # requirements) — are resolved one mod at a time.
+                    for rid in want:
+                        if rid in seen:
+                            continue
+                        req = self._resolve_single(domain, rid, errors)
+                        if req is not None:
+                            seen.add(rid)
+                            out.append(req)
             except Exception as e:
                 safe_emit(self._reqs_ready, None, str(e))
                 return
@@ -202,6 +215,24 @@ class MissingReqsView(QWidget):
             safe_emit(self._reqs_ready, out, err)
 
         threading.Thread(target=worker, daemon=True, name="missing-reqs-fetch").start()
+
+    def _resolve_single(self, domain, mod_id, errors):
+        """Build a NexusModRequirement for a single required *mod_id* by fetching
+        the mod directly. Used for locally-seeded requirements (e.g. the TTW
+        installer) where there's no owning-mod requirement graph to read notes
+        from — so the mod's summary stands in for the requirement notes."""
+        from Nexus.nexus_api import NexusModRequirement
+        try:
+            info = self._api.get_mod(domain, mod_id)
+        except Exception as e:
+            errors.append(f"mod {mod_id}: {e}")
+            return None
+        return NexusModRequirement(
+            mod_id=mod_id,
+            mod_name=getattr(info, "name", "") or f"Mod {mod_id}",
+            game_domain=domain,
+            notes=getattr(info, "summary", "") or "",
+        )
 
     def _on_reqs_ready(self, reqs, error):
         if error is not None and not reqs:
@@ -212,7 +243,8 @@ class MissingReqsView(QWidget):
             return
         self._status.setVisible(False)
         p = active_palette()
-        # Insert cards before the trailing stretch.
+        # Insert cards before the trailing stretch, keeping a mod_id → card map
+        # so cards can be pruned once their requirement is installed.
         insert_at = self._cards_layout.count() - 1
         for r in reqs:
             is_external = bool(getattr(r, "is_external", False))
@@ -221,6 +253,21 @@ class MissingReqsView(QWidget):
                             self._open_url, self._install_req)
             self._cards_layout.insertWidget(insert_at, card)
             insert_at += 1
+            self._cards[int(r.mod_id)] = card
+
+    def prune_installed(self, installed_ids):
+        """Remove the cards for any requirement whose mod_id is now installed
+        (called after the modlist flags refresh, so this works no matter how the
+        requirement got installed — panel Install button, manual, NXM, …).
+        Shows the empty-state text once every card is gone."""
+        installed = {int(i) for i in installed_ids or ()}
+        for mid in [m for m in self._cards if m in installed]:
+            card = self._cards.pop(mid)
+            self._cards_layout.removeWidget(card)
+            card.deleteLater()
+        if not self._cards:
+            self._status.setText("No missing requirements found.")
+            self._status.setVisible(True)
 
     def _domain(self) -> str:
         return getattr(self._game, "nexus_game_domain", "") or (

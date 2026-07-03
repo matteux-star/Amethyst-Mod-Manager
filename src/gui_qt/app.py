@@ -3926,7 +3926,8 @@ class MainWindow(QMainWindow):
         if not archive:
             return
         self._append_log(f"[nexus] downloaded → {archive}; installing…")
-        self._install_paths([archive], {archive: meta} if meta is not None else None)
+        self._install_paths([archive],
+                            {archive: meta} if meta is not None else None)
 
     def _on_modlist_flag_clicked(self, row: int, flag: int):
         """A flag icon in the modlist Flags column was clicked → its action
@@ -6526,6 +6527,14 @@ class MainWindow(QMainWindow):
         self._mod_missing_reqs = missing_reqs
         self._modlist_model.set_meta(versions, installed, categories)
         self._modlist_model.set_flags(flags)
+        # Prune any installed requirements from an open Missing Requirements panel
+        # (this is the path the panel's own Install button lands on).
+        view = getattr(self, "_missing_reqs_view", None)
+        if view is not None:
+            try:
+                view.prune_installed(self._installed_mod_ids())
+            except Exception:
+                pass
 
     def _apply_modlist_sizes(self):
         """Scan mod folder sizes and push them to the model. Called on reload
@@ -6574,6 +6583,30 @@ class MainWindow(QMainWindow):
         disabled = sum(1 for e in entries if not e.is_separator and not e.enabled)
         bar.set_stats([("Enabled", enabled), ("Disabled", disabled)])
 
+    def _installed_mod_ids(self) -> set[int]:
+        """The set of Nexus mod ids currently installed in the active profile's
+        staging folder (read from each mod's meta.ini). Used to prune the
+        Missing Requirements panel once a requirement is installed."""
+        ids: set[int] = set()
+        staging = self._gs.staging_dir()
+        if staging is None:
+            return ids
+        from Nexus.nexus_meta import read_meta
+        for r in range(self._modlist_model.rowCount()):
+            e = self._modlist_model.entry(r)
+            if e is None or e.is_separator:
+                continue
+            meta_path = staging / e.name / "meta.ini"
+            if not meta_path.is_file():
+                continue
+            try:
+                mid = int(getattr(read_meta(meta_path), "mod_id", 0) or 0)
+            except Exception:
+                continue
+            if mid > 0:
+                ids.add(mid)
+        return ids
+
     def _refresh_modlist_flags(self, names=None):
         """Re-read the meta/profile-derived flags and push them into the model
         WITHOUT the full modlist reset (keeps selection + scroll). Call after any
@@ -6621,6 +6654,14 @@ class MainWindow(QMainWindow):
         self._modlist_model._categories = self._mod_categories
         self._modlist_model._resort_if_key("category")
         self._modlist_model.set_notes(self._read_mod_notes())
+        # If the Missing Requirements panel is open, drop cards for any
+        # requirement that's now installed (works for any install path).
+        view = getattr(self, "_missing_reqs_view", None)
+        if view is not None:
+            try:
+                view.prune_installed(self._installed_mod_ids())
+            except Exception:
+                pass
 
     def _read_mod_notes(self) -> dict:
         """Per-mod note text for the active profile (Note flag tooltip). {} if
