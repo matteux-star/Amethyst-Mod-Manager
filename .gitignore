@@ -19,3 +19,4 @@ decky/
 .mcp.json
 **/__pycache__/
 /tools
+/Localisation
