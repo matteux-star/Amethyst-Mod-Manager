@@ -24,6 +24,7 @@ from __future__ import annotations
 import json
 import os
 import shlex
+import shutil
 import subprocess
 import re
 from pathlib import Path
@@ -34,7 +35,7 @@ from Utils.config_paths import (
     get_game_config_path,
     get_profile_exe_args_path,
 )
-from Utils.xdg import host_env, xdg_open
+from Utils.xdg import host_env, spawn_watched, xdg_open
 
 _LAUNCH_MODE_FILE = "exe_launch_mode.json"
 _CUSTOM_EXES_FILE = "custom_exes.json"
@@ -417,41 +418,47 @@ def game_is_heroic_install(game) -> bool:
 # ---------------------------------------------------------------------------
 
 def launch_via_steam(steam_id: str, log_fn=_noop_log) -> None:
-    """Launch through Steam (steam://rungameid) so the Steam API initialises."""
+    """Launch through Steam (steam://rungameid) so the Steam API initialises.
+
+    Inside a Flatpak sandbox the runtime has no `steam` binary and its own
+    xdg-open can't resolve steam:// URLs, so we must forward to the host via
+    ``flatpak-spawn --host``. A bare ``subprocess.Popen`` of that command
+    "succeeds" (it finds flatpak-spawn) even when the *host* side fails —
+    wrong host CWD, missing binary — which is why the Play button silently
+    did nothing. ``spawn_watched`` fixes the CWD, watches the real exit code,
+    and chains to the next candidate on failure.
+    """
     log_fn(f"Play: launching via Steam (app {steam_id}) ...")
     url = f"steam://rungameid/{steam_id}"
     in_flatpak = Path("/.flatpak-info").exists()
-    # Inside Flatpak, the runtime has neither `steam` nor a working xdg-open
-    # for steam:// URLs — only flatpak-spawn --host can reach the user's real
-    # Steam client, so try the host-spawn variants first.
-    if in_flatpak:
-        candidates = (
-            ["flatpak-spawn", "--host", "steam", url],
+    # Ordered candidates, each falling through to the next on non-zero exit.
+    # Host xdg-open goes first: it routes steam:// to whichever Steam the user
+    # actually has (native *or* Flatpak com.valvesoftware.Steam), whereas a
+    # bare `steam` binary only exists for native installs.
+    if in_flatpak and shutil.which("flatpak-spawn"):
+        candidates = [
             ["flatpak-spawn", "--host", "xdg-open", url],
-            ["steam", url],
+            ["flatpak-spawn", "--host", "steam", url],
             ["xdg-open", url],
-        )
+        ]
     else:
-        candidates = (
-            ["steam", url],
+        candidates = [
             ["xdg-open", url],
-        )
-    env = host_env()
-    last_err = None
-    for cmd in candidates:
-        try:
-            subprocess.Popen(
-                cmd, env=env,
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-            )
+            ["steam", url],
+        ]
+
+    def _try(idx: int) -> None:
+        if idx >= len(candidates):
+            log_fn("Play error: could not reach Steam (no working launcher).")
             return
-        except FileNotFoundError as e:
-            last_err = e
-            continue
-        except Exception as e:
-            last_err = e
-            break
-    log_fn(f"Play error: {last_err}")
+        spawn_watched(
+            candidates[idx],
+            f"Play steam://{steam_id}",
+            log_fn,
+            on_fail=lambda: _try(idx + 1),
+        )
+
+    _try(0)
 
 
 def launch_via_heroic(heroic_app_names: list, log_fn=_noop_log) -> bool:
@@ -464,10 +471,9 @@ def launch_via_heroic(heroic_app_names: list, log_fn=_noop_log) -> bool:
         return False
     store, app_name = info
     log_fn(f"Play: launching via Heroic ({store}/{app_name}) ...")
-    try:
-        xdg_open(f"heroic://launch/{store}/{app_name}")
-    except Exception as e:
-        log_fn(f"Play error: {e}")
+    # xdg_open spawns asynchronously and reports failures through log_fn (it
+    # doesn't raise), so pass it through rather than wrapping in try/except.
+    xdg_open(f"heroic://launch/{store}/{app_name}", log_fn=log_fn)
     return True
 
 
