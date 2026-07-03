@@ -1020,7 +1020,7 @@ def _collection_plugin_context(game, profile_dir: "Path | None"
             pass
     if game is not None:
         try:
-            from gui.game_helpers import _vanilla_plugins_for_game
+            from Utils.game_helpers import _vanilla_plugins_for_game
             for vname_lower in _vanilla_plugins_for_game(game).keys():
                 installed_files.add(vname_lower)
                 active_files.add(vname_lower)
@@ -1472,7 +1472,7 @@ def _clean_mod_name(stem: str, game) -> str:
     """
     name = stem
     try:
-        from gui.mod_name_utils import _suggest_mod_names, sanitize_mod_folder_name
+        from Utils.mod_name_utils import _suggest_mod_names, sanitize_mod_folder_name
         suggestions = _suggest_mod_names(stem)
         name = (suggestions[0] if suggestions else stem) or stem
         name = sanitize_mod_folder_name(name) or name

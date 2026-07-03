@@ -426,7 +426,7 @@ def run_collection_install(
         return already_installed_by_fid.get(mod.file_id, "")
 
     def _name_candidates(mod) -> "list[str]":
-        from gui.mod_name_utils import _suggest_mod_names
+        from Utils.mod_name_utils import _suggest_mod_names
         logical = schema_file_id_to_logical.get(mod.file_id, "") or ""
         schema_name = schema_pos_to_name.get(
             schema_file_id_to_pos.get(mod.file_id, -1), "") or ""
@@ -1290,7 +1290,7 @@ def _write_new_profile_modlist(profile_dir, modlist_path, install_order, log):
 
 def _write_collection_plugins(game, profile_dir, plugins_path, collection_schema,
                               overwrite_existing, _is_append_run, log, _set_status):
-    from gui.game_helpers import _vanilla_plugins_for_game
+    from Utils.game_helpers import _vanilla_plugins_for_game
     schema_plugins: list[dict] = collection_schema.get("plugins", [])
     if schema_plugins and overwrite_existing is None:
         try:
