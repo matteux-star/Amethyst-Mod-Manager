@@ -279,6 +279,7 @@ class CollectionsBrowserView(QWidget):
         self._page_edit.setText(str(self._page + 1))
         self._set_loading(False)
         self._rebuild_cards()
+        self._scroll.verticalScrollBar().setValue(0)
         self._update_page_buttons()
 
     def _set_loading(self, on: bool):
