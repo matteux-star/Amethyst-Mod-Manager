@@ -364,7 +364,7 @@ Déployez d&apos;abord votre liste de mods, puis rouvrez cet assistant.</transla
     <message>
         <location filename="../gui_qt/bundle_options_view.py" line="224"/>
         <source>Select one</source>
-        <translation>Choisissez-en une</translation>
+        <translation>Choisissez-en un</translation>
     </message>
     <message>
         <location filename="../gui_qt/bundle_options_view.py" line="224"/>
@@ -423,7 +423,7 @@ Déployez d&apos;abord votre liste de mods, puis rouvrez cet assistant.</transla
     <message>
         <location filename="../gui_qt/cache_manager_overlay.py" line="308"/>
         <source>Nothing selected.</source>
-        <translation>Aucun élément n&apos;est sélectionné.</translation>
+        <translation>Aucun élément n&apos;a été sélectionné.</translation>
     </message>
     <message>
         <location filename="../gui_qt/cache_manager_overlay.py" line="315"/>
@@ -1001,7 +1001,7 @@ Le cache MD5 est conservé. Les archives seront téléchargées à nouveau si n�
     <message>
         <location filename="../gui_qt/configure_game_view.py" line="398"/>
         <source>Game Patch Version</source>
-        <translation>Version du correctif du jeu</translation>
+        <translation>Version du patch du jeu</translation>
     </message>
     <message>
         <location filename="../gui_qt/configure_game_view.py" line="435"/>
@@ -1026,7 +1026,7 @@ Le cache MD5 est conservé. Les archives seront téléchargées à nouveau si n�
     <message>
         <location filename="../gui_qt/configure_game_view.py" line="670"/>
         <source>Prefix not found automatically. Not needed if game is Linux native.</source>
-        <translation>Préfixe non détecté automatiquement. Non nécessaire si le jeu est natif sous Linux.</translation>
+        <translation>Préfixe non détecté automatiquement. Inutile si le jeu est natif sous Linux.</translation>
     </message>
     <message>
         <location filename="../gui_qt/configure_game_view.py" line="679"/>
@@ -1061,7 +1061,7 @@ Le cache MD5 est conservé. Les archives seront téléchargées à nouveau si n�
     <message>
         <location filename="../gui_qt/configure_game_view.py" line="1074"/>
         <source>Clean failed: {0}</source>
-        <translation>Échec de la suppression : {0}</translation>
+        <translation>Échec du nettoyage : {0}</translation>
     </message>
     <message>
         <location filename="../gui_qt/configure_game_view.py" line="1078"/>
@@ -1123,7 +1123,7 @@ Install it, then reopen this wizard.</source>
 Le Creation Kit s&apos;installe via Steam :
 Skyrim Special Edition → ⚙ → Gérer → Creation Kit.
 
-Installez-le, puis relancez cet assistant.</translation>
+Installez-le, puis rouvrez cet assistant.</translation>
     </message>
     <message>
         <location filename="../wizards_qt/creationkit_view.py" line="84"/>
@@ -1162,7 +1162,7 @@ Installez-le, puis relancez cet assistant.</translation>
 The Creation Kit can also occasionally crash on startup under Proton (a known Wine timing issue). If it closes immediately, just relaunch.</source>
         <translation>Remarque : sur un préfixe tout nouveau, le premier lancement peut ouvrir le Creation Kit standard sans le Creation Kit Platform Extended (CKPE). Si vous avez besoin du CKPE, fermez le Creation Kit et relancez l&apos;assistant — le CKPE se charge lors du deuxième lancement, une fois le préfixe initialisé.
 
-Le Creation Kit peut également parfois planter au démarrage sous Proton (problème de synchronisation connu de Wine). S&apos;il se ferme immédiatement, relancez-le simplement.</translation>
+Le Creation Kit peut également parfois planter au démarrage sous Proton (un problème de synchronisation connu de Wine). S&apos;il se ferme immédiatement, relancez-le simplement.</translation>
     </message>
     <message>
         <location filename="../wizards_qt/creationkit_view.py" line="133"/>
@@ -1255,7 +1255,7 @@ Le Creation Kit peut également parfois planter au démarrage sous Proton (probl
     <message>
         <location filename="../gui_qt/custom_game_view.py" line="96"/>
         <source>Path segment prepended to every installed file. e.g. &apos;mods&apos; so files land at mods/&lt;ModName&gt;/…</source>
-        <translation>Segment de chemin ajouté au début de chaque fichier installé. Par exemple, « mods », afin que les fichiers soient placés dans mods/&lt;NomMod&gt;/…</translation>
+        <translation>Segment de chemin ajouté au début de chaque fichier installé. Par exemple, « mods », afin que les fichiers soient placés dans mods/&lt;NomDuMod&gt;/…</translation>
     </message>
     <message>
         <location filename="../gui_qt/custom_game_view.py" line="98"/>
@@ -1789,7 +1789,7 @@ Le Creation Kit peut également parfois planter au démarrage sous Proton (probl
 Download the archive manually (do NOT use the Mod Manager download button), then click Next.</source>
         <translation>Cliquez sur le bouton ci-dessous pour ouvrir la page DynDOLOD sur Nexus Mods.
 
-Téléchargez manuellement l&apos;archive (n&apos;utilisez PAS le bouton de téléchargement du Mod Manager), puis cliquez sur « Suivant ».</translation>
+Téléchargez l&apos;archive manuellement (n&apos;utilisez PAS le bouton de téléchargement du Mod Manager), puis cliquez sur « Suivant ».</translation>
     </message>
     <message>
         <location filename="../wizards_qt/dyndolod_view.py" line="202"/>
@@ -1901,7 +1901,7 @@ Une fois cette opération effectuée, cliquez sur « Déployer ».</translation>
         <source>{0} was not found.
 Please restart the wizard and install {1} first.</source>
         <translation>{0} n&apos;a pas été trouvé.
-Veuillez relancer l&apos;assistant et installer d&apos;abord {1}.</translation>
+Veuillez redémarrer l&apos;assistant et installer d&apos;abord {1}.</translation>
     </message>
     <message>
         <location filename="../wizards_qt/dyndolod_view.py" line="495"/>
@@ -1960,7 +1960,7 @@ game&apos;s Applications folder.
 
 Click Install to begin.</source>
         <translation>ESLifier sera téléchargé depuis GitHub et installé dans le
-dossier Applications de ce jeu.
+dossier « Applications » de ce jeu.
 
 Cliquez sur « Installer » pour commencer.</translation>
     </message>
@@ -2615,1426 +2615,1456 @@ Le fichier exe d&apos;origine est conservé sous le nom « {0} ».</translation>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../gui_qt/app.py" line="212"/>
+        <location filename="../gui_qt/app.py" line="219"/>
         <source>Amethyst Mod Manager - v{0}</source>
         <translation>Amethyst Mod Manager - v{0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="213"/>
+        <location filename="../gui_qt/app.py" line="220"/>
         <source>Amethyst Mod Manager</source>
         <translation>Amethyst Mod Manager</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="243"/>
+        <location filename="../gui_qt/app.py" line="250"/>
         <source>Mods</source>
         <translation>Mods</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="369"/>
-        <location filename="../gui_qt/app.py" line="1074"/>
-        <location filename="../gui_qt/app.py" line="1354"/>
-        <location filename="../gui_qt/app.py" line="1417"/>
-        <location filename="../gui_qt/app.py" line="4030"/>
+        <location filename="../gui_qt/app.py" line="377"/>
+        <location filename="../gui_qt/app.py" line="1082"/>
+        <location filename="../gui_qt/app.py" line="1362"/>
+        <location filename="../gui_qt/app.py" line="1496"/>
+        <location filename="../gui_qt/app.py" line="4111"/>
         <source>Add game</source>
         <translation>Ajouter un jeu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="525"/>
-        <location filename="../gui_qt/app.py" line="7342"/>
+        <location filename="../gui_qt/app.py" line="533"/>
+        <location filename="../gui_qt/app.py" line="7423"/>
         <source>Settings</source>
         <translation>Paramètres</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="581"/>
+        <location filename="../gui_qt/app.py" line="589"/>
         <source>Saved</source>
         <translation>Enregistré</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="686"/>
-        <location filename="../gui_qt/app.py" line="6174"/>
+        <location filename="../gui_qt/app.py" line="694"/>
+        <location filename="../gui_qt/app.py" line="6255"/>
         <source>Expand all</source>
         <translation>Tout développer</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="687"/>
-        <location filename="../gui_qt/app.py" line="6178"/>
+        <location filename="../gui_qt/app.py" line="695"/>
+        <location filename="../gui_qt/app.py" line="6259"/>
         <source>Enable all</source>
         <translation>Tout activer</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="688"/>
-        <location filename="../gui_qt/app.py" line="2954"/>
+        <location filename="../gui_qt/app.py" line="696"/>
+        <location filename="../gui_qt/app.py" line="3035"/>
         <source>Check Updates</source>
         <translation>Vérifier les mises à jour</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="689"/>
-        <location filename="../gui_qt/app.py" line="763"/>
-        <location filename="../gui_qt/app.py" line="824"/>
-        <location filename="../gui_qt/app.py" line="856"/>
-        <location filename="../gui_qt/app.py" line="905"/>
-        <location filename="../gui_qt/app.py" line="1004"/>
+        <location filename="../gui_qt/app.py" line="697"/>
+        <location filename="../gui_qt/app.py" line="771"/>
+        <location filename="../gui_qt/app.py" line="832"/>
+        <location filename="../gui_qt/app.py" line="864"/>
+        <location filename="../gui_qt/app.py" line="913"/>
+        <location filename="../gui_qt/app.py" line="1012"/>
         <source>Filters</source>
         <translation>Filtres</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="690"/>
-        <location filename="../gui_qt/app.py" line="3265"/>
+        <location filename="../gui_qt/app.py" line="698"/>
+        <location filename="../gui_qt/app.py" line="3346"/>
         <source>Restore backup</source>
         <translation>Restaurer la sauvegarde</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="691"/>
+        <location filename="../gui_qt/app.py" line="699"/>
         <source>Refresh Modlist</source>
         <translation>Actualiser la liste des mods</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="715"/>
+        <location filename="../gui_qt/app.py" line="723"/>
         <source>Search mods…</source>
         <translation>Rechercher des mods…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="760"/>
+        <location filename="../gui_qt/app.py" line="768"/>
         <source>Sort Plugins</source>
         <translation>Trier les plugins</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="761"/>
+        <location filename="../gui_qt/app.py" line="769"/>
         <source>Groups</source>
         <translation>Groupes</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="762"/>
+        <location filename="../gui_qt/app.py" line="770"/>
         <source>Plugin Rules</source>
         <translation>Règles relatives aux plugins</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="781"/>
+        <location filename="../gui_qt/app.py" line="789"/>
         <source>Search plugins…</source>
         <translation>Rechercher des plugins…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="814"/>
+        <location filename="../gui_qt/app.py" line="822"/>
         <source>Pack BSA</source>
         <translation>Groupe BSA</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="819"/>
+        <location filename="../gui_qt/app.py" line="827"/>
         <source>Unpack BSA</source>
         <translation>Décompresser BSA</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="827"/>
-        <location filename="../gui_qt/app.py" line="859"/>
-        <location filename="../gui_qt/app.py" line="877"/>
-        <location filename="../gui_qt/app.py" line="5854"/>
+        <location filename="../gui_qt/app.py" line="835"/>
+        <location filename="../gui_qt/app.py" line="867"/>
+        <location filename="../gui_qt/app.py" line="885"/>
+        <location filename="../gui_qt/app.py" line="5935"/>
         <source>⊞ Expand all</source>
         <translation>⊞ Tout développer</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="837"/>
-        <location filename="../gui_qt/app.py" line="867"/>
-        <location filename="../gui_qt/app.py" line="1019"/>
+        <location filename="../gui_qt/app.py" line="845"/>
+        <location filename="../gui_qt/app.py" line="875"/>
+        <location filename="../gui_qt/app.py" line="1027"/>
         <source>Search files…</source>
         <translation>Rechercher des fichiers…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="876"/>
-        <location filename="../gui_qt/app.py" line="5853"/>
+        <location filename="../gui_qt/app.py" line="884"/>
+        <location filename="../gui_qt/app.py" line="5934"/>
         <source>⊟ Collapse all</source>
         <translation>⊟ Masquer tout</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="890"/>
-        <location filename="../gui_qt/app.py" line="924"/>
+        <location filename="../gui_qt/app.py" line="898"/>
+        <location filename="../gui_qt/app.py" line="932"/>
         <source>Install Selected</source>
         <translation>Installer les éléments sélectionnés</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="896"/>
-        <location filename="../gui_qt/app.py" line="925"/>
+        <location filename="../gui_qt/app.py" line="904"/>
+        <location filename="../gui_qt/app.py" line="933"/>
         <source>Remove Selected</source>
         <translation>Supprimer la sélection</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="901"/>
+        <location filename="../gui_qt/app.py" line="909"/>
         <source>Locations</source>
         <translation>Lieux</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="915"/>
+        <location filename="../gui_qt/app.py" line="923"/>
         <source>Search downloads…</source>
         <translation>Rechercher des téléchargements…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="929"/>
+        <location filename="../gui_qt/app.py" line="937"/>
         <source>{0} ({1})</source>
         <translation>{0} ({1})</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="954"/>
+        <location filename="../gui_qt/app.py" line="962"/>
         <source>Removed {0} archive(s)</source>
         <translation>Suppression des archives « {0} »</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="979"/>
+        <location filename="../gui_qt/app.py" line="987"/>
         <source>Find in files:</source>
         <translation>Rechercher dans les fichiers :</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="983"/>
+        <location filename="../gui_qt/app.py" line="991"/>
         <source>Text to search for…</source>
         <translation>Texte à rechercher…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="987"/>
+        <location filename="../gui_qt/app.py" line="995"/>
         <source>Search</source>
         <translation>Rechercher</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1000"/>
-        <location filename="../gui_qt/app.py" line="1059"/>
+        <location filename="../gui_qt/app.py" line="1008"/>
+        <location filename="../gui_qt/app.py" line="1067"/>
         <source>Search Content</source>
         <translation>Rechercher du contenu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1055"/>
+        <location filename="../gui_qt/app.py" line="1063"/>
         <source>Content: &quot;{0}&quot;</source>
         <translation>Contenu : « {0} »</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1056"/>
+        <location filename="../gui_qt/app.py" line="1064"/>
         <source>Clear Content</source>
         <translation>Effacer le contenu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1076"/>
+        <location filename="../gui_qt/app.py" line="1084"/>
         <source>Add game…</source>
         <translation>Ajouter un jeu…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1077"/>
+        <location filename="../gui_qt/app.py" line="1085"/>
         <source>Configure game…</source>
         <translation>Configurer le jeu…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1078"/>
+        <location filename="../gui_qt/app.py" line="1086"/>
         <source>Define custom game…</source>
         <translation>Définir un jeu personnalisé…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1079"/>
+        <location filename="../gui_qt/app.py" line="1087"/>
         <source>Open</source>
         <translation>Ouvrir</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1080"/>
+        <location filename="../gui_qt/app.py" line="1088"/>
         <source>Game folder</source>
         <translation>Dossier du jeu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1081"/>
+        <location filename="../gui_qt/app.py" line="1089"/>
         <source>Prefix folder</source>
         <translation>Dossier « Prefix »</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1082"/>
+        <location filename="../gui_qt/app.py" line="1090"/>
         <source>My Games folder</source>
         <translation>Mon dossier « Jeux »</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1083"/>
+        <location filename="../gui_qt/app.py" line="1091"/>
         <source>AppData folder</source>
         <translation>Dossier AppData</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1084"/>
+        <location filename="../gui_qt/app.py" line="1092"/>
         <source>Staging folder</source>
         <translation>Dossier de préparation</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1085"/>
+        <location filename="../gui_qt/app.py" line="1093"/>
         <source>Profile folder</source>
         <translation>Dossier de profil</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1086"/>
+        <location filename="../gui_qt/app.py" line="1094"/>
         <source>.config folder</source>
         <translation>dossier .config</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1098"/>
+        <location filename="../gui_qt/app.py" line="1106"/>
         <source>Profile: </source>
         <translation>Profil : </translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1101"/>
+        <location filename="../gui_qt/app.py" line="1109"/>
         <source>Add new profile…</source>
         <translation>Ajouter un nouveau profil…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1102"/>
+        <location filename="../gui_qt/app.py" line="1110"/>
         <source>Profile settings…</source>
         <translation>Paramètres du profil…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1103"/>
+        <location filename="../gui_qt/app.py" line="1111"/>
         <source>Export profile…</source>
         <translation>Exporter le profil…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1104"/>
+        <location filename="../gui_qt/app.py" line="1112"/>
         <source>Import profile…</source>
         <translation>Importer un profil…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1118"/>
+        <location filename="../gui_qt/app.py" line="1126"/>
         <source>Install Mod</source>
         <translation>Installer le mod</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1119"/>
+        <location filename="../gui_qt/app.py" line="1127"/>
         <source>Deploy</source>
         <translation>Déployer</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1120"/>
+        <location filename="../gui_qt/app.py" line="1128"/>
         <source>Restore</source>
         <translation>Restaurer</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1144"/>
+        <location filename="../gui_qt/app.py" line="1152"/>
         <source>Proton</source>
         <translation>Proton</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1145"/>
+        <location filename="../gui_qt/app.py" line="1153"/>
         <source>Run winecfg</source>
         <translation>Lancez winecfg</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1146"/>
+        <location filename="../gui_qt/app.py" line="1154"/>
         <source>Run winetricks</source>
         <translation>Lancer winetricks</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1147"/>
+        <location filename="../gui_qt/app.py" line="1155"/>
         <source>Run an .exe in this prefix…</source>
         <translation>Exécuter un fichier .exe dans ce préfixe…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1149"/>
+        <location filename="../gui_qt/app.py" line="1157"/>
         <source>Open wine registry</source>
         <translation>Registre des vins ouvert</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1150"/>
-        <location filename="../gui_qt/app.py" line="4845"/>
+        <location filename="../gui_qt/app.py" line="1158"/>
+        <location filename="../gui_qt/app.py" line="4926"/>
         <source>Wine DLL overrides</source>
         <translation>Remplacements de DLL dans Wine</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1152"/>
+        <location filename="../gui_qt/app.py" line="1160"/>
         <source>Install VC++ Redistributable</source>
         <translation>Installer le package de redistribution VC++</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1153"/>
+        <location filename="../gui_qt/app.py" line="1161"/>
         <source>Install d3dcompiler_47</source>
         <translation>Installer d3dcompiler_47</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1154"/>
+        <location filename="../gui_qt/app.py" line="1162"/>
         <source>.NET runtime</source>
         <translation>environnement d&apos;exécution .NET</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1155"/>
+        <location filename="../gui_qt/app.py" line="1163"/>
         <source>.NET {0}</source>
         <translation>{0} .NET</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1160"/>
+        <location filename="../gui_qt/app.py" line="1168"/>
         <source>Wizard</source>
         <translation>Assistant</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1161"/>
-        <location filename="../gui_qt/app.py" line="1716"/>
+        <location filename="../gui_qt/app.py" line="1169"/>
+        <location filename="../gui_qt/app.py" line="1797"/>
         <source>Nexus</source>
         <translation>Nexus</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1162"/>
+        <location filename="../gui_qt/app.py" line="1170"/>
         <source>Open Nexus Mods</source>
         <translation>Ouvrir Nexus Mods</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1163"/>
+        <location filename="../gui_qt/app.py" line="1171"/>
         <source>Open game on nexus</source>
         <translation>Jeu ouvert sur Nexus</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1165"/>
+        <location filename="../gui_qt/app.py" line="1173"/>
         <source>Login to Nexus</source>
         <translation>Se connecter à Nexus</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1166"/>
+        <location filename="../gui_qt/app.py" line="1174"/>
         <source>Login via SSO</source>
         <translation>Connexion via SSO</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1167"/>
+        <location filename="../gui_qt/app.py" line="1175"/>
         <source>Paste login code…</source>
         <translation>Collez le code d&apos;accès…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1168"/>
+        <location filename="../gui_qt/app.py" line="1176"/>
         <source>Clear credentials</source>
         <translation>Effacer les identifiants</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1171"/>
-        <location filename="../gui_qt/app.py" line="1746"/>
+        <location filename="../gui_qt/app.py" line="1179"/>
+        <location filename="../gui_qt/app.py" line="1827"/>
         <source>Collections</source>
         <translation>Collections</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1172"/>
+        <location filename="../gui_qt/app.py" line="1180"/>
         <source>Browse collections…</source>
         <translation>Parcourir les collections…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1173"/>
+        <location filename="../gui_qt/app.py" line="1181"/>
         <source>Open current collection</source>
-        <translation>Collecte des données sur le courant</translation>
+        <translation>Collecte des données actuelles</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1174"/>
+        <location filename="../gui_qt/app.py" line="1182"/>
         <source>Reset load order</source>
         <translation>Réinitialiser l&apos;ordre de chargement</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1361"/>
+        <location filename="../gui_qt/app.py" line="1369"/>
         <source>Define custom game</source>
         <translation>Définir une partie personnalisée</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1478"/>
+        <location filename="../gui_qt/app.py" line="1397"/>
+        <source>Restart to change language?</source>
+        <translation>Redémarrer pour changer de langue ?</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="1398"/>
+        <source>The language change takes effect after a restart. Restart now?</source>
+        <translation>Le changement de langue prendra effet après un redémarrage. Voulez-vous redémarrer maintenant ?</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="1401"/>
+        <source>Restart now</source>
+        <translation>Redémarrer maintenant</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="1402"/>
+        <source>Later</source>
+        <translation>Plus tard</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="1426"/>
+        <source>Syncing language files…</source>
+        <translation>Synchronisation des fichiers de langue…</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="1469"/>
+        <source>Language files updated — restart to apply.</source>
+        <translation>Fichiers de langue mis à jour — redémarrez pour que les modifications prennent effet.</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="1559"/>
         <source>Welcome</source>
         <translation>Bienvenue</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1562"/>
-        <location filename="../gui_qt/app.py" line="1705"/>
-        <location filename="../gui_qt/app.py" line="1735"/>
-        <location filename="../gui_qt/app.py" line="1792"/>
-        <location filename="../gui_qt/app.py" line="2886"/>
-        <location filename="../gui_qt/app.py" line="3055"/>
-        <location filename="../gui_qt/app.py" line="3303"/>
-        <location filename="../gui_qt/app.py" line="3546"/>
-        <location filename="../gui_qt/app.py" line="4098"/>
-        <location filename="../gui_qt/app.py" line="4124"/>
+        <location filename="../gui_qt/app.py" line="1643"/>
+        <location filename="../gui_qt/app.py" line="1786"/>
+        <location filename="../gui_qt/app.py" line="1816"/>
+        <location filename="../gui_qt/app.py" line="1873"/>
+        <location filename="../gui_qt/app.py" line="2967"/>
+        <location filename="../gui_qt/app.py" line="3136"/>
+        <location filename="../gui_qt/app.py" line="3384"/>
+        <location filename="../gui_qt/app.py" line="3627"/>
+        <location filename="../gui_qt/app.py" line="4179"/>
+        <location filename="../gui_qt/app.py" line="4205"/>
         <source>Log in first: Nexus ▸ Login to Nexus ▸ Login via SSO.</source>
         <translation>Connectez-vous d&apos;abord : Nexus ▸ Se connecter à Nexus ▸ Se connecter via SSO.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1571"/>
+        <location filename="../gui_qt/app.py" line="1652"/>
         <source>Received a malformed NXM link.</source>
         <translation>Un lien NXM non valide a été reçu.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1588"/>
+        <location filename="../gui_qt/app.py" line="1669"/>
         <source>Downloading mod from Nexus…</source>
         <translation>Téléchargement du mod depuis Nexus…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1621"/>
+        <location filename="../gui_qt/app.py" line="1702"/>
         <source>Nexus download failed — {0}</source>
         <translation>Échec du téléchargement de Nexus — {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1628"/>
+        <location filename="../gui_qt/app.py" line="1709"/>
         <source>Downloaded — no game selected; see Downloads tab.</source>
         <translation>Téléchargé — aucun jeu sélectionné ; voir l&apos;onglet « Téléchargements ».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1654"/>
+        <location filename="../gui_qt/app.py" line="1735"/>
         <source>No configured game for Nexus domain &apos;{0}&apos;.</source>
         <translation>Aucun jeu n&apos;est configuré pour le domaine Nexus « {0} ».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1661"/>
+        <location filename="../gui_qt/app.py" line="1742"/>
         <source>Collections aren&apos;t supported for &apos;{0}&apos;.</source>
-        <translation>Les collections ne sont pas prises en charge pour « {0} ».</translation>
+        <translation>Les collections ne sont pas prises en charge par « {0} ».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1677"/>
-        <location filename="../gui_qt/app.py" line="1695"/>
-        <location filename="../gui_qt/app.py" line="1727"/>
-        <location filename="../gui_qt/app.py" line="1753"/>
-        <location filename="../gui_qt/app.py" line="1786"/>
-        <location filename="../gui_qt/app.py" line="1825"/>
-        <location filename="../gui_qt/app.py" line="2662"/>
-        <location filename="../gui_qt/app.py" line="2867"/>
-        <location filename="../gui_qt/app.py" line="3001"/>
-        <location filename="../gui_qt/app.py" line="3051"/>
-        <location filename="../gui_qt/app.py" line="3248"/>
-        <location filename="../gui_qt/app.py" line="3286"/>
-        <location filename="../gui_qt/app.py" line="3340"/>
-        <location filename="../gui_qt/app.py" line="3508"/>
-        <location filename="../gui_qt/app.py" line="3590"/>
-        <location filename="../gui_qt/app.py" line="4075"/>
-        <location filename="../gui_qt/app.py" line="4094"/>
-        <location filename="../gui_qt/app.py" line="4120"/>
-        <location filename="../gui_qt/app.py" line="4370"/>
-        <location filename="../gui_qt/app.py" line="4509"/>
-        <location filename="../gui_qt/app.py" line="4612"/>
-        <location filename="../gui_qt/app.py" line="4717"/>
-        <location filename="../gui_qt/app.py" line="4739"/>
-        <location filename="../gui_qt/app.py" line="4766"/>
-        <location filename="../gui_qt/app.py" line="5079"/>
-        <location filename="../gui_qt/app.py" line="7062"/>
+        <location filename="../gui_qt/app.py" line="1758"/>
+        <location filename="../gui_qt/app.py" line="1776"/>
+        <location filename="../gui_qt/app.py" line="1808"/>
+        <location filename="../gui_qt/app.py" line="1834"/>
+        <location filename="../gui_qt/app.py" line="1867"/>
+        <location filename="../gui_qt/app.py" line="1906"/>
+        <location filename="../gui_qt/app.py" line="2743"/>
+        <location filename="../gui_qt/app.py" line="2948"/>
+        <location filename="../gui_qt/app.py" line="3082"/>
+        <location filename="../gui_qt/app.py" line="3132"/>
+        <location filename="../gui_qt/app.py" line="3329"/>
+        <location filename="../gui_qt/app.py" line="3367"/>
+        <location filename="../gui_qt/app.py" line="3421"/>
+        <location filename="../gui_qt/app.py" line="3589"/>
+        <location filename="../gui_qt/app.py" line="3671"/>
+        <location filename="../gui_qt/app.py" line="4156"/>
+        <location filename="../gui_qt/app.py" line="4175"/>
+        <location filename="../gui_qt/app.py" line="4201"/>
+        <location filename="../gui_qt/app.py" line="4451"/>
+        <location filename="../gui_qt/app.py" line="4590"/>
+        <location filename="../gui_qt/app.py" line="4693"/>
+        <location filename="../gui_qt/app.py" line="4798"/>
+        <location filename="../gui_qt/app.py" line="4820"/>
+        <location filename="../gui_qt/app.py" line="4847"/>
+        <location filename="../gui_qt/app.py" line="5160"/>
+        <location filename="../gui_qt/app.py" line="7143"/>
         <source>No configured game selected.</source>
         <translation>Aucun jeu configuré n&apos;a été sélectionné.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1681"/>
-        <location filename="../gui_qt/app.py" line="1699"/>
-        <location filename="../gui_qt/app.py" line="1731"/>
-        <location filename="../gui_qt/app.py" line="2883"/>
-        <location filename="../gui_qt/app.py" line="3290"/>
-        <location filename="../gui_qt/app.py" line="3512"/>
+        <location filename="../gui_qt/app.py" line="1762"/>
+        <location filename="../gui_qt/app.py" line="1780"/>
+        <location filename="../gui_qt/app.py" line="1812"/>
+        <location filename="../gui_qt/app.py" line="2964"/>
+        <location filename="../gui_qt/app.py" line="3371"/>
+        <location filename="../gui_qt/app.py" line="3593"/>
         <source>&apos;{0}&apos; has no Nexus Mods page.</source>
         <translation>« {0} » ne dispose pas d&apos;une page sur Nexus Mods.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1759"/>
-        <location filename="../gui_qt/app.py" line="2668"/>
+        <location filename="../gui_qt/app.py" line="1840"/>
+        <location filename="../gui_qt/app.py" line="2749"/>
         <source>The active profile isn&apos;t a collection profile.</source>
         <translation>Le profil actif n&apos;est pas un profil de collecte.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1766"/>
+        <location filename="../gui_qt/app.py" line="1847"/>
         <source>Couldn&apos;t read the collection from this profile.</source>
         <translation>Impossible de lire la collection à partir de ce profil.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1821"/>
+        <location filename="../gui_qt/app.py" line="1902"/>
         <source>A collection install is already running.</source>
         <translation>Une installation de collection est déjà en cours.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1829"/>
-        <location filename="../gui_qt/app.py" line="3640"/>
+        <location filename="../gui_qt/app.py" line="1910"/>
+        <location filename="../gui_qt/app.py" line="3721"/>
         <source>Log in first: Nexus ▸ Login to Nexus.</source>
         <translation>Connectez-vous d&apos;abord : Nexus ▸ Se connecter à Nexus.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1846"/>
+        <location filename="../gui_qt/app.py" line="1927"/>
         <source>This collection has no installable mods.</source>
         <translation>Cette collection ne contient aucun mod installable.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1855"/>
+        <location filename="../gui_qt/app.py" line="1936"/>
         <source>Checking Nexus account…</source>
         <translation>Vérification du compte Nexus…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1904"/>
-        <location filename="../gui_qt/app.py" line="2538"/>
+        <location filename="../gui_qt/app.py" line="1985"/>
+        <location filename="../gui_qt/app.py" line="2619"/>
         <source>Collection install cancelled.</source>
         <translation>L&apos;installation de la collection a été annulée.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1935"/>
+        <location filename="../gui_qt/app.py" line="2016"/>
         <source>Could not find the paused profile.</source>
         <translation>Impossible de trouver le profil mis en pause.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1964"/>
+        <location filename="../gui_qt/app.py" line="2045"/>
         <source>Could not find the installed collection profile.</source>
         <translation>Impossible de trouver le profil de collection installé.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1973"/>
+        <location filename="../gui_qt/app.py" line="2054"/>
         <source>Switch to profile &apos;{0}&apos; first, then Update.</source>
-        <translation>Passez d&apos;abord au profil « {0} », puis cliquez sur « Mettre à jour ».</translation>
+        <translation>Passez d&apos;abord sur le profil « {0} », puis cliquez sur « Mettre à jour ».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2008"/>
+        <location filename="../gui_qt/app.py" line="2089"/>
         <source>Could not compute update diff: {0}</source>
         <translation>Impossible de calculer la différence de mise à jour : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2026"/>
+        <location filename="../gui_qt/app.py" line="2107"/>
         <source>Collection update cancelled.</source>
         <translation>Mise à jour de la collection annulée.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2091"/>
+        <location filename="../gui_qt/app.py" line="2172"/>
         <source>Update failed during removal: {0}</source>
         <translation>Échec de la mise à jour lors de la désinstallation : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2167"/>
-        <location filename="../gui_qt/app.py" line="4243"/>
+        <location filename="../gui_qt/app.py" line="2248"/>
+        <location filename="../gui_qt/app.py" line="4324"/>
         <source>Could not create profile: {0}</source>
         <translation>Impossible de créer le profil : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2177"/>
+        <location filename="../gui_qt/app.py" line="2258"/>
         <source>Profile &apos;{0}&apos; not found.</source>
         <translation>Le profil « {0} » est introuvable.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2392"/>
-        <location filename="../gui_qt/app.py" line="2427"/>
-        <location filename="../gui_qt/app.py" line="5252"/>
-        <location filename="../gui_qt/app.py" line="5284"/>
+        <location filename="../gui_qt/app.py" line="2473"/>
+        <location filename="../gui_qt/app.py" line="2508"/>
+        <location filename="../gui_qt/app.py" line="5333"/>
+        <location filename="../gui_qt/app.py" line="5365"/>
         <source>Install: {0}</source>
         <translation>Installation : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2485"/>
+        <location filename="../gui_qt/app.py" line="2566"/>
         <source>Nexus Premium not detected — manual download mode.</source>
         <translation>Nexus Premium non détecté — mode de téléchargement manuel.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2557"/>
+        <location filename="../gui_qt/app.py" line="2638"/>
         <source>Install paused — {0} mod(s) installed.</source>
         <translation>Installation en pause — {0} mod(s) installé(s).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2658"/>
+        <location filename="../gui_qt/app.py" line="2739"/>
         <source>A load-order reset is already running.</source>
         <translation>Une réinitialisation de l&apos;ordre de chargement est déjà en cours.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2673"/>
+        <location filename="../gui_qt/app.py" line="2754"/>
         <source>Resetting collection load order…</source>
         <translation>Réinitialisation de l&apos;ordre de chargement des collections…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2734"/>
+        <location filename="../gui_qt/app.py" line="2815"/>
         <source>Load order reset failed: {0}</source>
         <translation>Échec de la réinitialisation de l&apos;ordre de chargement : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2753"/>
+        <location filename="../gui_qt/app.py" line="2834"/>
         <source>Nexus login is unavailable in this build.</source>
         <translation>La connexion à Nexus n&apos;est pas disponible dans cette version.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2756"/>
+        <location filename="../gui_qt/app.py" line="2837"/>
         <source>A Nexus login is already in progress.</source>
         <translation>Une connexion à Nexus est déjà en cours.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2764"/>
+        <location filename="../gui_qt/app.py" line="2845"/>
         <source>Opening browser to log in to Nexus Mods…</source>
         <translation>Ouverture du navigateur pour se connecter à Nexus Mods…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2770"/>
+        <location filename="../gui_qt/app.py" line="2851"/>
         <source>Start &apos;Login via SSO&apos; first, then paste the code.</source>
         <translation>Commencez par cliquer sur « Connexion via SSO », puis collez le code.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2777"/>
+        <location filename="../gui_qt/app.py" line="2858"/>
         <source>The login session has ended — start &apos;Login via SSO&apos; again.</source>
         <translation>La session de connexion a pris fin — relancez la procédure « Connexion via SSO ».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2798"/>
+        <location filename="../gui_qt/app.py" line="2879"/>
         <source>Nexus credentials cleared.</source>
         <translation>Les identifiants Nexus ont été effacés.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2818"/>
+        <location filename="../gui_qt/app.py" line="2899"/>
         <source>NXM handler unregistered.</source>
         <translation>Le gestionnaire NXM n&apos;est pas enregistré.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2821"/>
+        <location filename="../gui_qt/app.py" line="2902"/>
         <source>NXM handler registered.</source>
         <translation>Le gestionnaire NXM a été enregistré.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2824"/>
+        <location filename="../gui_qt/app.py" line="2905"/>
         <source>Failed to register — xdg-mime not found?</source>
         <translation>Échec de l&apos;enregistrement — xdg-mime introuvable ?</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2826"/>
+        <location filename="../gui_qt/app.py" line="2907"/>
         <source>NXM handler error: {0}</source>
         <translation>Erreur du gestionnaire NXM : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2834"/>
+        <location filename="../gui_qt/app.py" line="2915"/>
         <source>Nexus login failed: {0}</source>
         <translation>Échec de la connexion à Nexus : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2840"/>
+        <location filename="../gui_qt/app.py" line="2921"/>
         <source>Logged in to Nexus Mods.</source>
         <translation>Je suis connecté à Nexus Mods.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2863"/>
+        <location filename="../gui_qt/app.py" line="2944"/>
         <source>An update check is already running.</source>
         <translation>Une vérification des mises à jour est déjà en cours.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2880"/>
+        <location filename="../gui_qt/app.py" line="2961"/>
         <source>Log in to Nexus (Nexus ▸ Login) or set a mod.io API key (mod.io API Key tool) to check for updates.</source>
         <translation>Connectez-vous à Nexus (Nexus ▸ Connexion) ou configurez une clé API mod.io (outil « Clé API mod.io ») pour vérifier la présence de mises à jour.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2892"/>
-        <location filename="../gui_qt/app.py" line="3005"/>
-        <location filename="../gui_qt/app.py" line="3060"/>
-        <location filename="../gui_qt/app.py" line="3294"/>
-        <location filename="../gui_qt/app.py" line="3344"/>
-        <location filename="../gui_qt/app.py" line="3516"/>
-        <location filename="../gui_qt/app.py" line="3594"/>
+        <location filename="../gui_qt/app.py" line="2973"/>
+        <location filename="../gui_qt/app.py" line="3086"/>
+        <location filename="../gui_qt/app.py" line="3141"/>
+        <location filename="../gui_qt/app.py" line="3375"/>
+        <location filename="../gui_qt/app.py" line="3425"/>
+        <location filename="../gui_qt/app.py" line="3597"/>
+        <location filename="../gui_qt/app.py" line="3675"/>
         <source>No mod staging folder for this profile.</source>
         <translation>Il n&apos;y a pas de dossier de préparation des mods pour ce profil.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2901"/>
+        <location filename="../gui_qt/app.py" line="2982"/>
         <source>Checking…</source>
         <translation>Vérification en cours…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2903"/>
+        <location filename="../gui_qt/app.py" line="2984"/>
         <source>Checking for updates ({0})…</source>
         <translation>Recherche de mises à jour ({0})…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2956"/>
+        <location filename="../gui_qt/app.py" line="3037"/>
         <source>Update check failed — see the log.</source>
         <translation>Échec de la vérification des mises à jour — consultez le journal.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2982"/>
+        <location filename="../gui_qt/app.py" line="3063"/>
         <source>All mods are up to date.</source>
         <translation>Tous les mods sont à jour.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2997"/>
-        <location filename="../gui_qt/app.py" line="3047"/>
-        <location filename="../gui_qt/app.py" line="3855"/>
-        <location filename="../gui_qt/app.py" line="4720"/>
-        <location filename="../gui_qt/app.py" line="5082"/>
+        <location filename="../gui_qt/app.py" line="3078"/>
+        <location filename="../gui_qt/app.py" line="3128"/>
+        <location filename="../gui_qt/app.py" line="3936"/>
+        <location filename="../gui_qt/app.py" line="4801"/>
+        <location filename="../gui_qt/app.py" line="5163"/>
         <source>An install is already in progress.</source>
         <translation>Une installation est déjà en cours.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3026"/>
+        <location filename="../gui_qt/app.py" line="3107"/>
         <source>No install archive found for the selected mod(s).</source>
         <translation>Aucun fichier d&apos;installation n&apos;a été trouvé pour le ou les mods sélectionnés.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3031"/>
+        <location filename="../gui_qt/app.py" line="3112"/>
         <source>Reinstalling {0} mod(s); {1} skipped (no archive found).</source>
         <translation>Réinstallation du ou des mods « {0} » ; « {1} » ignoré(s) (aucune archive trouvée).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3044"/>
+        <location filename="../gui_qt/app.py" line="3125"/>
         <source>A Quick Update is already running.</source>
         <translation>Une mise à jour rapide est déjà en cours.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3064"/>
+        <location filename="../gui_qt/app.py" line="3145"/>
         <source>No mods with a pending update to quick-update.</source>
         <translation>Aucun mod ne doit avoir de mise à jour en attente dans « quick-update ».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3069"/>
+        <location filename="../gui_qt/app.py" line="3150"/>
         <source>Quick Update — checking {0} mod(s)…</source>
         <translation>Brève mise à jour — vérification des mods d&apos;{0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3117"/>
+        <location filename="../gui_qt/app.py" line="3198"/>
         <source>Quick Update — downloading {0} mod(s)…</source>
         <translation>Brève mise à jour — téléchargement en cours des mods d&apos;{0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3225"/>
+        <location filename="../gui_qt/app.py" line="3306"/>
         <source>Quick Update: updated {0} mod(s)</source>
         <translation>Brève mise à jour : mise à jour du ou des mods « {0} »</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3229"/>
+        <location filename="../gui_qt/app.py" line="3310"/>
         <source>Quick Update: nothing to update.</source>
         <translation>Brève mise à jour : rien à signaler.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3252"/>
+        <location filename="../gui_qt/app.py" line="3333"/>
         <source>No profile selected.</source>
         <translation>Aucun profil sélectionné.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3299"/>
+        <location filename="../gui_qt/app.py" line="3380"/>
         <source>&apos;{0}&apos; isn&apos;t a Nexus mod.</source>
         <translation>« {0} » n&apos;est pas un mod Nexus.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3320"/>
+        <location filename="../gui_qt/app.py" line="3401"/>
         <source>Change Version</source>
         <translation>Changer de version</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3350"/>
+        <location filename="../gui_qt/app.py" line="3431"/>
         <source>&apos;{0}&apos; has no bundle configuration.</source>
         <translation>« {0} » ne dispose d&apos;aucune configuration de bundle.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3367"/>
+        <location filename="../gui_qt/app.py" line="3448"/>
         <source>Bundle: {0}</source>
         <translation>Offre groupée : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3383"/>
+        <location filename="../gui_qt/app.py" line="3464"/>
         <source>Could not update bundle: {0}</source>
         <translation>Impossible de mettre à jour le bundle : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3390"/>
+        <location filename="../gui_qt/app.py" line="3471"/>
         <source>Updated bundle: {0}</source>
         <translation>Pack mis à jour : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3413"/>
+        <location filename="../gui_qt/app.py" line="3494"/>
         <source>Separator Settings</source>
         <translation>Paramètres du séparateur</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3542"/>
+        <location filename="../gui_qt/app.py" line="3623"/>
         <source>No missing requirements.</source>
         <translation>Aucune exigence n&apos;est omise.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3572"/>
+        <location filename="../gui_qt/app.py" line="3653"/>
         <source>Missing Requirements</source>
         <translation>Exigences manquantes</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3627"/>
+        <location filename="../gui_qt/app.py" line="3708"/>
         <source>Conflicts: {0}</source>
         <translation>Conflits : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3647"/>
+        <location filename="../gui_qt/app.py" line="3728"/>
         <source>Endorsing {0} mod(s)…</source>
         <translation>Je recommande le(s) mod(s) d&apos;{0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3648"/>
+        <location filename="../gui_qt/app.py" line="3729"/>
         <source>Abstaining from {0} mod(s)…</source>
         <translation>Je m&apos;abstiens d&apos;utiliser le(s) mod(s) «{0} »…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3681"/>
+        <location filename="../gui_qt/app.py" line="3762"/>
         <source>Endorsed {0} mod(s).</source>
         <translation>Mod(s) approuvé(s) : « {0} ».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3682"/>
+        <location filename="../gui_qt/app.py" line="3763"/>
         <source>Abstained from {0} mod(s).</source>
-        <translation>S&apos;est abstenu lors du vote sur le(s) amendement({0}).</translation>
+        <translation>S&apos;est abstenu lors du vote sur le(s) amendement(s) «{0}».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3686"/>
+        <location filename="../gui_qt/app.py" line="3767"/>
         <source>No mods were updated (already in that state or no Nexus id).</source>
         <translation>Aucun mod n&apos;a été mis à jour (soit ils étaient déjà dans cet état, soit ils n&apos;avaient pas d&apos;identifiant Nexus).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3705"/>
+        <location filename="../gui_qt/app.py" line="3786"/>
         <source>Could not resolve target profile: {0}</source>
         <translation>Impossible de résoudre le profil cible : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3731"/>
+        <location filename="../gui_qt/app.py" line="3812"/>
         <source>Copy cancelled.</source>
         <translation>Copie annulée.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3752"/>
+        <location filename="../gui_qt/app.py" line="3833"/>
         <source>All selected mods already exist there.</source>
         <translation>Tous les mods sélectionnés s&apos;y trouvent déjà.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3773"/>
+        <location filename="../gui_qt/app.py" line="3854"/>
         <source>A copy/move is already in progress.</source>
         <translation>Une opération de copie/déplacement est déjà en cours.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3776"/>
+        <location filename="../gui_qt/app.py" line="3857"/>
         <source>Moving</source>
         <translation>Déménagement</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3776"/>
+        <location filename="../gui_qt/app.py" line="3857"/>
         <source>Copying</source>
         <translation>Copier</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3779"/>
+        <location filename="../gui_qt/app.py" line="3860"/>
         <source>Moving {0} mod(s) to &apos;{1}&apos;…</source>
         <translation>Déplacement des mods d&apos;{0} vers « {1} »…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3780"/>
+        <location filename="../gui_qt/app.py" line="3861"/>
         <source>Copying {0} mod(s) to &apos;{1}&apos;…</source>
         <translation>Copie des mods d&apos;{0} vers « {1} »…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3832"/>
+        <location filename="../gui_qt/app.py" line="3913"/>
         <source>Moved {0}/{1} mod(s) to &apos;{2}&apos;.</source>
         <translation>Les mods « {0} » et « {1} » ont été déplacés vers « {2} ».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3833"/>
+        <location filename="../gui_qt/app.py" line="3914"/>
         <source>Copied {0}/{1} mod(s) to &apos;{2}&apos;.</source>
         <translation>Les mods « {0} » et « {1} » ont été copiés dans le dossier « {2} ».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3859"/>
+        <location filename="../gui_qt/app.py" line="3940"/>
         <source>Log in to Nexus first.</source>
         <translation>Connectez-vous d&apos;abord à Nexus.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3863"/>
+        <location filename="../gui_qt/app.py" line="3944"/>
         <source>That requirement has no Nexus mod page.</source>
         <translation>Cette exigence ne dispose pas de page dédiée sur Nexus.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3898"/>
+        <location filename="../gui_qt/app.py" line="3979"/>
         <source>No downloadable files for that mod.</source>
         <translation>Il n&apos;y a pas de fichiers à télécharger pour ce mod.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4050"/>
+        <location filename="../gui_qt/app.py" line="4131"/>
         <source>{0} game</source>
         <translation>{0} jeu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4071"/>
-        <location filename="../gui_qt/app.py" line="4171"/>
-        <location filename="../gui_qt/app.py" line="4347"/>
+        <location filename="../gui_qt/app.py" line="4152"/>
+        <location filename="../gui_qt/app.py" line="4252"/>
+        <location filename="../gui_qt/app.py" line="4428"/>
         <source>No game selected.</source>
         <translation>Aucun match sélectionné.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4085"/>
+        <location filename="../gui_qt/app.py" line="4166"/>
         <source>Export Profile</source>
         <translation>Profil d&apos;exportation</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4131"/>
+        <location filename="../gui_qt/app.py" line="4212"/>
         <source>Could not read manifest: {0}</source>
         <translation>Impossible de lire le manifeste : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4134"/>
+        <location filename="../gui_qt/app.py" line="4215"/>
         <source>That file doesn&apos;t look like an Amethyst manifest.</source>
         <translation>Ce fichier ne ressemble pas à un manifeste Amethyst.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4142"/>
+        <location filename="../gui_qt/app.py" line="4223"/>
         <source>This profile targets &apos;{0}&apos;, but the selected game is &apos;{1}&apos;. Switch games first, then import.</source>
         <translation>Ce profil est destiné à « {0} », mais le jeu sélectionné est « {1} ». Changez d&apos;abord de jeu, puis importez.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4164"/>
+        <location filename="../gui_qt/app.py" line="4245"/>
         <source>Import: {0}</source>
         <translation>Importation : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4188"/>
+        <location filename="../gui_qt/app.py" line="4269"/>
         <source>Profile Settings</source>
         <translation>Paramètres du profil</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4234"/>
+        <location filename="../gui_qt/app.py" line="4315"/>
         <source>Profile &apos;{0}&apos; already exists.</source>
         <translation>Le profil « {0} » existe déjà.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4259"/>
+        <location filename="../gui_qt/app.py" line="4340"/>
         <source>Profile &apos;{0}&apos; created</source>
         <translation>Création du profil « {0} »</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4334"/>
-        <location filename="../gui_qt/app.py" line="7326"/>
+        <location filename="../gui_qt/app.py" line="4415"/>
+        <location filename="../gui_qt/app.py" line="7407"/>
         <source>▶  Play</source>
         <translation>▶  Lire</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4334"/>
+        <location filename="../gui_qt/app.py" line="4415"/>
         <source>▶  Run</source>
         <translation>▶  Courir</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4379"/>
+        <location filename="../gui_qt/app.py" line="4460"/>
         <source>Executable not found: {0}</source>
         <translation>Fichier exécutable introuvable : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4479"/>
+        <location filename="../gui_qt/app.py" line="4560"/>
         <source>Configure: {0}</source>
         <translation>Configuration : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4512"/>
+        <location filename="../gui_qt/app.py" line="4593"/>
         <source>&apos;{0}&apos; does not support deployment.</source>
         <translation>« {0} » ne prend pas en charge le déploiement.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4523"/>
+        <location filename="../gui_qt/app.py" line="4604"/>
         <source>Deploying {0}…</source>
         <translation>Déploiement d&apos;{0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4615"/>
+        <location filename="../gui_qt/app.py" line="4696"/>
         <source>A deploy is in progress — try again shortly.</source>
         <translation>Un déploiement est en cours — veuillez réessayer dans quelques instants.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4622"/>
+        <location filename="../gui_qt/app.py" line="4703"/>
         <source>Restoring {0}…</source>
         <translation>Restauration de l&apos;{0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4684"/>
+        <location filename="../gui_qt/app.py" line="4765"/>
         <source>Game</source>
         <translation>Jeu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4686"/>
+        <location filename="../gui_qt/app.py" line="4767"/>
         <source>{0} Deployed</source>
         <translation>{0} Déployé</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4687"/>
+        <location filename="../gui_qt/app.py" line="4768"/>
         <source>{0} Restored</source>
         <translation>{0} Restauré</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4690"/>
+        <location filename="../gui_qt/app.py" line="4771"/>
         <source>Deploy failed — see log.</source>
         <translation>Échec du déploiement — voir le journal.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4691"/>
+        <location filename="../gui_qt/app.py" line="4772"/>
         <source>Restore failed — see log.</source>
         <translation>Échec de la restauration — voir le journal.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4748"/>
+        <location filename="../gui_qt/app.py" line="4829"/>
         <source>{0} is not configured for this game.</source>
         <translation>{0} n&apos;est pas configuré pour ce jeu.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4752"/>
+        <location filename="../gui_qt/app.py" line="4833"/>
         <source>{0} not found ({1}).</source>
         <translation>{0} introuvable ({1}).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4854"/>
+        <location filename="../gui_qt/app.py" line="4935"/>
         <source>Launching winetricks…</source>
         <translation>Lancement de winetricks…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4900"/>
+        <location filename="../gui_qt/app.py" line="4981"/>
         <source>A Proton installer is already running.</source>
         <translation>Un programme d&apos;installation de Proton est déjà en cours d&apos;exécution.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4905"/>
+        <location filename="../gui_qt/app.py" line="4986"/>
         <source>{0}…</source>
         <translation>{0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4925"/>
+        <location filename="../gui_qt/app.py" line="5006"/>
         <source>{0} — done.</source>
         <translation>{0} — C&apos;est fait.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4927"/>
+        <location filename="../gui_qt/app.py" line="5008"/>
         <source>{0} — failed (see log).</source>
         <translation>{0} — Échec (voir le journal).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4943"/>
+        <location filename="../gui_qt/app.py" line="5024"/>
         <source>No game selected</source>
         <translation>Aucun match sélectionné</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4956"/>
+        <location filename="../gui_qt/app.py" line="5037"/>
         <source>No wizard tools for this game</source>
         <translation>Il n&apos;y a pas d&apos;outils d&apos;assistance pour ce jeu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4978"/>
+        <location filename="../gui_qt/app.py" line="5059"/>
         <source>Manage Prefixes…</source>
         <translation>Gérer les préfixes…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4979"/>
+        <location filename="../gui_qt/app.py" line="5060"/>
         <source>Browse every wizard-tool Wine prefix and delete them to reclaim disk space.</source>
         <translation>Parcourez tous les préfixes Wine créés par l&apos;assistant et supprimez-les pour libérer de l&apos;espace disque.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4995"/>
+        <location filename="../gui_qt/app.py" line="5076"/>
         <source>Manage Prefixes</source>
         <translation>Gérer les préfixes</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5086"/>
+        <location filename="../gui_qt/app.py" line="5167"/>
         <source>No active profile.</source>
         <translation>Aucun profil actif.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5104"/>
+        <location filename="../gui_qt/app.py" line="5185"/>
         <source>Installing {0} mod(s)…</source>
         <translation>Installation du ou des mods « {0} »…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5105"/>
+        <location filename="../gui_qt/app.py" line="5186"/>
         <source>Installing {0}…</source>
         <translation>Installation d&apos;{0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5233"/>
-        <location filename="../gui_qt/app.py" line="5272"/>
+        <location filename="../gui_qt/app.py" line="5314"/>
+        <location filename="../gui_qt/app.py" line="5353"/>
         <source>Install cancelled: {0}</source>
         <translation>Installation annulée : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5451"/>
+        <location filename="../gui_qt/app.py" line="5532"/>
         <source>A mod named &apos;{0}&apos; already exists.</source>
         <translation>Il existe déjà un mod intitulé « {0} ».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5457"/>
+        <location filename="../gui_qt/app.py" line="5538"/>
         <source>Rename failed: {0}</source>
         <translation>Échec du changement de nom : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5485"/>
+        <location filename="../gui_qt/app.py" line="5566"/>
         <source>Renamed to &apos;{0}&apos;.</source>
         <translation>Renommé « {0} ».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5508"/>
+        <location filename="../gui_qt/app.py" line="5589"/>
         <source>Installed {0}</source>
         <translation>{0} installé</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5510"/>
+        <location filename="../gui_qt/app.py" line="5591"/>
         <source>Installed {0} mods</source>
         <translation>Mods «{0} » installés</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5512"/>
+        <location filename="../gui_qt/app.py" line="5593"/>
         <source>Installed {0} of {1} mods — see log for failures.</source>
         <translation>{0}s de mods de {1} ont été installés — voir le journal pour les échecs.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5515"/>
+        <location filename="../gui_qt/app.py" line="5596"/>
         <source>Install failed — see log.</source>
         <translation>Échec de l&apos;installation — voir le journal.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5840"/>
+        <location filename="../gui_qt/app.py" line="5921"/>
         <source>Pack {0}</source>
         <translation>{0} de la meute</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5841"/>
+        <location filename="../gui_qt/app.py" line="5922"/>
         <source>Unpack {0}</source>
         <translation>Décompresser le fichier « {0} »</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5880"/>
         <location filename="../gui_qt/app.py" line="5961"/>
+        <location filename="../gui_qt/app.py" line="6042"/>
         <source>An archive operation is already running.</source>
         <translation>Une opération d&apos;archivage est déjà en cours.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5891"/>
+        <location filename="../gui_qt/app.py" line="5972"/>
         <source>Mod folder not found.</source>
         <translation>Le dossier « Mod » est introuvable.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5895"/>
+        <location filename="../gui_qt/app.py" line="5976"/>
         <source>Profile is deployed — run Restore first, then pack the {0}.</source>
         <translation>Le profil est déployé — lancez d&apos;abord la commande « Restore », puis compressez le fichier « {0} ».</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5931"/>
+        <location filename="../gui_qt/app.py" line="6012"/>
         <source>Packing {0}…</source>
-        <translation>{0}s sur les bagages…</translation>
+        <translation>{0} de l&apos;emballage…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5974"/>
+        <location filename="../gui_qt/app.py" line="6055"/>
         <source>Profile is deployed — run Restore first, then unpack.</source>
         <translation>Le profil est déployé — lancez d&apos;abord la commande « Restore », puis décompressez-le.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5998"/>
+        <location filename="../gui_qt/app.py" line="6079"/>
         <source>Unpacking {0} archive(s)…</source>
         <translation>Décompression des archives d&apos;{0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6030"/>
+        <location filename="../gui_qt/app.py" line="6111"/>
         <source>Cancelled.</source>
         <translation>Annulé.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6035"/>
+        <location filename="../gui_qt/app.py" line="6116"/>
         <source>{0} failed: {1}</source>
         <translation>{0} Échec : {1}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6058"/>
+        <location filename="../gui_qt/app.py" line="6139"/>
         <source>Packed {0}{1}{2}</source>
         <translation>{0} {1} {2}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6074"/>
+        <location filename="../gui_qt/app.py" line="6155"/>
         <source>Unpacked {0} file(s) from {1} archive(s)</source>
-        <translation>Décompression du ou des fichiers « {0} » issus de la ou des archives « {1} »</translation>
+        <translation>Décompression du ou des fichiers « {0} » à partir de la ou des archives « {1} »</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6164"/>
+        <location filename="../gui_qt/app.py" line="6245"/>
         <source>All mods enabled</source>
         <translation>Tous les mods sont activés</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6164"/>
+        <location filename="../gui_qt/app.py" line="6245"/>
         <source>All mods disabled</source>
         <translation>Tous les mods sont désactivés</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6175"/>
+        <location filename="../gui_qt/app.py" line="6256"/>
         <source>Collapse all</source>
         <translation>Masquer tout</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6178"/>
+        <location filename="../gui_qt/app.py" line="6259"/>
         <source>Disable all</source>
         <translation>Tout désactiver</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6194"/>
+        <location filename="../gui_qt/app.py" line="6275"/>
         <source>Modlist refreshed</source>
         <translation>Liste des mods mise à jour</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6408"/>
+        <location filename="../gui_qt/app.py" line="6489"/>
         <source>Mods with BA2 archives</source>
         <translation>Mods avec les archives BA2</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6410"/>
+        <location filename="../gui_qt/app.py" line="6491"/>
         <source>Mods with BSA archives</source>
         <translation>Mods avec archives BSA</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6656"/>
+        <location filename="../gui_qt/app.py" line="6737"/>
         <source>Enabled</source>
         <translation>Activé</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6656"/>
+        <location filename="../gui_qt/app.py" line="6737"/>
         <source>Disabled</source>
         <translation>Personnes handicapées</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6758"/>
-        <location filename="../gui_qt/app.py" line="7362"/>
+        <location filename="../gui_qt/app.py" line="6839"/>
+        <location filename="../gui_qt/app.py" line="7443"/>
         <source>Plugins</source>
         <translation>Plug-ins</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6759"/>
+        <location filename="../gui_qt/app.py" line="6840"/>
         <source>ESL</source>
         <translation>ESL</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6759"/>
+        <location filename="../gui_qt/app.py" line="6840"/>
         <source>Non-ESL</source>
         <translation>Non-ESL</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6893"/>
+        <location filename="../gui_qt/app.py" line="6974"/>
         <source>No active profile — cannot configure groups.</source>
         <translation>Aucun profil actif — impossible de configurer des groupes.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6905"/>
+        <location filename="../gui_qt/app.py" line="6986"/>
         <source>LOOT Groups</source>
         <translation>Groupes LOOT</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6914"/>
+        <location filename="../gui_qt/app.py" line="6995"/>
         <source>No active profile — cannot configure plugin rules.</source>
         <translation>Aucun profil actif — impossible de configurer les règles du plugin.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6930"/>
+        <location filename="../gui_qt/app.py" line="7011"/>
         <source>LOOT Plugin Rules</source>
         <translation>Règles du plugin LOOT</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6950"/>
+        <location filename="../gui_qt/app.py" line="7031"/>
         <source>{0} has no userlist rules to display.</source>
         <translation>{0} Il n&apos;y a aucune règle relative à la liste des utilisateurs à afficher.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6967"/>
+        <location filename="../gui_qt/app.py" line="7048"/>
         <source>Plugin Cycle</source>
         <translation>Cycle des plugins</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7007"/>
+        <location filename="../gui_qt/app.py" line="7088"/>
         <source>userlist.yaml not found — cannot flip rule.</source>
         <translation>Fichier « userlist.yaml » introuvable — impossible d&apos;appliquer la règle.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7012"/>
+        <location filename="../gui_qt/app.py" line="7093"/>
         <source>Rule {0} &apos;{1}&apos; {2} not found in userlist.yaml.</source>
         <translation>Règle {0} « {1} » {2} introuvable dans le fichier userlist.yaml.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7016"/>
+        <location filename="../gui_qt/app.py" line="7097"/>
         <source>Flipped: {0} now &apos;{1}&apos; {2}</source>
         <translation>Changement de nom : « {0} » devient désormais « {1} » {2}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7025"/>
+        <location filename="../gui_qt/app.py" line="7106"/>
         <source>No active profile — cannot edit userlist.</source>
         <translation>Aucun profil actif — impossible de modifier la liste des utilisateurs.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7035"/>
+        <location filename="../gui_qt/app.py" line="7116"/>
         <source>No active profile — cannot assign group.</source>
         <translation>Aucun profil actif — impossible d&apos;attribuer un groupe.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7048"/>
+        <location filename="../gui_qt/app.py" line="7129"/>
         <source>Removed from userlist: {0} plugin(s)</source>
         <translation>Supprimé de la liste des utilisateurs : plugin(s) « {0} »</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7058"/>
+        <location filename="../gui_qt/app.py" line="7139"/>
         <source>LOOT library not available — cannot sort.</source>
         <translation>Bibliothèque LOOT indisponible — impossible de trier.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7065"/>
+        <location filename="../gui_qt/app.py" line="7146"/>
         <source>LOOT sorting isn&apos;t supported for this game.</source>
         <translation>Le tri des butins n&apos;est pas pris en charge dans ce jeu.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7069"/>
+        <location filename="../gui_qt/app.py" line="7150"/>
         <source>No plugins to sort.</source>
         <translation>Aucun plugin à trier.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7072"/>
+        <location filename="../gui_qt/app.py" line="7153"/>
         <source>A sort is already running.</source>
         <translation>Un tri est déjà en cours.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7121"/>
+        <location filename="../gui_qt/app.py" line="7202"/>
         <source>Running LOOT on {0} plugins…</source>
         <translation>Exécution de LOOT sur les plugins d&apos;{0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7145"/>
+        <location filename="../gui_qt/app.py" line="7226"/>
         <source>LOOT sort failed — see log.</source>
         <translation>Échec du tri LOOT — voir le journal.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7169"/>
+        <location filename="../gui_qt/app.py" line="7250"/>
         <source>Failed to write load order: {0}</source>
         <translation>Échec de l&apos;écriture de l&apos;ordre de chargement : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7176"/>
+        <location filename="../gui_qt/app.py" line="7257"/>
         <source>Load order is already sorted.</source>
         <translation>L&apos;ordre de chargement est déjà trié.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7179"/>
+        <location filename="../gui_qt/app.py" line="7260"/>
         <source>Sorted — 1 plugin moved.</source>
         <translation>C&apos;est réglé — 1 plugin a été déplacé.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7180"/>
+        <location filename="../gui_qt/app.py" line="7261"/>
         <source>Sorted — {0} plugins moved.</source>
         <translation>C&apos;est réglé — les plugins « {0} » ont été déplacés.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7318"/>
+        <location filename="../gui_qt/app.py" line="7399"/>
         <source>+ Add custom EXE…</source>
         <translation>+ Ajouter un fichier EXE personnalisé…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7343"/>
+        <location filename="../gui_qt/app.py" line="7424"/>
         <source>Open application folder</source>
         <translation>Ouvrir le dossier des applications</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7362"/>
+        <location filename="../gui_qt/app.py" line="7443"/>
         <source>Mod Files</source>
         <translation>Fichiers de mod</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7363"/>
+        <location filename="../gui_qt/app.py" line="7444"/>
         <source>Text Files</source>
         <translation>Fichiers texte</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7363"/>
+        <location filename="../gui_qt/app.py" line="7444"/>
         <source>Data</source>
         <translation>Données</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7364"/>
+        <location filename="../gui_qt/app.py" line="7445"/>
         <source>Downloads</source>
         <translation>Téléchargements</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7576"/>
-        <location filename="../gui_qt/app.py" line="7681"/>
+        <location filename="../gui_qt/app.py" line="7657"/>
+        <location filename="../gui_qt/app.py" line="7762"/>
         <source>Log</source>
         <translation>Journal</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7581"/>
+        <location filename="../gui_qt/app.py" line="7662"/>
         <source>● Errors</source>
         <translation>● Erreurs</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7584"/>
+        <location filename="../gui_qt/app.py" line="7665"/>
         <source>● Warnings</source>
         <translation>● Avertissements</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7587"/>
+        <location filename="../gui_qt/app.py" line="7668"/>
         <source>Open as tab</source>
         <translation>Ouvrir dans un onglet</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7590"/>
+        <location filename="../gui_qt/app.py" line="7671"/>
         <source>Clear Log</source>
         <translation>Effacer le journal</translation>
     </message>
@@ -4501,128 +4531,138 @@ Par jour : {1}</translation>
 <context>
     <name>OnboardingView</name>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="104"/>
-        <location filename="../gui_qt/onboarding_view.py" line="199"/>
+        <location filename="../gui_qt/onboarding_view.py" line="113"/>
+        <location filename="../gui_qt/onboarding_view.py" line="208"/>
         <source>Welcome to Amethyst Mod Manager</source>
         <translation>Bienvenue dans Amethyst Mod Manager</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="109"/>
+        <location filename="../gui_qt/onboarding_view.py" line="118"/>
         <source>Step 1 of {0}</source>
         <translation>Étape 1 de « {0} »</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="134"/>
+        <location filename="../gui_qt/onboarding_view.py" line="143"/>
         <source>← Back</source>
         <translation>← Retour</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="141"/>
-        <location filename="../gui_qt/onboarding_view.py" line="420"/>
+        <location filename="../gui_qt/onboarding_view.py" line="150"/>
+        <location filename="../gui_qt/onboarding_view.py" line="482"/>
         <source>Next →</source>
         <translation>Suivant →</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="206"/>
+        <location filename="../gui_qt/onboarding_view.py" line="215"/>
         <source>See the wiki for guides on how to use the Manager</source>
         <translation>Consultez le wiki pour trouver des guides d&apos;utilisation du Manager</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="213"/>
+        <location filename="../gui_qt/onboarding_view.py" line="226"/>
+        <source>Language:</source>
+        <translation>Langue :</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/onboarding_view.py" line="234"/>
+        <source>Sync language files</source>
+        <translation>Synchroniser les fichiers de langue</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/onboarding_view.py" line="244"/>
         <source>Open Wiki</source>
         <translation>Wiki ouvert</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="236"/>
+        <location filename="../gui_qt/onboarding_view.py" line="298"/>
         <source>Connect to Nexus Mods</source>
         <translation>Se connecter à Nexus Mods</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="244"/>
+        <location filename="../gui_qt/onboarding_view.py" line="306"/>
         <source>Logging in lets you browse and download mods directly within the app.
 You can skip this and connect later from the Nexus button in the toolbar.</source>
         <translation>Une fois connecté, vous pouvez parcourir et télécharger des mods directement depuis l&apos;application.
 Vous pouvez ignorer cette étape et vous connecter plus tard en cliquant sur le bouton Nexus dans la barre d&apos;outils.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="252"/>
-        <location filename="../gui_qt/onboarding_view.py" line="281"/>
+        <location filename="../gui_qt/onboarding_view.py" line="314"/>
+        <location filename="../gui_qt/onboarding_view.py" line="343"/>
         <source>Log in via Nexus Mods</source>
         <translation>Se connecter via Nexus Mods</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="270"/>
+        <location filename="../gui_qt/onboarding_view.py" line="332"/>
         <source>Waiting for browser...</source>
         <translation>En attente du navigateur...</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="302"/>
+        <location filename="../gui_qt/onboarding_view.py" line="364"/>
         <source>Default Mod Staging Folder</source>
         <translation>Dossier de mise en place des mods par défaut</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="303"/>
-        <location filename="../gui_qt/onboarding_view.py" line="314"/>
+        <location filename="../gui_qt/onboarding_view.py" line="365"/>
+        <location filename="../gui_qt/onboarding_view.py" line="376"/>
         <source>Default: {0}</source>
         <translation>Par défaut : {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="305"/>
-        <location filename="../gui_qt/onboarding_view.py" line="316"/>
+        <location filename="../gui_qt/onboarding_view.py" line="367"/>
+        <location filename="../gui_qt/onboarding_view.py" line="378"/>
         <source>Leave blank to use the default</source>
         <translation>Ne rien indiquer pour utiliser la valeur par défaut</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="308"/>
+        <location filename="../gui_qt/onboarding_view.py" line="370"/>
         <source>When set, new games will use &lt;this&gt;/&lt;game name&gt; as their
 mod staging folder. You can change this later in Settings.</source>
         <translation>Une fois cette option activée, les nouveaux jeux utiliseront &lt;ceci&gt;/&lt;nom du jeu&gt; comme
 dossier de stockage des mods. Vous pourrez modifier ce paramètre ultérieurement dans les Paramètres.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="313"/>
+        <location filename="../gui_qt/onboarding_view.py" line="375"/>
         <source>Download Cache Folder</source>
         <translation>Dossier de cache de téléchargement</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="319"/>
+        <location filename="../gui_qt/onboarding_view.py" line="381"/>
         <source>Where downloaded mod archives are stored.
 Each game gets its own subfolder.</source>
         <translation>Emplacement de stockage des archives de mods téléchargées.
 Chaque jeu dispose de son propre sous-dossier.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="324"/>
+        <location filename="../gui_qt/onboarding_view.py" line="386"/>
         <source>Add Your First Game</source>
         <translation>Ajoutez votre premier jeu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="328"/>
+        <location filename="../gui_qt/onboarding_view.py" line="390"/>
         <source>Select a game to manage.</source>
         <translation>Choisissez un match à gérer.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="332"/>
+        <location filename="../gui_qt/onboarding_view.py" line="394"/>
         <source>Add a Game</source>
         <translation>Ajouter un jeu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="360"/>
+        <location filename="../gui_qt/onboarding_view.py" line="422"/>
         <source>Browse</source>
         <translation>Parcourir</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="365"/>
+        <location filename="../gui_qt/onboarding_view.py" line="427"/>
         <source>Clear</source>
         <translation>Effacer</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="411"/>
+        <location filename="../gui_qt/onboarding_view.py" line="473"/>
         <source>Step {0} of {1}</source>
         <translation>Étape n°{0}, tirée de {1}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/onboarding_view.py" line="423"/>
+        <location filename="../gui_qt/onboarding_view.py" line="485"/>
         <source>Skip</source>
         <translation>Passer</translation>
     </message>
@@ -4669,7 +4709,7 @@ PGPatcher run (the &apos;PGPatcher_output&apos; mod in your mod list / staging f
 
 Once you have done this, click Deploy.</source>
         <translation>Avant le déploiement, veuillez supprimer tout fichier de sortie issu d&apos;une précédente
-exécution de PGPatcher (le mod « PGPatcher_output » présent dans votre liste de mods ou dans votre dossier « staging »).
+exécution de PGPatcher (le mod « PGPatcher_output » présent dans votre liste de mods ou dans le dossier « staging »).
 
 Une fois cette opération effectuée, cliquez sur « Déployer ».</translation>
     </message>
@@ -4787,7 +4827,7 @@ Une fois cette opération effectuée, cliquez sur « Déployer ».</translation>
 Install Pandora Behaviour Engine+ as a mod, then reopen this wizard.</source>
         <translation>« {0} » n&apos;a pas été trouvé dans votre dossier de mods en attente.
 
-Installez Pandora Behaviour Engine+ en tant que mod, puis relancez cet assistant.</translation>
+Installez Pandora Behaviour Engine+ en tant que mod, puis rouvrez cet assistant.</translation>
     </message>
     <message>
         <location filename="../wizards_qt/pandora_view.py" line="236"/>
@@ -4892,7 +4932,7 @@ Fermez-le lorsque vous avez terminé, puis cliquez sur « Terminé ».</translat
     <message>
         <location filename="../wizards_qt/plugin_audit_view.py" line="244"/>
         <source>No orphaned INIs to clean.</source>
-        <translation>Il n&apos;y a pas d&apos;INI orphelins à supprimer.</translation>
+        <translation>Il n&apos;y a pas d&apos;INI orphelins à nettoyer.</translation>
     </message>
     <message>
         <location filename="../wizards_qt/plugin_audit_view.py" line="271"/>
@@ -5076,7 +5116,7 @@ Faites glisser un plugin depuis le volet de gauche pour ajouter une règle.</tra
     <message>
         <location filename="../gui_qt/prefix_manager_view.py" line="83"/>
         <source>Wizard tools each run in their own Wine prefix (created next to the tool&apos;s exe or in the app config folder). Deleting one only reclaims disk space — it is recreated automatically the next time the tool runs.</source>
-        <translation>Les outils Wizard s&apos;exécutent chacun dans leur propre préfixe Wine (créé à côté du fichier exe de l&apos;outil ou dans le dossier de configuration de l&apos;application). En supprimer un ne fait que libérer de l&apos;espace disque : il est recréé automatiquement lors de la prochaine exécution de l&apos;outil.</translation>
+        <translation>Les outils Wizard s&apos;exécutent chacun dans leur propre préfixe Wine (créé à côté du fichier exe de l&apos;outil ou dans le dossier de configuration de l&apos;application). La suppression d&apos;un préfixe ne fait que libérer de l&apos;espace disque : il est recréé automatiquement lors de la prochaine exécution de l&apos;outil.</translation>
     </message>
     <message>
         <location filename="../gui_qt/prefix_manager_view.py" line="102"/>
@@ -5230,7 +5270,7 @@ Faites glisser un plugin depuis le volet de gauche pour ajouter une règle.</tra
 Install a Proton version in Steam, then reopen this wizard.</source>
         <translation>Aucune version de Proton n&apos;a été trouvée.
 
-Installez une version de Proton sur Steam, puis rouvrez cet assistant.</translation>
+Installez une version de Proton sur Steam, puis relancez cet assistant.</translation>
     </message>
     <message>
         <location filename="../wizards_qt/proton_step.py" line="116"/>
@@ -5994,6 +6034,7 @@ Veuillez redémarrer l&apos;assistant et installer d&apos;abord Script Merger.</
     </message>
     <message>
         <location filename="../gui_qt/settings_view.py" line="171"/>
+        <location filename="../gui_qt/settings_view.py" line="247"/>
         <source>Changes take effect after restart.</source>
         <translation>Les modifications prendront effet après le redémarrage.</translation>
     </message>
@@ -6013,178 +6054,183 @@ Veuillez redémarrer l&apos;assistant et installer d&apos;abord Script Merger.</
         <translation>Interface utilisateur</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="233"/>
+        <location filename="../gui_qt/settings_view.py" line="234"/>
         <source>Language</source>
         <translation>Langue</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="238"/>
+        <location filename="../gui_qt/settings_view.py" line="237"/>
+        <source>Sync language files</source>
+        <translation>Synchroniser les fichiers de langue</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/settings_view.py" line="252"/>
         <source>Hide BSA conflicts</source>
         <translation>Masquer les conflits BSA</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="240"/>
+        <location filename="../gui_qt/settings_view.py" line="254"/>
         <source>Hide BSA/BA2 archive conflict flags (also skips that conflict scan for a small speed-up).</source>
         <translation>Masquer les indicateurs de conflit des archives BSA/BA2 (ce qui permet également d&apos;ignorer cette analyse de conflits pour un léger gain de vitesse).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="245"/>
+        <location filename="../gui_qt/settings_view.py" line="298"/>
         <source>Downloads &amp; Collections</source>
         <translation>Téléchargements et collections</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="258"/>
+        <location filename="../gui_qt/settings_view.py" line="311"/>
         <source>Clear archive after install</source>
         <translation>Effacer les fichiers d&apos;archive après l&apos;installation</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="261"/>
+        <location filename="../gui_qt/settings_view.py" line="314"/>
         <source>Delete a mod&apos;s downloaded archive after it is extracted.</source>
         <translation>Supprimer l&apos;archive téléchargée d&apos;un mod une fois qu&apos;elle a été décompressée.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="263"/>
+        <location filename="../gui_qt/settings_view.py" line="316"/>
         <source>Keep FOMOD archives</source>
         <translation>Conserver les archives de la FOMOD</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="265"/>
+        <location filename="../gui_qt/settings_view.py" line="318"/>
         <source>Mods installed via a FOMOD installer keep their archive even when &apos;Clear archive after install&apos; is on.</source>
         <translation>Les mods installés via un programme d&apos;installation FOMOD conservent leur archive même lorsque l&apos;option « Effacer l&apos;archive après l&apos;installation » est activée.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="270"/>
+        <location filename="../gui_qt/settings_view.py" line="323"/>
         <source>Max concurrent downloads</source>
         <translation>Nombre maximal de téléchargements simultanés</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="273"/>
+        <location filename="../gui_qt/settings_view.py" line="326"/>
         <source>Max extractions</source>
         <translation>Nombre maximal d&apos;extractions</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="276"/>
+        <location filename="../gui_qt/settings_view.py" line="329"/>
         <source>Extractions are gated by available memory; the effective number may be lower than set.</source>
         <translation>Les extractions sont limitées par la mémoire disponible ; le nombre effectif peut être inférieur à celui défini.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="279"/>
+        <location filename="../gui_qt/settings_view.py" line="332"/>
         <source>Check downloads locations</source>
         <translation>Vérifier les emplacements de téléchargement</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="281"/>
+        <location filename="../gui_qt/settings_view.py" line="334"/>
         <source>Scan the system Downloads folder (and any custom locations) for an archive before downloading it again.</source>
         <translation>Vérifiez si le dossier « Téléchargements » du système (ainsi que tout autre emplacement personnalisé) contient déjà l&apos;archive avant de la télécharger à nouveau.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="286"/>
+        <location filename="../gui_qt/settings_view.py" line="339"/>
         <source>Caches</source>
         <translation>Caches</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="287"/>
+        <location filename="../gui_qt/settings_view.py" line="340"/>
         <source>Manage Caches…</source>
         <translation>Gérer les caches…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="297"/>
+        <location filename="../gui_qt/settings_view.py" line="350"/>
         <source>General</source>
         <translation>Généralités</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="299"/>
+        <location filename="../gui_qt/settings_view.py" line="352"/>
         <source>Normalise folder casing</source>
         <translation>Normaliser la casse des noms de dossiers</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="301"/>
+        <location filename="../gui_qt/settings_view.py" line="354"/>
         <source>Unify folder names to a single casing across mods. Disable on case-insensitive filesystems.</source>
         <translation>Harmoniser la casse des noms de dossiers dans tous les mods. Désactiver cette option sur les systèmes de fichiers insensibles à la casse.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="304"/>
+        <location filename="../gui_qt/settings_view.py" line="357"/>
         <source>Rename mod after install</source>
         <translation>Renommer le mod après l&apos;installation</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="306"/>
+        <location filename="../gui_qt/settings_view.py" line="359"/>
         <source>Show a rename prompt after installing a mod.</source>
         <translation>Afficher une invite de renommage après l&apos;installation d&apos;un mod.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="308"/>
+        <location filename="../gui_qt/settings_view.py" line="361"/>
         <source>Restore on close</source>
         <translation>Restaurer à la fermeture</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="310"/>
+        <location filename="../gui_qt/settings_view.py" line="363"/>
         <source>Restore all deployed games to vanilla when the app is closed.</source>
         <translation>Rétablir la configuration d&apos;origine de tous les jeux déployés à la fermeture de l&apos;application.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="312"/>
+        <location filename="../gui_qt/settings_view.py" line="365"/>
         <source>Use pre-release versions</source>
         <translation>Utiliser des versions préliminaires</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="314"/>
+        <location filename="../gui_qt/settings_view.py" line="367"/>
         <source>Also offer beta and release-candidate app builds when checking for updates.</source>
         <translation>Proposez également des versions bêta et des versions candidates à la publication lors de la recherche de mises à jour.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="318"/>
-        <location filename="../gui_qt/settings_view.py" line="329"/>
+        <location filename="../gui_qt/settings_view.py" line="371"/>
+        <location filename="../gui_qt/settings_view.py" line="382"/>
         <source>Appearance</source>
         <translation>Aspect</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="333"/>
+        <location filename="../gui_qt/settings_view.py" line="386"/>
         <source>Paths</source>
         <translation>Chemins</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="337"/>
+        <location filename="../gui_qt/settings_view.py" line="390"/>
         <source>Default Mod Staging Folder</source>
         <translation>Dossier de mise en place des mods par défaut</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="339"/>
+        <location filename="../gui_qt/settings_view.py" line="392"/>
         <source>When set, games added after this point stage mods here. Blank = default ({0}).</source>
         <translation>Une fois cette option activée, les mods des jeux ajoutés après cette étape seront intégrés ici. Vide = valeur par défaut ({0}).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="342"/>
+        <location filename="../gui_qt/settings_view.py" line="395"/>
         <source>Download Cache Folder</source>
         <translation>Dossier de cache de téléchargement</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="344"/>
+        <location filename="../gui_qt/settings_view.py" line="397"/>
         <source>Where downloaded mod archives are stored. Blank = default ({0}).</source>
         <translation>Emplacement de stockage des archives de mods téléchargées. Vide = valeur par défaut ({0}).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="347"/>
+        <location filename="../gui_qt/settings_view.py" line="400"/>
         <source>Heroic Config Location</source>
         <translation>Emplacement de la configuration « Heroic »</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="349"/>
+        <location filename="../gui_qt/settings_view.py" line="402"/>
         <source>Folder containing Heroic&apos;s config.json. Blank = auto-detect (Flatpak and native locations).</source>
         <translation>Dossier contenant le fichier config.json de Heroic. Vide = détection automatique (emplacements Flatpak et natifs).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="352"/>
+        <location filename="../gui_qt/settings_view.py" line="405"/>
         <source>Steam libraryfolders.vdf</source>
         <translation>Steam libraryfolders.vdf</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="354"/>
+        <location filename="../gui_qt/settings_view.py" line="407"/>
         <source>Path to libraryfolders.vdf (or its folder). Blank = auto-detect (standard, Flatpak and Snap locations).</source>
-        <translation>Chemin d&apos;accès au fichier libraryfolders.vdf (ou à son dossier). Si ce champ est vide, la détection automatique est activée (emplacements par défaut, Flatpak et Snap).</translation>
+        <translation>Chemin d&apos;accès au fichier libraryfolders.vdf (ou à son dossier). Si le champ est vide, la détection automatique est activée (emplacements par défaut, Flatpak et Snap).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/settings_view.py" line="420"/>
+        <location filename="../gui_qt/settings_view.py" line="473"/>
         <source>Failed to save setting: {0}</source>
         <translation>Échec de l&apos;enregistrement du paramètre : {0}</translation>
     </message>
@@ -6211,7 +6257,7 @@ Veuillez redémarrer l&apos;assistant et installer d&apos;abord Script Merger.</
     <message>
         <location filename="../gui_qt/show_conflicts_view.py" line="71"/>
         <source>Mod(s) beaten</source>
-        <translation>Mod(s) battu(s)</translation>
+        <translation>Mod(s) vaincu(s)</translation>
     </message>
     <message>
         <location filename="../gui_qt/show_conflicts_view.py" line="73"/>
@@ -6979,7 +7025,7 @@ ou utilisez le bouton « Parcourir » pour le sélectionner manuellement.</trans
         <source>{0} was not found.
 Please restart the wizard and install {1} first.</source>
         <translation>{0} n&apos;a pas été trouvé.
-Veuillez relancer l&apos;assistant et installer d&apos;abord {1}.</translation>
+Veuillez redémarrer l&apos;assistant et installer d&apos;abord {1}.</translation>
     </message>
     <message>
         <location filename="../wizards_qt/xedit_view.py" line="396"/>
