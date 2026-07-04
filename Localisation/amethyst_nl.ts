@@ -46,7 +46,7 @@ Mods worden op basis van hun UUID gekoppeld aan de mods die je hebt geïnstallee
     </message>
     <message>
         <source>Preview →</source>
-        <translation>Voorbeeld →</translation>
+        <translation>Voorbeeld bekijken →</translation>
     </message>
     <message>
         <source>Selected: {0}</source>
@@ -106,6 +106,10 @@ Klik op ‘Deploy’ om de nieuwe laadvolgorde naar het spel door te voeren.</tr
         <translation>Nieuwe back-up</translation>
     </message>
     <message>
+        <source>Rename</source>
+        <translation>Naam wijzigen</translation>
+    </message>
+    <message>
         <source>Keep</source>
         <translation>Bewaren</translation>
     </message>
@@ -136,6 +140,14 @@ Klik op ‘Deploy’ om de nieuwe laadvolgorde naar het spel door te voeren.</tr
     <message>
         <source>Unkeep</source>
         <translation>Unkeep</translation>
+    </message>
+    <message>
+        <source>Rename backup</source>
+        <translation>Back-up hernoemen</translation>
+    </message>
+    <message>
+        <source>Enter a name for this backup (leave blank to use the date).</source>
+        <translation>Voer een naam in voor deze back-up (laat het veld leeg om de datum te gebruiken).</translation>
     </message>
 </context>
 <context>
@@ -204,7 +216,7 @@ Implementeer eerst je modlijst en klik vervolgens op „Uitvoeren“.</translati
     </message>
     <message>
         <source>Output mod name:</source>
-        <translation>Naam van de outputmod:</translation>
+        <translation>Naam van de uitvoermod:</translation>
     </message>
     <message>
         <source>Skip</source>
@@ -243,7 +255,7 @@ Installeer eerst je modlijst en open deze wizard daarna opnieuw.</translation>
     </message>
     <message>
         <source>Files that get packed will be removed from the mod folder. Files outside the packable filter (plugins, readmes, .bik videos) and files you've disabled in the Mod Files tab are left alone.</source>
-        <translation>Bestanden die worden ingepakt, worden uit de mod-map verwijderd. Bestanden die niet onder het filter voor inpakbare bestanden vallen (plug-ins, readme-bestanden, .bik-video’s) en bestanden die je op het tabblad ‘Mod-bestanden’ hebt uitgeschakeld, blijven ongemoeid.</translation>
+        <translation>Bestanden die worden ingepakt, worden uit de mod-map verwijderd. Bestanden die niet onder het inpakfilter vallen (plug-ins, readme-bestanden, .bik-video’s) en bestanden die je op het tabblad ‘Mod-bestanden’ hebt uitgeschakeld, blijven ongemoeid.</translation>
     </message>
     <message>
         <source>Separate textures archive</source>
@@ -259,7 +271,7 @@ Installeer eerst je modlijst en open deze wizard daarna opnieuw.</translation>
     </message>
     <message>
         <source>Files this mod currently wins as loose are left out of the archive so deploy still picks them. Files this mod already loses, or that have no conflict, are packed normally.</source>
-        <translation>Bestanden waar deze mod momenteel als ‘los’ wint, worden buiten het archief gehouden, zodat de deploy-opdracht ze nog steeds selecteert. Bestanden waar deze mod al verliest, of die geen conflict vertonen, worden normaal verpakt.</translation>
+        <translation>Bestanden waar deze mod momenteel als ‘los’ wint, worden buiten het archief gelaten, zodat de deploy-opdracht ze nog steeds selecteert. Bestanden waar deze mod al verliest, of die geen conflict vertonen, worden normaal verpakt.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -746,6 +758,22 @@ De MD5-cache blijft behouden. Archieven worden indien nodig opnieuw gedownload.<
         <translation>{0} Spel — {1}</translation>
     </message>
     <message>
+        <source>Settings saved to profile: {0} (this profile only)</source>
+        <translation>Instellingen opgeslagen in profiel: {0} (alleen dit profiel)</translation>
+    </message>
+    <message>
+        <source>Editing shared settings (default profile)</source>
+        <translation>Gedeelde instellingen bewerken (standaardprofiel)</translation>
+    </message>
+    <message>
+        <source>Use Shared Settings</source>
+        <translation>Gedeelde instellingen gebruiken</translation>
+    </message>
+    <message>
+        <source>This profile has its own saved paths/options. Remove them so it follows the shared (default profile) settings again.</source>
+        <translation>Dit profiel heeft zijn eigen opgeslagen paden/opties. Verwijder deze, zodat het weer de gedeelde instellingen (standaardprofiel) volgt.</translation>
+    </message>
+    <message>
         <source>Remove Instance</source>
         <translation>Instantie verwijderen</translation>
     </message>
@@ -846,6 +874,34 @@ De MD5-cache blijft behouden. Archieven worden indien nodig opnieuw gedownload.<
         <translation>Aangepaste stagingmap geconfigureerd.</translation>
     </message>
     <message>
+        <source>Cannot reset to shared settings while mods are deployed. Restore the game first.</source>
+        <translation>Je kunt niet terugkeren naar de gedeelde instellingen zolang er mods zijn geïnstalleerd. Herstel het spel eerst.</translation>
+    </message>
+    <message>
+        <source>Use Shared Settings?</source>
+        <translation>Gedeelde instellingen gebruiken?</translation>
+    </message>
+    <message>
+        <source>Remove this profile's own paths and options so it follows the shared (default profile) settings again?
+
+The default profile's settings are not affected.</source>
+        <translation>Moeten de eigen paden en opties van dit profiel worden verwijderd, zodat het weer de gedeelde (standaardprofiel)instellingen volgt?
+
+De instellingen van het standaardprofiel blijven ongewijzigd.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Opnieuw instellen</translation>
+    </message>
+    <message>
+        <source>Profile now follows the shared (default profile) settings.</source>
+        <translation>Het profiel volgt nu de gedeelde instellingen (standaardprofiel).</translation>
+    </message>
+    <message>
+        <source>Settings saved.</source>
+        <translation>Instellingen opgeslagen.</translation>
+    </message>
+    <message>
         <source>Custom staging folder selected.</source>
         <translation>Aangepaste stagingmap geselecteerd.</translation>
     </message>
@@ -866,12 +922,20 @@ De MD5-cache blijft behouden. Archieven worden indien nodig opnieuw gedownload.<
         <translation>Stel eerst de installatiemap van het spel in.</translation>
     </message>
     <message>
+        <source>This path is not visible inside the Flatpak sandbox. Grant access in Flatseal or run: {0}</source>
+        <translation>Dit pad is niet zichtbaar binnen de Flatpak-sandbox. Verleen toegang in Flatseal of voer het volgende uit: {0}</translation>
+    </message>
+    <message>
         <source>Cannot change the game/prefix path while mods are deployed. Restore the game first.</source>
         <translation>Het pad naar het spel of het voorvoegsel kan niet worden gewijzigd terwijl er mods zijn geïnstalleerd. Herstel het spel eerst.</translation>
     </message>
     <message>
+        <source>Cannot use hardlinks: the staging folder and {0} are on different drives or filesystems. Switch to Symlink instead.</source>
+        <translation>Hardlinks kunnen niet worden gebruikt: de map ‘staging’ en {0} staan op verschillende schijven of bestandssystemen. Gebruik in plaats daarvan een symlink.</translation>
+    </message>
+    <message>
         <source>Checking existing staging files…</source>
-        <translation>Bestaande stagingbestanden worden gecontroleerd…</translation>
+        <translation>Bestaande staging-bestanden worden gecontroleerd…</translation>
     </message>
     <message>
         <source>Moving staging files…</source>
@@ -1078,7 +1142,7 @@ De Creation Kit kan onder Proton soms ook crashen bij het opstarten (een bekend 
     </message>
     <message>
         <source>Comma-separated filenames excluded from conflict detection. Supports glob patterns: *.&lt;ext&gt; matches any file with that extension, &lt;name&gt;.* matches that name with any extension. e.g. modinfo.ini, manifest.json, *.txt, LICENCE.*</source>
-        <translation>Door komma’s gescheiden bestandsnamen die worden uitgesloten van conflictdetectie. Ondersteunt glob-patronen: *.&lt;ext&gt; komt overeen met elk bestand met die extensie, &lt;name&gt;.* komt overeen met die naam met elke extensie. Bijvoorbeeld: modinfo.ini, manifest.json, *.txt, LICENCE.*</translation>
+        <translation>Door komma’s gescheiden bestandsnamen die worden uitgesloten van conflictdetectie. Ondersteunt glob-patronen: *.&lt;ext&gt; komt overeen met elk bestand met die extensie, &lt;name&gt;.* komt overeen met die naam met elke willekeurige extensie. Bijvoorbeeld: modinfo.ini, manifest.json, *.txt, LICENCE.*</translation>
     </message>
     <message>
         <source>Auto Strip Until Required</source>
@@ -1110,7 +1174,7 @@ De Creation Kit kan onder Proton soms ook crashen bij het opstarten (een bekend 
     </message>
     <message>
         <source>When enabled (default), folder names that differ only in case across mods are unified to a single casing. Disable for Linux-native games where folder casing is significant.</source>
-        <translation>Wanneer deze optie is ingeschakeld (standaard), worden mapnamen die in verschillende mods alleen qua hoofdletters en kleine letters van elkaar verschillen, in één schrijfwijze samengebracht. Schakel deze optie uit voor games die specifiek voor Linux zijn ontwikkeld, waarbij het gebruik van hoofdletters en kleine letters in mapnamen van belang is.</translation>
+        <translation>Wanneer deze optie is ingeschakeld (standaard), worden mapnamen die tussen mods onderling alleen in hoofdletters en kleine letters verschillen, in één schrijfwijze verenigd. Schakel deze optie uit voor games die specifiek voor Linux zijn ontwikkeld, waarbij het gebruik van hoofdletters en kleine letters in mapnamen van belang is.</translation>
     </message>
     <message>
         <source>Edit Custom Game</source>
@@ -1222,7 +1286,7 @@ De Creation Kit kan onder Proton soms ook crashen bij het opstarten (een bekend 
     </message>
     <message>
         <source>Route specific files to alternate destinations during deploy. Each rule maps files (by extension, folder or filename) to a game-root-relative directory. For extensions, append (.ext, .ext) to also route same-stem siblings (e.g. .asi (.ini) sends Foo.ini alongside Foo.asi). Flatten drops subfolders below the matched folder. To Prefix routes relative to the Proton/Wine prefix root instead of the game install root.</source>
-        <translation>Bestemmingen voor specifieke bestanden tijdens de implementatie aanpassen. Elke regel koppelt bestanden (op basis van extensie, map of bestandsnaam) aan een map die relatief is ten opzichte van de hoofdmap van het spel. Voor extensies voeg je (.ext, .ext) toe om ook bestanden met dezelfde stamnaam door te sturen (bijv. .asi (.ini) stuurt Foo.ini samen met Foo.asi door). Met ‘Flatten’ worden submappen onder de overeenkomende map verwijderd. Met ‘Prefix’ worden routes relatief ten opzichte van de Proton/Wine-prefix-root ingesteld in plaats van de installatiemap van het spel.</translation>
+        <translation>Bestemmingen voor specifieke bestanden tijdens de implementatie aanpassen. Elke regel koppelt bestanden (op basis van extensie, map of bestandsnaam) aan een map die relatief is ten opzichte van de hoofdmap van het spel. Voor extensies voeg je (.ext, .ext) toe om ook bestanden met dezelfde stam in dezelfde map door te sturen (bijv. .asi (.ini) stuurt Foo.ini samen met Foo.asi door). Met ‘Flatten’ worden submappen onder de overeenkomende map verwijderd. Met ‘Prefix’ worden routes relatief ten opzichte van de Proton/Wine-prefixroot ingesteld in plaats van de installatiemap van het spel.</translation>
     </message>
     <message>
         <source>+ Add Rule</source>
@@ -1354,6 +1418,10 @@ De Creation Kit kan onder Proton soms ook crashen bij het opstarten (een bekend 
         <source>Deployed files</source>
         <translation>Geïnstalleerde bestanden</translation>
     </message>
+    <message>
+        <source>Deployed files - {0} files in {1} mods</source>
+        <translation>Geïmplementeerde bestanden - {0} bestanden in {1} mods</translation>
+    </message>
 </context>
 <context>
     <name>DetachableTabWidget</name>
@@ -1406,11 +1474,11 @@ De Creation Kit kan onder Proton soms ook crashen bij het opstarten (een bekend 
     </message>
     <message>
         <source>Overrides saved (no prefix to apply to).</source>
-        <translation>Overschrijvingen opgeslagen (geen voorvoegsel om toe te passen).</translation>
+        <translation>Overschrijvingen opgeslagen (er is geen voorvoegsel om toe te passen).</translation>
     </message>
     <message>
         <source>Applied {0} override(s) to the prefix.</source>
-        <translation>Er zijn (één of meerdere) override(s) van de klasse `{0}` toegepast op het voorvoegsel.</translation>
+        <translation>Er zijn (een of meer) override(s) van de Applied{0} toegepast op het voorvoegsel.</translation>
     </message>
     <message>
         <source>Failed to apply overrides to the prefix.</source>
@@ -1531,10 +1599,10 @@ of gebruik ‘Bladeren’ om het handmatig te selecteren.</translation>
 {0} run (the '{1}' mod in your mod list).
 
 Once you have done this, click Deploy.</source>
-        <translation>Verwijder vóór het implementeren alle uitvoer van een eerdere uitvoering van „
-{0}“ (de mod „{1}“ in je modlijst).
+        <translation>Verwijder vóór het implementeren alle uitvoer van een eerdere uitvoering van
+{0}(de mod ‘{1}’ in je modlijst).
 
-Zodra je dit hebt gedaan, klik je op „Deploy“.</translation>
+Zodra je dit hebt gedaan, klik je op ‘Deploy’.</translation>
     </message>
     <message>
         <source>Skip</source>
@@ -1572,7 +1640,7 @@ Start de wizard opnieuw en installeer eerst {1}.</translation>
     </message>
     <message>
         <source>Step 6: Run {0}</source>
-        <translation>Stap 6: Voer het programma ‘{0}’ uit</translation>
+        <translation>Stap 6: Voer het commando `{0}` uit</translation>
     </message>
     <message>
         <source>Done</source>
@@ -1638,7 +1706,7 @@ When ESLifier finishes, it writes its output as the
         <translation>ESLifier draait in de MO2-modus en leest je laadvolgorde rechtstreeks uit
 de mod-stagingmap, dus er is geen deploy nodig.
 
-Zodra ESLifier klaar is, schrijft het de uitvoer weg als de
+Zodra ESLifier klaar is, slaat het de uitvoer op als de
 mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
     </message>
     <message>
@@ -1675,6 +1743,14 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
     <message>
         <source>Save</source>
         <translation>Opslaan</translation>
+    </message>
+    <message>
+        <source>true</source>
+        <translation>true</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>false</translation>
     </message>
     <message>
         <source>Form reset to built-in defaults (not yet saved).</source>
@@ -2005,8 +2081,8 @@ The original exe is kept as {0}.</source>
         <translation>Brengt een patch aan op FalloutNV.exe, zodat het spel 4 GB geheugen kan gebruiken
 en laadt NVSE automatisch bij het opstarten.
 
-Onder Proton worden hierdoor de waarschuwingen in het spel van mods die controleren
-of de patch aanwezig is, grotendeels onderdrukt, maar het is veilig en wordt aanbevolen.
+Onder Proton worden hierdoor de waarschuwingen in het spel van mods die controleren of de patch aanwezig is, grotendeels onderdrukt,
+maar het is veilig en wordt aanbevolen.
 
 Het originele exe-bestand blijft bewaard als {0}.</translation>
     </message>
@@ -2263,6 +2339,10 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
         <translation>Geselecteerde installeren</translation>
     </message>
     <message>
+        <source>Move Selected</source>
+        <translation>Geselecteerde verplaatsen</translation>
+    </message>
+    <message>
         <source>Remove Selected</source>
         <translation>Geselecteerde items verwijderen</translation>
     </message>
@@ -2281,6 +2361,14 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
     <message>
         <source>Removed {0} archive(s)</source>
         <translation>{0}-archief(en) verwijderd</translation>
+    </message>
+    <message>
+        <source>Cannot use that folder: {0}</source>
+        <translation>Die map kan niet worden gebruikt: {0}</translation>
+    </message>
+    <message>
+        <source>Moved {0} archive(s)</source>
+        <translation>{0}-archief(en) verplaatst</translation>
     </message>
     <message>
         <source>Find in files:</source>
@@ -2332,7 +2420,7 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
     </message>
     <message>
         <source>My Games folder</source>
-        <translation>Mijn map 'Games'</translation>
+        <translation>Mijn map ‘Games’</translation>
     </message>
     <message>
         <source>AppData folder</source>
@@ -2504,7 +2592,7 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
     </message>
     <message>
         <source>Log in first: Nexus ▸ Login to Nexus ▸ Login via SSO.</source>
-        <translation>Log eerst in: Nexus ▸ Inloggen bij Nexus ▸ Inloggen via SSO.</translation>
+        <translation>Log eerst in: Nexus ▸ Inloggen op Nexus ▸ Inloggen via SSO.</translation>
     </message>
     <message>
         <source>Received a malformed NXM link.</source>
@@ -2592,7 +2680,7 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
     </message>
     <message>
         <source>Log in first: Nexus ▸ Login to Nexus.</source>
-        <translation>Log eerst in: Nexus ▸ Inloggen op Nexus.</translation>
+        <translation>Log eerst in: Nexus ▸ Log in op Nexus.</translation>
     </message>
     <message>
         <source>This collection has no installable mods.</source>
@@ -2616,7 +2704,7 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
     </message>
     <message>
         <source>Switch to profile '{0}' first, then Update.</source>
-        <translation>Schakel eerst over naar het profiel ‘{0}’ en klik vervolgens op ‘Update’.</translation>
+        <translation>Schakel eerst over naar het profiel ‘{0}’ en klik vervolgens op ‘Bijwerken’.</translation>
     </message>
     <message>
         <source>Could not compute update diff: {0}</source>
@@ -2903,6 +2991,10 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
         <translation>Er zijn geen bestanden beschikbaar om te downloaden voor die mod.</translation>
     </message>
     <message>
+        <source>{0} game — {1}</source>
+        <translation>{0} spel — {1}</translation>
+    </message>
+    <message>
         <source>{0} game</source>
         <translation>{0} spel</translation>
     </message>
@@ -3065,6 +3157,30 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
     <message>
         <source>Installing {0}…</source>
         <translation>{0} wordt geïnstalleerd…</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks requires Hardlink mode</source>
+        <translation>Voor Cyber Engine Tweaks is de Hardlink-modus vereist</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
+
+CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
+
+Deploy anyway?</source>
+        <translation>Cyber Engine Tweaks is ingeschakeld, maar de implementatiemodus is ingesteld op Symlink.
+
+CET kan niet worden geladen vanuit een cyber_engine_tweaks.asi-bestand waarnaar een symlink is gemaakt — stel de implementatiemodus in op Hardlink om CET te laten werken.
+
+Toch doorgaan met implementeren?</translation>
+    </message>
+    <message>
+        <source>Deploy anyway</source>
+        <translation>Toch doorzetten</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
     </message>
     <message>
         <source>Install cancelled: {0}</source>
@@ -3325,6 +3441,10 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
     <message>
         <source>Clear Log</source>
         <translation>Logboek wissen</translation>
+    </message>
+    <message>
+        <source>Open Log Folder</source>
+        <translation>Map met logbestanden openen</translation>
     </message>
     <message>
         <source>Changelog</source>
@@ -3715,7 +3835,7 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
     </message>
     <message>
         <source>Launching {0} via Proton…</source>
-        <translation>{0}-lancering via Proton…</translation>
+        <translation>{0} wordt gelanceerd via Proton…</translation>
     </message>
 </context>
 <context>
@@ -3772,7 +3892,7 @@ or an encrypted file when no keyring is available).</source>
         <translation>Plak je mod.io-API-sleutel (alleen-lezen) om updatecontroles in te schakelen
 voor Baldur's Gate 3-mods die handmatig via mod.io zijn geïnstalleerd.
 
-De sleutel is alleen-lezen en wordt veilig opgeslagen (in de systeem-sleutelring,
+De sleutel is alleen-lezen en wordt veilig opgeslagen (in de sleutelring van het systeem,
 of in een versleuteld bestand als er geen sleutelring beschikbaar is).</translation>
     </message>
     <message>
@@ -3790,6 +3910,25 @@ of in een versleuteld bestand als er geen sleutelring beschikbaar is).</translat
     <message>
         <source>Test &amp;&amp; Save</source>
         <translation>Testen &amp;&amp; Opslaan</translation>
+    </message>
+</context>
+<context>
+    <name>MoveDownloadsOverlay</name>
+    <message>
+        <source>Move {0} archive(s) to…</source>
+        <translation>{0}-archief(en) verplaatsen naar…</translation>
+    </message>
+    <message>
+        <source>Choose a configured download location.</source>
+        <translation>Kies een ingestelde downloadlocatie.</translation>
+    </message>
+    <message>
+        <source>No configured download locations.</source>
+        <translation>Er zijn geen downloadlocaties geconfigureerd.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
     </message>
 </context>
 <context>
@@ -4039,7 +4178,7 @@ Je kunt dit overslaan en later verbinding maken via de Nexus-knop in de werkbalk
     <message>
         <source>When set, new games will use &lt;this&gt;/&lt;game name&gt; as their
 mod staging folder. You can change this later in Settings.</source>
-        <translation>Als deze optie is ingeschakeld, gebruiken nieuwe games &lt;dit&gt;/&lt;naam van het spel&gt; als hun
+        <translation>Als deze optie is ingeschakeld, wordt voor nieuwe games &lt;dit&gt;/&lt;naam van het spel&gt; gebruikt als
 mod-tussentijdse map. Je kunt dit later aanpassen in de instellingen.</translation>
     </message>
     <message>
@@ -4085,7 +4224,7 @@ Elke game krijgt een eigen submap.</translation>
     <name>OverwriteLogOverlay</name>
     <message>
         <source>Files swept into Overwrite (newest restore first)</source>
-        <translation>Bestanden die naar de map „Overwrite“ zijn verplaatst (nieuwste herstelversie eerst)</translation>
+        <translation>Bestanden die naar de map „Overwrite“ zijn verplaatst (nieuwste herstelbewerking eerst)</translation>
     </message>
     <message>
         <source>Close</source>
@@ -4128,7 +4267,7 @@ Zodra je dit hebt gedaan, klik je op ‘Deploy’.</translation>
         <source>Builds a synthetic MO2 instance so PGPatcher attributes
 conflicts per-mod, matching a real MO2 setup. Experimental.</source>
         <translation>Maakt een synthetische MO2-instantie aan, zodat de attributen van PGPatcher
-per mod conflicten vertonen, net als bij een echte MO2-configuratie. Experimenteel.</translation>
+per mod conflicteren, net als bij een echte MO2-configuratie. Experimenteel.</translation>
     </message>
     <message>
         <source>Skip</source>
@@ -4250,7 +4389,7 @@ Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</trans
     </message>
     <message>
         <source>Audits your active load order to find patched plugins that can be safely disabled (their patches still apply at runtime), and flags those blocked by new records or by other plugins depending on them.</source>
-        <translation>Controleert je actieve laadvolgorde om gepatchte plug-ins op te sporen die veilig kunnen worden uitgeschakeld (hun patches blijven tijdens de uitvoering van kracht), en markeert de plug-ins die worden geblokkeerd door nieuwe records of door andere plug-ins die ervan afhankelijk zijn.</translation>
+        <translation>Controleert je actieve laadvolgorde om gepatchte plug-ins te vinden die veilig kunnen worden uitgeschakeld (hun patches blijven tijdens de uitvoering van kracht), en markeert de plug-ins die worden geblokkeerd door nieuwe records of door andere plug-ins die ervan afhankelijk zijn.</translation>
     </message>
     <message>
         <source>Start Scan</source>
@@ -4294,7 +4433,7 @@ Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</trans
     </message>
     <message>
         <source>Audit complete — {0} plugins, {1} safe to disable.</source>
-        <translation>Controle voltooid — {0} plugins, {1} kunnen veilig worden uitgeschakeld.</translation>
+        <translation>Controle voltooid — {0} plug-ins, {1} kunnen veilig worden uitgeschakeld.</translation>
     </message>
     <message>
         <source>No orphaned INIs to clean.</source>
@@ -4314,7 +4453,7 @@ Scan opnieuw om te controleren.</translation>
     </message>
     <message>
         <source>Cleanup Complete</source>
-        <translation>Opruimwerkzaamheden voltooid</translation>
+        <translation>Opruiming voltooid</translation>
     </message>
     <message>
         <source>Re-Scan to Verify</source>
@@ -4431,7 +4570,7 @@ Scan opnieuw om te controleren.</translation>
     </message>
     <message>
         <source>Enable plugin</source>
-        <translation>Plug-in inschakelen</translation>
+        <translation>Plugin inschakelen</translation>
     </message>
     <message>
         <source>Enable selected ({0})</source>
@@ -4459,7 +4598,7 @@ Scan opnieuw om te controleren.</translation>
     </message>
     <message>
         <source>Remove ESL flag from selected ({0})</source>
-        <translation>ESL-vlag verwijderen uit geselecteerde items ({0})</translation>
+        <translation>ESL-vlag verwijderen uit geselecteerde ({0})</translation>
     </message>
     <message>
         <source>Remove from userlist</source>
@@ -4564,7 +4703,7 @@ Sleep een plug-in vanuit het linkerdeelvenster om een regel toe te voegen.</tran
     </message>
     <message>
         <source>1 prefix found — calculating sizes…</source>
-        <translation>1 voorvoegsel gevonden — grootte wordt berekend…</translation>
+        <translation>1 voorvoegsel gevonden — groottes worden berekend…</translation>
     </message>
     <message>
         <source>{0} prefixes found — calculating sizes…</source>
@@ -4706,7 +4845,7 @@ Installeer een Proton-versie in Steam en open deze wizard vervolgens opnieuw.</t
     <message>
         <source>A prefix already exists for this version. Delete it if {0}
 has issues — it is recreated automatically on the next step.</source>
-        <translation>Er bestaat al een prefix voor deze versie. Verwijder deze als{0}
+        <translation>Er bestaat al een voorvoegsel voor deze versie. Verwijder het als{0}
 problemen vertoont — het wordt in de volgende stap automatisch opnieuw aangemaakt.</translation>
     </message>
     <message>
@@ -4750,7 +4889,7 @@ problemen vertoont — het wordt in de volgende stap automatisch opnieuw aangema
     </message>
     <message>
         <source>If the game won't load (black screen) after removing mods, the PAK archives may still have invalidated entries. This restores the original PAK data from the failsafe manifest in the game root.</source>
-        <translation>Als het spel na het verwijderen van mods niet laadt (zwart scherm), kunnen de PAK-archieven nog steeds ongeldige vermeldingen bevatten. Hiermee worden de oorspronkelijke PAK-gegevens hersteld op basis van het failsafe-manifest in de hoofdmap van het spel.</translation>
+        <translation>Als het spel na het verwijderen van mods niet laadt (zwart scherm), bevatten de PAK-archieven mogelijk nog steeds ongeldige vermeldingen. Hiermee worden de oorspronkelijke PAK-gegevens hersteld op basis van het failsafe-manifest in de hoofdmap van het spel.</translation>
     </message>
     <message>
         <source>Game root: {0}</source>
@@ -4829,7 +4968,7 @@ Als het spel nog steeds niet goed werkt, controleer dan de spelbestanden via Ste
     </message>
     <message>
         <source>The official ReShade shaders are always included. Select any additional packs to download:</source>
-        <translation>De officiële ReShade-shaders zijn altijd inbegrepen. Selecteer eventuele extra pakketten die je wilt downloaden:</translation>
+        <translation>De officiële ReShade-shaders worden altijd meegeleverd. Selecteer eventuele extra pakketten die je wilt downloaden:</translation>
     </message>
     <message>
         <source>Install from a preset (optional)</source>
@@ -5035,6 +5174,14 @@ Kies 'Behouden' als dit een optionele/alternatieve variant is in plaats van een 
         <translation>Opslaan</translation>
     </message>
     <message>
+        <source>true</source>
+        <translation>true</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>false</translation>
+    </message>
+    <message>
         <source>Form reset to built-in defaults (not yet saved).</source>
         <translation>Het formulier is teruggezet naar de standaardinstellingen (nog niet opgeslagen).</translation>
     </message>
@@ -5129,6 +5276,36 @@ Kies 'Behouden' als dit een optionele/alternatieve variant is in plaats van een 
         <translation>.NET 8 wordt gecontroleerd…</translation>
     </message>
     <message>
+        <source>Existing Merges Use Missing Mods</source>
+        <translation>Bestaande samenvoegingen maken gebruik van ontbrekende mods</translation>
+    </message>
+    <message>
+        <source>{0} existing merge(s) use mods that are not currently deployed (disabled or removed):
+
+{1}
+
+Script Merger cannot run safely in this state.
+
+Cancel and re-enable the listed mods to keep the merges, or delete the existing merges (removes the Merged_Mods mod) and re-create them in this run from the mods that are enabled.</source>
+        <translation>{0}
+
+Bestaande samenvoegingen maken gebruik van mods die momenteel niet zijn geïmplementeerd (uitgeschakeld of verwijderd):
+
+{1}
+
+Script Merger kan in deze toestand niet veilig worden uitgevoerd.
+
+Annuleer en schakel de vermelde mods opnieuw in om de samenvoegingen te behouden, of verwijder de bestaande samenvoegingen (waardoor de mod „Merged_Mods“ wordt verwijderd) en maak ze in deze run opnieuw aan op basis van de mods die zijn ingeschakeld.</translation>
+    </message>
+    <message>
+        <source>Delete Merges</source>
+        <translation>Samenvoegingen verwijderen</translation>
+    </message>
+    <message>
+        <source>Launch cancelled — re-enable the merges' source mods, then reopen this wizard.</source>
+        <translation>Lancering geannuleerd — schakel de bronmods van de samenvoegingen weer in en open deze wizard vervolgens opnieuw.</translation>
+    </message>
+    <message>
         <source>Launching WitcherScriptMerger…</source>
         <translation>WitcherScriptMerger wordt gestart…</translation>
     </message>
@@ -5178,7 +5355,7 @@ Start de wizard opnieuw op en installeer eerst Script Merger.</translation>
     </message>
     <message>
         <source>Custom background colour for this separator row. Reset uses the theme default.</source>
-        <translation>Aangepaste achtergrondkleur voor deze scheidingsrij. Met ‘Reset’ wordt de standaardinstelling van het thema gebruikt.</translation>
+        <translation>Aangepaste achtergrondkleur voor deze scheidingsrij. Met ‘Reset’ wordt de standaardkleur van het thema gebruikt.</translation>
     </message>
     <message>
         <source>Deployment Location</source>
@@ -5300,7 +5477,7 @@ Start de wizard opnieuw op en installeer eerst Script Merger.</translation>
     </message>
     <message>
         <source>Hide BSA/BA2 archive conflict flags (also skips that conflict scan for a small speed-up).</source>
-        <translation>Conflictvlaggen van het BSA/BA2-archief verbergen (hierdoor wordt ook die conflictscan overgeslagen, wat een kleine snelheidswinst oplevert).</translation>
+        <translation>Conflictvlaggen van het BSA/BA2-archief verbergen (slaat ook die conflictscan over, wat een kleine snelheidswinst oplevert).</translation>
     </message>
     <message>
         <source>Downloads &amp; Collections</source>
@@ -5320,7 +5497,7 @@ Start de wizard opnieuw op en installeer eerst Script Merger.</translation>
     </message>
     <message>
         <source>Mods installed via a FOMOD installer keep their archive even when 'Clear archive after install' is on.</source>
-        <translation>Mods die via een FOMOD-installatieprogramma zijn geïnstalleerd, behouden hun archief, zelfs als de optie ‘Archief na installatie wissen’ is ingeschakeld.</translation>
+        <translation>Mods die via een FOMOD-installatieprogramma zijn geïnstalleerd, behouden hun archief, zelfs als de optie 'Archief na installatie wissen' is ingeschakeld.</translation>
     </message>
     <message>
         <source>Max concurrent downloads</source>
@@ -5893,6 +6070,78 @@ De uitvoer wordt rechtstreeks in je modlijst opgeslagen als de mod ‘{0}’.</t
         <source>  (none)</source>
         <translation>  (geen)</translation>
     </message>
+    <message>
+        <source>A new version of Amethyst Mod Manager is available on the AUR.
+
+Current: {0}
+AUR:     {1}
+
+Update via your AUR helper, e.g.
+  yay -Syu amethyst-mod-manager</source>
+        <translation>Er is een nieuwe versie van Amethyst Mod Manager beschikbaar op de AUR.
+
+Huidige versie:{0}
+
+
+AUR:     {1}
+
+Werk bij via je AUR-helper, bijvoorbeeld:
+  yay -Syu amethyst-mod-manager</translation>
+    </message>
+    <message>
+        <source>Pre-release</source>
+        <translation>Vooruitblik</translation>
+    </message>
+    <message>
+        <source>Stable</source>
+        <translation>Stabiel</translation>
+    </message>
+    <message>
+        <source>You're running a pre-release. Switch to the latest {0} build?
+
+Current:     {1}
+{2}: {3}
+
+This will downgrade your installation.</source>
+        <translation>Je gebruikt een pre-release. Wil je overschakelen naar de nieuwste{0}
+-build?
+
+Huidig:     {1}
+
+{2}
+:{3}
+Hierdoor wordt je installatie teruggeschakeld naar een eerdere versie.</translation>
+    </message>
+    <message>
+        <source>A new version of Amethyst Mod Manager is available.
+
+Current: {0}
+Latest:  {1}</source>
+        <translation>Er is een nieuwe versie van Amethyst Mod Manager beschikbaar.
+
+Huidige versie: {0}
+Nieuwste versie:  {1}</translation>
+    </message>
+    <message>
+        <source>Switch to stable</source>
+        <translation>Overstappen naar de stabiele versie</translation>
+    </message>
+    <message>
+        <source>Update via installer</source>
+        <translation>Update via het installatieprogramma</translation>
+    </message>
+    <message>
+        <source>Open AUR page</source>
+        <translation>AUR-pagina openen</translation>
+    </message>
+    <message>
+        <source>Open releases page</source>
+        <translation>Ga naar de pagina met persberichten</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Later</translation>
+    </message>
 </context>
 <context>
     <name>UserlistBar</name>
@@ -6081,7 +6330,7 @@ Start de wizard opnieuw en installeer eerst {1}.</translation>
     </message>
     <message>
         <source>Step 6: Run {0}</source>
-        <translation>Stap 6: Voer het programma ‘{0}’ uit</translation>
+        <translation>Stap 6: Voer het commando `{0}` uit</translation>
     </message>
     <message>
         <source>Done</source>
@@ -6202,7 +6451,7 @@ Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</trans
     </message>
     <message>
         <source>Files swept into Overwrite (newest restore first)</source>
-        <translation>Bestanden die naar de map „Overwrite“ zijn verplaatst (nieuwste herstelversie eerst)</translation>
+        <translation>Bestanden die naar de map „Overwrite“ zijn verplaatst (nieuwste herstelbewerking eerst)</translation>
     </message>
 </context>
 </TS>

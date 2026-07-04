@@ -28,7 +28,7 @@
     <name>BG3ImportView</name>
     <message>
         <source>Step 1: Select a BG3 Mod Manager order file</source>
-        <translation>Krok 1: Wybierz plik z kolejnością modów w programie BG3 Mod Manager</translation>
+        <translation>Krok 1: Wybierz plik z kolejnością modów z programu BG3 Mod Manager</translation>
     </message>
     <message>
         <source>Choose a modlist.json (or an exported saved-order .json) from BG3 Mod Manager.
@@ -106,6 +106,10 @@ Uruchom, aby zastosować nową kolejność ładowania w grze.</translation>
         <translation>Nowa kopia zapasowa</translation>
     </message>
     <message>
+        <source>Rename</source>
+        <translation>Zmień nazwę</translation>
+    </message>
+    <message>
         <source>Keep</source>
         <translation>Zachowaj</translation>
     </message>
@@ -136,6 +140,14 @@ Uruchom, aby zastosować nową kolejność ładowania w grze.</translation>
     <message>
         <source>Unkeep</source>
         <translation>Unkeep</translation>
+    </message>
+    <message>
+        <source>Rename backup</source>
+        <translation>Zmień nazwę kopii zapasowej</translation>
+    </message>
+    <message>
+        <source>Enter a name for this backup (leave blank to use the date).</source>
+        <translation>Wpisz nazwę tej kopii zapasowej (pozostaw pole puste, aby użyć daty).</translation>
     </message>
 </context>
 <context>
@@ -174,7 +186,7 @@ Uruchom, aby zastosować nową kolejność ładowania w grze.</translation>
     </message>
     <message>
         <source>Use this package — turn off the later packages overriding its files</source>
-        <translation>Użyj tego pakietu — wyłącz późniejsze pakiety, które zastępują jego pliki</translation>
+        <translation>Użyj tego pakietu — wyłącz późniejsze pakiety, które nadpisują jego pliki</translation>
     </message>
 </context>
 <context>
@@ -243,7 +255,7 @@ Najpierw wdroż listę modów, a następnie ponownie otwórz ten kreator.</trans
     </message>
     <message>
         <source>Files that get packed will be removed from the mod folder. Files outside the packable filter (plugins, readmes, .bik videos) and files you've disabled in the Mod Files tab are left alone.</source>
-        <translation>Pliki, które zostaną spakowane, zostaną usunięte z folderu modów. Pliki nieobjęte filtrem pakowania (wtyczki, pliki readme, filmy w formacie .bik) oraz pliki wyłączone w zakładce „Pliki modów” pozostaną na swoim miejscu.</translation>
+        <translation>Pliki, które zostaną spakowane, zostaną usunięte z folderu modów. Pliki nieobjęte filtrem pakowania (wtyczki, pliki readme, filmy .bik) oraz pliki wyłączone w zakładce „Pliki modów” pozostaną na swoim miejscu.</translation>
     </message>
     <message>
         <source>Separate textures archive</source>
@@ -251,7 +263,7 @@ Najpierw wdroż listę modów, a następnie ponownie otwórz ten kreator.</trans
     </message>
     <message>
         <source>Writes textures to a sibling “… - Textures.bsa” instead of bundling them with the main archive. Optional for Skyrim / FNV / Oblivion; mostly useful for very large texture packs.</source>
-        <translation>Zapisuje tekstury w pliku równorzędnym „… - Textures.bsa” zamiast dołączać je do głównego archiwum. Opcja ta jest opcjonalna w przypadku gier Skyrim / FNV / Oblivion; przydaje się głównie w przypadku bardzo dużych pakietów tekstur.</translation>
+        <translation>Zapisuje tekstury w pliku równorzędnym „… - Textures.bsa” zamiast dołączać je do głównego archiwum. Opcja ta jest opcjonalna w przypadku gier Skyrim, FNV i Oblivion; przydaje się głównie w przypadku bardzo dużych pakietów tekstur.</translation>
     </message>
     <message>
         <source>Keep winning conflict files loose</source>
@@ -417,7 +429,7 @@ The md5 cache is preserved. Archives will be re-downloaded as needed.</source>
 
 z buforowanych plików pobranych dla wszystkich gier?
 
-Lokalizacja:{1}
+Adres:{1}
 
 Bufor MD5 zostanie zachowany. Archiwa zostaną ponownie pobrane w razie potrzeby.</translation>
     </message>
@@ -746,6 +758,22 @@ Bufor MD5 zostanie zachowany. Archiwa zostaną ponownie pobrane w razie potrzeby
         <translation>{0} Gra — {1}</translation>
     </message>
     <message>
+        <source>Settings saved to profile: {0} (this profile only)</source>
+        <translation>Ustawienia zapisane w profilu: {0} (tylko ten profil)</translation>
+    </message>
+    <message>
+        <source>Editing shared settings (default profile)</source>
+        <translation>Edytowanie ustawień wspólnych (profil domyślny)</translation>
+    </message>
+    <message>
+        <source>Use Shared Settings</source>
+        <translation>Użyj ustawień wspólnych</translation>
+    </message>
+    <message>
+        <source>This profile has its own saved paths/options. Remove them so it follows the shared (default profile) settings again.</source>
+        <translation>Ten profil ma własne zapisane ścieżki i opcje. Usuń je, aby profil znów korzystał z ustawień wspólnych (profilu domyślnego).</translation>
+    </message>
+    <message>
         <source>Remove Instance</source>
         <translation>Usuń instancję</translation>
     </message>
@@ -795,7 +823,7 @@ Bufor MD5 zostanie zachowany. Archiwa zostaną ponownie pobrane w razie potrzeby
     </message>
     <message>
         <source>No launcher ID — prefix not applicable.</source>
-        <translation>Brak identyfikatora programu uruchamiającego — prefiks nie ma zastosowania.</translation>
+        <translation>Brak identyfikatora programu uruchamiającego — przedrostek nie ma zastosowania.</translation>
     </message>
     <message>
         <source>Mod Staging Folder</source>
@@ -846,6 +874,34 @@ Bufor MD5 zostanie zachowany. Archiwa zostaną ponownie pobrane w razie potrzeby
         <translation>Skonfigurowano niestandardowy folder przejściowy.</translation>
     </message>
     <message>
+        <source>Cannot reset to shared settings while mods are deployed. Restore the game first.</source>
+        <translation>Nie można przywrócić ustawień domyślnych, gdy modyfikacje są aktywne. Najpierw przywróć grę do stanu pierwotnego.</translation>
+    </message>
+    <message>
+        <source>Use Shared Settings?</source>
+        <translation>Czy chcesz korzystać z ustawień wspólnych?</translation>
+    </message>
+    <message>
+        <source>Remove this profile's own paths and options so it follows the shared (default profile) settings again?
+
+The default profile's settings are not affected.</source>
+        <translation>Czy należy usunąć ścieżki i opcje tego profilu, aby znów stosował on ustawienia wspólne (profilu domyślnego)?
+
+Nie ma to wpływu na ustawienia profilu domyślnego.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Resetuj</translation>
+    </message>
+    <message>
+        <source>Profile now follows the shared (default profile) settings.</source>
+        <translation>Profil jest teraz zgodny z ustawieniami wspólnymi (profil domyślny).</translation>
+    </message>
+    <message>
+        <source>Settings saved.</source>
+        <translation>Ustawienia zostały zapisane.</translation>
+    </message>
+    <message>
         <source>Custom staging folder selected.</source>
         <translation>Wybrano niestandardowy folder tymczasowy.</translation>
     </message>
@@ -866,8 +922,16 @@ Bufor MD5 zostanie zachowany. Archiwa zostaną ponownie pobrane w razie potrzeby
         <translation>Najpierw ustaw folder instalacyjny gry.</translation>
     </message>
     <message>
+        <source>This path is not visible inside the Flatpak sandbox. Grant access in Flatseal or run: {0}</source>
+        <translation>Ta ścieżka nie jest widoczna w środowisku izolowanym Flatpak. Należy przyznać dostęp w programie Flatseal lub uruchomić polecenie: {0}</translation>
+    </message>
+    <message>
         <source>Cannot change the game/prefix path while mods are deployed. Restore the game first.</source>
         <translation>Nie można zmienić ścieżki do gry/prefiksów, gdy modyfikacje są wdrożone. Najpierw przywróć grę.</translation>
+    </message>
+    <message>
+        <source>Cannot use hardlinks: the staging folder and {0} are on different drives or filesystems. Switch to Symlink instead.</source>
+        <translation>Nie można używać dowiązań twardych: folder staging i {0} znajdują się na różnych dyskach lub w różnych systemach plików. Zamiast tego należy użyć dowiązań symbolicznych.</translation>
     </message>
     <message>
         <source>Checking existing staging files…</source>
@@ -936,7 +1000,7 @@ Skyrim Special Edition → ⚙ → Manage → Creation Kit.
 Install it, then reopen this wizard.</source>
         <translation>{0} nie znaleziono w folderze gry.
 
-Creation Kit instaluje się za pośrednictwem serwisu Steam:
+Creation Kit instaluje się za pośrednictwem platformy Steam:
 Skyrim Special Edition → ⚙ → Zarządzaj → Creation Kit.
 
 Zainstaluj go, a następnie ponownie uruchom ten kreator.</translation>
@@ -1062,7 +1126,7 @@ Creation Kit może również sporadycznie ulegać awarii podczas uruchamiania w 
     </message>
     <message>
         <source>Comma-separated file extensions a mod must contain at its root. e.g. .esp, .esm — works standalone or as a fallback after Required Top-Level Folders.</source>
-        <translation>Rozszerzenia plików, rozdzielone przecinkami, które mod musi zawierać w swoim katalogu głównym. Np. .esp, .esm — działa samodzielnie lub jako rozwiązanie awaryjne po „Wymaganych folderach najwyższego poziomu”.</translation>
+        <translation>Rozszerzenia plików, oddzielone przecinkami, które mod musi zawierać w swoim katalogu głównym. Np. .esp, .esm — działa samodzielnie lub jako rozwiązanie awaryjne po „Wymaganych folderach najwyższego poziomu”.</translation>
     </message>
     <message>
         <source>Strip Prefixes (post-install)</source>
@@ -1222,7 +1286,7 @@ Creation Kit może również sporadycznie ulegać awarii podczas uruchamiania w 
     </message>
     <message>
         <source>Route specific files to alternate destinations during deploy. Each rule maps files (by extension, folder or filename) to a game-root-relative directory. For extensions, append (.ext, .ext) to also route same-stem siblings (e.g. .asi (.ini) sends Foo.ini alongside Foo.asi). Flatten drops subfolders below the matched folder. To Prefix routes relative to the Proton/Wine prefix root instead of the game install root.</source>
-        <translation>Przekierowuj określone pliki do alternatywnych lokalizacji podczas wdrażania. Każda reguła przypisuje pliki (według rozszerzenia, folderu lub nazwy pliku) do katalogu względnego względem katalogu głównego gry. W przypadku rozszerzeń dodaj (.ext, .ext), aby przekierować również pliki z tym samym rdzeniem (np. .asi (.ini) wysyła plik Foo.ini wraz z plikiem Foo.asi). Opcja „Flatten” usuwa podfoldery znajdujące się poniżej dopasowanego folderu. Opcja „Prefix” przekierowuje pliki względem katalogu głównego prefiksu Proton/Wine zamiast względem katalogu głównego instalacji gry.</translation>
+        <translation>Przekierowuj określone pliki do alternatywnych lokalizacji podczas wdrażania. Każda reguła przypisuje pliki (według rozszerzenia, folderu lub nazwy pliku) do katalogu względnego względem katalogu głównego gry. W przypadku rozszerzeń dodaj (.ext, .ext), aby przekierować również pliki o tej samej części podstawowej (np. .asi (.ini) wysyła plik Foo.ini wraz z plikiem Foo.asi). Opcja „Flatten” usuwa podfoldery znajdujące się poniżej dopasowanego folderu. Opcja „Prefix” kieruje pliki względem katalogu głównego prefiksu Proton/Wine zamiast względem katalogu głównego instalacji gry.</translation>
     </message>
     <message>
         <source>+ Add Rule</source>
@@ -1354,6 +1418,10 @@ Creation Kit może również sporadycznie ulegać awarii podczas uruchamiania w 
         <source>Deployed files</source>
         <translation>Pliki wdrożone</translation>
     </message>
+    <message>
+        <source>Deployed files - {0} files in {1} mods</source>
+        <translation>Pliki wdrożone – pliki z serwisu {0} w modach z serwisu {1}</translation>
+    </message>
 </context>
 <context>
     <name>DetachableTabWidget</name>
@@ -1410,7 +1478,7 @@ Creation Kit może również sporadycznie ulegać awarii podczas uruchamiania w 
     </message>
     <message>
         <source>Applied {0} override(s) to the prefix.</source>
-        <translation>Zastosowano nadpisania typu „{0}” do prefiksu.</translation>
+        <translation>Zastosowano nadpisania typu „{0}” dla tego prefiksu.</translation>
     </message>
     <message>
         <source>Failed to apply overrides to the prefix.</source>
@@ -1675,6 +1743,14 @@ Po zakończeniu działania ESLifier zapisuje wynik jako mod
     <message>
         <source>Save</source>
         <translation>Zapisz</translation>
+    </message>
+    <message>
+        <source>true</source>
+        <translation>true</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>false</translation>
     </message>
     <message>
         <source>Form reset to built-in defaults (not yet saved).</source>
@@ -2135,7 +2211,7 @@ Oryginalny plik exe jest zachowywany pod nazwą {0}.</translation>
     </message>
     <message>
         <source>Auto detects Steam/Heroic ownership. Force a specific launcher, or None to always launch the exe directly via Proton.</source>
-        <translation>Automatycznie wykrywa posiadane gry w trybie Steam/Heroic. Wybierz konkretny program uruchamiający lub opcję „Brak”, aby plik exe był zawsze uruchamiany bezpośrednio przez Proton.</translation>
+        <translation>Automatycznie wykrywa posiadane gry w wersji Steam/Heroic. Wybierz konkretny program uruchamiający lub opcję „Brak”, aby plik exe był zawsze uruchamiany bezpośrednio przez Proton.</translation>
     </message>
     <message>
         <source>Deploy mods before launching</source>
@@ -2263,6 +2339,10 @@ Oryginalny plik exe jest zachowywany pod nazwą {0}.</translation>
         <translation>Zainstaluj wybrane</translation>
     </message>
     <message>
+        <source>Move Selected</source>
+        <translation>Przenieś zaznaczone</translation>
+    </message>
+    <message>
         <source>Remove Selected</source>
         <translation>Usuń zaznaczone</translation>
     </message>
@@ -2281,6 +2361,14 @@ Oryginalny plik exe jest zachowywany pod nazwą {0}.</translation>
     <message>
         <source>Removed {0} archive(s)</source>
         <translation>Usunięto archiwa z serwisu {0}</translation>
+    </message>
+    <message>
+        <source>Cannot use that folder: {0}</source>
+        <translation>Nie można użyć tego folderu: {0}</translation>
+    </message>
+    <message>
+        <source>Moved {0} archive(s)</source>
+        <translation>Przeniesiono archiwum (archiwa) „{0}”</translation>
     </message>
     <message>
         <source>Find in files:</source>
@@ -2496,7 +2584,7 @@ Oryginalny plik exe jest zachowywany pod nazwą {0}.</translation>
     </message>
     <message>
         <source>Language files updated — restart to apply.</source>
-        <translation>Pliki językowe zostały zaktualizowane — należy ponownie uruchomić program, aby zmiany zaczęły obowiązywać.</translation>
+        <translation>Pliki językowe zostały zaktualizowane — należy ponownie uruchomić system, aby zmiany zaczęły obowiązywać.</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -2752,7 +2840,7 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
     </message>
     <message>
         <source>A Quick Update is already running.</source>
-        <translation>„Szybka aktualizacja” już działa.</translation>
+        <translation>„Szybka aktualizacja” już się uruchomiła.</translation>
     </message>
     <message>
         <source>No mods with a pending update to quick-update.</source>
@@ -2901,6 +2989,10 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
     <message>
         <source>No downloadable files for that mod.</source>
         <translation>Nie ma plików do pobrania dla tego modu.</translation>
+    </message>
+    <message>
+        <source>{0} game — {1}</source>
+        <translation>{0} gra — {1}</translation>
     </message>
     <message>
         <source>{0} game</source>
@@ -3067,6 +3159,30 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
         <translation>Instalowanie programu „{0}”…</translation>
     </message>
     <message>
+        <source>Cyber Engine Tweaks requires Hardlink mode</source>
+        <translation>Aplikacja „Cyber Engine Tweaks” wymaga trybu Hardlink</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
+
+CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
+
+Deploy anyway?</source>
+        <translation>Funkcja „Cyber Engine Tweaks” jest włączona, ale tryb wdrażania jest ustawiony na „Symlink”.
+
+CET nie załaduje się z pliku cyber_engine_tweaks.asi, do którego utworzono dowiązanie symboliczne — aby CET działało, należy zmienić tryb wdrażania na „Hardlink”.
+
+Czy mimo to wdrożyć?</translation>
+    </message>
+    <message>
+        <source>Deploy anyway</source>
+        <translation>Wdrożyć mimo wszystko</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+    <message>
         <source>Install cancelled: {0}</source>
         <translation>Instalacja anulowana: {0}</translation>
     </message>
@@ -3092,7 +3208,7 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
     </message>
     <message>
         <source>Installed {0} of {1} mods — see log for failures.</source>
-        <translation>Zainstalowano modyfikacje z serwisu {1} ({0}) — informacje o niepowodzeniach znajdują się w dzienniku.</translation>
+        <translation>Zainstalowano modyfikacje z {0} oraz {1} — informacje o nieudanych operacjach znajdują się w dzienniku.</translation>
     </message>
     <message>
         <source>Install failed — see log.</source>
@@ -3212,7 +3328,7 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
     </message>
     <message>
         <source>{0} has no userlist rules to display.</source>
-        <translation>{0} nie ma żadnych reguł dotyczących listy użytkowników, które można by wyświetlić.</translation>
+        <translation>{0} nie ma żadnych reguł dotyczących listy użytkowników, które mogłyby zostać wyświetlone.</translation>
     </message>
     <message>
         <source>Plugin Cycle</source>
@@ -3327,6 +3443,10 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
         <translation>Wyczyść dziennik</translation>
     </message>
     <message>
+        <source>Open Log Folder</source>
+        <translation>Otwórz folder dziennika</translation>
+    </message>
+    <message>
         <source>Changelog</source>
         <translation>Lista zmian</translation>
     </message>
@@ -3370,7 +3490,7 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
     </message>
     <message>
         <source>Nexus only lets you endorse the app after you've downloaded it at least once. Opening the AMM page — please download it there first, then endorse.</source>
-        <translation>W serwisie Nexus można polecić aplikację dopiero po jej pobraniu przynajmniej raz. Otwórz stronę AMM — najpierw pobierz aplikację stamtąd, a dopiero potem ją poleć.</translation>
+        <translation>Nexus pozwala na rekomendowanie aplikacji dopiero po jej pobraniu przynajmniej raz. Otwórz stronę AMM — najpierw pobierz aplikację stamtąd, a dopiero potem ją poleć.</translation>
     </message>
     <message>
         <source>Endorse AMM: {0}</source>
@@ -3466,7 +3586,7 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
     </message>
     <message>
         <source>Add separator below</source>
-        <translation>Dodaj poniżej separator</translation>
+        <translation>Dodaj poniżej znak oddzielający</translation>
     </message>
     <message>
         <source>Bundle options…</source>
@@ -3502,7 +3622,7 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
     </message>
     <message>
         <source>Disable Root Folder install ({0})</source>
-        <translation>Wyłącz instalację w katalogu głównym ({0})</translation>
+        <translation>Wyłącz instalację w folderze głównym ({0})</translation>
     </message>
     <message>
         <source>Disable selected ({0})</source>
@@ -3790,6 +3910,25 @@ lub w zaszyfrowanym pliku, jeśli pęk kluczy nie jest dostępny).</translation>
     <message>
         <source>Test &amp;&amp; Save</source>
         <translation>Sprawdź i zapisz</translation>
+    </message>
+</context>
+<context>
+    <name>MoveDownloadsOverlay</name>
+    <message>
+        <source>Move {0} archive(s) to…</source>
+        <translation>Przenieś archiwum (archiwa) „{0}” do…</translation>
+    </message>
+    <message>
+        <source>Choose a configured download location.</source>
+        <translation>Wybierz skonfigurowaną lokalizację pobierania.</translation>
+    </message>
+    <message>
+        <source>No configured download locations.</source>
+        <translation>Nie skonfigurowano żadnych lokalizacji pobierania.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
     </message>
 </context>
 <context>
@@ -4451,7 +4590,7 @@ Przeprowadź ponowne skanowanie w celu weryfikacji.</translation>
     </message>
     <message>
         <source>Not ESL-safe (per LOOT — compact in xEdit first)</source>
-        <translation>Nie jest dostosowane do ESL (zgodnie z LOOT — najpierw skompaktuj w xEdit)</translation>
+        <translation>Nie nadaje się dla osób uczących się języka angielskiego jako języka obcego (zgodnie z LOOT — najpierw skróć w xEdit)</translation>
     </message>
     <message>
         <source>Remove ESL flag (un-light)</source>
@@ -4536,7 +4675,7 @@ Przeciągnij wtyczkę z lewego panelu, aby dodać regułę.</translation>
     </message>
     <message>
         <source>Wizard tools each run in their own Wine prefix (created next to the tool's exe or in the app config folder). Deleting one only reclaims disk space — it is recreated automatically the next time the tool runs.</source>
-        <translation>Każde narzędzie kreatora działa we własnym prefiksie Wine (utworzonym obok pliku exe narzędzia lub w folderze konfiguracyjnym aplikacji). Usunięcie jednego z nich pozwala jedynie zwolnić miejsce na dysku — zostanie ono automatycznie odtworzone przy następnym uruchomieniu narzędzia.</translation>
+        <translation>Każde narzędzie kreatora działa we własnym prefiksie Wine (utworzonym obok pliku exe narzędzia lub w folderze konfiguracyjnym aplikacji). Usunięcie takiego prefiksu pozwala jedynie zwolnić miejsce na dysku — zostanie on automatycznie odtworzony przy następnym uruchomieniu narzędzia.</translation>
     </message>
     <message>
         <source>Scanning for prefixes…</source>
@@ -4596,7 +4735,7 @@ Przeciągnij wtyczkę z lewego panelu, aby dodać regułę.</translation>
     </message>
     <message>
         <source>Deleted {0}; {1} problem(s) — see log.</source>
-        <translation>Usunięto problemy związane z adresami {0} oraz {1} — zobacz dziennik.</translation>
+        <translation>Usunięto problemy związane z {0} oraz {1} — zobacz dziennik.</translation>
     </message>
 </context>
 <context>
@@ -4669,7 +4808,7 @@ Zainstaluj wersję Proton w serwisie Steam, a następnie ponownie otwórz ten kr
     </message>
     <message>
         <source>Reuse one prefix (per Proton version) shared by every wizard tool, kept in the app config folder instead of next to the exe.</source>
-        <translation>Należy ponownie wykorzystać jeden prefiks (dla każdej wersji Proton) wspólny dla wszystkich narzędzi kreatora, przechowywany w folderze konfiguracyjnym aplikacji, a nie obok pliku exe.</translation>
+        <translation>Należy ponownie wykorzystać jeden prefiks (dla każdej wersji Protonu), wspólny dla wszystkich narzędzi kreatora, przechowywany w folderze konfiguracyjnym aplikacji, a nie obok pliku exe.</translation>
     </message>
     <message>
         <source>Use game prefix</source>
@@ -4677,7 +4816,7 @@ Zainstaluj wersję Proton w serwisie Steam, a następnie ponownie otwórz ten kr
     </message>
     <message>
         <source>Run inside the game's own prefix. No new prefix is created and the Proton version follows the game's Steam setting.</source>
-        <translation>Uruchom w ramach własnego prefiksu gry. Nie jest tworzony żaden nowy prefiks, a wersja w Protonie dostosowuje się do ustawień gry w serwisie Steam.</translation>
+        <translation>Uruchom w ramach własnego prefiksu gry. Nie jest tworzony żaden nowy prefiks, a wersja Protonu dostosowuje się do ustawień gry w serwisie Steam.</translation>
     </message>
     <message>
         <source>Delete Prefix</source>
@@ -4706,8 +4845,8 @@ Zainstaluj wersję Proton w serwisie Steam, a następnie ponownie otwórz ten kr
     <message>
         <source>A prefix already exists for this version. Delete it if {0}
 has issues — it is recreated automatically on the next step.</source>
-        <translation>Dla tej wersji istnieje już prefiks. Usuń go, jeśli wystąpią problemy z{0}
-— zostanie on automatycznie utworzony ponownie w następnym kroku.</translation>
+        <translation>Dla tej wersji istnieje już prefiks. Usuń go, jeśli strona{0}
+nie działa poprawnie — zostanie on automatycznie utworzony ponownie w następnym kroku.</translation>
     </message>
     <message>
         <source>Confirm Delete</source>
@@ -4762,7 +4901,7 @@ has issues — it is recreated automatically on the next step.</source>
 If the game is still broken, verify the game files via Steam.</source>
         <translation>W katalogu głównym gry nie znaleziono pliku manifestu przywracania ({0}). Nie ma nic do naprawienia — albo nie zainstalowano żadnych modów wykorzystujących poprawki PAK, albo plik manifestu został już wykorzystany podczas czystego przywracania.
 
-Jeśli gra nadal nie działa poprawnie, sprawdź pliki gry za pomocą serwisu Steam.</translation>
+Jeśli gra nadal nie działa poprawnie, sprawdź pliki gry za pomocą Steam.</translation>
     </message>
     <message>
         <source>{0} PAK file</source>
@@ -4809,7 +4948,7 @@ Jeśli gra nadal nie działa poprawnie, sprawdź pliki gry za pomocą serwisu St
     </message>
     <message>
         <source>Choose the graphics API this game uses and its executable architecture. If you're not sure, dxgi.dll / 64-bit works for most modern games.</source>
-        <translation>Wybierz interfejs API grafiki używany przez tę grę oraz architekturę pliku wykonywalnego. Jeśli nie masz pewności, w przypadku większości nowoczesnych gier sprawdzi się opcja „dxgi.dll / 64-bit”.</translation>
+        <translation>Wybierz interfejs API grafiki używany przez tę grę oraz architekturę pliku wykonywalnego. Jeśli nie masz pewności, w przypadku większości nowoczesnych gier sprawdzi się opcja dxgi.dll / 64-bit.</translation>
     </message>
     <message>
         <source>Rendering API (DLL)</source>
@@ -4837,7 +4976,7 @@ Jeśli gra nadal nie działa poprawnie, sprawdź pliki gry za pomocą serwisu St
     </message>
     <message>
         <source>Pick a ReShade preset (.ini) to install only the effects it uses. All packs are downloaded then trimmed to the preset.</source>
-        <translation>Wybierz preset ReShade (.ini), aby zainstalować wyłącznie efekty, z których on korzysta. Wszystkie pakiety są pobierane, a następnie dostosowywane do zawartości presetu.</translation>
+        <translation>Wybierz preset ReShade (.ini), aby zainstalować wyłącznie efekty, z których on korzysta. Wszystkie pakiety są najpierw pobierane, a następnie dostosowywane do zawartości presetu.</translation>
     </message>
     <message>
         <source>No preset selected</source>
@@ -4970,7 +5109,7 @@ Prefiks Proton: {2}</translation>
     </message>
     <message>
         <source>Proton prefix not found — launch the game once via Steam first.</source>
-        <translation>Nie znaleziono prefiksu „Proton” — najpierw uruchom grę raz za pośrednictwem platformy Steam.</translation>
+        <translation>Nie znaleziono prefiksu „Proton” — najpierw uruchom grę raz za pośrednictwem serwisu Steam.</translation>
     </message>
     <message>
         <source>Writing …</source>
@@ -5033,6 +5172,14 @@ Wybierz opcję „Zachowaj”, jeśli jest to wariant opcjonalny/alternatywny, a
     <message>
         <source>Save</source>
         <translation>Zapisz</translation>
+    </message>
+    <message>
+        <source>true</source>
+        <translation>true</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>false</translation>
     </message>
     <message>
         <source>Form reset to built-in defaults (not yet saved).</source>
@@ -5129,6 +5276,36 @@ Wybierz opcję „Zachowaj”, jeśli jest to wariant opcjonalny/alternatywny, a
         <translation>Sprawdzanie .NET 8…</translation>
     </message>
     <message>
+        <source>Existing Merges Use Missing Mods</source>
+        <translation>Istniejące scalenia wykorzystują brakujące modyfikatory</translation>
+    </message>
+    <message>
+        <source>{0} existing merge(s) use mods that are not currently deployed (disabled or removed):
+
+{1}
+
+Script Merger cannot run safely in this state.
+
+Cancel and re-enable the listed mods to keep the merges, or delete the existing merges (removes the Merged_Mods mod) and re-create them in this run from the mods that are enabled.</source>
+        <translation>{0}
+
+Istniejące połączenia wykorzystują mody, które nie są obecnie wdrożone (są wyłączone lub usunięte):
+
+{1}
+
+W tym stanie narzędzie do łączenia skryptów nie może działać bezpiecznie.
+
+Aby zachować scalenia, anuluj operację i ponownie włącz wymienione modyfikacje lub usuń istniejące scalenia (spowoduje to usunięcie modyfikacji Merged_Mods) i utwórz je ponownie podczas tego uruchomienia na podstawie włączonych modyfikacji.</translation>
+    </message>
+    <message>
+        <source>Delete Merges</source>
+        <translation>Usuń scalenia</translation>
+    </message>
+    <message>
+        <source>Launch cancelled — re-enable the merges' source mods, then reopen this wizard.</source>
+        <translation>Odwołano uruchomienie — włącz ponownie modyfikacje źródłowe scalania, a następnie ponownie otwórz ten kreator.</translation>
+    </message>
+    <message>
         <source>Launching WitcherScriptMerger…</source>
         <translation>Uruchamianie programu WitcherScriptMerger…</translation>
     </message>
@@ -5210,7 +5387,7 @@ Uruchom ponownie kreatora i zainstaluj najpierw program Script Merger.</translat
     </message>
     <message>
         <source>Override the global deploy mode. Hardlink falls back to symlink if unsupported.</source>
-        <translation>Zastąp globalny tryb wdrażania. Jeśli tryb „hardlink” nie jest obsługiwany, stosowany jest tryb „symlink”.</translation>
+        <translation>Zastąp globalny tryb wdrażania. Jeśli tryb „hardlink” nie jest obsługiwany, system przechodzi na tryb „symlink”.</translation>
     </message>
     <message>
         <source>Merge folders with target</source>
@@ -5300,7 +5477,7 @@ Uruchom ponownie kreatora i zainstaluj najpierw program Script Merger.</translat
     </message>
     <message>
         <source>Hide BSA/BA2 archive conflict flags (also skips that conflict scan for a small speed-up).</source>
-        <translation>Ukryj flagi konfliktów w archiwum BSA/BA2 (pominięcie tego skanowania w poszukiwaniu konfliktów zapewnia również niewielkie przyspieszenie).</translation>
+        <translation>Ukryj flagi konfliktów archiwum BSA/BA2 (pominięcie tego skanowania w poszukiwaniu konfliktów zapewnia również niewielkie przyspieszenie).</translation>
     </message>
     <message>
         <source>Downloads &amp; Collections</source>
@@ -5360,7 +5537,7 @@ Uruchom ponownie kreatora i zainstaluj najpierw program Script Merger.</translat
     </message>
     <message>
         <source>Unify folder names to a single casing across mods. Disable on case-insensitive filesystems.</source>
-        <translation>Ujednolicenie nazw folderów, tak aby we wszystkich modach stosowano tę samą wielkość liter. Wyłącz tę opcję w systemach plików, w których nie rozróżnia się wielkości liter.</translation>
+        <translation>Ujednolicenie nazw folderów, stosując jednolitą wielkość liter we wszystkich modach. Wyłącz tę opcję w systemach plików, w których nie rozróżnia się wielkości liter.</translation>
     </message>
     <message>
         <source>Rename mod after install</source>
@@ -5408,7 +5585,7 @@ Uruchom ponownie kreatora i zainstaluj najpierw program Script Merger.</translat
     </message>
     <message>
         <source>Where downloaded mod archives are stored. Blank = default ({0}).</source>
-        <translation>Miejsce przechowywania pobranych archiwów modów. Puste pole oznacza ustawienie domyślne ({0}).</translation>
+        <translation>Miejsce przechowywania pobranych archiwów modów. Puste pole = ustawienie domyślne ({0}).</translation>
     </message>
     <message>
         <source>Heroic Config Location</source>
@@ -5576,7 +5753,7 @@ Modyfikacja wyjściowa:{2}
     </message>
     <message>
         <source>Checking for the latest SMAPI release…</source>
-        <translation>Sprawdzanie najnowszej wersji SMAPI…</translation>
+        <translation>Sprawdzanie dostępności najnowszej wersji SMAPI…</translation>
     </message>
     <message>
         <source>A terminal window will open to run the installer.
@@ -5675,7 +5852,7 @@ Click Install to begin.</source>
         <translation>Natywny instalator TTW dla systemu Linux zostanie pobrany z serwisu GitHub
 i umieszczony w folderze „Applications” tej gry.
 
-Kliknij przycisk „Zainstaluj”, aby rozpocząć.</translation>
+Kliknij przycisk „Install”, aby rozpocząć.</translation>
     </message>
     <message>
         <source>Installer by SulfurNitride (TTW_Linux_Installer)</source>
@@ -5770,7 +5947,7 @@ Pobierz najnowszy plik TTW .mpi ze strony mod.pub (wymagane darmowe konto) — r
 merges Fallout 3 and Fallout New Vegas assets. This produces ~18 GB of output and can take a long while — please leave it running.
 Output is written directly into your mod list as the '{0}' mod.</source>
         <translation>Gra jest najpierw przywracana do stanu fabrycznego, a następnie instalator
-łączy zasoby z gier Fallout 3 i Fallout New Vegas. Proces ten generuje plik o rozmiarze około 18 GB i może potrwać dość długo — prosimy o pozostawienie programu uruchomionego.
+łączy zasoby z gier Fallout 3 i Fallout New Vegas. Proces ten generuje plik o rozmiarze około 18 GB i może trwać dość długo — prosimy o pozostawienie programu uruchomionego.
 Wynik jest zapisywany bezpośrednio na liście modów jako mod „{0}”.</translation>
     </message>
     <message>
@@ -5892,6 +6069,78 @@ Wynik jest zapisywany bezpośrednio na liście modów jako mod „{0}”.</trans
     <message>
         <source>  (none)</source>
         <translation>  (brak)</translation>
+    </message>
+    <message>
+        <source>A new version of Amethyst Mod Manager is available on the AUR.
+
+Current: {0}
+AUR:     {1}
+
+Update via your AUR helper, e.g.
+  yay -Syu amethyst-mod-manager</source>
+        <translation>W serwisie AUR dostępna jest nowa wersja programu Amethyst Mod Manager.
+
+Aktualna wersja:{0}
+
+
+AUR:     {1}
+
+Zaktualizuj za pomocą narzędzia do obsługi AUR, np.
+  yay -Syu amethyst-mod-manager</translation>
+    </message>
+    <message>
+        <source>Pre-release</source>
+        <translation>Wersja przedpremierowa</translation>
+    </message>
+    <message>
+        <source>Stable</source>
+        <translation>Stabilny</translation>
+    </message>
+    <message>
+        <source>You're running a pre-release. Switch to the latest {0} build?
+
+Current:     {1}
+{2}: {3}
+
+This will downgrade your installation.</source>
+        <translation>Korzystasz z wersji przedpremierowej. Czy chcesz przejść na najnowszą kompilację z serwera{0}
+?
+
+Obecna wersja:     {1}
+
+{2}
+:{3}
+Spowoduje to przejście na starszą wersję instalacji.</translation>
+    </message>
+    <message>
+        <source>A new version of Amethyst Mod Manager is available.
+
+Current: {0}
+Latest:  {1}</source>
+        <translation>Dostępna jest nowa wersja programu Amethyst Mod Manager.
+
+Aktualna wersja: {0}
+Najnowsza wersja:  {1}</translation>
+    </message>
+    <message>
+        <source>Switch to stable</source>
+        <translation>Przejdź do wersji stabilnej</translation>
+    </message>
+    <message>
+        <source>Update via installer</source>
+        <translation>Aktualizacja za pomocą instalatora</translation>
+    </message>
+    <message>
+        <source>Open AUR page</source>
+        <translation>Otwórz stronę AUR</translation>
+    </message>
+    <message>
+        <source>Open releases page</source>
+        <translation>Otwórz stronę z wydaniami</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Później</translation>
     </message>
 </context>
 <context>

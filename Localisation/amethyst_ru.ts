@@ -106,6 +106,10 @@ Deploy to push the new load order to the game.</source>
         <translation>Новая резервная копия</translation>
     </message>
     <message>
+        <source>Rename</source>
+        <translation>Переименовать</translation>
+    </message>
+    <message>
         <source>Keep</source>
         <translation>Сохранить</translation>
     </message>
@@ -137,6 +141,14 @@ Deploy to push the new load order to the game.</source>
         <source>Unkeep</source>
         <translation>Unkeep</translation>
     </message>
+    <message>
+        <source>Rename backup</source>
+        <translation>Переименовать резервную копию</translation>
+    </message>
+    <message>
+        <source>Enter a name for this backup (leave blank to use the date).</source>
+        <translation>Введите название для этой резервной копии (оставьте поле пустым, чтобы использовать дату).</translation>
+    </message>
 </context>
 <context>
     <name>BainPickerView</name>
@@ -150,7 +162,7 @@ Deploy to push the new load order to the game.</source>
     </message>
     <message>
         <source>Sub-packages ({0}) — tick to install · green = files used · red = fully overridden by a later package</source>
-        <translation>Вспомогательные пакеты ({0}) — установите галочку для установки · зелёный = используемые файлы · красный = полностью переопределены более поздним пакетом</translation>
+        <translation>Вспомогательные пакеты ({0}) — установите галочку для установки · зелёный = используемые файлы · красный = полностью переопределённые более поздним пакетом</translation>
     </message>
     <message>
         <source>Package readme</source>
@@ -387,9 +399,9 @@ Archives will be re-downloaded as needed.</source>
 
 »?
 
-Архивы «{2}
+Архивы{2}
 
-» будут загружены заново по мере необходимости.</translation>
+будут заново загружены по мере необходимости.</translation>
     </message>
     <message>
         <source>Clear {0} Cache(s)</source>
@@ -697,7 +709,7 @@ The md5 cache is preserved. Archives will be re-downloaded as needed.</source>
     </message>
     <message>
         <source>Collections appended to this profile</source>
-        <translation>Коллекции, добавленные к этому профилю</translation>
+        <translation>Коллекции, прикрепленные к этому профилю</translation>
     </message>
     <message>
         <source>Search collections…</source>
@@ -746,6 +758,22 @@ The md5 cache is preserved. Archives will be re-downloaded as needed.</source>
         <translation>{0} Игра — «{1}»</translation>
     </message>
     <message>
+        <source>Settings saved to profile: {0} (this profile only)</source>
+        <translation>Настройки сохранены в профиле: {0} (только в этом профиле)</translation>
+    </message>
+    <message>
+        <source>Editing shared settings (default profile)</source>
+        <translation>Редактирование общих настроек (профиль по умолчанию)</translation>
+    </message>
+    <message>
+        <source>Use Shared Settings</source>
+        <translation>Использовать общие настройки</translation>
+    </message>
+    <message>
+        <source>This profile has its own saved paths/options. Remove them so it follows the shared (default profile) settings again.</source>
+        <translation>У этого профиля есть собственные сохраненные пути и настройки. Удалите их, чтобы профиль снова использовал общие настройки (настройки профиля по умолчанию).</translation>
+    </message>
+    <message>
         <source>Remove Instance</source>
         <translation>Удалить экземпляр</translation>
     </message>
@@ -775,7 +803,7 @@ The md5 cache is preserved. Archives will be re-downloaded as needed.</source>
     </message>
     <message>
         <source>Browse manually…</source>
-        <translation>Просматривать вручную…</translation>
+        <translation>Просмотр вручную…</translation>
     </message>
     <message>
         <source>Open</source>
@@ -846,6 +874,34 @@ The md5 cache is preserved. Archives will be re-downloaded as needed.</source>
         <translation>Настроена пользовательская папка для промежуточного хранения.</translation>
     </message>
     <message>
+        <source>Cannot reset to shared settings while mods are deployed. Restore the game first.</source>
+        <translation>Невозможно восстановить общие настройки, пока установлены модификации. Сначала восстановите игру.</translation>
+    </message>
+    <message>
+        <source>Use Shared Settings?</source>
+        <translation>Использовать общие настройки?</translation>
+    </message>
+    <message>
+        <source>Remove this profile's own paths and options so it follows the shared (default profile) settings again?
+
+The default profile's settings are not affected.</source>
+        <translation>Удалить собственные пути и параметры этого профиля, чтобы он снова использовал общие настройки (настройки профиля по умолчанию)?
+
+Настройки профиля по умолчанию при этом не изменятся.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Сброс</translation>
+    </message>
+    <message>
+        <source>Profile now follows the shared (default profile) settings.</source>
+        <translation>Профиль теперь использует общие настройки (настройки профиля по умолчанию).</translation>
+    </message>
+    <message>
+        <source>Settings saved.</source>
+        <translation>Настройки сохранены.</translation>
+    </message>
+    <message>
         <source>Custom staging folder selected.</source>
         <translation>Выбрана пользовательская папка для подготовки.</translation>
     </message>
@@ -866,8 +922,16 @@ The md5 cache is preserved. Archives will be re-downloaded as needed.</source>
         <translation>Сначала укажите папку установки игры.</translation>
     </message>
     <message>
+        <source>This path is not visible inside the Flatpak sandbox. Grant access in Flatseal or run: {0}</source>
+        <translation>Этот путь недоступен внутри песочницы Flatpak. Предоставьте доступ в Flatseal или выполните команду: {0}</translation>
+    </message>
+    <message>
         <source>Cannot change the game/prefix path while mods are deployed. Restore the game first.</source>
         <translation>Невозможно изменить путь к игре/префиксу, пока моды развернуты. Сначала восстановите игру.</translation>
+    </message>
+    <message>
+        <source>Cannot use hardlinks: the staging folder and {0} are on different drives or filesystems. Switch to Symlink instead.</source>
+        <translation>Невозможно использовать жесткие ссылки: папка staging и {0} находятся на разных дисках или в разных файловых системах. Вместо этого используйте символьные ссылки.</translation>
     </message>
     <message>
         <source>Checking existing staging files…</source>
@@ -969,7 +1033,7 @@ Skyrim Special Edition → ⚙ → Управление → Creation Kit.
         <source>Note: on a brand-new prefix the first launch may open the plain Creation Kit without Creation Kit Platform Extended (CKPE). If you need CKPE, close the Creation Kit and run the wizard again — CKPE loads on the second launch once the prefix is initialised.
 
 The Creation Kit can also occasionally crash on startup under Proton (a known Wine timing issue). If it closes immediately, just relaunch.</source>
-        <translation>Примечание: при первом запуске на совершенно новом префиксе может открыться обычная версия Creation Kit без Creation Kit Platform Extended (CKPE). Если вам нужен CKPE, закройте Creation Kit и запустите мастер заново — CKPE загрузится при втором запуске после инициализации префикса.
+        <translation>Примечание: при первом запуске на совершенно новом префиксе может открыться обычная версия Creation Kit без Creation Kit Platform Extended (CKPE). Если вам нужен CKPE, закройте Creation Kit и запустите мастер ещё раз — CKPE загрузится при втором запуске после инициализации префикса.
 
 Creation Kit также может иногда вылетать при запуске в Proton (известная проблема с синхронизацией в Wine). Если программа сразу же закроется, просто запустите её заново.</translation>
     </message>
@@ -998,7 +1062,7 @@ Creation Kit также может иногда вылетать при запу
     </message>
     <message>
         <source>Mods install into a single sub-folder (e.g. Data/, BepInEx/plugins/). Same as Bethesda games and BepInEx.</source>
-        <translation>Модификации устанавливаются в одну подпапку (например, Data/, BepInEx/plugins/). Так же, как и в играх Bethesda и BepInEx.</translation>
+        <translation>Модификации устанавливаются в одну подпапку (например, Data/, BepInEx/plugins/). Так же, как в играх Bethesda и BepInEx.</translation>
     </message>
     <message>
         <source>Root</source>
@@ -1038,7 +1102,7 @@ Creation Kit также может иногда вылетать при запу
     </message>
     <message>
         <source>Comma-separated top-level folder names to strip from mod files during filemap building (case-insensitive). e.g. Data, data</source>
-        <translation>Имена папок верхнего уровня, разделенные запятыми, которые необходимо исключить из файлов mod при построении файловой схемы (регистр не имеет значения). Например: Data, data</translation>
+        <translation>Имена папок верхнего уровня, разделенные запятыми, которые необходимо исключить из файлов mod при построении файловой схемы (регистр не учитывается). Например: Data, data</translation>
     </message>
     <message>
         <source>Prepend Prefix</source>
@@ -1054,7 +1118,7 @@ Creation Kit также может иногда вылетать при запу
     </message>
     <message>
         <source>Comma-separated folder names a mod must contain at its root. If none match, the user is prompted to set a data directory.</source>
-        <translation>Разделенные запятыми имена папок, которые должны находиться в корневом каталоге мода. Если ни одно из них не совпадает, пользователю будет предложено указать каталог данных.</translation>
+        <translation>Разделенные запятыми имена папок, которые должны находиться в корневом каталоге мода. Если ни одно из них не совпадает, пользователю будет предложено указать каталог с данными.</translation>
     </message>
     <message>
         <source>Required File Types</source>
@@ -1062,7 +1126,7 @@ Creation Kit также может иногда вылетать при запу
     </message>
     <message>
         <source>Comma-separated file extensions a mod must contain at its root. e.g. .esp, .esm — works standalone or as a fallback after Required Top-Level Folders.</source>
-        <translation>Расширения файлов, разделенные запятыми, которые мод должен содержать в корневой папке. Например: .esp, .esm — работает как самостоятельный вариант или в качестве резервного варианта после обязательных папок верхнего уровня.</translation>
+        <translation>Расширения файлов, разделенные запятыми, которые мод должен содержать в корневой папке. Например: .esp, .esm — работает как самостоятельная опция или в качестве резервного варианта после «Обязательных папок верхнего уровня».</translation>
     </message>
     <message>
         <source>Strip Prefixes (post-install)</source>
@@ -1094,7 +1158,7 @@ Creation Kit также может иногда вылетать при запу
     </message>
     <message>
         <source>When enabled, if both Required Top-Level Folders and Required File Types checks fail, the mod is installed as-is without showing the prefix dialog.</source>
-        <translation>Если эта опция включена, то в случае неудачного прохождения проверки как «Обязательные папки верхнего уровня», так и «Обязательные типы файлов», мод устанавливается в том виде, в каком он есть, без отображения диалогового окна выбора префикса.</translation>
+        <translation>Если эта опция включена, то в случае неудачного прохождения проверки как «Обязательные папки верхнего уровня», так и «Обязательные типы файлов», мод устанавливается в том виде, в котором он есть, без отображения диалогового окна выбора префикса.</translation>
     </message>
     <message>
         <source>Restore Before Deploy</source>
@@ -1178,7 +1242,7 @@ Creation Kit также может иногда вылетать при запу
     </message>
     <message>
         <source>Banner Image URL  (optional)</source>
-        <translation>URL изображения баннера (необязательно)</translation>
+        <translation>URL изображения баннера  (необязательно)</translation>
     </message>
     <message>
         <source>A direct URL to a PNG/JPG image shown in the game picker card. The image is downloaded once and cached locally.</source>
@@ -1222,7 +1286,7 @@ Creation Kit также может иногда вылетать при запу
     </message>
     <message>
         <source>Route specific files to alternate destinations during deploy. Each rule maps files (by extension, folder or filename) to a game-root-relative directory. For extensions, append (.ext, .ext) to also route same-stem siblings (e.g. .asi (.ini) sends Foo.ini alongside Foo.asi). Flatten drops subfolders below the matched folder. To Prefix routes relative to the Proton/Wine prefix root instead of the game install root.</source>
-        <translation>Направление определённых файлов в альтернативные папки во время развёртывания. Каждое правило сопоставляет файлы (по расширению, папке или имени файла) с каталогом, относительным к корню игры. Для расширений добавьте (.ext, .ext), чтобы также перенаправлять файлы с одинаковым корнем (например, .asi (.ini) отправляет Foo.ini вместе с Foo.asi). Параметр «Flatten» удаляет вложенные папки ниже папки, соответствующей условию сопоставления. Параметр «To Prefix» направляет файлы относительно корневого каталога префикса Proton/Wine вместо корневого каталога установки игры.</translation>
+        <translation>Направление определённых файлов в альтернативные папки во время развёртывания. Каждое правило сопоставляет файлы (по расширению, папке или имени файла) с каталогом, относительным к корню игры. Для расширений добавьте (.ext, .ext), чтобы также перенаправлять файлы с одинаковым корнем (например, .asi (.ini) отправляет Foo.ini вместе с Foo.asi). Параметр «Flatten» удаляет вложенные папки ниже папки, соответствующей условию сопоставления. Параметр «To Prefix» направляет файлы относительно корня префикса Proton/Wine вместо корня установки игры.</translation>
     </message>
     <message>
         <source>+ Add Rule</source>
@@ -1353,6 +1417,10 @@ Creation Kit также может иногда вылетать при запу
     <message>
         <source>Deployed files</source>
         <translation>Размещенные файлы</translation>
+    </message>
+    <message>
+        <source>Deployed files - {0} files in {1} mods</source>
+        <translation>Размещенные файлы — файлы из «{0}» в модах «{1}»</translation>
     </message>
 </context>
 <context>
@@ -1677,6 +1745,14 @@ When ESLifier finishes, it writes its output as the
         <translation>Сохранить</translation>
     </message>
     <message>
+        <source>true</source>
+        <translation>true</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>false</translation>
+    </message>
+    <message>
         <source>Form reset to built-in defaults (not yet saved).</source>
         <translation>Настройки формы сброшены до встроенных значений по умолчанию (еще не сохранены).</translation>
     </message>
@@ -1701,11 +1777,11 @@ When ESLifier finishes, it writes its output as the
     </message>
     <message>
         <source>Insert mod path ▼</source>
-        <translation>Вставить путь к модулю ▼</translation>
+        <translation>Ввести путь к модулю ▼</translation>
     </message>
     <message>
         <source>e.g. PROTON_ENABLE_WAYLAND=0 gamemoderun %command%</source>
-        <translation>например, PROTON_ENABLE_WAYLAND=0 gamemoderun %команда%</translation>
+        <translation>например, PROTON_ENABLE_WAYLAND=0 gamemoderun %command%</translation>
     </message>
     <message>
         <source>Remove EXE</source>
@@ -2263,6 +2339,10 @@ The original exe is kept as {0}.</source>
         <translation>Установить выбранное</translation>
     </message>
     <message>
+        <source>Move Selected</source>
+        <translation>Переместить выделенное</translation>
+    </message>
+    <message>
         <source>Remove Selected</source>
         <translation>Удалить выделенное</translation>
     </message>
@@ -2281,6 +2361,14 @@ The original exe is kept as {0}.</source>
     <message>
         <source>Removed {0} archive(s)</source>
         <translation>Удалены архивы {0}</translation>
+    </message>
+    <message>
+        <source>Cannot use that folder: {0}</source>
+        <translation>Не удаётся использовать эту папку: {0}</translation>
+    </message>
+    <message>
+        <source>Moved {0} archive(s)</source>
+        <translation>Перемещены архивы {0}</translation>
     </message>
     <message>
         <source>Find in files:</source>
@@ -2740,7 +2828,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>An install is already in progress.</source>
-        <translation>Установка уже выполняется.</translation>
+        <translation>Установка уже идет.</translation>
     </message>
     <message>
         <source>No install archive found for the selected mod(s).</source>
@@ -2768,7 +2856,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Quick Update: updated {0} mod(s)</source>
-        <translation>Краткое обновление: обновлены модификации «{0}»</translation>
+        <translation>Краткое обновление: обновлены модификации для игры «{0}»</translation>
     </message>
     <message>
         <source>Quick Update: nothing to update.</source>
@@ -2901,6 +2989,10 @@ Remove the appended-collection entry?</source>
     <message>
         <source>No downloadable files for that mod.</source>
         <translation>Для этого мода нет файлов для скачивания.</translation>
+    </message>
+    <message>
+        <source>{0} game — {1}</source>
+        <translation>{0} игра — {1}</translation>
     </message>
     <message>
         <source>{0} game</source>
@@ -3067,6 +3159,30 @@ Remove the appended-collection entry?</source>
         <translation>Установка {0}…</translation>
     </message>
     <message>
+        <source>Cyber Engine Tweaks requires Hardlink mode</source>
+        <translation>Для работы Cyber Engine Tweaks требуется режим Hardlink</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
+
+CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
+
+Deploy anyway?</source>
+        <translation>Функция «Cyber Engine Tweaks» включена, но режим развертывания установлен на «Symlink».
+
+CET не загрузится из файла cyber_engine_tweaks.asi, на который создана символьная ссылка — переключите режим развертывания на «Hardlink», чтобы CET заработал.
+
+Все равно развернуть?</translation>
+    </message>
+    <message>
+        <source>Deploy anyway</source>
+        <translation>Всё равно развернуть</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отменить</translation>
+    </message>
+    <message>
         <source>Install cancelled: {0}</source>
         <translation>Установка отменена: {0}</translation>
     </message>
@@ -3128,7 +3244,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Unpacking {0} archive(s)…</source>
-        <translation>Распаковка архива (архивов) {0}…</translation>
+        <translation>Распаковка архива (архивов) «{0}»…</translation>
     </message>
     <message>
         <source>Cancelled.</source>
@@ -3236,7 +3352,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>No active profile — cannot assign group.</source>
-        <translation>Профиль неактивен — невозможно присвоить группу.</translation>
+        <translation>Профиль неактивен — невозможно назначить группу.</translation>
     </message>
     <message>
         <source>Removed from userlist: {0} plugin(s)</source>
@@ -3280,7 +3396,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Sorted — {0} plugins moved.</source>
-        <translation>Исправлено — плагины {0} перенесены.</translation>
+        <translation>Исправлено — плагины «{0}» перенесены.</translation>
     </message>
     <message>
         <source>+ Add custom EXE…</source>
@@ -3327,6 +3443,10 @@ Remove the appended-collection entry?</source>
         <translation>Очистить журнал</translation>
     </message>
     <message>
+        <source>Open Log Folder</source>
+        <translation>Открыть папку с журналами</translation>
+    </message>
+    <message>
         <source>Changelog</source>
         <translation>Список изменений</translation>
     </message>
@@ -3354,7 +3474,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Log in first (Nexus ▸ Login) — opening the AMM page so you can endorse it there.</source>
-        <translation>Сначала войдите в систему (Nexus ▸ Вход) — откроется страница AMM, где вы сможете проголосовать за предложение.</translation>
+        <translation>Сначала войдите в систему (Nexus ▸ Вход) — откроется страница AMM, где вы сможете одобрить предложение.</translation>
     </message>
     <message>
         <source>Endorse AMM failed — {0}</source>
@@ -3370,7 +3490,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Nexus only lets you endorse the app after you've downloaded it at least once. Opening the AMM page — please download it there first, then endorse.</source>
-        <translation>Nexus позволяет оставить отзыв о приложении только после того, как вы скачали его хотя бы один раз. Откройте страницу AMM — пожалуйста, сначала скачайте приложение там, а затем оставьте отзыв.</translation>
+        <translation>Nexus позволяет поставить лайк приложению только после того, как вы скачали его хотя бы один раз. Откройте страницу AMM — пожалуйста, сначала скачайте приложение оттуда, а затем поставьте лайк.</translation>
     </message>
     <message>
         <source>Endorse AMM: {0}</source>
@@ -3506,7 +3626,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Disable selected ({0})</source>
-        <translation>Отключить выделенные элементы ({0})</translation>
+        <translation>Отключить выделенное ({0})</translation>
     </message>
     <message>
         <source>Edit note</source>
@@ -3715,7 +3835,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Launching {0} via Proton…</source>
-        <translation>Запуск «{0}» с помощью ракеты «Протон»…</translation>
+        <translation>Запуск «{0}» с помощью «Proton»…</translation>
     </message>
 </context>
 <context>
@@ -3770,7 +3890,7 @@ for Baldur's Gate 3 mods installed manually from mod.io.
 The key is read-only and stored securely (system keyring,
 or an encrypted file when no keyring is available).</source>
         <translation>Вставьте свой ключ API mod.io (только для чтения), чтобы включить проверку обновлений
-для модификаций Baldur's Gate 3, установленных вручную с сайта mod.io.
+для модификаций Baldur's Gate 3, установленных вручную с mod.io.
 
 Этот ключ предназначен только для чтения и надежно хранится (в системном ключевом кольце
 или в зашифрованном файле, если ключевое кольцо недоступно).</translation>
@@ -3790,6 +3910,25 @@ or an encrypted file when no keyring is available).</source>
     <message>
         <source>Test &amp;&amp; Save</source>
         <translation>Проверить и сохранить</translation>
+    </message>
+</context>
+<context>
+    <name>MoveDownloadsOverlay</name>
+    <message>
+        <source>Move {0} archive(s) to…</source>
+        <translation>Переместить архив(ы) «{0}» в…</translation>
+    </message>
+    <message>
+        <source>Choose a configured download location.</source>
+        <translation>Выберите настроенное место для загрузки.</translation>
+    </message>
+    <message>
+        <source>No configured download locations.</source>
+        <translation>Места для загрузки не настроены.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отменить</translation>
     </message>
 </context>
 <context>
@@ -4116,7 +4255,7 @@ PGPatcher run (the 'PGPatcher_output' mod in your mod list / staging folder).
 
 Once you have done this, click Deploy.</source>
         <translation>Перед развертыванием удалите все результаты предыдущего
-запуска PGPatcher (мод «PGPatcher_output» в вашем списке модов / папке staging).
+запуска PGPatcher (мод «PGPatcher_output» в вашем списке модов или папке «staging»).
 
 После этого нажмите «Развернуть».</translation>
     </message>
@@ -4318,7 +4457,7 @@ Re-scan to verify.</source>
     </message>
     <message>
         <source>Re-Scan to Verify</source>
-        <translation>Повторное сканирование для проверки</translation>
+        <translation>Повторно отсканировать для проверки</translation>
     </message>
     <message>
         <source>Close</source>
@@ -4419,7 +4558,7 @@ Re-scan to verify.</source>
     </message>
     <message>
         <source>Disable selected ({0})</source>
-        <translation>Отключить выделенные элементы ({0})</translation>
+        <translation>Отключить выделенное ({0})</translation>
     </message>
     <message>
         <source>Disable {0} BOS/SP-patched (safe to disable)</source>
@@ -4536,7 +4675,7 @@ Drag a plugin from the left pane to add a rule.</source>
     </message>
     <message>
         <source>Wizard tools each run in their own Wine prefix (created next to the tool's exe or in the app config folder). Deleting one only reclaims disk space — it is recreated automatically the next time the tool runs.</source>
-        <translation>Каждый инструмент-мастер запускается в собственном префиксе Wine (создаваемом рядом с исполняемым файлом инструмента или в папке конфигурации приложения). Удаление одного из них приводит лишь к освобождению места на диске — он автоматически воссоздается при следующем запуске инструмента.</translation>
+        <translation>Каждый инструмент-мастер запускается в собственном префиксе Wine (создаваемом рядом с исполняемым файлом инструмента или в папке конфигурации приложения). Удаление такого префикса приводит лишь к освобождению места на диске — он автоматически воссоздается при следующем запуске инструмента.</translation>
     </message>
     <message>
         <source>Scanning for prefixes…</source>
@@ -4837,7 +4976,7 @@ If the game is still broken, verify the game files via Steam.</source>
     </message>
     <message>
         <source>Pick a ReShade preset (.ini) to install only the effects it uses. All packs are downloaded then trimmed to the preset.</source>
-        <translation>Выберите пресет ReShade (.ini), чтобы установить только те эффекты, которые в нём используются. Все пакеты сначала загружаются, а затем сокращаются в соответствии с пресетом.</translation>
+        <translation>Выберите пресет ReShade (.ini), чтобы установить только те эффекты, которые в нём используются. Все пакеты сначала загружаются, а затем подбираются в соответствии с пресетом.</translation>
     </message>
     <message>
         <source>No preset selected</source>
@@ -5035,6 +5174,14 @@ Choose Keep if this is an optional/alternative variant rather than a replacement
         <translation>Сохранить</translation>
     </message>
     <message>
+        <source>true</source>
+        <translation>true</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>false</translation>
+    </message>
+    <message>
         <source>Form reset to built-in defaults (not yet saved).</source>
         <translation>Настройки формы сброшены до встроенных значений по умолчанию (еще не сохранены).</translation>
     </message>
@@ -5129,6 +5276,36 @@ Choose Keep if this is an optional/alternative variant rather than a replacement
         <translation>Проверка .NET 8…</translation>
     </message>
     <message>
+        <source>Existing Merges Use Missing Mods</source>
+        <translation>В существующих слияниях используются отсутствующие модификации</translation>
+    </message>
+    <message>
+        <source>{0} existing merge(s) use mods that are not currently deployed (disabled or removed):
+
+{1}
+
+Script Merger cannot run safely in this state.
+
+Cancel and re-enable the listed mods to keep the merges, or delete the existing merges (removes the Merged_Mods mod) and re-create them in this run from the mods that are enabled.</source>
+        <translation>{0}
+
+Существующие слияния используют моды, которые в данный момент не развернуты (отключены или удалены):
+
+{1}
+
+В таком состоянии Script Merger не может работать безопасно.
+
+Отмените и снова включите перечисленные моды, чтобы сохранить слияния, либо удалите существующие слияния (при этом будет удален мод Merged_Mods) и заново создайте их в этом запуске из включенных модов.</translation>
+    </message>
+    <message>
+        <source>Delete Merges</source>
+        <translation>Удалить слияния</translation>
+    </message>
+    <message>
+        <source>Launch cancelled — re-enable the merges' source mods, then reopen this wizard.</source>
+        <translation>Запуск отменен — включите исходные модификации слияний, а затем запустите этот мастер заново.</translation>
+    </message>
+    <message>
         <source>Launching WitcherScriptMerger…</source>
         <translation>Запуск WitcherScriptMerger…</translation>
     </message>
@@ -5178,7 +5355,7 @@ Please restart the wizard and install Script Merger first.</source>
     </message>
     <message>
         <source>Custom background colour for this separator row. Reset uses the theme default.</source>
-        <translation>Пользовательский цвет фона для этой разделительной строки. При нажатии кнопки «Сброс» используется значение по умолчанию темы.</translation>
+        <translation>Пользовательский цвет фона для этой разделительной строки. При нажатии кнопки «Сброс» используется цвет по умолчанию темы.</translation>
     </message>
     <message>
         <source>Deployment Location</source>
@@ -5218,7 +5395,7 @@ Please restart the wizard and install Script Merger first.</source>
     </message>
     <message>
         <source>Merge mod folders into existing ones instead of replacing them.</source>
-        <translation>Объединять папки с модами в уже существующие, а не заменять их.</translation>
+        <translation>Объединять папки с модами с уже существующими, а не заменять их.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5300,7 +5477,7 @@ Please restart the wizard and install Script Merger first.</source>
     </message>
     <message>
         <source>Hide BSA/BA2 archive conflict flags (also skips that conflict scan for a small speed-up).</source>
-        <translation>Скрыть флаги конфликтов архива BSA/BA2 (также пропускается проверка на конфликты, что позволяет немного ускорить работу).</translation>
+        <translation>Скрыть флаги конфликтов в архиве BSA/BA2 (при этом также пропускается проверка на конфликты, что обеспечивает небольшое ускорение).</translation>
     </message>
     <message>
         <source>Downloads &amp; Collections</source>
@@ -5336,7 +5513,7 @@ Please restart the wizard and install Script Merger first.</source>
     </message>
     <message>
         <source>Check downloads locations</source>
-        <translation>Проверить папки для загрузки</translation>
+        <translation>Проверить папки для загрузок</translation>
     </message>
     <message>
         <source>Scan the system Downloads folder (and any custom locations) for an archive before downloading it again.</source>
@@ -5424,7 +5601,7 @@ Please restart the wizard and install Script Merger first.</source>
     </message>
     <message>
         <source>Path to libraryfolders.vdf (or its folder). Blank = auto-detect (standard, Flatpak and Snap locations).</source>
-        <translation>Путь к файлу libraryfolders.vdf (или к папке, в которой он находится). Пустое поле означает автоматическое определение (стандартные расположения, а также расположения для Flatpak и Snap).</translation>
+        <translation>Путь к файлу libraryfolders.vdf (или к папке, в которой он находится). Пустое поле — автоматическое определение (стандартные расположения, а также расположения для Flatpak и Snap).</translation>
     </message>
     <message>
         <source>Failed to save setting: {0}</source>
@@ -5478,7 +5655,7 @@ Please restart the wizard and install Script Merger first.</source>
     <name>SkyGenView</name>
     <message>
         <source>Step 1: Scan Active Plugins</source>
-        <translation>Шаг 1: Просканировать активные плагины</translation>
+        <translation>Шаг 1: Проверить активные плагины</translation>
     </message>
     <message>
         <source>SkyGen scans your active load order to find plugins that add objects/records eligible for Base Object Swapper or SkyPatcher patches, and flags those already patched.</source>
@@ -5729,9 +5906,9 @@ Click Install to begin.</source>
         <source>TTW merges assets from both Fallout 3 and Fallout New Vegas, so both games must be installed. Confirm the folders below, then select the TTW .mpi package.
 
 Get the latest TTW .mpi from mod.pub (free account required) — extract the download and the .mpi is inside.</source>
-        <translation>TTW объединяет ресурсы из игр «Fallout 3» и «Fallout: New Vegas», поэтому обе игры должны быть установлены. Убедитесь, что у вас есть перечисленные ниже папки, а затем выберите пакет TTW .mpi.
+        <translation>TTW объединяет ресурсы из игр «Fallout 3» и «Fallout: New Vegas», поэтому обе игры должны быть установлены. Убедитесь, что у вас есть указанные ниже папки, а затем выберите пакет TTW с расширением .mpi.
 
-Скачайте последнюю версию TTW .mpi с сайта mod.pub (требуется бесплатная учетная запись) — распакуйте скачанный файл, и вы найдете файл .mpi внутри.</translation>
+Скачайте последнюю версию TTW с расширением .mpi с сайта mod.pub (требуется бесплатная учетная запись) — распакуйте скачанный файл, и вы найдете файл .mpi внутри.</translation>
     </message>
     <message>
         <source>Open mod.pub TTW page</source>
@@ -5892,6 +6069,78 @@ Output is written directly into your mod list as the '{0}' mod.</source>
     <message>
         <source>  (none)</source>
         <translation>  (нет)</translation>
+    </message>
+    <message>
+        <source>A new version of Amethyst Mod Manager is available on the AUR.
+
+Current: {0}
+AUR:     {1}
+
+Update via your AUR helper, e.g.
+  yay -Syu amethyst-mod-manager</source>
+        <translation>В AUR доступна новая версия Amethyst Mod Manager.
+
+Текущая версия:{0}
+
+
+AUR:     {1}
+
+Обновите с помощью вашего AUR-хелпера, например:
+  yay -Syu amethyst-mod-manager</translation>
+    </message>
+    <message>
+        <source>Pre-release</source>
+        <translation>Предварительная версия</translation>
+    </message>
+    <message>
+        <source>Stable</source>
+        <translation>Стабильный</translation>
+    </message>
+    <message>
+        <source>You're running a pre-release. Switch to the latest {0} build?
+
+Current:     {1}
+{2}: {3}
+
+This will downgrade your installation.</source>
+        <translation>Вы используете предрелизную версию. Хотите перейти на последнюю сборку{0}
+?
+
+Текущая версия:     {1}
+
+{2}
+:{3}
+Это приведет к переходу на более раннюю версию.</translation>
+    </message>
+    <message>
+        <source>A new version of Amethyst Mod Manager is available.
+
+Current: {0}
+Latest:  {1}</source>
+        <translation>Доступна новая версия Amethyst Mod Manager.
+
+Текущая версия: {0}
+Последняя версия:  {1}</translation>
+    </message>
+    <message>
+        <source>Switch to stable</source>
+        <translation>Перейти на стабильную версию</translation>
+    </message>
+    <message>
+        <source>Update via installer</source>
+        <translation>Обновление с помощью программы установки</translation>
+    </message>
+    <message>
+        <source>Open AUR page</source>
+        <translation>Открыть страницу AUR</translation>
+    </message>
+    <message>
+        <source>Open releases page</source>
+        <translation>Открыть страницу с релизами</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Позже</translation>
     </message>
 </context>
 <context>
@@ -6198,7 +6447,7 @@ Close it when you are done, then click Done.</source>
     <name>view</name>
     <message>
         <source>Files swept into Root Folder (newest restore first)</source>
-        <translation>Файлы, скопированные в корневую папку (самые последние — первыми)</translation>
+        <translation>Файлы, скопированные в корневую папку (самые последние восстановлены первыми)</translation>
     </message>
     <message>
         <source>Files swept into Overwrite (newest restore first)</source>

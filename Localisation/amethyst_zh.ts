@@ -79,7 +79,7 @@ Mods are matched to your installed mods by UUID.</source>
     <message>
         <source>The modlist has been reordered to match the BG3MM order.
 Deploy to push the new load order to the game.</source>
-        <translation>已重新排列模组列表，使其与《博德之门3：暗影之城》的加载顺序一致。
+        <translation>已重新排列模组列表，使其与《博德之门3：暗影之界》的加载顺序一致。
 点击“部署”将新的加载顺序应用到游戏中。</translation>
     </message>
     <message>
@@ -99,11 +99,15 @@ Deploy to push the new load order to the game.</source>
     </message>
     <message>
         <source>No backups yet. Backups are created when you deploy.</source>
-        <translation>目前还没有备份。备份会在部署时生成。</translation>
+        <translation>目前还没有备份。备份会在部署时自动生成。</translation>
     </message>
     <message>
         <source>New backup</source>
         <translation>新备份</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>重命名</translation>
     </message>
     <message>
         <source>Keep</source>
@@ -136,6 +140,14 @@ Deploy to push the new load order to the game.</source>
     <message>
         <source>Unkeep</source>
         <translation>Unkeep</translation>
+    </message>
+    <message>
+        <source>Rename backup</source>
+        <translation>重命名备份</translation>
+    </message>
+    <message>
+        <source>Enter a name for this backup (leave blank to use the date).</source>
+        <translation>请为此次备份输入名称（留空即使用日期）。</translation>
     </message>
 </context>
 <context>
@@ -235,7 +247,7 @@ Deploy your modlist first, then reopen this wizard.</source>
     </message>
     <message>
         <source>⚠  {0} already exists in this mod and will be overwritten.</source>
-        <translation>⚠  该模组中已存在{0}，该文件将被覆盖。</translation>
+        <translation>⚠  该模组中已存在{0}文件，该文件将被覆盖。</translation>
     </message>
     <message>
         <source>Delete loose files after packing</source>
@@ -243,7 +255,7 @@ Deploy your modlist first, then reopen this wizard.</source>
     </message>
     <message>
         <source>Files that get packed will be removed from the mod folder. Files outside the packable filter (plugins, readmes, .bik videos) and files you've disabled in the Mod Files tab are left alone.</source>
-        <translation>被打包的文件将从模组文件夹中移除。不符合打包条件（如插件、读我文件、.bik 视频）的文件，以及你在“模组文件”选项卡中已禁用的文件，将保持不变。</translation>
+        <translation>被打包的文件将从模组文件夹中移除。不符合打包条件（如插件、读我文件、.bik 视频）的文件，以及你在“模组文件”选项卡中已禁用的文件，将保持原样。</translation>
     </message>
     <message>
         <source>Separate textures archive</source>
@@ -251,7 +263,7 @@ Deploy your modlist first, then reopen this wizard.</source>
     </message>
     <message>
         <source>Writes textures to a sibling “… - Textures.bsa” instead of bundling them with the main archive. Optional for Skyrim / FNV / Oblivion; mostly useful for very large texture packs.</source>
-        <translation>将纹理写入同级文件“… - Textures.bsa”，而非将其打包到主存档中。对于《上古卷轴5：天际》/《上古卷轴：湮没》/《上古卷轴：湮没》而言，此选项为可选；主要适用于体积非常大的纹理包。</translation>
+        <translation>将纹理写入同级文件“… - Textures.bsa”，而非将其打包到主存档中。对于《上古卷轴5：天际》/《上古卷轴：新维加斯》/《上古卷轴4：湮没》而言，此选项为可选；主要适用于体积非常大的纹理包。</translation>
     </message>
     <message>
         <source>Keep winning conflict files loose</source>
@@ -746,6 +758,22 @@ MD5缓存将被保留。压缩包将根据需要重新下载。</translation>
         <translation>{0} 游戏 — {1}</translation>
     </message>
     <message>
+        <source>Settings saved to profile: {0} (this profile only)</source>
+        <translation>已保存至个人资料的设置：{0}（仅限此个人资料）</translation>
+    </message>
+    <message>
+        <source>Editing shared settings (default profile)</source>
+        <translation>编辑共享设置（默认配置文件）</translation>
+    </message>
+    <message>
+        <source>Use Shared Settings</source>
+        <translation>使用共享设置</translation>
+    </message>
+    <message>
+        <source>This profile has its own saved paths/options. Remove them so it follows the shared (default profile) settings again.</source>
+        <translation>该配置文件有其自身保存的路径/选项。请将其删除，以便它再次遵循共享（默认配置文件）设置。</translation>
+    </message>
+    <message>
         <source>Remove Instance</source>
         <translation>删除实例</translation>
     </message>
@@ -846,6 +874,34 @@ MD5缓存将被保留。压缩包将根据需要重新下载。</translation>
         <translation>已配置自定义暂存文件夹。</translation>
     </message>
     <message>
+        <source>Cannot reset to shared settings while mods are deployed. Restore the game first.</source>
+        <translation>在模组已部署的情况下无法重置为共享设置。请先恢复游戏。</translation>
+    </message>
+    <message>
+        <source>Use Shared Settings?</source>
+        <translation>使用共享设置吗？</translation>
+    </message>
+    <message>
+        <source>Remove this profile's own paths and options so it follows the shared (default profile) settings again?
+
+The default profile's settings are not affected.</source>
+        <translation>删除此配置文件中的自定义路径和选项，使其再次遵循共享（默认配置文件）设置？
+
+默认配置文件的设置不会受到影响。</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>重置</translation>
+    </message>
+    <message>
+        <source>Profile now follows the shared (default profile) settings.</source>
+        <translation>该配置文件现在遵循共享（默认配置文件）设置。</translation>
+    </message>
+    <message>
+        <source>Settings saved.</source>
+        <translation>设置已保存。</translation>
+    </message>
+    <message>
         <source>Custom staging folder selected.</source>
         <translation>已选择自定义暂存文件夹。</translation>
     </message>
@@ -859,15 +915,23 @@ MD5缓存将被保留。压缩包将根据需要重新下载。</translation>
     </message>
     <message>
         <source>Prefix not found automatically. Not needed if game is Linux native.</source>
-        <translation>未自动找到前缀。如果游戏是原生 Linux 应用，则无需此前缀。</translation>
+        <translation>未自动找到前缀。如果游戏是原生 Linux 游戏，则无需此前缀。</translation>
     </message>
     <message>
         <source>Set the game installation folder first.</source>
         <translation>请先设置游戏的安装文件夹。</translation>
     </message>
     <message>
+        <source>This path is not visible inside the Flatpak sandbox. Grant access in Flatseal or run: {0}</source>
+        <translation>该路径在 Flatpak 沙箱内不可见。请在 Flatseal 中授予访问权限，或运行以下命令：{0}</translation>
+    </message>
+    <message>
         <source>Cannot change the game/prefix path while mods are deployed. Restore the game first.</source>
         <translation>在模组已部署的情况下，无法更改游戏/前缀路径。请先还原游戏。</translation>
+    </message>
+    <message>
+        <source>Cannot use hardlinks: the staging folder and {0} are on different drives or filesystems. Switch to Symlink instead.</source>
+        <translation>无法使用硬链接：staging 文件夹和 {0} 位于不同的磁盘或文件系统上。请改用符号链接。</translation>
     </message>
     <message>
         <source>Checking existing staging files…</source>
@@ -891,7 +955,7 @@ MD5缓存将被保留。压缩包将根据需要重新下载。</translation>
     </message>
     <message>
         <source>Clean complete — {0} deployed file(s) removed.</source>
-        <translation>清理完成——已删除{0}部署的文件。</translation>
+        <translation>清理完成 — 已删除{0}部署的文件。</translation>
     </message>
 </context>
 <context>
@@ -937,7 +1001,7 @@ Install it, then reopen this wizard.</source>
         <translation>{0} 在游戏文件夹中未找到该文件。
 
 Creation Kit 需通过 Steam 安装：
-《上古卷轴5：天际 特别版》 → ⚙ → 管理 → Creation Kit。
+《上古卷轴5：天际 特别版》→ ⚙ → 管理 → Creation Kit。
 
 安装完成后，请重新打开此向导。</translation>
     </message>
@@ -969,7 +1033,7 @@ Creation Kit 需通过 Steam 安装：
         <source>Note: on a brand-new prefix the first launch may open the plain Creation Kit without Creation Kit Platform Extended (CKPE). If you need CKPE, close the Creation Kit and run the wizard again — CKPE loads on the second launch once the prefix is initialised.
 
 The Creation Kit can also occasionally crash on startup under Proton (a known Wine timing issue). If it closes immediately, just relaunch.</source>
-        <translation>注意：在全新的前缀环境下，首次启动时可能会打开普通版《Creation Kit》，而不包含《Creation Kit Platform Extended》（CKPE）。如果您需要 CKPE，请关闭《Creation Kit》并重新运行向导——当前缀初始化完成后，CKPE 将在第二次启动时加载。
+        <translation>注意：在全新的前缀环境下，首次启动时可能会打开普通版《Creation Kit》，而非《Creation Kit Platform Extended》（CKPE）。如果您需要 CKPE，请关闭《Creation Kit》并重新运行向导——当前缀初始化完成后，CKPE 将在第二次启动时加载。
 
 此外，在 Proton 环境下，Creation Kit 偶尔会在启动时崩溃（这是 Wine 已知的时序问题）。如果程序立即关闭，只需重新启动即可。</translation>
     </message>
@@ -1078,7 +1142,7 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
     </message>
     <message>
         <source>Comma-separated filenames excluded from conflict detection. Supports glob patterns: *.&lt;ext&gt; matches any file with that extension, &lt;name&gt;.* matches that name with any extension. e.g. modinfo.ini, manifest.json, *.txt, LICENCE.*</source>
-        <translation>用逗号分隔的文件名将从冲突检测中排除。支持通配符模式：*.&lt;ext&gt; 匹配任何具有该扩展名的文件，&lt;name&gt;.* 匹配该名称但扩展名不限。例如：modinfo.ini、manifest.json、*.txt、LICENCE.*</translation>
+        <translation>用逗号分隔的文件名将从冲突检测中排除。支持通配符模式：*.&lt;ext&gt; 匹配任何具有该扩展名的文件，&lt;name&gt;.* 匹配该名称的任何扩展名。例如：modinfo.ini、manifest.json、*.txt、LICENCE.*</translation>
     </message>
     <message>
         <source>Auto Strip Until Required</source>
@@ -1086,7 +1150,7 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
     </message>
     <message>
         <source>When enabled and Required Top-Level Folders is set, strip leading path segments automatically instead of prompting the user.</source>
-        <translation>启用此功能并设置了“必需的顶级文件夹”后，系统将自动去除路径开头的段，而不会向用户提示。</translation>
+        <translation>启用此功能并设置了“必需的顶级文件夹”后，系统将自动去除路径开头的段，而不会提示用户。</translation>
     </message>
     <message>
         <source>Install As-Is If No Match</source>
@@ -1110,7 +1174,7 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
     </message>
     <message>
         <source>When enabled (default), folder names that differ only in case across mods are unified to a single casing. Disable for Linux-native games where folder casing is significant.</source>
-        <translation>启用此选项（默认）后，不同模组中仅大小写不同的文件夹名称将被统一为一种大小写格式。对于文件夹大小写区分重要的 Linux 原生游戏，请禁用此选项。</translation>
+        <translation>启用此选项（默认）后，不同模组中仅大小写不同的文件夹名称将被统一为一种大小写形式。对于文件夹大小写区分重要的 Linux 原生游戏，请禁用此选项。</translation>
     </message>
     <message>
         <source>Edit Custom Game</source>
@@ -1222,7 +1286,7 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
     </message>
     <message>
         <source>Route specific files to alternate destinations during deploy. Each rule maps files (by extension, folder or filename) to a game-root-relative directory. For extensions, append (.ext, .ext) to also route same-stem siblings (e.g. .asi (.ini) sends Foo.ini alongside Foo.asi). Flatten drops subfolders below the matched folder. To Prefix routes relative to the Proton/Wine prefix root instead of the game install root.</source>
-        <translation>在部署过程中将特定文件重定向到其他目标位置。 每条规则会将文件（按扩展名、文件夹或文件名）映射到相对于游戏根目录的目录中。对于扩展名，若在后缀后添加 (.ext, .ext)，则也会将同根目录下具有相同词干的文件一并路由（例如，.asi (.ini) 会将 Foo.ini 与 Foo.asi 一起发送）。 “Flatten”会删除匹配文件夹下的子文件夹。“To Prefix”将文件路由到相对于 Proton/Wine 前缀根目录的位置，而非游戏安装根目录。</translation>
+        <translation>在部署过程中将特定文件重定向到其他目标位置。 每条规则会将文件（按扩展名、文件夹或文件名）映射到相对于游戏根目录的目录中。对于扩展名，若在后缀后追加 (.ext, .ext)，则也会将同根目录下的同干文件一并路由（例如，.asi (.ini) 会将 Foo.ini 与 Foo.asi 一起发送）。 “Flatten”会删除匹配文件夹下的子文件夹。“To Prefix”将路由路径相对于 Proton/Wine 前缀根目录，而非游戏安装根目录。</translation>
     </message>
     <message>
         <source>+ Add Rule</source>
@@ -1354,6 +1418,10 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
         <source>Deployed files</source>
         <translation>已部署的文件</translation>
     </message>
+    <message>
+        <source>Deployed files - {0} files in {1} mods</source>
+        <translation>已部署的文件——{1}模组中的{0}文件</translation>
+    </message>
 </context>
 <context>
     <name>DetachableTabWidget</name>
@@ -1425,7 +1493,7 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
     </message>
     <message>
         <source>Folders scanned for mod archives in the Downloads tab.</source>
-        <translation>“下载”选项卡中扫描了哪些文件夹以查找模组存档。</translation>
+        <translation>“下载”选项卡中扫描了用于查找模组存档的文件夹。</translation>
     </message>
     <message>
         <source>Scan this game's download cache</source>
@@ -1590,7 +1658,7 @@ Please restart the wizard and install {1} first.</source>
         <source>{0} is running.
 Close it when you are done, then click Done.</source>
         <translation>{0} 正在运行。
-完成后将其关闭，然后点击“完成”。</translation>
+完成后请将其关闭，然后点击“完成”。</translation>
     </message>
     <message>
         <source>Fetching latest release from GitHub…</source>
@@ -1636,7 +1704,7 @@ the mod staging folder, so no deploy is required.
 When ESLifier finishes, it writes its output as the
 '{0}' mod, which will appear in your mod list.</source>
         <translation>ESLifier 以 MO2 模式运行，会直接从
-模组暂存文件夹中读取您的加载顺序，因此无需进行部署。
+模组暂存文件夹中读取您的加载顺序，因此无需部署。
 
 当 ESLifier 处理完成后，它会将处理结果保存为
 “{0}”模组，该模组将显示在您的模组列表中。</translation>
@@ -1675,6 +1743,14 @@ When ESLifier finishes, it writes its output as the
     <message>
         <source>Save</source>
         <translation>保存</translation>
+    </message>
+    <message>
+        <source>true</source>
+        <translation>true</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>false</translation>
     </message>
     <message>
         <source>Form reset to built-in defaults (not yet saved).</source>
@@ -2005,8 +2081,8 @@ The original exe is kept as {0}.</source>
         <translation>对 FalloutNV.exe 进行补丁处理，使游戏能够使用 4 GB 内存，
 并在启动时自动加载 NVSE。
 
-在 Proton 环境下，这通常可以消除模组因检查补丁而触发的游戏内警告，
-但该补丁是安全的，且建议使用。
+在 Proton 环境下，这通常可以消除模组因检查补丁而触发的
+游戏内警告，但该补丁是安全的，且建议使用。
 
 原始可执行文件仍保留为 {0}。</translation>
     </message>
@@ -2263,6 +2339,10 @@ The original exe is kept as {0}.</source>
         <translation>安装所选项目</translation>
     </message>
     <message>
+        <source>Move Selected</source>
+        <translation>移动所选内容</translation>
+    </message>
+    <message>
         <source>Remove Selected</source>
         <translation>取消选中</translation>
     </message>
@@ -2281,6 +2361,14 @@ The original exe is kept as {0}.</source>
     <message>
         <source>Removed {0} archive(s)</source>
         <translation>已删除 {0} 存档</translation>
+    </message>
+    <message>
+        <source>Cannot use that folder: {0}</source>
+        <translation>无法使用该文件夹：{0}</translation>
+    </message>
+    <message>
+        <source>Moved {0} archive(s)</source>
+        <translation>已移动 {0} 存档</translation>
     </message>
     <message>
         <source>Find in files:</source>
@@ -2364,7 +2452,7 @@ The original exe is kept as {0}.</source>
     </message>
     <message>
         <source>Export profile…</source>
-        <translation>导出配置文件…</translation>
+        <translation>导出配置文件……</translation>
     </message>
     <message>
         <source>Import profile…</source>
@@ -2616,7 +2704,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Switch to profile '{0}' first, then Update.</source>
-        <translation>请先切换到“{0}”配置文件，然后执行“更新”。</translation>
+        <translation>请先切换到“{0}”配置文件，然后点击“更新”。</translation>
     </message>
     <message>
         <source>Could not compute update diff: {0}</source>
@@ -2903,6 +2991,10 @@ Remove the appended-collection entry?</source>
         <translation>该模组没有可下载的文件。</translation>
     </message>
     <message>
+        <source>{0} game — {1}</source>
+        <translation>{0} 游戏 — {1}</translation>
+    </message>
+    <message>
         <source>{0} game</source>
         <translation>{0} 游戏</translation>
     </message>
@@ -3044,7 +3136,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Manage Prefixes…</source>
-        <translation>管理前缀……</translation>
+        <translation>管理前缀…</translation>
     </message>
     <message>
         <source>Browse every wizard-tool Wine prefix and delete them to reclaim disk space.</source>
@@ -3067,6 +3159,30 @@ Remove the appended-collection entry?</source>
         <translation>正在安装{0}……</translation>
     </message>
     <message>
+        <source>Cyber Engine Tweaks requires Hardlink mode</source>
+        <translation>“Cyber Engine Tweaks” 需要启用硬链接模式</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
+
+CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
+
+Deploy anyway?</source>
+        <translation>已启用 Cyber Engine Tweaks，但部署模式设置为“符号链接”。
+
+CET 无法从符号链接的 cyber_engine_tweaks.asi 文件加载——请将部署模式切换为“硬链接”，以便 CET 正常工作。
+
+是否仍要部署？</translation>
+    </message>
+    <message>
+        <source>Deploy anyway</source>
+        <translation>无论如何都要部署</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
         <source>Install cancelled: {0}</source>
         <translation>安装已取消：{0}</translation>
     </message>
@@ -3084,7 +3200,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Installed {0}</source>
-        <translation>已安装{0}</translation>
+        <translation>已安装 {0}</translation>
     </message>
     <message>
         <source>Installed {0} mods</source>
@@ -3124,7 +3240,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Profile is deployed — run Restore first, then unpack.</source>
-        <translation>配置文件已部署——请先运行“还原”，然后再解压。</translation>
+        <translation>配置文件已部署——请先运行“还原”，然后解压。</translation>
     </message>
     <message>
         <source>Unpacking {0} archive(s)…</source>
@@ -3327,6 +3443,10 @@ Remove the appended-collection entry?</source>
         <translation>清除日志</translation>
     </message>
     <message>
+        <source>Open Log Folder</source>
+        <translation>打开日志文件夹</translation>
+    </message>
+    <message>
         <source>Changelog</source>
         <translation>更新日志</translation>
     </message>
@@ -3450,7 +3570,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Abstain selected ({0})</source>
-        <translation>已选“弃权”（{0}）</translation>
+        <translation>已选中“弃权”（{0}）</translation>
     </message>
     <message>
         <source>Add note</source>
@@ -3610,7 +3730,7 @@ Remove the appended-collection entry?</source>
     </message>
     <message>
         <source>Remove note ({0})</source>
-        <translation>删除笔记（{0}）</translation>
+        <translation>删除注释（{0}）</translation>
     </message>
     <message>
         <source>Remove separator</source>
@@ -3793,6 +3913,25 @@ or an encrypted file when no keyring is available).</source>
     </message>
 </context>
 <context>
+    <name>MoveDownloadsOverlay</name>
+    <message>
+        <source>Move {0} archive(s) to…</source>
+        <translation>将{0}中的存档移动到……</translation>
+    </message>
+    <message>
+        <source>Choose a configured download location.</source>
+        <translation>选择一个已配置的下载位置。</translation>
+    </message>
+    <message>
+        <source>No configured download locations.</source>
+        <translation>未配置下载位置。</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+</context>
+<context>
     <name>NewProfileBar</name>
     <message>
         <source>New profile:</source>
@@ -3923,7 +4062,7 @@ or an encrypted file when no keyring is available).</source>
         <source>Nexus API rate limits — no data yet.
 Values appear after the first API request.</source>
         <translation>Nexus API 速率限制 — 目前尚无数据。
-首次发出 API 请求后，将显示相关数值。</translation>
+首次发出 API 请求后，数据才会显示。</translation>
     </message>
     <message>
         <source>Remaining API requests:
@@ -4294,7 +4433,7 @@ Close it when you are done, then click Done.</source>
     </message>
     <message>
         <source>Audit complete — {0} plugins, {1} safe to disable.</source>
-        <translation>审核完成——{0} 插件，{1} 可安全禁用。</translation>
+        <translation>审核完成——{0} 插件，{1} 可以安全禁用。</translation>
     </message>
     <message>
         <source>No orphaned INIs to clean.</source>
@@ -4306,7 +4445,7 @@ Close it when you are done, then click Done.</source>
 Re-scan to verify.</source>
         <translation>清理完成 — 已删除 {0} 个 {1} INI 文件。
 
-请重新扫描以确认。</translation>
+请重新扫描以进行验证。</translation>
     </message>
     <message>
         <source>No SkyGen INIs found to clean.</source>
@@ -4423,7 +4562,7 @@ Re-scan to verify.</source>
     </message>
     <message>
         <source>Disable {0} BOS/SP-patched (safe to disable)</source>
-        <translation>禁用 {0} BOS/SP 已打补丁（可安全禁用）</translation>
+        <translation>禁用{0}（已应用BOS/SP补丁，可安全禁用）</translation>
     </message>
     <message>
         <source>Disable — {0} patch replaces it</source>
@@ -4536,7 +4675,7 @@ Drag a plugin from the left pane to add a rule.</source>
     </message>
     <message>
         <source>Wizard tools each run in their own Wine prefix (created next to the tool's exe or in the app config folder). Deleting one only reclaims disk space — it is recreated automatically the next time the tool runs.</source>
-        <translation>向导工具均在各自的 Wine 前缀中运行（该前缀位于工具的可执行文件旁边或应用程序配置文件夹内）。删除其中一个前缀仅能回收磁盘空间——下次运行该工具时，系统会自动重新创建该前缀。</translation>
+        <translation>向导工具各自在独立的 Wine 前缀中运行（该前缀位于工具的可执行文件旁边或应用程序配置文件夹内）。删除其中一个前缀仅能回收磁盘空间——下次运行该工具时，系统会自动重新创建该前缀。</translation>
     </message>
     <message>
         <source>Scanning for prefixes…</source>
@@ -4568,7 +4707,7 @@ Drag a plugin from the left pane to add a rule.</source>
     </message>
     <message>
         <source>{0} prefixes found — calculating sizes…</source>
-        <translation>{0} 已找到前缀 — 正在计算大小……</translation>
+        <translation>{0} 已找到前缀——正在计算大小……</translation>
     </message>
     <message>
         <source>{0} — {1}</source>
@@ -4588,7 +4727,7 @@ Drag a plugin from the left pane to add a rule.</source>
     </message>
     <message>
         <source>{0} prefixes found.</source>
-        <translation>{0} 已找到前缀。</translation>
+        <translation>{0} 已找到的前缀。</translation>
     </message>
     <message>
         <source>Deleting…</source>
@@ -4596,7 +4735,7 @@ Drag a plugin from the left pane to add a rule.</source>
     </message>
     <message>
         <source>Deleted {0}; {1} problem(s) — see log.</source>
-        <translation>已删除 {0}；存在 {1} 相关问题——详见日志。</translation>
+        <translation>已删除 {0}；{1} 存在问题——详见日志。</translation>
     </message>
 </context>
 <context>
@@ -4707,7 +4846,7 @@ Install a Proton version in Steam, then reopen this wizard.</source>
         <source>A prefix already exists for this version. Delete it if {0}
 has issues — it is recreated automatically on the next step.</source>
         <translation>该版本已有前缀。如果{0}
-出现问题，请将其删除——下一步会自动重新创建该前缀。</translation>
+出现问题，请将其删除——它将在下一步中自动重建。</translation>
     </message>
     <message>
         <source>Confirm Delete</source>
@@ -4750,7 +4889,7 @@ has issues — it is recreated automatically on the next step.</source>
     </message>
     <message>
         <source>If the game won't load (black screen) after removing mods, the PAK archives may still have invalidated entries. This restores the original PAK data from the failsafe manifest in the game root.</source>
-        <translation>如果卸载模组后游戏仍无法加载（黑屏），可能是因为 PAK 压缩包中仍存在无效条目。此操作将从游戏根目录中的“安全模式清单”中恢复原始 PAK 数据。</translation>
+        <translation>如果卸载模组后游戏仍无法加载（黑屏），可能是 PAK 压缩包中仍存在无效条目。此操作将从游戏根目录中的“安全模式清单”中恢复原始 PAK 数据。</translation>
     </message>
     <message>
         <source>Game root: {0}</source>
@@ -4760,7 +4899,7 @@ has issues — it is recreated automatically on the next step.</source>
         <source>No restore manifest ({0}) found in the game root. There is nothing to repair — either no PAK-patching mods were deployed, or the manifest was already consumed by a clean restore.
 
 If the game is still broken, verify the game files via Steam.</source>
-        <translation>在游戏根目录中未找到还原清单（{0}）。没有需要修复的内容——要么是未部署任何 PAK 补丁模组，要么该清单已被干净还原操作消耗完毕。
+        <translation>在游戏根目录中未找到还原清单（{0}）。没有需要修复的内容——要么是未部署任何 PAK 补丁模组，要么该清单已被“干净还原”操作消耗完毕。
 
 如果游戏仍无法正常运行，请通过 Steam 验证游戏文件。</translation>
     </message>
@@ -4829,7 +4968,7 @@ If the game is still broken, verify the game files via Steam.</source>
     </message>
     <message>
         <source>The official ReShade shaders are always included. Select any additional packs to download:</source>
-        <translation>ReShade 的官方着色器始终包含在内。请选择要下载的其他包：</translation>
+        <translation>ReShade 的官方着色器始终包含在内。请选择要下载的任何其他包：</translation>
     </message>
     <message>
         <source>Install from a preset (optional)</source>
@@ -4999,7 +5138,7 @@ Remove the previous version '{2}'? The new mod will take its position in the mod
 Choose Keep if this is an optional/alternative variant rather than a replacement.</source>
         <translation>“{0}”作为新模组（文件夹名称不同）被安装，因为它并未替换“{1}”。
 
-是否删除旧版本“{2}”？新模组将取代其位置出现在模组列表中。
+是否删除旧版本“{2}”？新模组将在模组列表中取代其位置。
 
 如果这是可选/替代版本而非替换版本，请选择“保留”。</translation>
     </message>
@@ -5033,6 +5172,14 @@ Choose Keep if this is an optional/alternative variant rather than a replacement
     <message>
         <source>Save</source>
         <translation>保存</translation>
+    </message>
+    <message>
+        <source>true</source>
+        <translation>true</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>false</translation>
     </message>
     <message>
         <source>Form reset to built-in defaults (not yet saved).</source>
@@ -5127,6 +5274,36 @@ Choose Keep if this is an optional/alternative variant rather than a replacement
     <message>
         <source>Checking .NET 8…</source>
         <translation>正在检查 .NET 8…</translation>
+    </message>
+    <message>
+        <source>Existing Merges Use Missing Mods</source>
+        <translation>现有合并使用了缺失的模组</translation>
+    </message>
+    <message>
+        <source>{0} existing merge(s) use mods that are not currently deployed (disabled or removed):
+
+{1}
+
+Script Merger cannot run safely in this state.
+
+Cancel and re-enable the listed mods to keep the merges, or delete the existing merges (removes the Merged_Mods mod) and re-create them in this run from the mods that are enabled.</source>
+        <translation>{0}
+
+现有合并使用了当前未部署（已禁用或已删除）的模组：
+
+{1}
+
+脚本合并器在此状态下无法安全运行。
+
+请取消合并并重新启用所列模组以保留现有合并，或者删除现有合并（这将移除 Merged_Mods 模组），然后在本运行中根据已启用的模组重新创建合并。</translation>
+    </message>
+    <message>
+        <source>Delete Merges</source>
+        <translation>删除合并</translation>
+    </message>
+    <message>
+        <source>Launch cancelled — re-enable the merges' source mods, then reopen this wizard.</source>
+        <translation>启动已取消——请重新启用合并操作的源模组，然后重新打开此向导。</translation>
     </message>
     <message>
         <source>Launching WitcherScriptMerger…</source>
@@ -5400,7 +5577,7 @@ Please restart the wizard and install Script Merger first.</source>
     </message>
     <message>
         <source>When set, games added after this point stage mods here. Blank = default ({0}).</source>
-        <translation>设置后，此后添加的游戏将在此处应用此阶段的模组。留空即为默认值（{0}）。</translation>
+        <translation>设置后，此后添加的游戏将在此处应用此阶段的模组。留空即为默认设置（{0}）。</translation>
     </message>
     <message>
         <source>Download Cache Folder</source>
@@ -5673,7 +5850,7 @@ and placed in this game's Applications folder.
 
 Click Install to begin.</source>
         <translation>原生的 Linux TTW 安装程序将从 GitHub 下载
-并放置到该游戏的“Applications”文件夹中。
+并放置到该游戏的“应用程序”文件夹中。
 
 点击“安装”开始。</translation>
     </message>
@@ -5707,7 +5884,7 @@ Click Install to begin.</source>
 
 • 仅重新应用设置 — 重新运行配置文件 INI + FalloutCustom.ini 的设置，无需重新构建（快速）。
 
-• 从头开始重建 — 恢复至原版状态，并再次运行完整安装程序（需要 .mpi 文件以及两款游戏）。</translation>
+• 从头开始重建 — 恢复至原版状态，并重新运行完整安装程序（需要 .mpi 文件以及两款游戏）。</translation>
     </message>
     <message>
         <source>Re-apply setup only</source>
@@ -5770,7 +5947,7 @@ Get the latest TTW .mpi from mod.pub (free account required) — extract the dow
 merges Fallout 3 and Fallout New Vegas assets. This produces ~18 GB of output and can take a long while — please leave it running.
 Output is written directly into your mod list as the '{0}' mod.</source>
         <translation>游戏首先会被恢复到原版状态，然后安装程序
-会将《辐射3》和《辐射：新维加斯》的资源合并。此过程会生成约18 GB的输出文件，且可能需要较长时间——请勿中断运行。
+会将《辐射3》和《辐射：新维加斯》的资源合并。此过程会生成约18 GB的输出文件，且可能需要较长时间——请勿中断该过程。
 生成的模组将直接写入您的模组列表中，名称为“{0}”。</translation>
     </message>
     <message>
@@ -5859,7 +6036,7 @@ Output is written directly into your mod list as the '{0}' mod.</source>
     </message>
     <message>
         <source>Removed and updated mods will be reinstalled. Your existing load order is preserved where possible.</source>
-        <translation>已移除和更新的模组将重新安装。在可能的情况下，您的现有加载顺序将得以保留。</translation>
+        <translation>已移除和更新的模组将被重新安装。在可能的情况下，您的现有加载顺序将得以保留。</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -5892,6 +6069,78 @@ Output is written directly into your mod list as the '{0}' mod.</source>
     <message>
         <source>  (none)</source>
         <translation>  (无)</translation>
+    </message>
+    <message>
+        <source>A new version of Amethyst Mod Manager is available on the AUR.
+
+Current: {0}
+AUR:     {1}
+
+Update via your AUR helper, e.g.
+  yay -Syu amethyst-mod-manager</source>
+        <translation>AUR 上已发布 Amethyst Mod Manager 的新版本。
+
+当前版本：{0}
+
+
+AUR：     {1}
+
+请通过您的 AUR 辅助工具进行更新，例如：
+  yay -Syu amethyst-mod-manager</translation>
+    </message>
+    <message>
+        <source>Pre-release</source>
+        <translation>预发布</translation>
+    </message>
+    <message>
+        <source>Stable</source>
+        <translation>稳定</translation>
+    </message>
+    <message>
+        <source>You're running a pre-release. Switch to the latest {0} build?
+
+Current:     {1}
+{2}: {3}
+
+This will downgrade your installation.</source>
+        <translation>您当前运行的是预发布版。是否切换到最新的{0}
+版本？
+
+当前版本：     {1}
+
+{2}
+：{3}
+这将使您的安装降级。</translation>
+    </message>
+    <message>
+        <source>A new version of Amethyst Mod Manager is available.
+
+Current: {0}
+Latest:  {1}</source>
+        <translation>Amethyst Mod Manager 已发布新版本。
+
+当前版本：{0}
+最新版本：  {1}</translation>
+    </message>
+    <message>
+        <source>Switch to stable</source>
+        <translation>切换到稳定版</translation>
+    </message>
+    <message>
+        <source>Update via installer</source>
+        <translation>通过安装程序更新</translation>
+    </message>
+    <message>
+        <source>Open AUR page</source>
+        <translation>打开 AUR 页面</translation>
+    </message>
+    <message>
+        <source>Open releases page</source>
+        <translation>打开发布页面</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>稍后</translation>
     </message>
 </context>
 <context>
@@ -6103,7 +6352,7 @@ Please restart the wizard and install {1} first.</source>
         <source>{0} is running.
 Close it when you are done, then click Done.</source>
         <translation>{0} 正在运行。
-完成后将其关闭，然后点击“完成”。</translation>
+完成后请将其关闭，然后点击“完成”。</translation>
     </message>
     <message>
         <source>Searching Downloads folder…</source>
@@ -6198,7 +6447,7 @@ Close it when you are done, then click Done.</source>
     <name>view</name>
     <message>
         <source>Files swept into Root Folder (newest restore first)</source>
-        <translation>已导入根文件夹的文件（按还原时间由新到旧排序）</translation>
+        <translation>已导入根文件夹的文件（按最新恢复时间排序）</translation>
     </message>
     <message>
         <source>Files swept into Overwrite (newest restore first)</source>

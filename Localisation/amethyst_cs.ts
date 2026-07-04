@@ -80,7 +80,7 @@ Modifikace se přiřazují k vašim nainstalovaným modifikacím podle UUID.</tr
         <source>The modlist has been reordered to match the BG3MM order.
 Deploy to push the new load order to the game.</source>
         <translation>Seznam modů byl přeskupen tak, aby odpovídal pořadí v BG3MM.
-Spusťte příkaz „Deploy“, aby se nové pořadí načítání aplikovalo ve hře.</translation>
+Spusťte příkaz „Deploy“, aby se nové pořadí načítání modů uplatnilo ve hře.</translation>
     </message>
     <message>
         <source>Done</source>
@@ -104,6 +104,10 @@ Spusťte příkaz „Deploy“, aby se nové pořadí načítání aplikovalo ve
     <message>
         <source>New backup</source>
         <translation>Nová záloha</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Přejmenovat</translation>
     </message>
     <message>
         <source>Keep</source>
@@ -136,6 +140,14 @@ Spusťte příkaz „Deploy“, aby se nové pořadí načítání aplikovalo ve
     <message>
         <source>Unkeep</source>
         <translation>Unkeep</translation>
+    </message>
+    <message>
+        <source>Rename backup</source>
+        <translation>Přejmenovat zálohu</translation>
+    </message>
+    <message>
+        <source>Enter a name for this backup (leave blank to use the date).</source>
+        <translation>Zadejte název této zálohy (pokud pole ponecháte prázdné, použije se datum).</translation>
     </message>
 </context>
 <context>
@@ -185,7 +197,7 @@ Spusťte příkaz „Deploy“, aby se nové pořadí načítání aplikovalo ve
     </message>
     <message>
         <source>Preparing BethINI Pie's Wine prefix…</source>
-        <translation>Příprava předkrmu s vínem v restauraci BethINI Pie…</translation>
+        <translation>Příprava předkrmu k vínu v restauraci BethINI Pie…</translation>
     </message>
 </context>
 <context>
@@ -243,7 +255,7 @@ Nejprve nasad' svůj seznam modů a poté tento průvodce znovu otevři.</transl
     </message>
     <message>
         <source>Files that get packed will be removed from the mod folder. Files outside the packable filter (plugins, readmes, .bik videos) and files you've disabled in the Mod Files tab are left alone.</source>
-        <translation>Soubory, které budou zabaleny, budou ze složky modů odstraněny. Soubory, na které se filtr balení nevztahuje (pluginy, soubory readme, videa ve formátu .bik), a soubory, které jste deaktivovali na záložce „Mod Files“, zůstanou nedotčeny.</translation>
+        <translation>Soubory, které budou zabaleny, budou ze složky modů odstraněny. Soubory, které nespadají pod filtr pro balení (pluginy, soubory readme, videa ve formátu .bik), a soubory, které jste deaktivovali na záložce „Mod Files“, zůstanou nedotčeny.</translation>
     </message>
     <message>
         <source>Separate textures archive</source>
@@ -259,7 +271,7 @@ Nejprve nasad' svůj seznam modů a poté tento průvodce znovu otevři.</transl
     </message>
     <message>
         <source>Files this mod currently wins as loose are left out of the archive so deploy still picks them. Files this mod already loses, or that have no conflict, are packed normally.</source>
-        <translation>Soubory, u nichž tento mod v současné době vyhrává jako „loose“, nejsou do archivu zahrnuty, takže je nástroj Deploy stále vybere. Soubory, u nichž tento mod již prohrál, nebo u nichž nedochází ke konfliktu, jsou zabaleny běžným způsobem.</translation>
+        <translation>Soubory, u nichž tento mod v současné době vyhrává jako „loose“, nejsou do archivu zahrnuty, takže je nástroj Deploy stále vybírá. Soubory, u nichž tento mod již prohrál, nebo u nichž nedochází ke konfliktu, jsou zabaleny běžným způsobem.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -343,7 +355,7 @@ Nejprve nasad' svůj seznam modů a poté tento průvodce znovu otevři.</transl
     <name>CacheManagerOverlay</name>
     <message>
         <source>Total: calculating…</source>
-        <translation>Celkem: počítám…</translation>
+        <translation>Celkem: počítá se…</translation>
     </message>
     <message>
         <source>Manage Download Caches</source>
@@ -381,15 +393,15 @@ Nejprve nasad' svůj seznam modů a poté tento průvodce znovu otevři.</transl
 {2}
 
 Archives will be re-downloaded as needed.</source>
-        <translation>Chcete vymazat položky „{0}
+        <translation>Chcete vymazat položky{0}
 
-“ v sekci „{1}
+v rámci položek{1}
 
-“?
+?
 
-Archivy služby{2}
+Archivy{2}
 
-se v případě potřeby znovu stáhnou.</translation>
+se podle potřeby znovu stáhnou.</translation>
     </message>
     <message>
         <source>Clear {0} Cache(s)</source>
@@ -552,7 +564,7 @@ Mezipaměť MD5 zůstane zachována. Archivy se budou podle potřeby stahovat zn
     </message>
     <message>
         <source>No optional mods.</source>
-        <translation>Žádné volitelné mody.</translation>
+        <translation>Žádné volitelné modifikace.</translation>
     </message>
     <message>
         <source>Off-site mods ({0}) — download manually:</source>
@@ -567,7 +579,7 @@ Mezipaměť MD5 zůstane zachována. Archivy se budou podle potřeby stahovat zn
     <name>CollectionInstallOverlay</name>
     <message>
         <source>Preparing…</source>
-        <translation>Připravuji…</translation>
+        <translation>Připravuje se…</translation>
     </message>
     <message>
         <source>Downloading</source>
@@ -614,7 +626,7 @@ Mezipaměť MD5 zůstane zachována. Archivy se budou podle potřeby stahovat zn
     </message>
     <message>
         <source>Preparing…</source>
-        <translation>Připravuji…</translation>
+        <translation>Připravuje se…</translation>
     </message>
     <message>
         <source>Open Download Page</source>
@@ -746,6 +758,22 @@ Mezipaměť MD5 zůstane zachována. Archivy se budou podle potřeby stahovat zn
         <translation>{0} Hra — {1}</translation>
     </message>
     <message>
+        <source>Settings saved to profile: {0} (this profile only)</source>
+        <translation>Nastavení uložená v profilu: {0} (pouze tento profil)</translation>
+    </message>
+    <message>
+        <source>Editing shared settings (default profile)</source>
+        <translation>Úprava sdílených nastavení (výchozí profil)</translation>
+    </message>
+    <message>
+        <source>Use Shared Settings</source>
+        <translation>Použít sdílená nastavení</translation>
+    </message>
+    <message>
+        <source>This profile has its own saved paths/options. Remove them so it follows the shared (default profile) settings again.</source>
+        <translation>Tento profil má uložené vlastní cesty a nastavení. Odstraňte je, aby se profil opět řídil sdíleným nastavením (výchozím profilem).</translation>
+    </message>
+    <message>
         <source>Remove Instance</source>
         <translation>Odstranit instanci</translation>
     </message>
@@ -846,6 +874,34 @@ Mezipaměť MD5 zůstane zachována. Archivy se budou podle potřeby stahovat zn
         <translation>Byla nakonfigurována vlastní dočasná složka.</translation>
     </message>
     <message>
+        <source>Cannot reset to shared settings while mods are deployed. Restore the game first.</source>
+        <translation>Pokud jsou nainstalovány mody, nelze obnovit sdílená nastavení. Nejprve hru obnovte.</translation>
+    </message>
+    <message>
+        <source>Use Shared Settings?</source>
+        <translation>Použít sdílená nastavení?</translation>
+    </message>
+    <message>
+        <source>Remove this profile's own paths and options so it follows the shared (default profile) settings again?
+
+The default profile's settings are not affected.</source>
+        <translation>Mám odstranit vlastní cesty a možnosti tohoto profilu, aby se opět řídil sdíleným nastavením (výchozím profilem)?
+
+Nastavení výchozího profilu tím nebude ovlivněno.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Obnovit</translation>
+    </message>
+    <message>
+        <source>Profile now follows the shared (default profile) settings.</source>
+        <translation>Profil nyní používá nastavení sdíleného profilu (výchozího profilu).</translation>
+    </message>
+    <message>
+        <source>Settings saved.</source>
+        <translation>Nastavení bylo uloženo.</translation>
+    </message>
+    <message>
         <source>Custom staging folder selected.</source>
         <translation>Byla vybrána vlastní dočasná složka.</translation>
     </message>
@@ -866,8 +922,16 @@ Mezipaměť MD5 zůstane zachována. Archivy se budou podle potřeby stahovat zn
         <translation>Nejprve nastavte instalační složku hry.</translation>
     </message>
     <message>
+        <source>This path is not visible inside the Flatpak sandbox. Grant access in Flatseal or run: {0}</source>
+        <translation>Tato cesta není viditelná uvnitř sandboxu Flatpak. Udělejte přístup v Flatsealu nebo spusťte: {0}</translation>
+    </message>
+    <message>
         <source>Cannot change the game/prefix path while mods are deployed. Restore the game first.</source>
         <translation>Cestu ke hře/předponu nelze změnit, dokud jsou nainstalovány mody. Nejprve hru obnovte.</translation>
+    </message>
+    <message>
+        <source>Cannot use hardlinks: the staging folder and {0} are on different drives or filesystems. Switch to Symlink instead.</source>
+        <translation>Nelze použít pevné odkazy: složka staging a adresář {0} se nacházejí na různých discích nebo v různých souborových systémech. Místo toho použijte symbolický odkaz.</translation>
     </message>
     <message>
         <source>Checking existing staging files…</source>
@@ -1094,7 +1158,7 @@ Creation Kit se také může občas při spuštění pod Protonem zhroutit (zná
     </message>
     <message>
         <source>When enabled, if both Required Top-Level Folders and Required File Types checks fail, the mod is installed as-is without showing the prefix dialog.</source>
-        <translation>Je-li tato možnost zapnutá, a pokud selžou obě kontroly („Požadované složky nejvyšší úrovně“ a „Požadované typy souborů“), mod se nainstaluje v původním stavu, aniž by se zobrazil dialog pro zadání předpony.</translation>
+        <translation>Je-li tato možnost zapnutá, a pokud selžou obě kontroly („Povinné složky nejvyšší úrovně“ a „Povinné typy souborů“), mod se nainstaluje v původním stavu, aniž by se zobrazil dialog pro zadání předpony.</translation>
     </message>
     <message>
         <source>Restore Before Deploy</source>
@@ -1102,7 +1166,7 @@ Creation Kit se také může občas při spuštění pod Protonem zhroutit (zná
     </message>
     <message>
         <source>When enabled (default), the manager runs Restore before every Deploy to clean the game state first. Disable only if the game's deploy cycle handles its own cleanup internally.</source>
-        <translation>Je-li tato funkce zapnutá (výchozí nastavení), správce před každým nasazením spustí funkci „Obnovit“, aby nejprve vyčistil stav hry. Tuto funkci vypněte pouze v případě, že cyklus nasazení hry provádí vlastní čištění interně.</translation>
+        <translation>Je-li tato funkce zapnutá (výchozí nastavení), správce před každým nasazením spustí funkci „Obnovit“, aby nejprve vyčistil stav hry. Tuto funkci vypněte pouze v případě, že cyklus nasazení hry provádí vlastní vyčištění interně.</translation>
     </message>
     <message>
         <source>Normalize Folder Case</source>
@@ -1110,7 +1174,7 @@ Creation Kit se také může občas při spuštění pod Protonem zhroutit (zná
     </message>
     <message>
         <source>When enabled (default), folder names that differ only in case across mods are unified to a single casing. Disable for Linux-native games where folder casing is significant.</source>
-        <translation>Je-li tato funkce zapnutá (výchozí nastavení), názvy složek v různých modech, které se liší pouze velkými a malými písmeny, se sjednotí na jednotné psaní. Tuto funkci vypněte u her nativních pro Linux, u nichž je rozlišování velkých a malých písmen ve jménech složek důležité.</translation>
+        <translation>Je-li tato funkce zapnutá (výchozí nastavení), názvy složek v různých modech, které se liší pouze velkými a malými písmeny, se sjednotí na jednotný způsob psaní. Tuto funkci vypněte u her nativních pro Linux, u nichž je způsob psaní názvů složek důležitý.</translation>
     </message>
     <message>
         <source>Edit Custom Game</source>
@@ -1274,7 +1338,7 @@ Creation Kit se také může občas při spuštění pod Protonem zhroutit (zná
     </message>
     <message>
         <source>Path relative to the game root where mod files are installed. e.g. 'Data' for Bethesda games, 'BepInEx/plugins' for BepInEx. Leave empty to target the game root directly.</source>
-        <translation>Cesta relativní ke kořenovému adresáři hry, do kterého jsou nainstalovány soubory modů. Např. „Data“ u her od Bethesdy, „BepInEx/plugins“ u BepInEx. Pokud chcete cílovat přímo na kořenový adresář hry, ponechte pole prázdné.</translation>
+        <translation>Cesta relativní ke kořenovému adresáři hry, do kterého jsou nainstalovány soubory modů. Např. „Data“ u her od Bethesdy, „BepInEx/plugins“ u BepInEx. Pokud chcete cílit přímo na kořenový adresář hry, ponechte pole prázdné.</translation>
     </message>
     <message>
         <source>e.g. Data   (leave empty for game root)</source>
@@ -1353,6 +1417,10 @@ Creation Kit se také může občas při spuštění pod Protonem zhroutit (zná
     <message>
         <source>Deployed files</source>
         <translation>Nasazené soubory</translation>
+    </message>
+    <message>
+        <source>Deployed files - {0} files in {1} mods</source>
+        <translation>Nasazené soubory – soubory „{0}“ v modech „{1}“</translation>
     </message>
 </context>
 <context>
@@ -1531,8 +1599,8 @@ nebo použijte tlačítko „Procházet“ a vyberte jej ručně.</translation>
 {0} run (the '{1}' mod in your mod list).
 
 Once you have done this, click Deploy.</source>
-        <translation>Před nasazením prosím smažte veškerý výstup z předchozího spuštění modulu „
-{0}“ (modul „{1}“ ve vašem seznamu modulů).
+        <translation>Před nasazením prosím smažte veškerý výstup z předchozího spuštění modifikace „
+{0}“ (modifikace „{1}“ ve vašem seznamu modifikací).
 
 Jakmile to provedete, klikněte na tlačítko „Deploy“.</translation>
     </message>
@@ -1677,6 +1745,14 @@ mod „{0}“, který se objeví ve vašem seznamu modů.</translation>
         <translation>Uložit</translation>
     </message>
     <message>
+        <source>true</source>
+        <translation>true</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>false</translation>
+    </message>
+    <message>
         <source>Form reset to built-in defaults (not yet saved).</source>
         <translation>Formulář byl resetován na výchozí nastavení (zatím neuloženo).</translation>
     </message>
@@ -1810,11 +1886,11 @@ mod „{0}“, který se objeví ve vašem seznamu modů.</translation>
     <name>FavouriteWizardsOverlay</name>
     <message>
         <source>Favourite Wizard Tools</source>
-        <translation>Oblíbené nástroje pro práci s Wizardem</translation>
+        <translation>Oblíbené nástroje pro čaroděje</translation>
     </message>
     <message>
         <source>Checked tools appear at the top of the Wizard menu for quick access.</source>
-        <translation>Zaškrtnuté nástroje se zobrazí v horní části nabídky průvodce, kde jsou snadno dostupné.</translation>
+        <translation>Zaškrtnuté nástroje se zobrazí v horní části nabídky průvodce, aby k nim byl rychlý přístup.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1869,7 +1945,7 @@ mod „{0}“, který se objeví ve vašem seznamu modů.</translation>
     </message>
     <message>
         <source>Winning conflicts</source>
-        <translation>Jak vyhrávat konflikty</translation>
+        <translation>Jak vyhrávat spory</translation>
     </message>
     <message>
         <source>Losing conflicts</source>
@@ -1877,7 +1953,7 @@ mod „{0}“, který se objeví ve vašem seznamu modů.</translation>
     </message>
     <message>
         <source>Winning &amp; losing conflicts</source>
-        <translation>Konflikty spojené s vítězstvím a porážkou</translation>
+        <translation>Konflikty spojené s vítězstvím a prohrou</translation>
     </message>
     <message>
         <source>Fully conflicted mods</source>
@@ -2135,7 +2211,7 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
     </message>
     <message>
         <source>Auto detects Steam/Heroic ownership. Force a specific launcher, or None to always launch the exe directly via Proton.</source>
-        <translation>Automaticky rozpozná, zda vlastníte hru na Steamu nebo v režimu Heroic. Můžete vynutit použití konkrétního spouštěče, případně zvolit možnost „None“, aby se spustitelný soubor vždy spouštěl přímo přes Proton.</translation>
+        <translation>Automaticky rozpozná, zda vlastníte hru na Steamu nebo v režimu Heroic. Můžete vynutit použití konkrétního spouštěče, případně zvolit možnost „None“, aby se soubor exe vždy spouštěl přímo přes Proton.</translation>
     </message>
     <message>
         <source>Deploy mods before launching</source>
@@ -2263,6 +2339,10 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
         <translation>Nainstalovat vybrané</translation>
     </message>
     <message>
+        <source>Move Selected</source>
+        <translation>Přesunout výběr</translation>
+    </message>
+    <message>
         <source>Remove Selected</source>
         <translation>Odebrat vybrané</translation>
     </message>
@@ -2281,6 +2361,14 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
     <message>
         <source>Removed {0} archive(s)</source>
         <translation>Odstraněny archivy {0}</translation>
+    </message>
+    <message>
+        <source>Cannot use that folder: {0}</source>
+        <translation>Tuto složku nelze použít: {0}</translation>
+    </message>
+    <message>
+        <source>Moved {0} archive(s)</source>
+        <translation>Přesunuto{0} archiv(ů)</translation>
     </message>
     <message>
         <source>Find in files:</source>
@@ -2550,7 +2638,7 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
         <source>Remove '{0}' and its {1} mod(s) from this profile?
 
 Their files are deleted from the staging folder — this cannot be undone.</source>
-        <translation>Chcete z tohoto profilu odstranit „{0}“ a jeho mod(y) {1}?
+        <translation>Chcete z tohoto profilu odstranit „{0}“ a jeho modifikace {1}?
 
 Soubory budou odstraněny ze složky staging — tuto akci nelze vrátit zpět.</translation>
     </message>
@@ -2576,7 +2664,7 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     </message>
     <message>
         <source>Could not remove '{0}' — see the log.</source>
-        <translation>Nepodařilo se odstranit soubor „{0}“ — viz protokol.</translation>
+        <translation>Nepodařilo se odstranit soubor „{0}“ – viz protokol.</translation>
     </message>
     <message>
         <source>The active profile isn't a collection profile.</source>
@@ -2712,7 +2800,7 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     </message>
     <message>
         <source>An update check is already running.</source>
-        <translation>Právě probíhá kontrola dostupnosti aktualizací.</translation>
+        <translation>Právě probíhá kontrola aktualizací.</translation>
     </message>
     <message>
         <source>Log in to Nexus (Nexus ▸ Login) or set a mod.io API key (mod.io API Key tool) to check for updates.</source>
@@ -2756,7 +2844,7 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     </message>
     <message>
         <source>No mods with a pending update to quick-update.</source>
-        <translation>Žádné mody, u nichž je čekající aktualizace v systému quick-update.</translation>
+        <translation>Žádné mody, u nichž je čekající aktualizace v rámci funkce „quick-update“.</translation>
     </message>
     <message>
         <source>Quick Update — checking {0} mod(s)…</source>
@@ -2903,6 +2991,10 @@ Chcete odstranit záznam z přidané sbírky?</translation>
         <translation>Pro tento mod nejsou k dispozici žádné soubory ke stažení.</translation>
     </message>
     <message>
+        <source>{0} game — {1}</source>
+        <translation>{0} hra — {1}</translation>
+    </message>
+    <message>
         <source>{0} game</source>
         <translation>{0} hra</translation>
     </message>
@@ -3040,7 +3132,7 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     </message>
     <message>
         <source>Choose which wizard tools appear at the top of this menu for quick access.</source>
-        <translation>Vyberte, které nástroje průvodce se mají zobrazovat v horní části tohoto menu, abyste k nim měli rychlý přístup.</translation>
+        <translation>Vyberte, které nástroje průvodce se mají zobrazit v horní části tohoto menu, abyste k nim měli rychlý přístup.</translation>
     </message>
     <message>
         <source>Manage Prefixes…</source>
@@ -3065,6 +3157,30 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     <message>
         <source>Installing {0}…</source>
         <translation>Probíhá instalace {0}…</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks requires Hardlink mode</source>
+        <translation>Aplikace Cyber Engine Tweaks vyžaduje režim Hardlink</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
+
+CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
+
+Deploy anyway?</source>
+        <translation>Funkce Cyber Engine Tweaks je zapnutá, ale režim nasazení je nastaven na „Symlink“.
+
+CET se nenačte ze souboru cyber_engine_tweaks.asi, na který odkazuje symbolický odkaz — přepněte režim nasazení na „Hardlink“, aby CET fungoval.
+
+Chcete přesto nasadit?</translation>
+    </message>
+    <message>
+        <source>Deploy anyway</source>
+        <translation>Nasadit i tak</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Zrušit</translation>
     </message>
     <message>
         <source>Install cancelled: {0}</source>
@@ -3124,7 +3240,7 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     </message>
     <message>
         <source>Profile is deployed — run Restore first, then unpack.</source>
-        <translation>Profil je nasazen – nejprve spusťte funkci „Obnovit“ a poté jej rozbalte.</translation>
+        <translation>Profil je nasazen – nejprve spusťte příkaz „Restore“ a poté jej rozbalte.</translation>
     </message>
     <message>
         <source>Unpacking {0} archive(s)…</source>
@@ -3196,7 +3312,7 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     </message>
     <message>
         <source>No active profile — cannot configure groups.</source>
-        <translation>Žádný aktivní profil – nelze nastavit skupiny.</translation>
+        <translation>Žádný aktivní profil – nelze konfigurovat skupiny.</translation>
     </message>
     <message>
         <source>LOOT Groups</source>
@@ -3232,7 +3348,7 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     </message>
     <message>
         <source>No active profile — cannot edit userlist.</source>
-        <translation>Žádný aktivní profil – nelze upravovat seznam uživatelů.</translation>
+        <translation>Žádný aktivní profil – nelze upravit seznam uživatelů.</translation>
     </message>
     <message>
         <source>No active profile — cannot assign group.</source>
@@ -3327,6 +3443,10 @@ Chcete odstranit záznam z přidané sbírky?</translation>
         <translation>Vymazat protokol</translation>
     </message>
     <message>
+        <source>Open Log Folder</source>
+        <translation>Otevřít složku s protokoly</translation>
+    </message>
+    <message>
         <source>Changelog</source>
         <translation>Seznam změn</translation>
     </message>
@@ -3405,7 +3525,7 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     </message>
     <message>
         <source>No missing requirements found.</source>
-        <translation>Nebyly nalezeny žádné chybějící požadavky.</translation>
+        <translation>Nebyly nalezeny žádné nesplněné požadavky.</translation>
     </message>
 </context>
 <context>
@@ -3626,7 +3746,7 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     </message>
     <message>
         <source>Rename separator</source>
-        <translation>Označit oddělovač</translation>
+        <translation>Označte oddělovač</translation>
     </message>
     <message>
         <source>Separator settings…</source>
@@ -3772,7 +3892,7 @@ or an encrypted file when no keyring is available).</source>
         <translation>Vložte svůj klíč API mod.io pouze pro čtení, abyste povolili kontrolu aktualizací
 pro mody ke hře Baldur's Gate 3 nainstalované ručně z mod.io.
 
-Klíč je určen pouze pro čtení a je bezpečně uložen (v systémovém klíčenku
+Tento klíč je určen pouze pro čtení a je bezpečně uložen (v systémovém klíčenku
 nebo v šifrovaném souboru, pokud klíčenka není k dispozici).</translation>
     </message>
     <message>
@@ -3793,6 +3913,25 @@ nebo v šifrovaném souboru, pokud klíčenka není k dispozici).</translation>
     </message>
 </context>
 <context>
+    <name>MoveDownloadsOverlay</name>
+    <message>
+        <source>Move {0} archive(s) to…</source>
+        <translation>Přesunout archiv(y) „{0}“ do…</translation>
+    </message>
+    <message>
+        <source>Choose a configured download location.</source>
+        <translation>Vyberte přednastavené umístění pro stažení.</translation>
+    </message>
+    <message>
+        <source>No configured download locations.</source>
+        <translation>Není nakonfigurováno žádné umístění pro stahování.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Zrušit</translation>
+    </message>
+</context>
+<context>
     <name>NewProfileBar</name>
     <message>
         <source>New profile:</source>
@@ -3804,7 +3943,7 @@ nebo v šifrovaném souboru, pokud klíčenka není k dispozici).</translation>
     </message>
     <message>
         <source>Use Profile Specific Mods</source>
-        <translation>Použít mody specifické pro daný profil</translation>
+        <translation>Použít mody specifické pro profil</translation>
     </message>
     <message>
         <source>Profiles with this setting use their own mods folders</source>
@@ -4039,12 +4178,12 @@ Tento krok můžete přeskočit a připojit se později pomocí tlačítka Nexus
     <message>
         <source>When set, new games will use &lt;this&gt;/&lt;game name&gt; as their
 mod staging folder. You can change this later in Settings.</source>
-        <translation>Pokud je tato možnost nastavena, budou nové hry používat &lt;toto&gt;/&lt;název hry&gt; jako svou
-složku pro přípravu modů. Tuto volbu můžete později změnit v nastavení.</translation>
+        <translation>Pokud je tato možnost nastavena, nové hry budou jako svou
+složku pro přípravu modů používat &lt;toto&gt;/&lt;název hry&gt;. Tuto volbu můžete později změnit v nastavení.</translation>
     </message>
     <message>
         <source>Download Cache Folder</source>
-        <translation>Složka s dočasnými soubory ke stažení</translation>
+        <translation>Složka s dobytými soubory</translation>
     </message>
     <message>
         <source>Where downloaded mod archives are stored.
@@ -4118,7 +4257,7 @@ Once you have done this, click Deploy.</source>
         <translation>Před nasazením prosím smažte veškerý výstup z předchozího
 spuštění nástroje PGPatcher (mod „PGPatcher_output“ ve vašem seznamu modů / složce staging).
 
-Jakmile to provedete, klikněte na tlačítko „Deploy“.</translation>
+Jakmile tak učiníte, klikněte na tlačítko „Deploy“.</translation>
     </message>
     <message>
         <source>Per-mod conflict resolution (MO2 parity)</source>
@@ -4128,7 +4267,7 @@ Jakmile to provedete, klikněte na tlačítko „Deploy“.</translation>
         <source>Builds a synthetic MO2 instance so PGPatcher attributes
 conflicts per-mod, matching a real MO2 setup. Experimental.</source>
         <translation>Vytvoří syntetickou instanci MO2, takže atributy PGPatcheru
-se dostávají do konfliktu na úrovni jednotlivých modů, což odpovídá skutečnému nastavení MO2. Experimentální funkce.</translation>
+vytvářejí konflikty na úrovni jednotlivých modů, což odpovídá skutečnému nastavení MO2. Experimentální funkce.</translation>
     </message>
     <message>
         <source>Skip</source>
@@ -4306,7 +4445,7 @@ Až skončíte, zavřete ji a poté klikněte na „Hotovo“.</translation>
 Re-scan to verify.</source>
         <translation>Úklid dokončen — bylo odstraněno {0} z nalezených souborů INI na adrese {1}.
 
-Pro ověření proveďte nové prohledání.</translation>
+Pro ověření proveďte nové skenování.</translation>
     </message>
     <message>
         <source>No SkyGen INIs found to clean.</source>
@@ -4479,7 +4618,7 @@ Pro ověření proveďte nové prohledání.</translation>
     </message>
     <message>
         <source>Show userlist rules…</source>
-        <translation>Zobrazit pravidla pro seznam uživatelů…</translation>
+        <translation>Zobrazit pravidla seznamu uživatelů…</translation>
     </message>
 </context>
 <context>
@@ -4536,7 +4675,7 @@ Chcete-li přidat pravidlo, přetáhněte plugin z levého panelu.</translation>
     </message>
     <message>
         <source>Wizard tools each run in their own Wine prefix (created next to the tool's exe or in the app config folder). Deleting one only reclaims disk space — it is recreated automatically the next time the tool runs.</source>
-        <translation>Nástroje průvodce se spouštějí každý ve svém vlastním prefixu Wine (vytvořeném vedle souboru exe daného nástroje nebo ve složce s konfigurací aplikace). Jeho smazáním pouze uvolníte místo na disku – při příštím spuštění nástroje se prefix automaticky znovu vytvoří.</translation>
+        <translation>Nástroje průvodce se spouštějí každý ve svém vlastním prefixu Wine (vytvořeném vedle souboru exe daného nástroje nebo ve složce s konfigurací aplikace). Jeho smazání pouze uvolní místo na disku – při příštím spuštění nástroje se prefix automaticky znovu vytvoří.</translation>
     </message>
     <message>
         <source>Scanning for prefixes…</source>
@@ -4701,7 +4840,7 @@ Nainstalujte si verzi Protonu ve službě Steam a poté tento průvodce znovu ot
     </message>
     <message>
         <source>Using the game's existing prefix — Proton version follows the game's Steam setting and no new prefix is created.</source>
-        <translation>Při použití stávajícího předpony hry — verze Proton se řídí nastavením hry na Steamu a nevytváří se žádná nová předpona.</translation>
+        <translation>Při použití stávajícího předpony hry – verze Proton se řídí nastavením hry na Steamu a nevytváří se žádná nová předpona.</translation>
     </message>
     <message>
         <source>A prefix already exists for this version. Delete it if {0}
@@ -4715,7 +4854,7 @@ has issues — it is recreated automatically on the next step.</source>
     </message>
     <message>
         <source>Click again to delete '{0}'.</source>
-        <translation>Klikněte znovu, abyste odstranili položku „{0}“.</translation>
+        <translation>Klikněte znovu, abyste odstranili „{0}“.</translation>
     </message>
     <message>
         <source>Deleting…</source>
@@ -4901,7 +5040,7 @@ Tento krok můžete přeskočit.</translation>
         <source>d3dcompiler_47 will be installed into the Proton prefix for this game (via protontricks if available, otherwise bundled winetricks).
 
 This may take up to a minute.</source>
-        <translation>d3dcompiler_47 bude nainstalován do adresáře Proton pro tuto hru (prostřednictvím protontricks, pokud jsou k dispozici, jinak pomocí balíčku winetricks).
+        <translation>d3dcompiler_47 bude nainstalován do předpony Proton pro tuto hru (prostřednictvím protontricks, pokud jsou k dispozici, jinak prostřednictvím balíčku winetricks).
 
 To může trvat až jednu minutu.</translation>
     </message>
@@ -5035,6 +5174,14 @@ Zvolte možnost „Ponechat“, pokud se jedná o volitelnou/alternativní varia
         <translation>Uložit</translation>
     </message>
     <message>
+        <source>true</source>
+        <translation>true</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>false</translation>
+    </message>
+    <message>
         <source>Form reset to built-in defaults (not yet saved).</source>
         <translation>Formulář byl resetován na výchozí nastavení (zatím neuloženo).</translation>
     </message>
@@ -5127,6 +5274,36 @@ Zvolte možnost „Ponechat“, pokud se jedná o volitelnou/alternativní varia
     <message>
         <source>Checking .NET 8…</source>
         <translation>Kontrola .NET 8…</translation>
+    </message>
+    <message>
+        <source>Existing Merges Use Missing Mods</source>
+        <translation>Stávající sloučení využívají chybějící mody</translation>
+    </message>
+    <message>
+        <source>{0} existing merge(s) use mods that are not currently deployed (disabled or removed):
+
+{1}
+
+Script Merger cannot run safely in this state.
+
+Cancel and re-enable the listed mods to keep the merges, or delete the existing merges (removes the Merged_Mods mod) and re-create them in this run from the mods that are enabled.</source>
+        <translation>{0}
+
+Stávající sloučení využívají mody, které nejsou v současné době nasazeny (jsou deaktivovány nebo odstraněny):
+
+{1}
+
+Skript Merger nemůže v tomto stavu bezpečně běžet.
+
+Zrušte operaci a znovu povolte uvedené mody, chcete-li sloučení zachovat, nebo stávající sloučení odstraňte (tím se odstraní mod Merged_Mods) a v tomto běhu je znovu vytvořte z povolených modů.</translation>
+    </message>
+    <message>
+        <source>Delete Merges</source>
+        <translation>Odstranit sloučení</translation>
+    </message>
+    <message>
+        <source>Launch cancelled — re-enable the merges' source mods, then reopen this wizard.</source>
+        <translation>Spuštění bylo zrušeno — znovu povolte zdrojové mody sloučení a poté tento průvodce znovu otevřete.</translation>
     </message>
     <message>
         <source>Launching WitcherScriptMerger…</source>
@@ -5404,7 +5581,7 @@ Restartujte prosím průvodce a nejprve nainstalujte Script Merger.</translation
     </message>
     <message>
         <source>Download Cache Folder</source>
-        <translation>Složka s dočasnými soubory ke stažení</translation>
+        <translation>Složka s dobytými soubory</translation>
     </message>
     <message>
         <source>Where downloaded mod archives are stored. Blank = default ({0}).</source>
@@ -5642,7 +5819,7 @@ Vyberte verzi Protonu, pomocí které chcete tento prefix vytvořit.</translatio
     </message>
     <message>
         <source>No Proton installations found. Install Proton (e.g. GE-Proton) via Steam and try again.</source>
-        <translation>Nebyly nalezeny žádné instalace hry Proton. Nainstalujte si hru Proton (např. GE-Proton) přes Steam a zkuste to znovu.</translation>
+        <translation>Nebyly nalezeny žádné instalace hry Proton. Nainstalujte hru Proton (např. GE-Proton) přes Steam a zkuste to znovu.</translation>
     </message>
     <message>
         <source>Step 3: Prepare Prefix</source>
@@ -5892,6 +6069,78 @@ Výstup se zapíše přímo do vašeho seznamu modů jako mod „{0}“.</transl
     <message>
         <source>  (none)</source>
         <translation>  (žádné)</translation>
+    </message>
+    <message>
+        <source>A new version of Amethyst Mod Manager is available on the AUR.
+
+Current: {0}
+AUR:     {1}
+
+Update via your AUR helper, e.g.
+  yay -Syu amethyst-mod-manager</source>
+        <translation>Na AUR je k dispozici nová verze Amethyst Mod Manageru.
+
+Aktuální:{0}
+
+
+AUR:     {1}
+
+Aktualizujte pomocí svého nástroje pro AUR, např.
+  yay -Syu amethyst-mod-manager</translation>
+    </message>
+    <message>
+        <source>Pre-release</source>
+        <translation>Předběžné vydání</translation>
+    </message>
+    <message>
+        <source>Stable</source>
+        <translation>Stáj</translation>
+    </message>
+    <message>
+        <source>You're running a pre-release. Switch to the latest {0} build?
+
+Current:     {1}
+{2}: {3}
+
+This will downgrade your installation.</source>
+        <translation>Používáte předběžnou verzi. Chcete přejít na nejnovější sestavení z{0}
+?
+
+Aktuální:     {1}
+
+{2}
+:{3}
+Tím dojde k downgradu vaší instalace.</translation>
+    </message>
+    <message>
+        <source>A new version of Amethyst Mod Manager is available.
+
+Current: {0}
+Latest:  {1}</source>
+        <translation>Je k dispozici nová verze programu Amethyst Mod Manager.
+
+Aktuální verze: {0}
+Nejnovější verze:  {1}</translation>
+    </message>
+    <message>
+        <source>Switch to stable</source>
+        <translation>Přepnout na stabilní verzi</translation>
+    </message>
+    <message>
+        <source>Update via installer</source>
+        <translation>Aktualizace pomocí instalačního programu</translation>
+    </message>
+    <message>
+        <source>Open AUR page</source>
+        <translation>Otevřít stránku AUR</translation>
+    </message>
+    <message>
+        <source>Open releases page</source>
+        <translation>Otevřít stránku s vydanými verzemi</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Později</translation>
     </message>
 </context>
 <context>

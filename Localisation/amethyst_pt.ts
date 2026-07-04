@@ -106,6 +106,10 @@ Execute o comando «Deploy» para aplicar a nova ordem de carregamento ao jogo.<
         <translation>Novo backup</translation>
     </message>
     <message>
+        <source>Rename</source>
+        <translation>Renomear</translation>
+    </message>
+    <message>
         <source>Keep</source>
         <translation>Manter</translation>
     </message>
@@ -136,6 +140,14 @@ Execute o comando «Deploy» para aplicar a nova ordem de carregamento ao jogo.<
     <message>
         <source>Unkeep</source>
         <translation>Desmarcar</translation>
+    </message>
+    <message>
+        <source>Rename backup</source>
+        <translation>Renomear cópia de segurança</translation>
+    </message>
+    <message>
+        <source>Enter a name for this backup (leave blank to use the date).</source>
+        <translation>Introduza um nome para esta cópia de segurança (deixe em branco para utilizar a data).</translation>
     </message>
 </context>
 <context>
@@ -181,7 +193,7 @@ Execute o comando «Deploy» para aplicar a nova ordem de carregamento ao jogo.<
     <name>BethiniView</name>
     <message>
         <source>'{0}' was not found.</source>
-        <translation>Não foi encontrado «{0}».</translation>
+        <translation>«{0}» não foi encontrado.</translation>
     </message>
     <message>
         <source>Preparing BethINI Pie's Wine prefix…</source>
@@ -200,7 +212,7 @@ Execute o comando «Deploy» para aplicar a nova ordem de carregamento ao jogo.<
 Deploy your modlist first, then click Run.</source>
         <translation>{0} deve ser executado a partir da pasta «Data» onde foi implementado.
 
-Implementa primeiro a tua lista de mods e, em seguida, clica em «Executar».</translation>
+Implemente primeiro a sua lista de mods e, em seguida, clique em «Executar».</translation>
     </message>
     <message>
         <source>Output mod name:</source>
@@ -224,7 +236,7 @@ Implementa primeiro a tua lista de mods e, em seguida, clica em «Executar».</t
 Deploy your modlist first, then reopen this wizard.</source>
         <translation>{0} não foi encontrado na pasta «Data» onde foi implementado.
 
-Implemente primeiro a sua lista de mods e, em seguida, reabra este assistente.</translation>
+Implementa primeiro a tua lista de mods e, em seguida, reabre este assistente.</translation>
     </message>
 </context>
 <context>
@@ -289,7 +301,7 @@ Implemente primeiro a sua lista de mods e, em seguida, reabra este assistente.</
     </message>
     <message>
         <source>Unpacking extracts every archive under the selected plugin into this mod's folder, deletes those archives, removes the plugin if it was a generated stub, and re-enables the unpacked files in the Mod Files tab.</source>
-        <translation>A função «Descompactar» descompacta todos os ficheiros de arquivo do plugin selecionado para a pasta deste mod, elimina esses ficheiros de arquivo, remove o plugin caso se trate de um esboço gerado e reativa os ficheiros descompactados no separador «Ficheiros do Mod».</translation>
+        <translation>A função «Descompactar» descompacta todos os arquivos contidos no plugin selecionado para a pasta deste mod, elimina esses arquivos, remove o plugin caso se trate de um esboço gerado e reativa os ficheiros descompactados no separador «Ficheiros do Mod».</translation>
     </message>
     <message>
         <source>Close</source>
@@ -746,6 +758,22 @@ O cache MD5 é mantido. Os arquivos serão descarregados novamente, conforme nec
         <translation>{0} Jogo — {1}</translation>
     </message>
     <message>
+        <source>Settings saved to profile: {0} (this profile only)</source>
+        <translation>Definições guardadas no perfil: {0} (apenas neste perfil)</translation>
+    </message>
+    <message>
+        <source>Editing shared settings (default profile)</source>
+        <translation>Editar definições partilhadas (perfil predefinido)</translation>
+    </message>
+    <message>
+        <source>Use Shared Settings</source>
+        <translation>Utilizar definições partilhadas</translation>
+    </message>
+    <message>
+        <source>This profile has its own saved paths/options. Remove them so it follows the shared (default profile) settings again.</source>
+        <translation>Este perfil tem os seus próprios percursos/opções guardados. Elimine-os para que volte a seguir as definições partilhadas (perfil predefinido).</translation>
+    </message>
+    <message>
         <source>Remove Instance</source>
         <translation>Remover instância</translation>
     </message>
@@ -846,6 +874,34 @@ O cache MD5 é mantido. Os arquivos serão descarregados novamente, conforme nec
         <translation>Pasta de preparação personalizada configurada.</translation>
     </message>
     <message>
+        <source>Cannot reset to shared settings while mods are deployed. Restore the game first.</source>
+        <translation>Não é possível repor as definições partilhadas enquanto os mods estiverem instalados. Reponha primeiro o jogo.</translation>
+    </message>
+    <message>
+        <source>Use Shared Settings?</source>
+        <translation>Utilizar definições partilhadas?</translation>
+    </message>
+    <message>
+        <source>Remove this profile's own paths and options so it follows the shared (default profile) settings again?
+
+The default profile's settings are not affected.</source>
+        <translation>Remover os caminhos e as opções próprias deste perfil para que volte a seguir as definições partilhadas (do perfil predefinido)?
+
+As definições do perfil predefinido não são afetadas.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Reiniciar</translation>
+    </message>
+    <message>
+        <source>Profile now follows the shared (default profile) settings.</source>
+        <translation>O perfil segue agora as definições partilhadas (perfil predefinido).</translation>
+    </message>
+    <message>
+        <source>Settings saved.</source>
+        <translation>As definições foram guardadas.</translation>
+    </message>
+    <message>
         <source>Custom staging folder selected.</source>
         <translation>Pasta de preparação personalizada selecionada.</translation>
     </message>
@@ -859,15 +915,23 @@ O cache MD5 é mantido. Os arquivos serão descarregados novamente, conforme nec
     </message>
     <message>
         <source>Prefix not found automatically. Not needed if game is Linux native.</source>
-        <translation>O prefixo não foi detetado automaticamente. Não é necessário se o jogo for nativo do Linux.</translation>
+        <translation>O prefixo não foi encontrado automaticamente. Não é necessário se o jogo for nativo do Linux.</translation>
     </message>
     <message>
         <source>Set the game installation folder first.</source>
         <translation>Defina primeiro a pasta de instalação do jogo.</translation>
     </message>
     <message>
+        <source>This path is not visible inside the Flatpak sandbox. Grant access in Flatseal or run: {0}</source>
+        <translation>Este caminho não está visível dentro da sandbox do Flatpak. Conceda acesso no Flatseal ou execute: {0}</translation>
+    </message>
+    <message>
         <source>Cannot change the game/prefix path while mods are deployed. Restore the game first.</source>
         <translation>Não é possível alterar o caminho do jogo/prefixo enquanto os mods estiverem instalados. Reponha primeiro o jogo.</translation>
+    </message>
+    <message>
+        <source>Cannot use hardlinks: the staging folder and {0} are on different drives or filesystems. Switch to Symlink instead.</source>
+        <translation>Não é possível utilizar ligações físicas: a pasta «staging» e «{0}» encontram-se em unidades ou sistemas de ficheiros diferentes. Opte por utilizar ligações simbólicas em vez disso.</translation>
     </message>
     <message>
         <source>Checking existing staging files…</source>
@@ -1038,7 +1102,7 @@ O Creation Kit também pode, ocasionalmente, falhar ao iniciar no Proton (um pro
     </message>
     <message>
         <source>Comma-separated top-level folder names to strip from mod files during filemap building (case-insensitive). e.g. Data, data</source>
-        <translation>Nomes de pastas de nível superior separados por vírgulas a excluir dos ficheiros mod durante a criação do mapa de ficheiros (sem distinção entre maiúsculas e minúsculas). Por exemplo: Data, data</translation>
+        <translation>Nomes de pastas de nível superior separados por vírgulas a serem removidos dos ficheiros mod durante a criação do mapa de ficheiros (sem distinção entre maiúsculas e minúsculas). Por exemplo: Data, data</translation>
     </message>
     <message>
         <source>Prepend Prefix</source>
@@ -1110,7 +1174,7 @@ O Creation Kit também pode, ocasionalmente, falhar ao iniciar no Proton (um pro
     </message>
     <message>
         <source>When enabled (default), folder names that differ only in case across mods are unified to a single casing. Disable for Linux-native games where folder casing is significant.</source>
-        <translation>Quando esta opção está ativada (por predefinição), os nomes das pastas que diferem apenas em maiúsculas e minúsculas entre mods são unificados para um único formato. Desative esta opção para jogos nativos do Linux, nos quais o formato das pastas (maiúsculas e minúsculas) é significativo.</translation>
+        <translation>Quando esta opção está ativada (por predefinição), os nomes das pastas que diferem apenas em maiúsculas e minúsculas entre mods são unificados para um único formato de maiúsculas e minúsculas. Desative esta opção para jogos nativos do Linux em que o formato de maiúsculas e minúsculas das pastas seja significativo.</translation>
     </message>
     <message>
         <source>Edit Custom Game</source>
@@ -1202,7 +1266,7 @@ O Creation Kit também pode, ocasionalmente, falhar ao iniciar no Proton (um pro
     </message>
     <message>
         <source>Filemap Casing</source>
-        <translation>Caixa Filemap</translation>
+        <translation>Caixa do Filemap</translation>
     </message>
     <message>
         <source>How to pick canonical folder casing when mods disagree. Only used when Normalize Folder Case is enabled.</source>
@@ -1353,6 +1417,10 @@ O Creation Kit também pode, ocasionalmente, falhar ao iniciar no Proton (um pro
     <message>
         <source>Deployed files</source>
         <translation>Ficheiros implementados</translation>
+    </message>
+    <message>
+        <source>Deployed files - {0} files in {1} mods</source>
+        <translation>Ficheiros implementados - Ficheiros «{0}» nos mods «{1}»</translation>
     </message>
 </context>
 <context>
@@ -1512,7 +1580,7 @@ Make sure you downloaded it, then press Try Again,
 or use Browse to select it manually.</source>
         <translation>O ficheiro DynDOLOD não foi encontrado na pasta «Downloads».
 Certifique-se de que o descarregou e, em seguida, clique em «Tentar novamente»,
-ou utilize a opção «Procurar» para o selecionar manualmente.</translation>
+ou utilize «Procurar» para o selecionar manualmente.</translation>
     </message>
     <message>
         <source>Selected: {0}</source>
@@ -1675,6 +1743,14 @@ mod «{0}», que aparecerá na sua lista de mods.</translation>
     <message>
         <source>Save</source>
         <translation>Guardar</translation>
+    </message>
+    <message>
+        <source>true</source>
+        <translation>true</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>false</translation>
     </message>
     <message>
         <source>Form reset to built-in defaults (not yet saved).</source>
@@ -1985,7 +2061,7 @@ mod «{0}», que aparecerá na sua lista de mods.</translation>
     </message>
     <message>
         <source>(none)</source>
-        <translation>(nenhum)</translation>
+        <translation>(nenhuma)</translation>
     </message>
 </context>
 <context>
@@ -2263,6 +2339,10 @@ O ficheiro exe original é mantido como {0}.</translation>
         <translation>Instalar os selecionados</translation>
     </message>
     <message>
+        <source>Move Selected</source>
+        <translation>Mover os elementos selecionados</translation>
+    </message>
+    <message>
         <source>Remove Selected</source>
         <translation>Remover os selecionados</translation>
     </message>
@@ -2280,7 +2360,15 @@ O ficheiro exe original é mantido como {0}.</translation>
     </message>
     <message>
         <source>Removed {0} archive(s)</source>
-        <translation>Foram removidos ({0}) arquivo(s)</translation>
+        <translation>Foram removidos os arquivos d{0}</translation>
+    </message>
+    <message>
+        <source>Cannot use that folder: {0}</source>
+        <translation>Não é possível utilizar essa pasta: {0}</translation>
+    </message>
+    <message>
+        <source>Moved {0} archive(s)</source>
+        <translation>Foram movidos ({0}) arquivo(s)</translation>
     </message>
     <message>
         <source>Find in files:</source>
@@ -2620,7 +2708,7 @@ Deseja remover a entrada da coleção anexada?</translation>
     </message>
     <message>
         <source>Could not compute update diff: {0}</source>
-        <translation>Não foi possível calcular a diferença da atualização: {0}</translation>
+        <translation>Não foi possível calcular a diferença de atualização: {0}</translation>
     </message>
     <message>
         <source>Collection update cancelled.</source>
@@ -2740,7 +2828,7 @@ Deseja remover a entrada da coleção anexada?</translation>
     </message>
     <message>
         <source>An install is already in progress.</source>
-        <translation>A instalação já está em curso.</translation>
+        <translation>A instalação já está a decorrer.</translation>
     </message>
     <message>
         <source>No install archive found for the selected mod(s).</source>
@@ -2828,7 +2916,7 @@ Deseja remover a entrada da coleção anexada?</translation>
     </message>
     <message>
         <source>Endorsed {0} mod(s).</source>
-        <translation>Apoiou o(s) mod(s) «{0}».</translation>
+        <translation>Apoiou uma ou mais modificaçõ{0}.</translation>
     </message>
     <message>
         <source>Abstained from {0} mod(s).</source>
@@ -2864,7 +2952,7 @@ Deseja remover a entrada da coleção anexada?</translation>
     </message>
     <message>
         <source>Moving {0} mod(s) to '{1}'…</source>
-        <translation>A transferir os mods «{0}» para «{1}»…</translation>
+        <translation>A transferir o(s) mod(s) «{0}» para «{1}»…</translation>
     </message>
     <message>
         <source>Copying {0} mod(s) to '{1}'…</source>
@@ -2872,7 +2960,7 @@ Deseja remover a entrada da coleção anexada?</translation>
     </message>
     <message>
         <source>Moved {0}/{1} mod(s) to '{2}'.</source>
-        <translation>Mudei os mods {0} / {1} para «{2}».</translation>
+        <translation>Mudei os mods «{0}» e «{1}» para «{2}».</translation>
     </message>
     <message>
         <source>Copied {0}/{1} mod(s) to '{2}'.</source>
@@ -2901,6 +2989,10 @@ Deseja remover a entrada da coleção anexada?</translation>
     <message>
         <source>No downloadable files for that mod.</source>
         <translation>Não há ficheiros para descarregar para esse mod.</translation>
+    </message>
+    <message>
+        <source>{0} game — {1}</source>
+        <translation>{0} jogo — {1}</translation>
     </message>
     <message>
         <source>{0} game</source>
@@ -3067,6 +3159,30 @@ Deseja remover a entrada da coleção anexada?</translation>
         <translation>A instalar o {0}…</translation>
     </message>
     <message>
+        <source>Cyber Engine Tweaks requires Hardlink mode</source>
+        <translation>O Cyber Engine Tweaks requer o modo Hardlink</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
+
+CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
+
+Deploy anyway?</source>
+        <translation>O Cyber Engine Tweaks está ativado, mas o modo de implementação está definido como «Symlink».
+
+O CET não carrega a partir de um ficheiro «cyber_engine_tweaks.asi» com ligação simbólica — altere o modo de implementação para «Hardlink» para que o CET funcione.
+
+Deseja implementar na mesma?</translation>
+    </message>
+    <message>
+        <source>Deploy anyway</source>
+        <translation>Implementar na mesma</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
         <source>Install cancelled: {0}</source>
         <translation>Instalação cancelada: {0}</translation>
     </message>
@@ -3076,7 +3192,7 @@ Deseja remover a entrada da coleção anexada?</translation>
     </message>
     <message>
         <source>Rename failed: {0}</source>
-        <translation>Falha ao renomear: {0}</translation>
+        <translation>Falha na renomeação: {0}</translation>
     </message>
     <message>
         <source>Renamed to '{0}'.</source>
@@ -3088,7 +3204,7 @@ Deseja remover a entrada da coleção anexada?</translation>
     </message>
     <message>
         <source>Installed {0} mods</source>
-        <translation>Mods instalados no {0}</translation>
+        <translation>Mods instalados no «{0}»</translation>
     </message>
     <message>
         <source>Installed {0} of {1} mods — see log for failures.</source>
@@ -3116,7 +3232,7 @@ Deseja remover a entrada da coleção anexada?</translation>
     </message>
     <message>
         <source>Profile is deployed — run Restore first, then pack the {0}.</source>
-        <translation>O perfil está implementado — execute primeiro a função «Restore» e, em seguida, compacte o ficheiro «{0}».</translation>
+        <translation>O perfil foi implementado — execute primeiro a função «Restore» e, em seguida, compacte o ficheiro «{0}».</translation>
     </message>
     <message>
         <source>Packing {0}…</source>
@@ -3128,7 +3244,7 @@ Deseja remover a entrada da coleção anexada?</translation>
     </message>
     <message>
         <source>Unpacking {0} archive(s)…</source>
-        <translation>A descompactar um ou mais ficheiros de arquiv{0}…</translation>
+        <translation>A descompactar um ou mais arquivos d{0}…</translation>
     </message>
     <message>
         <source>Cancelled.</source>
@@ -3327,6 +3443,10 @@ Deseja remover a entrada da coleção anexada?</translation>
         <translation>Limpar registo</translation>
     </message>
     <message>
+        <source>Open Log Folder</source>
+        <translation>Abrir a pasta de registos</translation>
+    </message>
+    <message>
         <source>Changelog</source>
         <translation>Registo de alterações</translation>
     </message>
@@ -3370,7 +3490,7 @@ Deseja remover a entrada da coleção anexada?</translation>
     </message>
     <message>
         <source>Nexus only lets you endorse the app after you've downloaded it at least once. Opening the AMM page — please download it there first, then endorse.</source>
-        <translation>O Nexus só permite que recomendes a aplicação depois de a teres descarregado pelo menos uma vez. Abre a página da AMM — descarrega-a primeiro por lá e, só depois, recomenda-a.</translation>
+        <translation>O Nexus só permite que recomendes a aplicação depois de a teres descarregado pelo menos uma vez. Abre a página da AMM — descarrega-a primeiro por lá e, depois, recomenda-a.</translation>
     </message>
     <message>
         <source>Endorse AMM: {0}</source>
@@ -3769,11 +3889,11 @@ for Baldur's Gate 3 mods installed manually from mod.io.
 
 The key is read-only and stored securely (system keyring,
 or an encrypted file when no keyring is available).</source>
-        <translation>Cole a sua chave de API de leitura apenas do mod.io para ativar a verificação de atualizações
+        <translation>Cole a sua chave de API de leitura apenas do mod.io para ativar as verificações de atualizações
 para os mods do Baldur's Gate 3 instalados manualmente a partir do mod.io.
 
 A chave é de leitura apenas e é armazenada de forma segura (no porta-chaves do sistema,
-ou num ficheiro encriptado, caso não haja porta-chaves disponível).</translation>
+ou num ficheiro encriptado, caso o porta-chaves não esteja disponível).</translation>
     </message>
     <message>
         <source>Get my API key (mod.io)</source>
@@ -3790,6 +3910,25 @@ ou num ficheiro encriptado, caso não haja porta-chaves disponível).</translati
     <message>
         <source>Test &amp;&amp; Save</source>
         <translation>Testar &amp;&amp; Guardar</translation>
+    </message>
+</context>
+<context>
+    <name>MoveDownloadsOverlay</name>
+    <message>
+        <source>Move {0} archive(s) to…</source>
+        <translation>Mover o(s) arquivo(s) d{0} para…</translation>
+    </message>
+    <message>
+        <source>Choose a configured download location.</source>
+        <translation>Escolha um local de descarregamento já definido.</translation>
+    </message>
+    <message>
+        <source>No configured download locations.</source>
+        <translation>Não existem locais de transferência configurados.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
     </message>
 </context>
 <context>
@@ -4211,7 +4350,7 @@ Depois de o fazer, clique em «Implementar».</translation>
         <source>'{0}' was not found in your mod staging folder.
 
 Install Pandora Behaviour Engine+ as a mod, then reopen this wizard.</source>
-        <translation>O ficheiro «{0}» não foi encontrado na sua pasta de mods em fase de teste.
+        <translation>O ficheiro «{0}» não foi encontrado na sua pasta de modificação temporária.
 
 Instale o Pandora Behaviour Engine+ como mod e, em seguida, reabra este assistente.</translation>
     </message>
@@ -4341,7 +4480,7 @@ Efetue uma nova verificação para confirmar.</translation>
     </message>
     <message>
         <source>Userlist rules ({0} plugins) — anchor: {1}</source>
-        <translation>Regras da lista de utilizadores (plugins do {0}) — âncora: {1}</translation>
+        <translation>Regras da lista de utilizadores (plugins do {0}) — ligação: {1}</translation>
     </message>
     <message>
         <source>No rules between these plugins.</source>
@@ -4459,7 +4598,7 @@ Efetue uma nova verificação para confirmar.</translation>
     </message>
     <message>
         <source>Remove ESL flag from selected ({0})</source>
-        <translation>Remover o sinalizador ESL do elemento selecionado ({0})</translation>
+        <translation>Remover o sinalizador ESL dos itens selecionados ({0})</translation>
     </message>
     <message>
         <source>Remove from userlist</source>
@@ -4677,7 +4816,7 @@ Instala uma versão do Proton no Steam e, em seguida, reabre este assistente.</t
     </message>
     <message>
         <source>Run inside the game's own prefix. No new prefix is created and the Proton version follows the game's Steam setting.</source>
-        <translation>É executado no próprio prefixo do jogo. Não é criado nenhum novo prefixo e a versão do Proton segue a configuração do jogo no Steam.</translation>
+        <translation>É executado dentro do próprio prefixo do jogo. Não é criado nenhum novo prefixo e a versão do Proton segue a configuração do jogo no Steam.</translation>
     </message>
     <message>
         <source>Delete Prefix</source>
@@ -4707,7 +4846,7 @@ Instala uma versão do Proton no Steam e, em seguida, reabre este assistente.</t
         <source>A prefix already exists for this version. Delete it if {0}
 has issues — it is recreated automatically on the next step.</source>
         <translation>Já existe um prefixo para esta versão. Elimine-o se{0}
-apresentar problemas — ele será recriado automaticamente no próximo passo.</translation>
+apresentar problemas — será recriado automaticamente no passo seguinte.</translation>
     </message>
     <message>
         <source>Confirm Delete</source>
@@ -4750,7 +4889,7 @@ apresentar problemas — ele será recriado automaticamente no próximo passo.</
     </message>
     <message>
         <source>If the game won't load (black screen) after removing mods, the PAK archives may still have invalidated entries. This restores the original PAK data from the failsafe manifest in the game root.</source>
-        <translation>Se o jogo não carregar (ecrã preto) após a remoção dos mods, os arquivos PAK podem ainda conter entradas inválidas. Isto restaura os dados PAK originais a partir do manifesto de segurança localizado na pasta raiz do jogo.</translation>
+        <translation>Se o jogo não carregar (ecrã preto) após a remoção dos mods, é possível que os arquivos PAK ainda contenham entradas inválidas. Esta opção restaura os dados PAK originais a partir do manifesto de segurança localizado na pasta raiz do jogo.</translation>
     </message>
     <message>
         <source>Game root: {0}</source>
@@ -4762,7 +4901,7 @@ apresentar problemas — ele será recriado automaticamente no próximo passo.</
 If the game is still broken, verify the game files via Steam.</source>
         <translation>Não foi encontrado nenhum manifesto de restauração ({0}) na pasta raiz do jogo. Não há nada para reparar — ou não foram instalados mods com correções PAK, ou o manifesto já foi utilizado numa restauração completa.
 
-Se o jogo continuar com problemas, verifique os ficheiros do jogo através do Steam.</translation>
+Se o jogo continuar com problemas, verifica os ficheiros do jogo através do Steam.</translation>
     </message>
     <message>
         <source>{0} PAK file</source>
@@ -5035,6 +5174,14 @@ Escolha «Manter» se se tratar de uma variante opcional/alternativa e não de u
         <translation>Guardar</translation>
     </message>
     <message>
+        <source>true</source>
+        <translation>true</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>false</translation>
+    </message>
+    <message>
         <source>Form reset to built-in defaults (not yet saved).</source>
         <translation>O formulário foi reposto para os valores predefinidos (ainda não foi guardado).</translation>
     </message>
@@ -5087,7 +5234,7 @@ Escolha «Manter» se se tratar de uma variante opcional/alternativa e não de u
     </message>
     <message>
         <source>This script extender must be downloaded manually. Click the button below to open the download page, save the archive to your Downloads folder, then click Next.</source>
-        <translation>Este extensor de script tem de ser descarregado manualmente. Clique no botão abaixo para abrir a página de download, guarde o ficheiro compactado na sua pasta «Downloads» e, em seguida, clique em «Seguinte».</translation>
+        <translation>Este extensor de script tem de ser descarregado manualmente. Clique no botão abaixo para abrir a página de descarregamento, guarde o ficheiro compactado na sua pasta «Downloads» e, em seguida, clique em «Seguinte».</translation>
     </message>
     <message>
         <source>Open Download Page</source>
@@ -5127,6 +5274,36 @@ Escolha «Manter» se se tratar de uma variante opcional/alternativa e não de u
     <message>
         <source>Checking .NET 8…</source>
         <translation>A verificar o .NET 8…</translation>
+    </message>
+    <message>
+        <source>Existing Merges Use Missing Mods</source>
+        <translation>As fusões existentes utilizam mods em falta</translation>
+    </message>
+    <message>
+        <source>{0} existing merge(s) use mods that are not currently deployed (disabled or removed):
+
+{1}
+
+Script Merger cannot run safely in this state.
+
+Cancel and re-enable the listed mods to keep the merges, or delete the existing merges (removes the Merged_Mods mod) and re-create them in this run from the mods that are enabled.</source>
+        <translation>{0}
+
+As fusões existentes utilizam mods que não estão atualmente implementados (desativados ou removidos):
+
+{1}
+
+O Script Merger não pode ser executado com segurança neste estado.
+
+Cancele e reative os mods listados para manter as fusões, ou elimine as fusões existentes (o que remove o mod «Merged_Mods») e recrie-as nesta execução a partir dos mods que estão ativados.</translation>
+    </message>
+    <message>
+        <source>Delete Merges</source>
+        <translation>Eliminar fusões</translation>
+    </message>
+    <message>
+        <source>Launch cancelled — re-enable the merges' source mods, then reopen this wizard.</source>
+        <translation>Lançamento cancelado — reative os mods de origem das fusões e, em seguida, reabra este assistente.</translation>
     </message>
     <message>
         <source>Launching WitcherScriptMerger…</source>
@@ -5218,7 +5395,7 @@ Por favor, reinicie o assistente e instale primeiro o Script Merger.</translatio
     </message>
     <message>
         <source>Merge mod folders into existing ones instead of replacing them.</source>
-        <translation>Juntar as pastas dos mods às já existentes, em vez de as substituir.</translation>
+        <translation>Juntar as pastas de mods às já existentes, em vez de as substituir.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5731,7 +5908,7 @@ Clique em «Instalar» para começar.</translation>
 Get the latest TTW .mpi from mod.pub (free account required) — extract the download and the .mpi is inside.</source>
         <translation>O TTW combina recursos do Fallout 3 e do Fallout New Vegas, pelo que ambos os jogos têm de estar instalados. Verifique as pastas abaixo e, em seguida, selecione o pacote .mpi do TTW.
 
-Descarregue a versão mais recente do .mpi do TTW no mod.pub (é necessária uma conta gratuita) — descompacte o ficheiro descarregado e encontrará o .mpi no seu interior.</translation>
+Descarregue a versão mais recente do .mpi do TTW a partir do mod.pub (é necessária uma conta gratuita) — descompacte o ficheiro descarregado e encontrará o .mpi no seu interior.</translation>
     </message>
     <message>
         <source>Open mod.pub TTW page</source>
@@ -5770,7 +5947,7 @@ Descarregue a versão mais recente do .mpi do TTW no mod.pub (é necessária uma
 merges Fallout 3 and Fallout New Vegas assets. This produces ~18 GB of output and can take a long while — please leave it running.
 Output is written directly into your mod list as the '{0}' mod.</source>
         <translation>O jogo é primeiro restaurado para o estado original e, em seguida, o instalador
-combina os recursos do Fallout 3 e do Fallout New Vegas. Este processo gera cerca de 18 GB de dados e pode demorar algum tempo — por favor, não interrompa o processo.
+combina os recursos do Fallout 3 e do Fallout New Vegas. Este processo gera cerca de 18 GB de ficheiros e pode demorar algum tempo — por favor, não interrompa o processo.
 O resultado é adicionado diretamente à sua lista de mods como o mod «{0}».</translation>
     </message>
     <message>
@@ -5893,6 +6070,78 @@ O resultado é adicionado diretamente à sua lista de mods como o mod «{0}».</
         <source>  (none)</source>
         <translation>  (nenhum)</translation>
     </message>
+    <message>
+        <source>A new version of Amethyst Mod Manager is available on the AUR.
+
+Current: {0}
+AUR:     {1}
+
+Update via your AUR helper, e.g.
+  yay -Syu amethyst-mod-manager</source>
+        <translation>Está disponível uma nova versão do Amethyst Mod Manager no AUR.
+
+Atual:{0}
+
+
+AUR:     {1}
+
+Atualize através do seu programa auxiliar do AUR, por exemplo:
+  yay -Syu amethyst-mod-manager</translation>
+    </message>
+    <message>
+        <source>Pre-release</source>
+        <translation>Pré-lançamento</translation>
+    </message>
+    <message>
+        <source>Stable</source>
+        <translation>Estável</translation>
+    </message>
+    <message>
+        <source>You're running a pre-release. Switch to the latest {0} build?
+
+Current:     {1}
+{2}: {3}
+
+This will downgrade your installation.</source>
+        <translation>Está a utilizar uma versão pré-lançamento. Quer mudar para a versão mais recente do{0}
+?
+
+Atual:     {1}
+
+{2}
+:{3}
+Isto irá reverter a sua instalação para uma versão anterior.</translation>
+    </message>
+    <message>
+        <source>A new version of Amethyst Mod Manager is available.
+
+Current: {0}
+Latest:  {1}</source>
+        <translation>Está disponível uma nova versão do Amethyst Mod Manager.
+
+Atual: {0}
+Mais recente:  {1}</translation>
+    </message>
+    <message>
+        <source>Switch to stable</source>
+        <translation>Mudar para a versão estável</translation>
+    </message>
+    <message>
+        <source>Update via installer</source>
+        <translation>Atualização através do programa de instalação</translation>
+    </message>
+    <message>
+        <source>Open AUR page</source>
+        <translation>Abrir a página do AUR</translation>
+    </message>
+    <message>
+        <source>Open releases page</source>
+        <translation>Abrir a página de lançamentos</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Mais tarde</translation>
+    </message>
 </context>
 <context>
     <name>UserlistBar</name>
@@ -5976,7 +6225,7 @@ O resultado é adicionado diretamente à sua lista de mods como o mod «{0}».</
     </message>
     <message>
         <source>'{0}' was not found.</source>
-        <translation>Não foi encontrado «{0}».</translation>
+        <translation>«{0}» não foi encontrado.</translation>
     </message>
     <message>
         <source>Launching Wrye Bash…</source>
@@ -6198,7 +6447,7 @@ Feche-o quando terminar e, em seguida, clique em «Concluído».</translation>
     <name>view</name>
     <message>
         <source>Files swept into Root Folder (newest restore first)</source>
-        <translation>Ficheiros movidos para a pasta raiz (os mais recentes em primeiro lugar)</translation>
+        <translation>Ficheiros transferidos para a pasta raiz (os mais recentes em primeiro lugar)</translation>
     </message>
     <message>
         <source>Files swept into Overwrite (newest restore first)</source>
