@@ -864,6 +864,10 @@ The md5 cache is preserved. Archives will be re-downloaded as needed.</translati
         <translation>Cannot change the game/prefix path while mods are deployed. Restore the game first.</translation>
     </message>
     <message>
+        <source>Cannot use hardlinks: the staging folder and {0} are on different drives or filesystems. Switch to Symlink instead.</source>
+        <translation>Cannot use hardlinks: the staging folder and {0} are on different drives or filesystems. Switch to Symlink instead.</translation>
+    </message>
+    <message>
         <source>Checking existing staging files…</source>
         <translation>Checking existing staging files…</translation>
     </message>
@@ -3059,6 +3063,30 @@ Remove the appended-collection entry?</translation>
     <message>
         <source>Installing {0}…</source>
         <translation>Installing {0}…</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks requires Hardlink mode</source>
+        <translation>Cyber Engine Tweaks requires Hardlink mode</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
+
+CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
+
+Deploy anyway?</source>
+        <translation>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
+
+CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
+
+Deploy anyway?</translation>
+    </message>
+    <message>
+        <source>Deploy anyway</source>
+        <translation>Deploy anyway</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
     </message>
     <message>
         <source>Install cancelled: {0}</source>

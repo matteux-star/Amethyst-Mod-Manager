@@ -743,6 +743,31 @@ class ConfigureGameView(QWidget):
         except Exception:
             old_profile_root = None
 
+        # -- Hard-link cross-device validation --------------------------------
+        # Hardlinks can't span filesystems. Apply the pending paths so the game
+        # can resolve its deploy targets (game dir, and for BG3/Sims 4/etc the
+        # Proton prefix or native data dir), then block the save if any target
+        # is on a different drive than the staging folder (Tk parity:
+        # add_game_dialog save-time check). Setters persist, but so does the
+        # save we're about to do — an invalid mode is never written.
+        if mode == LinkMode.HARDLINK:
+            g.set_game_path(self._found_path)
+            if self._found_prefix is not None and hasattr(g, "set_prefix_path"):
+                g.set_prefix_path(self._found_prefix)
+            if hasattr(g, "set_staging_path"):
+                g.set_staging_path(self._custom_staging)
+            from Utils.hardlink_check import hardlink_device_mismatches
+            mismatched = hardlink_device_mismatches(g)
+            if mismatched:
+                names = " and ".join(mismatched)
+                self._game_status.setText(self.tr(
+                    "Cannot use hardlinks: the staging folder and {0} are on "
+                    "different drives or filesystems. Switch to Symlink instead."
+                ).format(names))
+                self._game_status.setStyleSheet(f"color:{self._c('TEXT_ERR')};")
+                return
+        # ---------------------------------------------------------------------
+
         # Persist via the backend setters (live write to paths.json / overrides).
         g.set_game_path(self._found_path)
         if self._found_prefix is not None:

@@ -101,6 +101,9 @@ class MainWindow(QMainWindow):
     # Worker asks the UI to show the Mod-Already-Exists overlay (same blocking
     # holder+Event handshake as _need_prefix).
     _mod_exists = Signal(object)               # (dict with mod_name/conflict/holder/event)
+    # Deploy worker asks the UI to show the Cyberpunk CET symlink warning
+    # (same blocking holder+Event handshake as _need_prefix).
+    _confirm_cet = Signal(object)              # (dict with holder/event)
     # Proton-tools installer worker → UI thread.
     _proton_done = Signal(str, bool)           # (title, success)
     # Nexus validate() worker → UI thread (username or None).
@@ -205,6 +208,7 @@ class MainWindow(QMainWindow):
         self._one_install_done.connect(self._on_one_install_done)
         self._need_prefix.connect(self._on_need_prefix_ui)
         self._mod_exists.connect(self._on_mod_exists_ui)
+        self._confirm_cet.connect(self._on_confirm_cet_ui)
         self._proton_busy = False
         self._proton_done.connect(self._on_proton_done)
         # Game-scoped panel views (lazily built; closed on game change).
@@ -4819,7 +4823,7 @@ class MainWindow(QMainWindow):
                     log_fn=lambda m: self._op_log.emit(str(m)),
                     progress_fn=lambda d, t, p=None: self._op_progress.emit(d, t, p),
                     root_folder_enabled=rf_enabled,
-                    confirm_cet=None,
+                    confirm_cet=self._make_confirm_cet_cb(game),
                     do_backup=True,
                 )
             except Exception as exc:
@@ -5514,6 +5518,56 @@ class MainWindow(QMainWindow):
 
         ModExistsOverlay.show_over(
             self, payload["mod_name"], payload["conflict"], _done)
+
+    def _make_confirm_cet_cb(self, game):
+        """Return a confirm_cet() callback for run_deploy_pipeline. Runs on the
+        deploy WORKER thread: if Cyberpunk 2077 is being deployed in symlink mode
+        with CET staged, asks the UI thread to show the warning and BLOCKS on an
+        Event until the user chooses. Returns True to proceed, False to cancel.
+        No conflict → returns True immediately without prompting (Tk parity:
+        gui.dialogs.confirm_cet_symlink)."""
+        import threading
+        from Utils.cet_check import cet_symlink_conflict
+
+        def _cb() -> bool:
+            try:
+                if not cet_symlink_conflict(game):
+                    return True
+            except Exception:
+                return True
+            holder = {"result": True}
+            ev = threading.Event()
+            self._confirm_cet.emit({"holder": holder, "event": ev})
+            ev.wait()
+            return holder["result"]
+
+        return _cb
+
+    def _on_confirm_cet_ui(self, payload):
+        """UI thread: show the CET-requires-Hardlink warning; unblock the worker.
+        The progress popup is cleared while the user decides (no work running)."""
+        if self._progress_popup is not None:
+            self._progress_popup.clear()
+        from gui_qt.confirm_overlay import ConfirmOverlay
+
+        def _done(ok):
+            payload["holder"]["result"] = bool(ok)
+            payload["event"].set()
+
+        ConfirmOverlay.show_over(
+            self,
+            self.tr("Cyber Engine Tweaks requires Hardlink mode"),
+            self.tr(
+                "Cyber Engine Tweaks is enabled, but the deploy mode is set to "
+                "Symlink.\n\nCET will not load from a symlinked "
+                "cyber_engine_tweaks.asi — switch the deploy mode to Hardlink "
+                "for CET to work.\n\nDeploy anyway?"
+            ),
+            _done,
+            confirm_label=self.tr("Deploy anyway"),
+            cancel_label=self.tr("Cancel"),
+            card_h=280,
+        )
 
     def _install_next(self):
         """Pop the next queued archive: prepare it on a worker; the prepared
