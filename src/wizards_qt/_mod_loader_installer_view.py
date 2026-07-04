@@ -184,7 +184,7 @@ class ModLoaderInstallerView(WizardViewBase):
 
             self._log(f"{self.TOOL_LABEL} Wizard: launching {exe} via Proton")
             proc = subprocess.Popen(
-                proton_run_command(proton_script, "run", str(exe)),
+                proton_run_command(proton_script, "run", str(exe), env=env),
                 env=env, cwd=str(exe.parent),
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             safe_emit(self._run_status_sig,

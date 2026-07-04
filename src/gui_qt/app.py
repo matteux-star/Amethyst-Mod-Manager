@@ -7495,9 +7495,13 @@ class MainWindow(QMainWindow):
     def _on_sort_plugins(self):
         """LOOT-sort the load order on a worker thread (reuses the Tk backend
         LOOT/loot_sorter.sort_plugins). Result applied on the UI thread."""
-        from LOOT.loot_sorter import is_available
+        from LOOT.loot_sorter import is_available, unavailable_reason
         if not is_available():
             self._notify(self.tr("LOOT library not available — cannot sort."), "warning")
+            reason = unavailable_reason()
+            if reason:
+                from Utils.app_log import app_log
+                app_log(reason)
             return
         game = self._gs.game
         if game is None or not game.is_configured():

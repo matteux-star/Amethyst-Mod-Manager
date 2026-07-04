@@ -495,7 +495,7 @@ class XEditView(QWidget):
 
                 self._log(f"{name} Wizard: launching {exe} via Proton with {data_arg}")
                 proc = subprocess.Popen(
-                    proton_run_command(proton_script, "run", str(exe), data_arg),
+                    proton_run_command(proton_script, "run", str(exe), data_arg, env=env),
                     env=env,
                     cwd=str(exe.parent),
                     stdout=subprocess.DEVNULL,

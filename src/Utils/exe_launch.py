@@ -600,7 +600,8 @@ def get_tool_prefix_env(
     if is_new:
         try:
             subprocess.run(
-                proton_run_command(proton_script, "run", "wineboot", "--init"),
+                proton_run_command(proton_script, "run", "wineboot", "--init",
+                                   env=env),
                 env=env,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                 timeout=60,
@@ -612,7 +613,8 @@ def get_tool_prefix_env(
             subprocess.run(
                 proton_run_command(proton_script, "run", "reg", "add",
                                    r"HKCU\Software\Wine", "/v", "ShowDotFiles",
-                                   "/t", "REG_SZ", "/d", "Y", "/f"),
+                                   "/t", "REG_SZ", "/d", "Y", "/f",
+                                   env=env),
                 env=env,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                 timeout=30,
@@ -1079,14 +1081,20 @@ def launch_exe_via_proton(exe_path: Path, game, log_fn=_noop_log) -> None:
 
     log_fn(f"Run EXE: launching {exe_path.name} via {proton_script.parent.name} ...")
 
-    base_cmd = proton_run_command(proton_script, "run", str(exe_path)) + extra_args
+    # Apply launch-option env vars before building the command: when the
+    # command gets wrapped in flatpak-spawn --host, proton_run_command
+    # forwards the env diff via --env= flags, so env must be final here.
     launch_opts = load_launch_options(game, exe_path.name)
+    env_updates, _ = parse_launch_options(launch_opts, [])
+    if env_updates:
+        env.update(env_updates)
+
+    base_cmd = proton_run_command(proton_script, "run", str(exe_path),
+                                  env=env) + extra_args
     if not launch_opts:
         final_cmd = base_cmd
     else:
-        env_updates, final_cmd = parse_launch_options(launch_opts, base_cmd)
-        if env_updates:
-            env.update(env_updates)
+        _, final_cmd = parse_launch_options(launch_opts, base_cmd)
 
     log_fn(f"Run EXE:   cmd: {' '.join(final_cmd)}")
     _env_keys = (

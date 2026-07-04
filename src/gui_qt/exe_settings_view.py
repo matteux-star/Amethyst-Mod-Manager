@@ -305,7 +305,7 @@ class ExeSettingsView(QWidget):
                 from Utils.steam_finder import proton_run_command
                 try:
                     subprocess.Popen(
-                        proton_run_command(proton_script, "run", str(exe)),
+                        proton_run_command(proton_script, "run", str(exe), env=env),
                         env=env, cwd=exe.parent,
                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                     )

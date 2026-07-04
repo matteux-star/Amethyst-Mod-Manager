@@ -156,7 +156,7 @@ class MGEXEView(WizardViewBase):
         proton_script, _compat_data, env = result
         self._log(f"MGE XE Wizard: launching {exe} via Proton")
         proc = subprocess.Popen(
-            proton_run_command(proton_script, "run", str(exe)),
+            proton_run_command(proton_script, "run", str(exe), env=env),
             env=env,
             cwd=str(self._game_root),
             stdout=subprocess.PIPE,

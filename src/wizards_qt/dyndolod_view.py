@@ -561,7 +561,8 @@ class DynDOLODView(QWidget):
                 self._log(f"  args: {data_arg}  {output_arg}  -sse")
                 proc = subprocess.Popen(
                     proton_run_command(proton_script, "run", str(exe),
-                                       data_arg, output_arg, "-sse"),
+                                       data_arg, output_arg, "-sse",
+                                       env=env),
                     env=env,
                     cwd=str(exe.parent),
                     stdout=subprocess.DEVNULL,

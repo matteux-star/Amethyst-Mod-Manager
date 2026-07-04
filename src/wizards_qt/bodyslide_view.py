@@ -231,7 +231,7 @@ class BodySlideView(WizardViewBase):
 
                 _wlog(f"launching {deployed} via Proton (cwd={deployed.parent})")
                 proc = subprocess.Popen(
-                    proton_run_command(proton_script, "run", str(deployed)),
+                    proton_run_command(proton_script, "run", str(deployed), env=env),
                     env=env,
                     cwd=str(deployed.parent),
                     stdout=(gl_log or subprocess.DEVNULL),

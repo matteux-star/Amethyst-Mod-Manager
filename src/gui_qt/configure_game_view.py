@@ -812,6 +812,23 @@ class ConfigureGameView(QWidget):
             self._game_status.setStyleSheet(f"color:{self._c('TEXT_ERR')};")
             return
 
+        # Flatpak: a path outside the sandbox's filesystem grants looks like a
+        # typo (it simply doesn't exist in here) — tell the user what it
+        # actually is and how to grant access before letting them save a
+        # config that can never work.
+        from Utils.sandbox_paths import flatpak_blocked_path_hint
+        for candidate, status in (
+            (self._found_path, self._game_status),
+            (self._staging_edit.text().strip() or None, self._staging_status),
+        ):
+            hint = flatpak_blocked_path_hint(candidate) if candidate else None
+            if hint:
+                status.setText(self.tr(
+                    "This path is not visible inside the Flatpak sandbox. "
+                    "Grant access in Flatseal or run: {0}").format(hint))
+                status.setStyleSheet(f"color:{self._c('TEXT_ERR')};")
+                return
+
         # Block path changes while deployed (would strand deployed files).
         if g.is_configured() and g.get_deploy_active():
             def _changed(old, new):

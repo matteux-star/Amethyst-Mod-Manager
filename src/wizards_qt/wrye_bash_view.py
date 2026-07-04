@@ -147,7 +147,7 @@ class WryeBashView(WizardViewBase):
                       + (f" with -o C:\\wb_games\\{game_path.resolve().name}"
                          if game_path else ""))
                 proc = subprocess.Popen(
-                    proton_run_command(proton_script, "run", str(exe)) + game_arg,
+                    proton_run_command(proton_script, "run", str(exe), env=env) + game_arg,
                     env=env,
                     cwd=str(exe.parent),
                     stdout=subprocess.DEVNULL,

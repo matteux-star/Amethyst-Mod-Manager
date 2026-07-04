@@ -136,7 +136,7 @@ class BethiniView(WizardViewBase):
 
                 _wlog(f"launching {exe} via Proton")
                 proc = subprocess.Popen(
-                    proton_run_command(proton_script, "run", str(exe)),
+                    proton_run_command(proton_script, "run", str(exe), env=env),
                     env=env,
                     cwd=str(exe.parent),
                     stdout=subprocess.DEVNULL,

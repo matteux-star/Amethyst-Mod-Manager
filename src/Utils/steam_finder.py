@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -60,7 +61,14 @@ def _own_process_in_steam_flatpak() -> bool:
         return False
 
 
-def proton_run_command(proton_script: "Path", *args: str) -> list[str]:
+def _in_flatpak_sandbox() -> bool:
+    """True when this process runs inside any Flatpak sandbox."""
+    return os.path.exists("/.flatpak-info")
+
+
+def proton_run_command(
+    proton_script: "Path", *args: str, env: "dict | None" = None,
+) -> list[str]:
     """Build the command to invoke ``proton <args>`` for *proton_script*.
 
     Normally this is ``["python3", <proton_script>, *args]`` run on the host.
@@ -71,19 +79,35 @@ def proton_run_command(proton_script: "Path", *args: str) -> list[str]:
     inside the sandbox its runtime and steamclient libraries expect. Without
     this, a host-side manager (AppImage/native) driving Flatpak-Steam's Proton
     hits an lsteamclient assertion or missing-library failures.
+
+    When we are *ourselves* inside a Flatpak sandbox (the manager's own
+    flatpak), there is no ``flatpak`` CLI in the runtime — the ``flatpak run``
+    must be forwarded to the host via ``flatpak-spawn --host``. flatpak-spawn
+    does not forward the environment, so pass the Popen env dict as *env*:
+    every var the caller added on top of ``os.environ`` (STEAM_COMPAT_*,
+    WINEDLLOVERRIDES, …) is re-exported with ``--env=`` flags.
     """
     base = ["python3", str(proton_script), *map(str, args)]
-    if _proton_script_in_steam_flatpak(proton_script) and not _own_process_in_steam_flatpak():
-        # --filesystem=host so the sandbox can reach the staging/game/tool paths
-        # that live outside Steam's own data dir.
-        return [
-            "flatpak", "run",
-            "--command=python3",
-            "--filesystem=host",
-            _STEAM_FLATPAK_ID,
-            str(proton_script), *map(str, args),
+    if not (_proton_script_in_steam_flatpak(proton_script)
+            and not _own_process_in_steam_flatpak()):
+        return base
+    # --filesystem=host so the sandbox can reach the staging/game/tool paths
+    # that live outside Steam's own data dir.
+    cmd = [
+        "flatpak", "run",
+        "--command=python3",
+        "--filesystem=host",
+        _STEAM_FLATPAK_ID,
+        str(proton_script), *map(str, args),
+    ]
+    if _in_flatpak_sandbox() and shutil.which("flatpak-spawn"):
+        fwd = [
+            f"--env={k}={v}"
+            for k, v in (env or {}).items()
+            if os.environ.get(k) != v
         ]
-    return base
+        cmd = ["flatpak-spawn", "--host", *fwd, *cmd]
+    return cmd
 
 
 def _normalize_tool_name(name: str) -> str:

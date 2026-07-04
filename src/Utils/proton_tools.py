@@ -95,7 +95,8 @@ def install_dotnet_runtime(
     log_fn(f"installing .NET {version} in prefix (silent) …")
     proc = subprocess.run(
         proton_run_command(proton_script, "run",
-                           str(cache_path), "/quiet", "/norestart"),
+                           str(cache_path), "/quiet", "/norestart",
+                           env=env),
         env=env, cwd=str(cache_path.parent),
     )
     if proc.returncode not in DOTNET_OK_CODES:
@@ -212,7 +213,7 @@ def wine_tool_command(game, proton_script, env, tool: str, log_fn: LogFn = _noop
                f"(checked: {', '.join(checked)}); falling back to "
                "'proton run', which boots the steam.exe shim and may crash "
                "with an lsteamclient assertion if Steam is unavailable.")
-        return proton_run_command(proton_script, "run", tool)
+        return proton_run_command(proton_script, "run", tool, env=env)
     log_fn(f"Proton Tools: using bundled wine binary {wine_bin}")
     prefix_path = game.get_prefix_path()
     if prefix_path is not None:
@@ -299,7 +300,8 @@ def launch_exe_in_prefix(game, exe_path, log_fn: LogFn = _noop) -> bool:
         return False
     log_fn(f"Proton Tools: launching {exe_path.name} via {proton_script.parent.name} …")
     try:
-        subprocess.Popen(proton_run_command(proton_script, "run", str(exe_path)),
+        subprocess.Popen(proton_run_command(proton_script, "run", str(exe_path),
+                                            env=env),
                          env=env, cwd=exe_path.parent,
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return True

@@ -38,7 +38,10 @@ build-options:
 # - x11 + wayland sockets: Qt picks Wayland natively when the session offers
 #   it and falls back to X11 otherwise.
 # - dri: GPU rendering
-# - home: mod staging (user-configurable path, e.g. anywhere in ~/), game paths, Steam libraries, config (~/.config/AmethystModManager)
+# - home: mod staging (user-configurable path, e.g. anywhere in ~/), game paths, Steam libraries.
+#   NOTE: app config does NOT live in ~/.config here — flatpak redirects
+#   XDG_CONFIG_HOME, so it lands in ~/.var/app/<app-id>/config/AmethystModManager
+#   (separate from a native/AppImage install's ~/.config/AmethystModManager).
 # - run/media, media, mnt: Steam libraries on SD cards and removable drives (Steam Deck, etc.)
 # - ~/.var/app/com.valvesoftware.Steam: Steam Flatpak data (home excludes ~/.var/app)
 # - ~/.var/app/com.heroicgameslauncher.hgl: Heroic Flatpak
@@ -98,6 +101,16 @@ modules:
         url: https://www.rarlab.com/rar/unrarsrc-7.1.9.tar.gz
         sha256: cbb5c7b65b720e59ffa47b2d00b8d1022a961da7ae1db27b6986c43671719483
 
+  # cabextract is needed by winetricks (vcredist/d3dcompiler installs).
+  # Bundling it means Utils/protontricks.py finds it on PATH and never falls
+  # back to downloading a rolling Arch binary that may not match our glibc.
+  - name: cabextract
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://www.cabextract.org.uk/cabextract-1.11.tar.gz
+        sha256: b5546db1155e4c718ff3d4b278573604f30dd64c3c5bfd4657cd089b823a3ac6
+
   - name: amethyst-mod-manager
     buildsystem: simple
     build-commands:
@@ -106,6 +119,12 @@ modules:
         src/wizards_qt src/Utils src/Games src/LOOT src/Nexus src/icons src/wrappers
         src/gpak /app/share/amethyst-mod-manager/
       - cp Changelog.txt /app/share/amethyst-mod-manager/
+
+      # Fail the build if src/LOOT lacks a loot.cpython-3XX .so matching the
+      # runtime's Python ABI — otherwise LOOT sorting silently disables at
+      # runtime. Rebuild with src/LOOT/rebuild_libloot.sh using the runtime's
+      # Python version (3.12 on org.kde.Platform 6.9).
+      - cd /app/share/amethyst-mod-manager && python3 -c 'import LOOT.loot'
 
       - install -d /app/bin
       - |

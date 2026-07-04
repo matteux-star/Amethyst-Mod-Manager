@@ -904,6 +904,10 @@ The default profile's settings are not affected.</translation>
         <translation>Set the game installation folder first.</translation>
     </message>
     <message>
+        <source>This path is not visible inside the Flatpak sandbox. Grant access in Flatseal or run: {0}</source>
+        <translation>This path is not visible inside the Flatpak sandbox. Grant access in Flatseal or run: {0}</translation>
+    </message>
+    <message>
         <source>Cannot change the game/prefix path while mods are deployed. Restore the game first.</source>
         <translation>Cannot change the game/prefix path while mods are deployed. Restore the game first.</translation>
     </message>

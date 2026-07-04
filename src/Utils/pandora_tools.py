@@ -125,7 +125,7 @@ def run_pandora(exe: Path, game: "BaseGame", proton_script: Path,
     env["PROTON_USE_WINED3D"] = "1"
     env["WINE_D3D_CONFIG"] = "renderer=gdi"
 
-    cmd = proton_run_command(proton_script, "run", str(exe), game_arg)
+    cmd = proton_run_command(proton_script, "run", str(exe), game_arg, env=env)
     log_fn(f"launching {exe} via Proton")
     log_fn(f"  cmd: {' '.join(cmd)}")
     log_fn(

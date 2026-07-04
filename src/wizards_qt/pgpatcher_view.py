@@ -392,7 +392,7 @@ class PGPatcherView(WizardViewBase):
                     _wlog(f"settings re-apply error: {exc}")
 
                 # MO2 mode requires either real USVFS or this bypass on Linux.
-                launch_cmd = proton_run_command(proton_script, "run", str(exe))
+                launch_cmd = proton_run_command(proton_script, "run", str(exe), env=env)
                 if mo2_dummy_dir is not None:
                     launch_cmd.append("--ignore-mo2vfscheck")
 

@@ -282,7 +282,7 @@ class CreationKitView(WizardViewBase):
 
                 _wlog(f"launching {exe} via Proton from {game_path}")
                 proc = subprocess.Popen(
-                    proton_run_command(proton_script, "run", str(exe)),
+                    proton_run_command(proton_script, "run", str(exe), env=env),
                     env=env,
                     cwd=str(game_path),
                     stdout=subprocess.DEVNULL,
