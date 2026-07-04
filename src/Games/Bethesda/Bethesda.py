@@ -167,6 +167,10 @@ class Fallout_3(BaseGame):
         self._script_extender_swap: bool = True
         self._profile_ini_files: bool = False
         self._profile_saves: bool = False
+        # In-prefix plugins.txt filename casing. None = follow the game's
+        # class default (_PLUGINS_TXT_FILENAME); the user can override it in
+        # the Configure Game panel (plugins.txt vs Plugins.txt).
+        self._plugins_txt_filename_override: str | None = None
         self.load_paths()
 
     # -----------------------------------------------------------------------
@@ -421,13 +425,19 @@ class Fallout_3(BaseGame):
         self._script_extender_swap = data.get("script_extender_swap", True)
         self._profile_ini_files = data.get("profile_ini_files", False)
         self._profile_saves = data.get("profile_saves", False)
+        raw_pfname = data.get("plugins_txt_filename")
+        self._plugins_txt_filename_override = (
+            str(raw_pfname) if raw_pfname else None)
 
     def _save_paths_extra(self) -> dict:
-        return {
+        extra = {
             "script_extender_swap": self._script_extender_swap,
             "profile_ini_files":    self._profile_ini_files,
             "profile_saves":        self._profile_saves,
         }
+        if self._plugins_txt_filename_override is not None:
+            extra["plugins_txt_filename"] = self._plugins_txt_filename_override
+        return extra
 
     def set_staging_path(self, path: "Path | str | None") -> None:
         self._staging_path = Path(path) if path else None
@@ -587,10 +597,34 @@ class Fallout_3(BaseGame):
 
     _PLUGINS_TXT_FILENAME = "plugins.txt"
 
+    # Whether this game reads an in-prefix plugins.txt at all. FO76 and the
+    # like set this False so the Configure Game panel hides the casing option.
+    uses_plugins_txt = True
+
+    @property
+    def plugins_txt_filename(self) -> str:
+        """The in-prefix plugins.txt filename the game reads.
+
+        Follows the per-game class default unless the user has overridden the
+        casing in the Configure Game panel."""
+        return self._plugins_txt_filename_override or self._PLUGINS_TXT_FILENAME
+
+    def set_plugins_txt_filename(self, value: str) -> None:
+        """Override the in-prefix plugins.txt filename casing and persist it.
+
+        Passing a value that matches the game's default clears the override so
+        the game keeps following its default afterwards."""
+        value = (value or "").strip() or self._PLUGINS_TXT_FILENAME
+        if value == self._PLUGINS_TXT_FILENAME:
+            self._plugins_txt_filename_override = None
+        else:
+            self._plugins_txt_filename_override = value
+        self.save_paths()
+
     # GOG builds of Bethesda games can't read a *symlinked* plugins.txt, so we
     # deploy a real copy (see Utils.plugins.deploy_plugins_copy). Casing follows
-    # each game's _PLUGINS_TXT_FILENAME (lowercase for most, Plugins.txt for
-    # Oblivion/Oblivion Remastered/Starfield).
+    # plugins_txt_filename (the game default — lowercase for most, Plugins.txt
+    # for Oblivion/Oblivion Remastered/Starfield — or the user's override).
     def _plugins_txt_targets(self, prefix_root: "Path | None" = None) -> list[Path]:
         """Return every in-prefix path where the game might expect plugins.txt.
 
@@ -603,7 +637,7 @@ class Fallout_3(BaseGame):
         root = prefix_root if prefix_root is not None else self._prefix_path
         if root is None:
             return []
-        fname = self._PLUGINS_TXT_FILENAME
+        fname = self.plugins_txt_filename
         steam_dir = root / self._APPDATA_SUBPATH
         targets: list[Path] = []
         if steam_dir.is_dir():
@@ -1225,7 +1259,9 @@ class Fallout_3(BaseGame):
         star/asterisk activation prefix used by later games."""
         if self._active_profile_dir is None:
             return []
-        path = self._active_profile_dir / self._PLUGINS_TXT_FILENAME
+        # The profile-side file is always written lowercase; the plugins.txt
+        # casing option only affects the in-prefix copy the game reads.
+        path = self._active_profile_dir / "plugins.txt"
         if not path.is_file():
             return []
         order: list[str] = []
@@ -2412,7 +2448,9 @@ class Starfield(Fallout_3):
             self._saves_routing_rule([".sfs"]),
         ]
 
-    # plugins.txt lives at AppData/Local/Starfield/plugins.txt — same pattern as other Bethesda titles.
+    # Plugins.txt lives at AppData/Local/Starfield/Plugins.txt (capital P) —
+    # same pattern as Oblivion. The class default drives plugins_txt_filename.
+    _PLUGINS_TXT_FILENAME = "Plugins.txt"
     _APPDATA_SUBPATH = Path("drive_c/users/steamuser/AppData/Local/Starfield")
     _APPDATA_SUBPATH_GOG = None
     _MYGAMES_SUBPATH = Path("Starfield")
@@ -2429,10 +2467,11 @@ class Starfield(Fallout_3):
         return "sfse_loader.exe"
 
     def _plugins_txt_target(self) -> Path | None:
-        """Return the in-prefix path where Starfield expects Plugins.txt (capital P)."""
+        """Return the in-prefix path where Starfield expects Plugins.txt (capital P
+        by default; the Configure Game panel can override the casing)."""
         if self._prefix_path is None:
             return None
-        return self._prefix_path / self._APPDATA_SUBPATH / "Plugins.txt"
+        return self._prefix_path / self._APPDATA_SUBPATH / self.plugins_txt_filename
 
     def _symlink_plugins_txt(self, profile: str, log_fn) -> None:
         """Write a Blueprint-stripped copy of Plugins.txt into the prefix.
@@ -2709,6 +2748,7 @@ class Fallout_76(Fallout_3):
 
     # No plugin system at all — empty plugin_extensions disables the Plugins tab,
     # load-order tracking, master logic, ESL flags, and orphan-plugin scanning.
+    uses_plugins_txt = False
     plugins_use_star_prefix = True
     plugins_include_vanilla = False
     supports_esl_flag = False

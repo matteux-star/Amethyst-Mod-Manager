@@ -936,7 +936,7 @@ The md5 cache is preserved. Archives will be re-downloaded as needed.</translati
     </message>
     <message>
         <location filename="../gui_qt/configure_game_view.py" line="263" />
-        <location filename="../gui_qt/configure_game_view.py" line="585" />
+        <location filename="../gui_qt/configure_game_view.py" line="618" />
         <source>Scanning Steam libraries…</source>
         <translation>Scanning Steam libraries…</translation>
     </message>
@@ -981,7 +981,7 @@ The md5 cache is preserved. Archives will be re-downloaded as needed.</translati
     </message>
     <message>
         <location filename="../gui_qt/configure_game_view.py" line="303" />
-        <location filename="../gui_qt/configure_game_view.py" line="573" />
+        <location filename="../gui_qt/configure_game_view.py" line="606" />
         <source>Default location will be used.</source>
         <translation>Default location will be used.</translation>
     </message>
@@ -1026,67 +1026,72 @@ The md5 cache is preserved. Archives will be re-downloaded as needed.</translati
         <translation>Game Patch Version</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="435" />
+        <location filename="../gui_qt/configure_game_view.py" line="412" />
+        <source>Plugins file name</source>
+        <translation>Plugins file name</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/configure_game_view.py" line="449" />
         <source>Custom staging folder configured.</source>
         <translation>Custom staging folder configured.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="551" />
+        <location filename="../gui_qt/configure_game_view.py" line="584" />
         <source>Custom staging folder selected.</source>
         <translation>Custom staging folder selected.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="639" />
+        <location filename="../gui_qt/configure_game_view.py" line="672" />
         <source>Not found automatically. Browse manually to locate the game folder.</source>
         <translation>Not found automatically. Browse manually to locate the game folder.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="643" />
+        <location filename="../gui_qt/configure_game_view.py" line="676" />
         <source>Scanning for Proton prefix…</source>
         <translation>Scanning for Proton prefix…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="670" />
+        <location filename="../gui_qt/configure_game_view.py" line="703" />
         <source>Prefix not found automatically. Not needed if game is Linux native.</source>
         <translation>Prefix not found automatically. Not needed if game is Linux native.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="679" />
+        <location filename="../gui_qt/configure_game_view.py" line="712" />
         <source>Set the game installation folder first.</source>
         <translation>Set the game installation folder first.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="696" />
+        <location filename="../gui_qt/configure_game_view.py" line="729" />
         <source>Cannot change the game/prefix path while mods are deployed. Restore the game first.</source>
         <translation>Cannot change the game/prefix path while mods are deployed. Restore the game first.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="773" />
+        <location filename="../gui_qt/configure_game_view.py" line="812" />
         <source>Checking existing staging files…</source>
         <translation>Checking existing staging files…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="805" />
+        <location filename="../gui_qt/configure_game_view.py" line="844" />
         <source>Moving staging files…</source>
         <translation>Moving staging files…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="962" />
+        <location filename="../gui_qt/configure_game_view.py" line="1001" />
         <source>Removing instance…</source>
         <translation>Removing instance…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="1039" />
+        <location filename="../gui_qt/configure_game_view.py" line="1078" />
         <source>Cleaning game folder…</source>
         <translation>Cleaning game folder…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="1074" />
+        <location filename="../gui_qt/configure_game_view.py" line="1113" />
         <source>Clean failed: {0}</source>
         <translation>Clean failed: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/configure_game_view.py" line="1078" />
+        <location filename="../gui_qt/configure_game_view.py" line="1117" />
         <source>Clean complete — {0} deployed file(s) removed.</source>
         <translation>Clean complete — {0} deployed file(s) removed.</translation>
     </message>

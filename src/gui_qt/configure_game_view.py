@@ -404,6 +404,20 @@ class ConfigureGameView(QWidget):
                 self._patch_buttons[val] = rb
                 ov.addWidget(rb)
 
+        # plugins.txt filename casing — only for games that read a plugins.txt.
+        self._plugins_txt_group = None
+        if (getattr(self._game, "uses_plugins_txt", False)
+                and hasattr(self._game, "set_plugins_txt_filename")):
+            ov.addWidget(self._divider())
+            ov.addWidget(self._section_header(self.tr("Plugins file name")))
+            self._plugins_txt_group = QButtonGroup(self)
+            self._plugins_txt_buttons = {}
+            for fname in ("plugins.txt", "Plugins.txt"):
+                rb = QRadioButton(fname)
+                self._plugins_txt_group.addButton(rb)
+                self._plugins_txt_buttons[fname] = rb
+                ov.addWidget(rb)
+
         ov.addStretch(1)
         return frame
 
@@ -448,6 +462,7 @@ class ConfigureGameView(QWidget):
                 rb = self._patch_buttons.get(int(g.get_patch_version()))
                 if rb:
                     rb.setChecked(True)
+            self._select_plugins_txt_default()
             self._save_btn.setEnabled(True)
         else:
             self._rb_symlink.setChecked(rec_is_symlink := (
@@ -463,6 +478,7 @@ class ConfigureGameView(QWidget):
             self._set_check("profile_ini_files", False)
             self._set_check("profile_saves", False)
             self._set_check("prefix_numbering", True)
+            self._select_plugins_txt_default()
             try:
                 from Utils.ui_config import load_default_staging_path
                 root = load_default_staging_path()
@@ -478,6 +494,23 @@ class ConfigureGameView(QWidget):
         cb = self._opt_checks.get(key)
         if cb is not None:
             cb.setChecked(bool(value))
+
+    def _select_plugins_txt_default(self):
+        """Tick the radio matching the game's current plugins.txt filename."""
+        if self._plugins_txt_group is None:
+            return
+        current = getattr(self._game, "plugins_txt_filename", "plugins.txt")
+        rb = self._plugins_txt_buttons.get(current)
+        if rb is None:
+            # Fall back to a case-insensitive match, then to lowercase default.
+            for fname, button in self._plugins_txt_buttons.items():
+                if fname.lower() == str(current).lower():
+                    rb = button
+                    break
+            else:
+                rb = self._plugins_txt_buttons.get("plugins.txt")
+        if rb is not None:
+            rb.setChecked(True)
 
     # ---- setters / status -------------------------------------------------
     def _set_game(self, path: Path, configured=False, source="steam"):
@@ -734,6 +767,12 @@ class ConfigureGameView(QWidget):
             for val, rb in self._patch_buttons.items():
                 if rb.isChecked():
                     g.set_patch_version(val)
+                    break
+        if (self._plugins_txt_group is not None
+                and hasattr(g, "set_plugins_txt_filename")):
+            for fname, rb in self._plugins_txt_buttons.items():
+                if rb.isChecked():
+                    g.set_plugins_txt_filename(fname)
                     break
 
         # If the staging root moved and the old root has content, offer to
