@@ -96,15 +96,24 @@ def _link_or_copy(src, dst) -> None:
 
 def _copytree_case_insensitive(src: Path, dst: Path) -> int:
     """Recursive copy resolving each dst component case-insensitively against
-    disk (a case-aware shutil.copytree(dirs_exist_ok=True)). Returns file count."""
+    disk (a case-aware shutil.copytree(dirs_exist_ok=True)). Returns file count.
+
+    The case-insensitive sibling map for *dst* is read ONCE up front and updated
+    in-place as we create children — NOT re-listed per entry. Re-listing on every
+    entry made this O(N²) in a directory's file count (an ``iterdir`` per file ×
+    N files): on a 22k-file mod folder (e.g. an OStim animation pack, which the
+    FOMOD/BAIN path stages as a single folder entry) it took ~275 s instead of
+    ~2 s and silently dominated collection-install time.
+    """
     copied = 0
     dst.mkdir(parents=True, exist_ok=True)
+    try:
+        existing = {p.name.lower(): p.name for p in dst.iterdir()}
+    except OSError:
+        existing = {}
     for entry in os.scandir(src):
-        try:
-            existing = {p.name.lower(): p.name for p in dst.iterdir()}
-        except OSError:
-            existing = {}
-        child_dst = dst / existing.get(entry.name.lower(), entry.name)
+        child_name = existing.get(entry.name.lower(), entry.name)
+        child_dst = dst / child_name
         if entry.is_dir(follow_symlinks=False):
             copied += _copytree_case_insensitive(Path(entry.path), child_dst)
         elif entry.is_file(follow_symlinks=False):
@@ -116,6 +125,9 @@ def _copytree_case_insensitive(src: Path, dst: Path) -> int:
                 child_dst.unlink()
             _link_or_copy(entry.path, child_dst)
             copied += 1
+        # Remember what we just created so a later sibling that differs only in
+        # case resolves against it without another directory listing.
+        existing.setdefault(entry.name.lower(), child_name)
     return copied
 
 
@@ -559,11 +571,16 @@ def _debackslash_extracted_tree(extract_dir: str, log_fn: LogFn) -> int:
     return moved
 
 
-def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn) -> bool:
+def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn,
+                     cancel=None) -> bool:
     """Extract *archive_path* into *dest_dir*. Native 7z → bsdtar → py7zr →
     Python zipfile/tarfile, mirroring gui.install_mod's fallback chain. After a
     successful native/zip extraction, backslash-named members are normalised
-    into a real tree (see _debackslash_extracted_tree)."""
+    into a real tree (see _debackslash_extracted_tree).
+
+    *cancel* — optional ``threading.Event``; when set, the running native
+    extractor (7z/bsdtar) is terminated and this returns False so the caller can
+    clean up the partial extract dir (used by the collection-install pause)."""
     ext = Path(archive_path).suffix.lower()
 
     # tar.* and plain .tar → tarfile directly.
@@ -585,24 +602,38 @@ def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn) -> bool:
         _debackslash_extracted_tree(dest_dir, log_fn)
         return True
 
+    def _cancelled() -> bool:
+        return cancel is not None and cancel.is_set()
+
+    if _cancelled():
+        return False
+
     _7z = (shutil.which("7zzs") or shutil.which("7zz")
            or shutil.which("7z") or shutil.which("7za"))
     if _7z:
-        r = subprocess.run(
-            [_7z, "x", archive_path, f"-o{dest_dir}", "-y", "-mmt=on"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
-        if r.returncode == 0:
+        rc, err, killed = _run_extractor_cancellable(
+            [_7z, "x", archive_path, f"-o{dest_dir}", "-y", "-mmt=on"], cancel)
+        if killed:
+            log_fn("Extraction cancelled (7z terminated).")
+            return False
+        if rc == 0:
             log_fn("Extracted with 7z.")
             return _ok()
-        log_fn(f"7z failed ({r.stderr.strip()}), trying bsdtar…")
+        log_fn(f"7z failed ({err.strip()}), trying bsdtar…")
+    if _cancelled():
+        return False
     if shutil.which("bsdtar"):
-        r = subprocess.run(
-            ["bsdtar", "-xf", archive_path, "-C", dest_dir],
-            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
-        if r.returncode == 0 and any(os.scandir(dest_dir)):
+        rc, err, killed = _run_extractor_cancellable(
+            ["bsdtar", "-xf", archive_path, "-C", dest_dir], cancel)
+        if killed:
+            log_fn("Extraction cancelled (bsdtar terminated).")
+            return False
+        if rc == 0 and any(os.scandir(dest_dir)):
             log_fn("Extracted with bsdtar.")
             return _ok()
-        log_fn(f"bsdtar failed ({r.stderr.strip()}), trying py7zr…")
+        log_fn(f"bsdtar failed ({err.strip()}), trying py7zr…")
+    if _cancelled():
+        return False
     try:
         import py7zr
         with py7zr.SevenZipFile(archive_path, "r") as z:
@@ -611,6 +642,8 @@ def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn) -> bool:
         return _ok()
     except Exception as exc:
         log_fn(f"py7zr failed ({exc}), trying zipfile…")
+    if _cancelled():
+        return False
     try:
         with zipfile.ZipFile(archive_path, "r") as z:
             z.extractall(dest_dir)
@@ -619,6 +652,36 @@ def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn) -> bool:
     except Exception as exc:
         log_fn(f"zipfile failed ({exc}).")
     return False
+
+
+def _run_extractor_cancellable(cmd: list, cancel) -> "tuple[int, str, bool]":
+    """Run *cmd* (7z/bsdtar), polling *cancel* so a pause/cancel kills the
+    extractor promptly instead of waiting for it to finish. Returns
+    ``(returncode, stderr, killed)`` — *killed* is True if we terminated it on a
+    cancel request. When *cancel* is None this behaves like a blocking run."""
+    if cancel is None:
+        r = subprocess.run(cmd, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.PIPE, text=True)
+        return r.returncode, r.stderr or "", False
+    proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL,
+                            stderr=subprocess.PIPE, text=True)
+    while True:
+        try:
+            _out, err = proc.communicate(timeout=0.25)
+            return proc.returncode, err or "", False
+        except subprocess.TimeoutExpired:
+            if cancel.is_set():
+                proc.terminate()
+                try:
+                    _out, err = proc.communicate(timeout=3)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    try:
+                        _out, err = proc.communicate(timeout=3)
+                    except subprocess.TimeoutExpired:
+                        err = ""
+                return (proc.returncode if proc.returncode is not None else -1,
+                        err or "", True)
 
 
 # ---------------------------------------------------------------- root detection
@@ -718,11 +781,14 @@ class PreparedInstall:
 def prepare_archive(archive_path: str, game, profile_dir: Path, *,
                     log_fn: LogFn, progress_fn: Optional[ProgressFn] = None,
                     preferred_name: str = "", prebuilt_meta=None,
-                    on_need_prefix=None) -> PreparedInstall | None:
+                    on_need_prefix=None, cancel=None) -> PreparedInstall | None:
     """Extract *archive_path* to a kept temp dir and detect FOMOD. The caller
     either runs the wizard (is_fomod) then `finish_install(prepared, selections)`,
     or just calls `finish_install(prepared, None)` for a plain/default install.
-    Returns None on failure (and cleans up)."""
+    Returns None on failure (and cleans up).
+
+    *cancel* — optional ``threading.Event``; when set the extraction is aborted
+    and the partial temp dir removed (returns None)."""
     archive = Path(archive_path)
     if not archive.is_file():
         log_fn(f"Install: archive not found: {archive_path}")
@@ -743,8 +809,11 @@ def prepare_archive(archive_path: str, game, profile_dir: Path, *,
     parent = _choose_extract_parent(str(archive), Path(staging_root), log_fn)
     extract_dir = Path(tempfile.mkdtemp(prefix="mm_install_",
                                         dir=str(parent) if parent else None))
-    if not _extract_archive(str(archive), str(extract_dir), log_fn):
-        log_fn("Install failed: could not extract the archive.")
+    if not _extract_archive(str(archive), str(extract_dir), log_fn, cancel=cancel):
+        if cancel is not None and cancel.is_set():
+            log_fn("Install: extraction cancelled — removing temp files.")
+        else:
+            log_fn("Install failed: could not extract the archive.")
         shutil.rmtree(extract_dir, ignore_errors=True)
         return None
 
@@ -755,11 +824,14 @@ def prepare_archive(archive_path: str, game, profile_dir: Path, *,
         log_fn(f"Archive contains a .fomod wrapper — extracting {fomod_wrapper.name}…")
         inner_dir = Path(tempfile.mkdtemp(prefix="mm_install_",
                                           dir=str(extract_dir.parent)))
-        if _extract_archive(str(fomod_wrapper), str(inner_dir), log_fn):
+        if _extract_archive(str(fomod_wrapper), str(inner_dir), log_fn, cancel=cancel):
             shutil.rmtree(extract_dir, ignore_errors=True)
             extract_dir = inner_dir
         else:
-            log_fn("Install failed: could not extract the inner .fomod archive.")
+            if cancel is not None and cancel.is_set():
+                log_fn("Install: extraction cancelled — removing temp files.")
+            else:
+                log_fn("Install failed: could not extract the inner .fomod archive.")
             shutil.rmtree(inner_dir, ignore_errors=True)
             shutil.rmtree(extract_dir, ignore_errors=True)
             return None
@@ -1047,7 +1119,8 @@ def install_collection_archive(
         defer_interactive_bain: bool = False,
         resolve_fomod=None,
         resolve_bain=None,
-        on_installed=None) -> "str | None":
+        on_installed=None,
+        cancel=None) -> "str | None":
     """Install ONE collection mod from a downloaded archive — the tkinter-free
     equivalent of ``gui/install_mod.py:install_mod_from_archive`` for the paths a
     collection install exercises (FOMOD with author selections or deferred, BAIN,
@@ -1079,7 +1152,7 @@ def install_collection_archive(
     # Extract + FOMOD-detect via the shared prepare step (kept temp dir).
     prepared = prepare_archive(
         str(archive), game, profile_dir, log_fn=log_fn, progress_fn=progress_fn,
-        preferred_name=preferred_name, prebuilt_meta=prebuilt_meta)
+        preferred_name=preferred_name, prebuilt_meta=prebuilt_meta, cancel=cancel)
     if prepared is None:
         return None
 

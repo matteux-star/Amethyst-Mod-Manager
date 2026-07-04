@@ -189,6 +189,26 @@ class Fallout_3(BaseGame):
     def exe_name(self) -> str:
         return "Fallout3Launcher.exe"
 
+    # Alternate launcher basenames that some store editions ship instead of
+    # ``exe_name``.  Used both for auto-detection (exe_name_alts) and for the
+    # script-extender launcher swap, so whichever launcher actually exists on
+    # disk is detected and swapped.  Default empty so the many subclasses that
+    # reuse Fallout_3 for code (Skyrim, Fallout 4, …) don't inherit a bogus
+    # alt; only classes with a real alternate launcher populate it (below).
+    _launcher_alts: list[str] = []
+
+    @property
+    def exe_name_alts(self) -> list[str]:
+        alts = list(self._launcher_alts)
+        # GOG editions of Fallout 3 / Fallout 3 GOTY ship FalloutLauncher.exe
+        # instead of Fallout3Launcher.exe.  Both classes keep that exe_name
+        # (every other subclass overrides it), so key the alt off it — this
+        # can't leak to Skyrim/Fallout 4/etc.
+        if self.exe_name == "Fallout3Launcher.exe" and \
+                "FalloutLauncher.exe" not in alts:
+            alts.append("FalloutLauncher.exe")
+        return alts
+
     @property
     def plugin_extensions(self) -> list[str]:
         return [".esp", ".esl", ".esm"]
@@ -1317,6 +1337,24 @@ class Fallout_3(BaseGame):
         unmatched = [t for t in ranked if t[0] < 0]
         return [b for _, _, b in matched] + [b for _, _, b in unmatched]
 
+    def _launcher_name(self) -> str:
+        """The launcher filename that actually exists in the game folder.
+
+        Some store editions ship a differently-named launcher (e.g. GOG
+        Fallout 3 uses ``FalloutLauncher.exe`` instead of
+        ``Fallout3Launcher.exe``).  Return the first of ``exe_name`` /
+        ``exe_name_alts`` that is present on disk (or has a matching ``.bak``
+        backup from a previous swap), falling back to ``exe_name``.
+        """
+        candidates = [self.exe_name, *self.exe_name_alts]
+        if self._game_path is not None:
+            for name in candidates:
+                stem = Path(name).stem
+                if (self._game_path / name).is_file() or \
+                   (self._game_path / (stem + ".bak")).is_file():
+                    return name
+        return self.exe_name
+
     def swap_launcher(self, log_fn) -> None:
         """Replace the game launcher with the script extender if present."""
         _log = log_fn
@@ -1329,27 +1367,29 @@ class Fallout_3(BaseGame):
         if not se.is_file():
             _log(f"  {self._script_extender_exe} not found — skipping launcher swap.")
             return
-        launcher = self._game_path / self.exe_name
-        backup   = self._game_path / (Path(self.exe_name).stem + ".bak")
+        exe_name = self._launcher_name()
+        launcher = self._game_path / exe_name
+        backup   = self._game_path / (Path(exe_name).stem + ".bak")
         if launcher.is_file():
             launcher.rename(backup)
-            _log(f"  Renamed {self.exe_name} → {backup.name}.")
+            _log(f"  Renamed {exe_name} → {backup.name}.")
         shutil.copy2(se, launcher)
-        _log(f"  Copied {self._script_extender_exe} → {self.exe_name}.")
+        _log(f"  Copied {self._script_extender_exe} → {exe_name}.")
 
     def _restore_launcher(self, log_fn) -> None:
         """Reverse the script extender launcher swap if a backup exists."""
         _log = log_fn
         if self._game_path is None:
             return
-        backup   = self._game_path / (Path(self.exe_name).stem + ".bak")
-        launcher = self._game_path / self.exe_name
+        exe_name = self._launcher_name()
+        backup   = self._game_path / (Path(exe_name).stem + ".bak")
+        launcher = self._game_path / exe_name
         if not backup.is_file():
             return
         if launcher.is_file():
             launcher.unlink()
         backup.rename(launcher)
-        _log(f"  Restored {self.exe_name} from {backup.name}.")
+        _log(f"  Restored {exe_name} from {backup.name}.")
 
     def deploy(self, log_fn=None, mode: LinkMode = LinkMode.HARDLINK,
                profile: str = "default", progress_fn=None) -> None:

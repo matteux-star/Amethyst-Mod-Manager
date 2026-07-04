@@ -141,8 +141,8 @@ class MainWindow(QMainWindow):
     # batches keep the surface small. See _install_collection.
     _col_status = Signal(str)
     _col_progress = Signal(object)             # float | None
-    _col_agg = Signal(int, int, float)         # bytes cur, total, MB/s
-    _col_display_total = Signal(int)           # true collection size (bytes)
+    _col_agg = Signal("qlonglong", "qlonglong", float)  # bytes cur, total, MB/s (64-bit: >2GB)
+    _col_display_total = Signal("qlonglong")   # true collection size (bytes, 64-bit)
     _col_dl = Signal(str, object)              # ("start"|"update"|"finish", payload)
     _col_extract = Signal(str, object)         # ("queue"|"add"|"remove", payload)
     _col_row = Signal(int)                     # file_id installed
@@ -3253,9 +3253,9 @@ class MainWindow(QMainWindow):
 
         from Utils.ui_config import load_collection_settings
         try:
-            dl_workers = max(1, int(load_collection_settings().get("max_concurrent", 3)))
+            dl_workers = max(1, int(load_collection_settings().get("max_concurrent", 8)))
         except Exception:
-            dl_workers = 3
+            dl_workers = 8
 
         import threading
 

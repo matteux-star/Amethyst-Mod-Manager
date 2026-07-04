@@ -24,6 +24,7 @@ are ported but not yet wired (see ``overwrite_existing`` / ``update_context``).
 
 from __future__ import annotations
 
+import itertools as _itertools
 import json
 import queue as _queue
 import re
@@ -37,7 +38,7 @@ from Utils.collection_reset import (
 from Utils.config_paths import get_download_cache_dir_for_game, list_all_cache_dirs
 from Utils.download_locations import (
     is_default_downloads_disabled, load_extra_download_locations)
-from Utils.download_scheduler import order_by_size, run_double_ended
+from Utils.download_scheduler import order_by_size, run_smallest_first
 from Utils.extract_budget import ExtractionMemoryBudget, get_uncompressed_size
 from Utils.mod_install import (
     install_collection_archive, FOMOD_DEFERRED, BAIN_DEFERRED)
@@ -640,7 +641,38 @@ def run_collection_install(
     _fomod_deferred: list = []
     _bain_deferred: list = []
 
-    _install_queue: _queue.Queue = _queue.Queue(maxsize=_PIPELINE_QUEUE_SIZE)
+    # Priority hand-off queue: when several downloaded archives are waiting, the
+    # install consumers always take the SMALLEST first so one big archive can't
+    # back up a pile of quick installs behind it. Items are
+    # ``(priority, seq, payload)``; priority = archive size in bytes (smallest
+    # first), seq is a monotonic tiebreaker so the payload tuples are never
+    # compared. DONE sentinels use +inf priority so they sort AFTER all real
+    # work — a consumer never exits while a smaller item is still queued.
+    _install_queue: _queue.PriorityQueue = _queue.PriorityQueue(
+        maxsize=_PIPELINE_QUEUE_SIZE)
+    _iq_seq = _itertools.count()
+    _iq_seq_lock = threading.Lock()
+
+    def _iq_next_seq() -> int:
+        with _iq_seq_lock:
+            return next(_iq_seq)
+
+    def _enqueue_install(mod, result, domain) -> None:
+        """Put a downloaded (mod, result, domain) onto the priority install queue,
+        keyed on archive size (smallest installs first)."""
+        size = 0
+        try:
+            if result is not None and getattr(result, "file_path", None):
+                size = Path(result.file_path).stat().st_size
+        except OSError:
+            size = 0
+        if not size:
+            size = getattr(mod, "size_bytes", 0) or 0
+        _install_queue.put((size, _iq_next_seq(), (mod, result, domain)))
+
+    def _enqueue_done() -> None:
+        """Put a DONE sentinel that sorts after every real item (+inf priority)."""
+        _install_queue.put((float("inf"), _iq_next_seq(), _DONE_SENTINEL))
 
     def _agg_push(force: bool = False):
         now = _time_mod.monotonic()
@@ -692,7 +724,7 @@ def run_collection_install(
         if _col_stop.is_set():
             with _dl_lock:
                 _dl_done += 1
-            _install_queue.put((mod, None, mod_domain))
+            _enqueue_install(mod, None, mod_domain)
             return
 
         def _progress_cb(cur, tot, _fid=mod.file_id, _mod=mod):
@@ -780,14 +812,14 @@ def run_collection_install(
         # shouldn't happen, but MM_COL_TIMING=1 logs any block >0.05s to confirm.
         if _COL_TIMING:
             _t_put = _time_mod.monotonic()
-            _install_queue.put((mod, result, effective_domain))
+            _enqueue_install(mod, result, effective_domain)
             _blocked = _time_mod.monotonic() - _t_put
             if _blocked > 0.05:
                 log(f"[timing] download worker blocked {_blocked:.2f}s on install "
                     f"queue for '{mod.mod_name}' (queue full — install is the "
                     f"bottleneck)")
         else:
-            _install_queue.put((mod, result, effective_domain))
+            _enqueue_install(mod, result, effective_domain)
 
     # ---- install consumer --------------------------------------------
     def _install_one(mod, result, effective_domain):
@@ -838,7 +870,7 @@ def run_collection_install(
                 defer_interactive_fomod=(auto_fomod is None),
                 defer_interactive_bain=(auto_bain is None),
                 resolve_fomod=cb.resolve_fomod, resolve_bain=cb.resolve_bain,
-                on_installed=_capture_fomod)
+                on_installed=_capture_fomod, cancel=_col_stop)
         finally:
             _mem_budget.release(_extract_est)
             cb.on_extract_remove(mod.file_id)
@@ -854,6 +886,17 @@ def run_collection_install(
             with _install_lock:
                 _bain_deferred.append((mod, result, effective_domain))
                 _record_outcome(mod, "deferred", "bain")
+                _install_counters["done"] += 1
+            return
+
+        # Paused/cancelled mid-extraction: the temp files are already removed by
+        # prepare_archive; KEEP the downloaded archive so resume can reuse it, and
+        # skip the "produced NO staged files — dropped" warning (that's for a real
+        # structural failure, not a user pause).
+        if not folder_name and _col_stop.is_set():
+            with _install_lock:
+                _record_outcome(mod, "cancelled", "paused mid-extraction")
+                _install_counters["skipped"] += 1
                 _install_counters["done"] += 1
             return
 
@@ -910,11 +953,11 @@ def run_collection_install(
 
     def _install_consumer():
         while True:
-            item = _install_queue.get()
-            if item is _DONE_SENTINEL:
+            _prio, _seq, payload = _install_queue.get()
+            if payload is _DONE_SENTINEL:
                 _install_queue.task_done()
                 break
-            mod, result, effective_domain = item
+            mod, result, effective_domain = payload
             try:
                 _install_one(mod, result, effective_domain)
             except Exception as exc:
@@ -1015,7 +1058,7 @@ def run_collection_install(
             if _col_stop.is_set():
                 with _dl_lock:
                     _dl_done += 1
-                _install_queue.put((mod, None, mod_domain))
+                _enqueue_install(mod, None, mod_domain)
                 continue
 
             _this_phase = schema_file_id_to_phase.get(mod.file_id, 0)
@@ -1046,7 +1089,7 @@ def run_collection_install(
             if _col_stop.is_set():
                 with _dl_lock:
                     _dl_done += 1
-                _install_queue.put((mod, None, mod_domain))
+                _enqueue_install(mod, None, mod_domain)
                 continue
             if archive is None:
                 log(f"Manual install: skipped '{mod.mod_name}'")
@@ -1070,7 +1113,7 @@ def run_collection_install(
                 _akey = str(archive)
                 _archive_use_count[_akey] = _archive_use_count.get(_akey, 0) + 1
             cb.on_extract_queue(mod.file_id, mod.mod_name or mod.file_name or "")
-            _install_queue.put((mod, result, mod_domain))
+            _enqueue_install(mod, result, mod_domain)
 
     # ---- launch pipeline ---------------------------------------------
     if to_download:
@@ -1080,12 +1123,10 @@ def run_collection_install(
             _set_status(f"Downloading & installing {_dl_total} mod(s)…")
         _set_progress(0.0)
         if not manual_mode:
-            # Sort smallest→largest; the double-ended scheduler dedicates ONE
-            # worker to the largest-remaining mods (keeps bandwidth saturated on
-            # long transfers) while the rest chew through the smallest-remaining
-            # from the other end — hiding the per-file link-fetch latency of tiny
-            # archives behind the big worker's ongoing download (fixes the
-            # "download 8, stutter, download 8" stall).
+            # Download strictly smallest→largest (Tk parity): all workers pull
+            # from the head of the size-sorted list, so quick mods land first and
+            # the big archives come last. (Was a double-ended scheduler that
+            # dedicated one worker to the largest-remaining mods.)
             _to_download_sorted = order_by_size(to_download)
             if _total_bytes > 0:
                 cb.on_agg_download(_dl_bytes_done, _total_bytes, 0.0)
@@ -1110,14 +1151,14 @@ def run_collection_install(
                                    m.file_id, len(schema_mods))))
             _manual_produce(to_download)
         else:
-            run_double_ended(_to_download_sorted, _download_one, _DL_WORKERS,
-                             stop=_col_stop)
+            run_smallest_first(_to_download_sorted, _download_one, _DL_WORKERS,
+                               stop=_col_stop)
 
         _dl_finished.set()
         if not manual_mode:
             cb.on_agg_download(_total_bytes, _total_bytes, 0.0)
         for _ in range(_INSTALL_WORKERS):
-            _install_queue.put(_DONE_SENTINEL)
+            _enqueue_done()
         for t in _consumer_threads:
             t.join()
 
@@ -1368,7 +1409,7 @@ def _process_deferred(
                     bain_auto_selections=bain_by_file_id.get(_mod.file_id),
                     prebuilt_meta=_pmeta, preferred_name=_pref,
                     skip_index_update=True, overwrite_existing=overwrite_existing,
-                    resolve_bain=cb.resolve_bain)
+                    resolve_bain=cb.resolve_bain, cancel=_col_stop)
             except Exception as _exc:
                 log(f"Collection install: failed to install deferred BAIN "
                     f"'{_mod.mod_name}': {_exc}")
@@ -1411,7 +1452,8 @@ def _process_deferred(
                     bain_auto_selections=bain_by_file_id.get(_mod.file_id),
                     prebuilt_meta=_pmeta, preferred_name=_pref,
                     skip_index_update=True, overwrite_existing=overwrite_existing,
-                    resolve_fomod=cb.resolve_fomod, resolve_bain=cb.resolve_bain)
+                    resolve_fomod=cb.resolve_fomod, resolve_bain=cb.resolve_bain,
+                    cancel=_col_stop)
             except Exception as _exc:
                 log(f"Collection install: failed to install deferred FOMOD "
                     f"'{_mod.mod_name}': {_exc}")

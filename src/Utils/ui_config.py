@@ -609,10 +609,15 @@ def _clamp(value: float) -> float:
 # ---------------------------------------------------------------------------
 _COLLECTIONS_SECTION = "collections"
 
-# Download order is no longer configurable — collection downloads always use
-# the double-ended scheduler (one big-first worker + the rest small-first).
-_DEFAULT_MAX_CONCURRENT = 3
-_DEFAULT_MAX_EXTRACT_WORKERS = 4
+# Download order is no longer configurable — collection downloads always run
+# strictly smallest→largest (unknown-size mods last). Defaults are 8/8: more
+# concurrency past this gives little practical benefit on typical hardware.
+_DEFAULT_MAX_CONCURRENT = 8
+_DEFAULT_MAX_EXTRACT_WORKERS = 8
+
+# Upper clamps for the user-configurable concurrency (Settings ▸ Downloads).
+_MAX_CONCURRENT_CEILING = 16
+_MAX_EXTRACT_WORKERS_CEILING = 16
 
 # First-run defaults — written to the INI only when it is being created for
 # the first time (see load_ui_scale). Existing installs keep whatever defaults
@@ -645,9 +650,9 @@ def load_collection_settings() -> dict:
             return defaults
         s = parser[_COLLECTIONS_SECTION]
         max_concurrent = int(s.get("max_concurrent", str(_DEFAULT_MAX_CONCURRENT)))
-        max_concurrent = max(1, min(8, max_concurrent))
+        max_concurrent = max(1, min(_MAX_CONCURRENT_CEILING, max_concurrent))
         max_extract_workers = int(s.get("max_extract_workers", str(_DEFAULT_MAX_EXTRACT_WORKERS)))
-        max_extract_workers = max(1, min(8, max_extract_workers))
+        max_extract_workers = max(1, min(_MAX_EXTRACT_WORKERS_CEILING, max_extract_workers))
         check_download_locations = s.getboolean("check_download_locations", True)
         clear_archive_after_install = s.getboolean("clear_archive_after_install", False)
         download_order = s.get("download_order", "largest").strip().lower()
@@ -685,8 +690,8 @@ def save_collection_settings(max_concurrent: int,
         parser[_COLLECTIONS_SECTION] = {}
     if download_order is not None:
         parser[_COLLECTIONS_SECTION]["download_order"] = download_order
-    parser[_COLLECTIONS_SECTION]["max_concurrent"] = str(max(1, min(8, max_concurrent)))
-    parser[_COLLECTIONS_SECTION]["max_extract_workers"] = str(max(1, min(8, max_extract_workers)))
+    parser[_COLLECTIONS_SECTION]["max_concurrent"] = str(max(1, min(_MAX_CONCURRENT_CEILING, max_concurrent)))
+    parser[_COLLECTIONS_SECTION]["max_extract_workers"] = str(max(1, min(_MAX_EXTRACT_WORKERS_CEILING, max_extract_workers)))
     parser[_COLLECTIONS_SECTION]["check_download_locations"] = "true" if check_download_locations else "false"
     parser[_COLLECTIONS_SECTION]["clear_archive_after_install"] = "true" if clear_archive_after_install else "false"
     with path.open("w", encoding="utf-8") as f:

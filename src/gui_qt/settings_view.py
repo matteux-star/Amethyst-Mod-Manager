@@ -301,8 +301,8 @@ class SettingsView(QWidget):
         except Exception:
             cs = {}
         self._cs = {
-            "max_concurrent": int(cs.get("max_concurrent", 3)),
-            "max_extract_workers": int(cs.get("max_extract_workers", 4)),
+            "max_concurrent": int(cs.get("max_concurrent", uc._DEFAULT_MAX_CONCURRENT)),
+            "max_extract_workers": int(cs.get("max_extract_workers", uc._DEFAULT_MAX_EXTRACT_WORKERS)),
             "check_download_locations": bool(cs.get("check_download_locations", True)),
             "clear_archive_after_install": bool(cs.get("clear_archive_after_install", False)),
         }
@@ -320,11 +320,11 @@ class SettingsView(QWidget):
 
         # Collection settings — all persisted together via save_collection_settings.
         self._slider(
-            g, self.tr("Max concurrent downloads"), 1, 8, self._cs["max_concurrent"],
-            self._save_max_concurrent)
+            g, self.tr("Max concurrent downloads"), 1, uc._MAX_CONCURRENT_CEILING,
+            self._cs["max_concurrent"], self._save_max_concurrent)
         self._slider(
-            g, self.tr("Max extractions"), 1, 8, self._cs["max_extract_workers"],
-            self._save_max_extract)
+            g, self.tr("Max extractions"), 1, uc._MAX_EXTRACT_WORKERS_CEILING,
+            self._cs["max_extract_workers"], self._save_max_extract)
         self._add_help(
             g, self.tr("Extractions are gated by available memory; the effective number "
                "may be lower than set."))

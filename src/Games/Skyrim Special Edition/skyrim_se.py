@@ -7,7 +7,6 @@ Mod structure:
   Staged mods live in Profiles/Skyrim Special Edition/mods/
 """
 
-import shutil
 from pathlib import Path
 
 from Games.Bethesda.Bethesda import Fallout_3
@@ -374,39 +373,10 @@ class SkyrimSE(Fallout_3):
     def _script_extender_exe(self) -> str:
         return "skse64_loader.exe"
 
-    def swap_launcher(self, log_fn) -> None:
-        """Replace SkyrimSELauncher.exe with skse64_loader.exe if present."""
-        _log = log_fn
-        if self._game_path is None:
-            return
-        if not self._script_extender_swap:
-            _log("  Script extender / launcher swap disabled — skipping.")
-            return
-        skse = self._game_path / "skse64_loader.exe"
-        if not skse.is_file():
-            _log("  SKSE loader not found — skipping launcher swap.")
-            return
-        launcher = self._game_path / "SkyrimSELauncher.exe"
-        backup   = self._game_path / "SkyrimSELauncher.bak"
-        if launcher.is_file():
-            launcher.rename(backup)
-            _log("  Renamed SkyrimSELauncher.exe → SkyrimSELauncher.bak.")
-        shutil.copy2(skse, launcher)
-        _log("  Copied skse64_loader.exe → SkyrimSELauncher.exe.")
-
-    def _restore_launcher(self, log_fn) -> None:
-        """Reverse the SKSE launcher swap if a backup exists."""
-        _log = log_fn
-        if self._game_path is None:
-            return
-        backup   = self._game_path / "SkyrimSELauncher.bak"
-        launcher = self._game_path / "SkyrimSELauncher.exe"
-        if not backup.is_file():
-            return
-        if launcher.is_file():
-            launcher.unlink()
-        backup.rename(launcher)
-        _log("  Restored SkyrimSELauncher.exe from .bak.")
+    # swap_launcher / _restore_launcher are inherited from Fallout_3: it
+    # derives the launcher name from exe_name (SkyrimSELauncher.exe — GOG uses
+    # the same name, unlike GOG Fallout 3) and the SE loader from
+    # _script_extender_exe above, so the base logic is already correct here.
 
     def deploy(self, log_fn=None, mode: LinkMode = LinkMode.HARDLINK,
                profile: str = "default", progress_fn=None) -> None:
