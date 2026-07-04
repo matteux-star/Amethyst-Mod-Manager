@@ -109,44 +109,64 @@ Spusťte příkaz „Deploy“, aby se nové pořadí načítání aplikovalo ve
 <context>
     <name>BackupRestoreView</name>
     <message>
-        <location filename="../gui_qt/backup_restore_view.py" line="62" />
+        <location filename="../gui_qt/backup_restore_view.py" line="60" />
         <source>Restore backup — {0}</source>
         <translation>Obnovení zálohy — {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/backup_restore_view.py" line="73" />
+        <location filename="../gui_qt/backup_restore_view.py" line="71" />
         <source>Select a backup to restore the modlist and plugins for this profile.</source>
         <translation>Vyberte zálohu, ze které chcete obnovit seznam modů a pluginy pro tento profil.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/backup_restore_view.py" line="84" />
+        <location filename="../gui_qt/backup_restore_view.py" line="87" />
         <source>No backups yet. Backups are created when you deploy.</source>
         <translation>Zatím nejsou k dispozici žádné zálohy. Zálohy se vytvoří při nasazení.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/backup_restore_view.py" line="93" />
+        <location filename="../gui_qt/backup_restore_view.py" line="96" />
         <source>New backup</source>
         <translation>Nová záloha</translation>
     </message>
     <message>
-        <location filename="../gui_qt/backup_restore_view.py" line="97" />
-        <location filename="../gui_qt/backup_restore_view.py" line="140" />
-        <location filename="../gui_qt/backup_restore_view.py" line="142" />
+        <location filename="../gui_qt/backup_restore_view.py" line="100" />
+        <location filename="../gui_qt/backup_restore_view.py" line="181" />
+        <location filename="../gui_qt/backup_restore_view.py" line="183" />
         <source>Keep</source>
         <translation>Uchovat</translation>
     </message>
     <message>
-        <location filename="../gui_qt/backup_restore_view.py" line="101" />
+        <location filename="../gui_qt/backup_restore_view.py" line="104" />
         <source>Cancel</source>
         <translation>Zrušit</translation>
     </message>
     <message>
-        <location filename="../gui_qt/backup_restore_view.py" line="104" />
+        <location filename="../gui_qt/backup_restore_view.py" line="107" />
         <source>Restore</source>
         <translation>Obnovit</translation>
     </message>
     <message>
-        <location filename="../gui_qt/backup_restore_view.py" line="140" />
+        <location filename="../gui_qt/backup_restore_view.py" line="152" />
+        <source>Kept</source>
+        <translation>Uloženo</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/backup_restore_view.py" line="160" />
+        <source>{0} mods ({1} enabled)</source>
+        <translation>{0} mody (s podporou {1})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/backup_restore_view.py" line="162" />
+        <source>{0} plugins</source>
+        <translation>{0} pluginy</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/backup_restore_view.py" line="164" />
+        <source>{0} separators</source>
+        <translation>{0} oddělovače</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/backup_restore_view.py" line="181" />
         <source>Unkeep</source>
         <translation>Unkeep</translation>
     </message>
@@ -309,6 +329,14 @@ Nejprve nasad' svůj seznam modů a poté tento průvodce znovu otevři.</transl
         <location filename="../gui_qt/bsa_pack_overlay.py" line="94" />
         <source>Pack</source>
         <translation>Balení</translation>
+    </message>
+</context>
+<context>
+    <name>BsaPreview</name>
+    <message>
+        <location filename="../gui_qt/bsa_preview.py" line="250" />
+        <source>(archive is empty or unreadable)</source>
+        <translation>(archiv je prázdný nebo nečitelný)</translation>
     </message>
 </context>
 <context>
@@ -2192,6 +2220,29 @@ mod „{0}“, který se objeví ve vašem seznamu modů.</translation>
     </message>
 </context>
 <context>
+    <name>FavouriteWizardsOverlay</name>
+    <message>
+        <location filename="../gui_qt/favourite_wizards_overlay.py" line="110" />
+        <source>Favourite Wizard Tools</source>
+        <translation>Oblíbené nástroje pro práci s Wizardem</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/favourite_wizards_overlay.py" line="116" />
+        <source>Checked tools appear at the top of the Wizard menu for quick access.</source>
+        <translation>Zaškrtnuté nástroje se zobrazí v horní části nabídky průvodce, kde jsou snadno dostupné.</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/favourite_wizards_overlay.py" line="141" />
+        <source>Cancel</source>
+        <translation>Zrušit</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/favourite_wizards_overlay.py" line="146" />
+        <source>Save</source>
+        <translation>Uložit</translation>
+    </message>
+</context>
+<context>
     <name>FilterSidePanel</name>
     <message>
         <location filename="../gui_qt/filter_panel.py" line="45" />
@@ -2615,1458 +2666,1560 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../gui_qt/app.py" line="219" />
+        <location filename="../gui_qt/app.py" line="227" />
         <source>Amethyst Mod Manager - v{0}</source>
         <translation>Amethyst Mod Manager – v{0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="220" />
+        <location filename="../gui_qt/app.py" line="228" />
         <source>Amethyst Mod Manager</source>
         <translation>Amethyst Mod Manager</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="250" />
+        <location filename="../gui_qt/app.py" line="258" />
         <source>Mods</source>
         <translation>Modifikace</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="377" />
-        <location filename="../gui_qt/app.py" line="1082" />
-        <location filename="../gui_qt/app.py" line="1362" />
-        <location filename="../gui_qt/app.py" line="1496" />
-        <location filename="../gui_qt/app.py" line="4111" />
+        <location filename="../gui_qt/app.py" line="388" />
+        <location filename="../gui_qt/app.py" line="1128" />
+        <location filename="../gui_qt/app.py" line="1410" />
+        <location filename="../gui_qt/app.py" line="1544" />
+        <location filename="../gui_qt/app.py" line="4184" />
         <source>Add game</source>
         <translation>Přidat hru</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="533" />
-        <location filename="../gui_qt/app.py" line="7423" />
+        <location filename="../gui_qt/app.py" line="547" />
+        <location filename="../gui_qt/app.py" line="7583" />
         <source>Settings</source>
         <translation>Nastavení</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="589" />
+        <location filename="../gui_qt/app.py" line="625" />
         <source>Saved</source>
         <translation>Uloženo</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="694" />
-        <location filename="../gui_qt/app.py" line="6255" />
+        <location filename="../gui_qt/app.py" line="730" />
+        <location filename="../gui_qt/app.py" line="6400" />
         <source>Expand all</source>
         <translation>Rozbalit vše</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="695" />
-        <location filename="../gui_qt/app.py" line="6259" />
+        <location filename="../gui_qt/app.py" line="731" />
+        <location filename="../gui_qt/app.py" line="6404" />
         <source>Enable all</source>
         <translation>Povolit vše</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="696" />
-        <location filename="../gui_qt/app.py" line="3035" />
+        <location filename="../gui_qt/app.py" line="732" />
+        <location filename="../gui_qt/app.py" line="3089" />
         <source>Check Updates</source>
         <translation>Zkontrolovat aktualizace</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="697" />
-        <location filename="../gui_qt/app.py" line="771" />
-        <location filename="../gui_qt/app.py" line="832" />
-        <location filename="../gui_qt/app.py" line="864" />
-        <location filename="../gui_qt/app.py" line="913" />
-        <location filename="../gui_qt/app.py" line="1012" />
+        <location filename="../gui_qt/app.py" line="733" />
+        <location filename="../gui_qt/app.py" line="807" />
+        <location filename="../gui_qt/app.py" line="868" />
+        <location filename="../gui_qt/app.py" line="900" />
+        <location filename="../gui_qt/app.py" line="949" />
+        <location filename="../gui_qt/app.py" line="1048" />
         <source>Filters</source>
         <translation>Filtry</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="698" />
-        <location filename="../gui_qt/app.py" line="3346" />
+        <location filename="../gui_qt/app.py" line="734" />
+        <location filename="../gui_qt/app.py" line="3400" />
         <source>Restore backup</source>
         <translation>Obnovit zálohu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="699" />
+        <location filename="../gui_qt/app.py" line="735" />
         <source>Refresh Modlist</source>
         <translation>Obnovit seznam modů</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="723" />
+        <location filename="../gui_qt/app.py" line="759" />
         <source>Search mods…</source>
         <translation>Vyhledat mody…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="768" />
+        <location filename="../gui_qt/app.py" line="804" />
         <source>Sort Plugins</source>
         <translation>Seřadit pluginy</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="769" />
+        <location filename="../gui_qt/app.py" line="805" />
         <source>Groups</source>
         <translation>Skupiny</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="770" />
+        <location filename="../gui_qt/app.py" line="806" />
         <source>Plugin Rules</source>
         <translation>Pravidla pro pluginy</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="789" />
+        <location filename="../gui_qt/app.py" line="825" />
         <source>Search plugins…</source>
         <translation>Vyhledat pluginy…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="822" />
+        <location filename="../gui_qt/app.py" line="858" />
         <source>Pack BSA</source>
         <translation>Skautský oddíl BSA</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="827" />
+        <location filename="../gui_qt/app.py" line="863" />
         <source>Unpack BSA</source>
         <translation>Rozbalit BSA</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="835" />
-        <location filename="../gui_qt/app.py" line="867" />
-        <location filename="../gui_qt/app.py" line="885" />
-        <location filename="../gui_qt/app.py" line="5935" />
+        <location filename="../gui_qt/app.py" line="871" />
+        <location filename="../gui_qt/app.py" line="903" />
+        <location filename="../gui_qt/app.py" line="921" />
+        <location filename="../gui_qt/app.py" line="1052" />
+        <location filename="../gui_qt/app.py" line="1092" />
+        <location filename="../gui_qt/app.py" line="6080" />
         <source>⊞ Expand all</source>
         <translation>⊞ Rozbalit vše</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="845" />
-        <location filename="../gui_qt/app.py" line="875" />
-        <location filename="../gui_qt/app.py" line="1027" />
+        <location filename="../gui_qt/app.py" line="881" />
+        <location filename="../gui_qt/app.py" line="911" />
+        <location filename="../gui_qt/app.py" line="1068" />
         <source>Search files…</source>
         <translation>Vyhledat soubory…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="884" />
-        <location filename="../gui_qt/app.py" line="5934" />
+        <location filename="../gui_qt/app.py" line="920" />
+        <location filename="../gui_qt/app.py" line="1091" />
+        <location filename="../gui_qt/app.py" line="6079" />
         <source>⊟ Collapse all</source>
         <translation>⊟ Sbalit vše</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="898" />
-        <location filename="../gui_qt/app.py" line="932" />
+        <location filename="../gui_qt/app.py" line="934" />
+        <location filename="../gui_qt/app.py" line="968" />
         <source>Install Selected</source>
         <translation>Nainstalovat vybrané</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="904" />
-        <location filename="../gui_qt/app.py" line="933" />
+        <location filename="../gui_qt/app.py" line="940" />
+        <location filename="../gui_qt/app.py" line="969" />
         <source>Remove Selected</source>
         <translation>Odebrat vybrané</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="909" />
+        <location filename="../gui_qt/app.py" line="945" />
         <source>Locations</source>
         <translation>Místa</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="923" />
+        <location filename="../gui_qt/app.py" line="959" />
         <source>Search downloads…</source>
         <translation>Vyhledat soubory ke stažení…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="937" />
+        <location filename="../gui_qt/app.py" line="973" />
         <source>{0} ({1})</source>
         <translation>{0} ({1})</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="962" />
+        <location filename="../gui_qt/app.py" line="998" />
         <source>Removed {0} archive(s)</source>
         <translation>Odstraněny archivy {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="987" />
+        <location filename="../gui_qt/app.py" line="1023" />
         <source>Find in files:</source>
         <translation>Hledat v souborech:</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="991" />
+        <location filename="../gui_qt/app.py" line="1027" />
         <source>Text to search for…</source>
         <translation>Hledaný text…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="995" />
+        <location filename="../gui_qt/app.py" line="1031" />
         <source>Search</source>
         <translation>Hledat</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1008" />
-        <location filename="../gui_qt/app.py" line="1067" />
+        <location filename="../gui_qt/app.py" line="1044" />
+        <location filename="../gui_qt/app.py" line="1113" />
         <source>Search Content</source>
         <translation>Vyhledat obsah</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1063" />
+        <location filename="../gui_qt/app.py" line="1109" />
         <source>Content: "{0}"</source>
         <translation>Obsah: „{0}“</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1064" />
+        <location filename="../gui_qt/app.py" line="1110" />
         <source>Clear Content</source>
         <translation>Vymazat obsah</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1084" />
+        <location filename="../gui_qt/app.py" line="1130" />
         <source>Add game…</source>
         <translation>Přidat hru…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1085" />
+        <location filename="../gui_qt/app.py" line="1131" />
         <source>Configure game…</source>
         <translation>Nastavit hru…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1086" />
+        <location filename="../gui_qt/app.py" line="1132" />
         <source>Define custom game…</source>
         <translation>Definovat vlastní hru…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1087" />
+        <location filename="../gui_qt/app.py" line="1133" />
         <source>Open</source>
         <translation>Otevřít</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1088" />
+        <location filename="../gui_qt/app.py" line="1134" />
         <source>Game folder</source>
         <translation>Složka s hrou</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1089" />
+        <location filename="../gui_qt/app.py" line="1135" />
         <source>Prefix folder</source>
         <translation>Složka s předponami</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1090" />
+        <location filename="../gui_qt/app.py" line="1136" />
         <source>My Games folder</source>
         <translation>Složka „Moje hry“</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1091" />
+        <location filename="../gui_qt/app.py" line="1137" />
         <source>AppData folder</source>
         <translation>Složka AppData</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1092" />
+        <location filename="../gui_qt/app.py" line="1138" />
         <source>Staging folder</source>
         <translation>Složka pro přípravu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1093" />
+        <location filename="../gui_qt/app.py" line="1139" />
         <source>Profile folder</source>
         <translation>Složka profilu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1094" />
+        <location filename="../gui_qt/app.py" line="1140" />
         <source>.config folder</source>
         <translation>složka .config</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1106" />
+        <location filename="../gui_qt/app.py" line="1152" />
         <source>Profile: </source>
         <translation>Profil: </translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1109" />
+        <location filename="../gui_qt/app.py" line="1155" />
         <source>Add new profile…</source>
         <translation>Přidat nový profil…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1110" />
+        <location filename="../gui_qt/app.py" line="1156" />
         <source>Profile settings…</source>
         <translation>Nastavení profilu…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1111" />
+        <location filename="../gui_qt/app.py" line="1157" />
         <source>Export profile…</source>
         <translation>Profil exportu…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1112" />
+        <location filename="../gui_qt/app.py" line="1158" />
         <source>Import profile…</source>
         <translation>Načíst profil…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1126" />
+        <location filename="../gui_qt/app.py" line="1174" />
         <source>Install Mod</source>
         <translation>Nainstalovat mod</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1127" />
+        <location filename="../gui_qt/app.py" line="1175" />
         <source>Deploy</source>
         <translation>Nasazení</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1128" />
+        <location filename="../gui_qt/app.py" line="1176" />
         <source>Restore</source>
         <translation>Obnovit</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1152" />
+        <location filename="../gui_qt/app.py" line="1200" />
         <source>Proton</source>
         <translation>Proton</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1153" />
+        <location filename="../gui_qt/app.py" line="1201" />
         <source>Run winecfg</source>
         <translation>Spusťte winecfg</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1154" />
+        <location filename="../gui_qt/app.py" line="1202" />
         <source>Run winetricks</source>
         <translation>Spusťte winetricks</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1155" />
+        <location filename="../gui_qt/app.py" line="1203" />
         <source>Run an .exe in this prefix…</source>
         <translation>Spustit soubor .exe v tomto předponě…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1157" />
+        <location filename="../gui_qt/app.py" line="1205" />
         <source>Open wine registry</source>
         <translation>Otevřít evidenci vína</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1158" />
-        <location filename="../gui_qt/app.py" line="4926" />
+        <location filename="../gui_qt/app.py" line="1206" />
+        <location filename="../gui_qt/app.py" line="5022" />
         <source>Wine DLL overrides</source>
         <translation>Přepsání knihovny Wine DLL</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1160" />
+        <location filename="../gui_qt/app.py" line="1208" />
         <source>Install VC++ Redistributable</source>
         <translation>Nainstalujte distribuční balíček VC++</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1161" />
+        <location filename="../gui_qt/app.py" line="1209" />
         <source>Install d3dcompiler_47</source>
         <translation>Nainstalujte d3dcompiler_47</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1162" />
+        <location filename="../gui_qt/app.py" line="1210" />
         <source>.NET runtime</source>
         <translation>Runtime .NET</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1163" />
+        <location filename="../gui_qt/app.py" line="1211" />
         <source>.NET {0}</source>
         <translation>.NET {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1168" />
+        <location filename="../gui_qt/app.py" line="1216" />
         <source>Wizard</source>
         <translation>Průvodce</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1169" />
-        <location filename="../gui_qt/app.py" line="1797" />
+        <location filename="../gui_qt/app.py" line="1217" />
+        <location filename="../gui_qt/app.py" line="1851" />
         <source>Nexus</source>
         <translation>Nexus</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1170" />
+        <location filename="../gui_qt/app.py" line="1218" />
         <source>Open Nexus Mods</source>
         <translation>Otevřít Nexus Mods</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1171" />
+        <location filename="../gui_qt/app.py" line="1219" />
         <source>Open game on nexus</source>
         <translation>Spustit hru na Nexusu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1173" />
+        <location filename="../gui_qt/app.py" line="1221" />
         <source>Login to Nexus</source>
         <translation>Přihlásit se do Nexusu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1174" />
+        <location filename="../gui_qt/app.py" line="1222" />
         <source>Login via SSO</source>
         <translation>Přihlášení přes SSO</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1175" />
+        <location filename="../gui_qt/app.py" line="1223" />
         <source>Paste login code…</source>
         <translation>Vložte přihlašovací kód…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1176" />
+        <location filename="../gui_qt/app.py" line="1224" />
         <source>Clear credentials</source>
         <translation>Vymazat přihlašovací údaje</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1179" />
-        <location filename="../gui_qt/app.py" line="1827" />
+        <location filename="../gui_qt/app.py" line="1227" />
+        <location filename="../gui_qt/app.py" line="1881" />
         <source>Collections</source>
         <translation>Kolekce</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1180" />
+        <location filename="../gui_qt/app.py" line="1228" />
         <source>Browse collections…</source>
         <translation>Prohlédněte si kolekce…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1181" />
+        <location filename="../gui_qt/app.py" line="1229" />
         <source>Open current collection</source>
         <translation>Otevřít sbírku „Current“</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1182" />
+        <location filename="../gui_qt/app.py" line="1230" />
         <source>Reset load order</source>
         <translation>Obnovit pořadí načítání</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1369" />
+        <location filename="../gui_qt/app.py" line="1417" />
         <source>Define custom game</source>
         <translation>Definovat vlastní hru</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1397" />
+        <location filename="../gui_qt/app.py" line="1445" />
         <source>Restart to change language?</source>
         <translation>Chcete restartovat a změnit jazyk?</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1398" />
+        <location filename="../gui_qt/app.py" line="1446" />
         <source>The language change takes effect after a restart. Restart now?</source>
         <translation>Změna jazyka se projeví až po restartu. Chcete restartovat nyní?</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1401" />
+        <location filename="../gui_qt/app.py" line="1449" />
         <source>Restart now</source>
         <translation>Restartovat nyní</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1402" />
+        <location filename="../gui_qt/app.py" line="1450" />
         <source>Later</source>
         <translation>Později</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1426" />
+        <location filename="../gui_qt/app.py" line="1474" />
         <source>Syncing language files…</source>
         <translation>Probíhá synchronizace jazykových souborů…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1469" />
+        <location filename="../gui_qt/app.py" line="1517" />
         <source>Language files updated — restart to apply.</source>
         <translation>Jazykové soubory byly aktualizovány — pro uplatnění změn je třeba restartovat.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1559" />
+        <location filename="../gui_qt/app.py" line="1607" />
         <source>Welcome</source>
         <translation>Vítejte</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1643" />
-        <location filename="../gui_qt/app.py" line="1786" />
-        <location filename="../gui_qt/app.py" line="1816" />
-        <location filename="../gui_qt/app.py" line="1873" />
-        <location filename="../gui_qt/app.py" line="2967" />
-        <location filename="../gui_qt/app.py" line="3136" />
-        <location filename="../gui_qt/app.py" line="3384" />
-        <location filename="../gui_qt/app.py" line="3627" />
-        <location filename="../gui_qt/app.py" line="4179" />
-        <location filename="../gui_qt/app.py" line="4205" />
+        <location filename="../gui_qt/app.py" line="1691" />
+        <location filename="../gui_qt/app.py" line="1839" />
+        <location filename="../gui_qt/app.py" line="1870" />
+        <location filename="../gui_qt/app.py" line="1927" />
+        <location filename="../gui_qt/app.py" line="3021" />
+        <location filename="../gui_qt/app.py" line="3190" />
+        <location filename="../gui_qt/app.py" line="3438" />
+        <location filename="../gui_qt/app.py" line="3681" />
+        <location filename="../gui_qt/app.py" line="4252" />
+        <location filename="../gui_qt/app.py" line="4278" />
         <source>Log in first: Nexus ▸ Login to Nexus ▸ Login via SSO.</source>
         <translation>Nejprve se přihlaste: Nexus ▸ Přihlásit se do Nexusu ▸ Přihlásit se přes SSO.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1652" />
+        <location filename="../gui_qt/app.py" line="1700" />
         <source>Received a malformed NXM link.</source>
         <translation>Byl přijat neplatný odkaz NXM.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1669" />
+        <location filename="../gui_qt/app.py" line="1717" />
         <source>Downloading mod from Nexus…</source>
         <translation>Stahování modu z Nexusu…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1702" />
+        <location filename="../gui_qt/app.py" line="1755" />
         <source>Nexus download failed — {0}</source>
         <translation>Stahování z Nexus selhalo — {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1709" />
+        <location filename="../gui_qt/app.py" line="1762" />
         <source>Downloaded — no game selected; see Downloads tab.</source>
         <translation>Staženo — nebyla vybrána žádná hra; viz záložka „Stažené soubory“.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1735" />
+        <location filename="../gui_qt/app.py" line="1788" />
         <source>No configured game for Nexus domain '{0}'.</source>
         <translation>Pro doménu Nexus „{0}“ není nakonfigurována žádná hra.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1742" />
+        <location filename="../gui_qt/app.py" line="1795" />
         <source>Collections aren't supported for '{0}'.</source>
         <translation>U „{0}“ nejsou podporovány kolekce.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1758" />
-        <location filename="../gui_qt/app.py" line="1776" />
-        <location filename="../gui_qt/app.py" line="1808" />
-        <location filename="../gui_qt/app.py" line="1834" />
-        <location filename="../gui_qt/app.py" line="1867" />
-        <location filename="../gui_qt/app.py" line="1906" />
-        <location filename="../gui_qt/app.py" line="2743" />
-        <location filename="../gui_qt/app.py" line="2948" />
-        <location filename="../gui_qt/app.py" line="3082" />
-        <location filename="../gui_qt/app.py" line="3132" />
-        <location filename="../gui_qt/app.py" line="3329" />
-        <location filename="../gui_qt/app.py" line="3367" />
+        <location filename="../gui_qt/app.py" line="1811" />
+        <location filename="../gui_qt/app.py" line="1829" />
+        <location filename="../gui_qt/app.py" line="1862" />
+        <location filename="../gui_qt/app.py" line="1888" />
+        <location filename="../gui_qt/app.py" line="1921" />
+        <location filename="../gui_qt/app.py" line="1960" />
+        <location filename="../gui_qt/app.py" line="2797" />
+        <location filename="../gui_qt/app.py" line="3002" />
+        <location filename="../gui_qt/app.py" line="3136" />
+        <location filename="../gui_qt/app.py" line="3186" />
+        <location filename="../gui_qt/app.py" line="3383" />
         <location filename="../gui_qt/app.py" line="3421" />
-        <location filename="../gui_qt/app.py" line="3589" />
-        <location filename="../gui_qt/app.py" line="3671" />
-        <location filename="../gui_qt/app.py" line="4156" />
-        <location filename="../gui_qt/app.py" line="4175" />
-        <location filename="../gui_qt/app.py" line="4201" />
-        <location filename="../gui_qt/app.py" line="4451" />
-        <location filename="../gui_qt/app.py" line="4590" />
-        <location filename="../gui_qt/app.py" line="4693" />
-        <location filename="../gui_qt/app.py" line="4798" />
-        <location filename="../gui_qt/app.py" line="4820" />
-        <location filename="../gui_qt/app.py" line="4847" />
-        <location filename="../gui_qt/app.py" line="5160" />
-        <location filename="../gui_qt/app.py" line="7143" />
+        <location filename="../gui_qt/app.py" line="3475" />
+        <location filename="../gui_qt/app.py" line="3643" />
+        <location filename="../gui_qt/app.py" line="3725" />
+        <location filename="../gui_qt/app.py" line="4229" />
+        <location filename="../gui_qt/app.py" line="4248" />
+        <location filename="../gui_qt/app.py" line="4274" />
+        <location filename="../gui_qt/app.py" line="4524" />
+        <location filename="../gui_qt/app.py" line="4667" />
+        <location filename="../gui_qt/app.py" line="4776" />
+        <location filename="../gui_qt/app.py" line="4894" />
+        <location filename="../gui_qt/app.py" line="4916" />
+        <location filename="../gui_qt/app.py" line="4943" />
+        <location filename="../gui_qt/app.py" line="5305" />
+        <location filename="../gui_qt/app.py" line="7288" />
         <source>No configured game selected.</source>
         <translation>Není vybrána žádná nakonfigurovaná hra.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1762" />
-        <location filename="../gui_qt/app.py" line="1780" />
-        <location filename="../gui_qt/app.py" line="1812" />
-        <location filename="../gui_qt/app.py" line="2964" />
-        <location filename="../gui_qt/app.py" line="3371" />
-        <location filename="../gui_qt/app.py" line="3593" />
+        <location filename="../gui_qt/app.py" line="1815" />
+        <location filename="../gui_qt/app.py" line="1833" />
+        <location filename="../gui_qt/app.py" line="1866" />
+        <location filename="../gui_qt/app.py" line="3018" />
+        <location filename="../gui_qt/app.py" line="3425" />
+        <location filename="../gui_qt/app.py" line="3647" />
         <source>'{0}' has no Nexus Mods page.</source>
         <translation>Hra „{0}“ nemá stránku na Nexus Mods.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1840" />
-        <location filename="../gui_qt/app.py" line="2749" />
+        <location filename="../gui_qt/app.py" line="1894" />
+        <location filename="../gui_qt/app.py" line="2803" />
         <source>The active profile isn't a collection profile.</source>
         <translation>Aktivní profil není profilem sbírky.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1847" />
+        <location filename="../gui_qt/app.py" line="1901" />
         <source>Couldn't read the collection from this profile.</source>
         <translation>Z tohoto profilu se mi nepodařilo načíst sbírku.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1902" />
+        <location filename="../gui_qt/app.py" line="1956" />
         <source>A collection install is already running.</source>
         <translation>Instalace kolekce již probíhá.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1910" />
-        <location filename="../gui_qt/app.py" line="3721" />
+        <location filename="../gui_qt/app.py" line="1964" />
+        <location filename="../gui_qt/app.py" line="3775" />
         <source>Log in first: Nexus ▸ Login to Nexus.</source>
         <translation>Nejprve se přihlaste: Nexus ▸ Přihlásit se do Nexusu.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1927" />
+        <location filename="../gui_qt/app.py" line="1981" />
         <source>This collection has no installable mods.</source>
         <translation>Tato kolekce neobsahuje žádné mody, které by bylo možné nainstalovat.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1936" />
+        <location filename="../gui_qt/app.py" line="1990" />
         <source>Checking Nexus account…</source>
         <translation>Ověřování účtu Nexus…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="1985" />
-        <location filename="../gui_qt/app.py" line="2619" />
+        <location filename="../gui_qt/app.py" line="2039" />
+        <location filename="../gui_qt/app.py" line="2673" />
         <source>Collection install cancelled.</source>
         <translation>Instalace kolekce byla zrušena.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2016" />
+        <location filename="../gui_qt/app.py" line="2070" />
         <source>Could not find the paused profile.</source>
         <translation>Nepodařilo se najít pozastavený profil.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2045" />
+        <location filename="../gui_qt/app.py" line="2099" />
         <source>Could not find the installed collection profile.</source>
         <translation>Nedařilo se najít nainstalovaný profil kolekce.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2054" />
+        <location filename="../gui_qt/app.py" line="2108" />
         <source>Switch to profile '{0}' first, then Update.</source>
         <translation>Nejprve přepněte na profil „{0}“ a poté proveďte aktualizaci.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2089" />
+        <location filename="../gui_qt/app.py" line="2143" />
         <source>Could not compute update diff: {0}</source>
         <translation>Nepodařilo se vypočítat rozdíl aktualizace: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2107" />
+        <location filename="../gui_qt/app.py" line="2161" />
         <source>Collection update cancelled.</source>
         <translation>Aktualizace sbírky byla zrušena.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2172" />
+        <location filename="../gui_qt/app.py" line="2226" />
         <source>Update failed during removal: {0}</source>
         <translation>Při odinstalaci došlo k selhání aktualizace: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2248" />
-        <location filename="../gui_qt/app.py" line="4324" />
+        <location filename="../gui_qt/app.py" line="2302" />
+        <location filename="../gui_qt/app.py" line="4397" />
         <source>Could not create profile: {0}</source>
         <translation>Nepodařilo se vytvořit profil: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2258" />
+        <location filename="../gui_qt/app.py" line="2312" />
         <source>Profile '{0}' not found.</source>
         <translation>Profil „{0}“ nebyl nalezen.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2473" />
-        <location filename="../gui_qt/app.py" line="2508" />
-        <location filename="../gui_qt/app.py" line="5333" />
-        <location filename="../gui_qt/app.py" line="5365" />
+        <location filename="../gui_qt/app.py" line="2527" />
+        <location filename="../gui_qt/app.py" line="2562" />
+        <location filename="../gui_qt/app.py" line="5478" />
+        <location filename="../gui_qt/app.py" line="5510" />
         <source>Install: {0}</source>
         <translation>Instalace: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2566" />
+        <location filename="../gui_qt/app.py" line="2620" />
         <source>Nexus Premium not detected — manual download mode.</source>
         <translation>Nexus Premium nebyl rozpoznán – režim ručního stahování.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2638" />
+        <location filename="../gui_qt/app.py" line="2692" />
         <source>Install paused — {0} mod(s) installed.</source>
         <translation>Instalace pozastavena — nainstalováno {0} modů.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2739" />
+        <location filename="../gui_qt/app.py" line="2793" />
         <source>A load-order reset is already running.</source>
         <translation>Právě probíhá resetování pořadí načítání.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2754" />
+        <location filename="../gui_qt/app.py" line="2808" />
         <source>Resetting collection load order…</source>
         <translation>Obnovuje se pořadí načítání sbírek…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2815" />
+        <location filename="../gui_qt/app.py" line="2869" />
         <source>Load order reset failed: {0}</source>
         <translation>Obnovení pořadí načítání se nezdařilo: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2834" />
+        <location filename="../gui_qt/app.py" line="2888" />
         <source>Nexus login is unavailable in this build.</source>
         <translation>V této verzi není k dispozici přihlášení do služby Nexus.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2837" />
+        <location filename="../gui_qt/app.py" line="2891" />
         <source>A Nexus login is already in progress.</source>
         <translation>Právě probíhá přihlášení do systému Nexus.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2845" />
+        <location filename="../gui_qt/app.py" line="2899" />
         <source>Opening browser to log in to Nexus Mods…</source>
         <translation>Otevírá se prohlížeč pro přihlášení na Nexus Mods…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2851" />
+        <location filename="../gui_qt/app.py" line="2905" />
         <source>Start 'Login via SSO' first, then paste the code.</source>
         <translation>Nejprve spusťte možnost „Přihlášení přes SSO“ a poté vložte kód.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2858" />
+        <location filename="../gui_qt/app.py" line="2912" />
         <source>The login session has ended — start 'Login via SSO' again.</source>
         <translation>Přihlašovací relace skončila – spusťte znovu možnost „Přihlášení přes SSO“.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2879" />
+        <location filename="../gui_qt/app.py" line="2933" />
         <source>Nexus credentials cleared.</source>
         <translation>Přihlašovací údaje k Nexus byly vymazány.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2899" />
+        <location filename="../gui_qt/app.py" line="2953" />
         <source>NXM handler unregistered.</source>
         <translation>Obslužná rutina NXM nebyla zaregistrována.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2902" />
+        <location filename="../gui_qt/app.py" line="2956" />
         <source>NXM handler registered.</source>
         <translation>Zpracovatel NXM byl zaregistrován.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2905" />
+        <location filename="../gui_qt/app.py" line="2959" />
         <source>Failed to register — xdg-mime not found?</source>
         <translation>Registrace se nezdařila – xdg-mime nebyl nalezen?</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2907" />
+        <location filename="../gui_qt/app.py" line="2961" />
         <source>NXM handler error: {0}</source>
         <translation>Chyba obslužné rutiny NXM: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2915" />
+        <location filename="../gui_qt/app.py" line="2969" />
         <source>Nexus login failed: {0}</source>
         <translation>Přihlášení do systému Nexus se nezdařilo: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2921" />
+        <location filename="../gui_qt/app.py" line="2975" />
         <source>Logged in to Nexus Mods.</source>
         <translation>Přihlášeno na Nexus Mods.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2944" />
+        <location filename="../gui_qt/app.py" line="2998" />
         <source>An update check is already running.</source>
         <translation>Právě probíhá kontrola dostupnosti aktualizací.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2961" />
+        <location filename="../gui_qt/app.py" line="3015" />
         <source>Log in to Nexus (Nexus ▸ Login) or set a mod.io API key (mod.io API Key tool) to check for updates.</source>
         <translation>Přihlaste se do služby Nexus (Nexus ▸ Přihlášení) nebo nastavte klíč API mod.io (nástroj mod.io API Key), abyste mohli zkontrolovat dostupnost aktualizací.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2973" />
-        <location filename="../gui_qt/app.py" line="3086" />
-        <location filename="../gui_qt/app.py" line="3141" />
-        <location filename="../gui_qt/app.py" line="3375" />
-        <location filename="../gui_qt/app.py" line="3425" />
-        <location filename="../gui_qt/app.py" line="3597" />
-        <location filename="../gui_qt/app.py" line="3675" />
+        <location filename="../gui_qt/app.py" line="3027" />
+        <location filename="../gui_qt/app.py" line="3140" />
+        <location filename="../gui_qt/app.py" line="3195" />
+        <location filename="../gui_qt/app.py" line="3429" />
+        <location filename="../gui_qt/app.py" line="3479" />
+        <location filename="../gui_qt/app.py" line="3651" />
+        <location filename="../gui_qt/app.py" line="3729" />
         <source>No mod staging folder for this profile.</source>
         <translation>Pro tento profil neexistuje žádná dočasná složka pro modifikace.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2982" />
+        <location filename="../gui_qt/app.py" line="3036" />
         <source>Checking…</source>
         <translation>Kontrola…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="2984" />
+        <location filename="../gui_qt/app.py" line="3038" />
         <source>Checking for updates ({0})…</source>
         <translation>Vyhledávání aktualizací ({0})…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3037" />
+        <location filename="../gui_qt/app.py" line="3091" />
         <source>Update check failed — see the log.</source>
         <translation>Kontrola aktualizací se nezdařila – viz protokol.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3063" />
+        <location filename="../gui_qt/app.py" line="3117" />
         <source>All mods are up to date.</source>
         <translation>Všechny mody jsou aktuální.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3078" />
-        <location filename="../gui_qt/app.py" line="3128" />
-        <location filename="../gui_qt/app.py" line="3936" />
-        <location filename="../gui_qt/app.py" line="4801" />
-        <location filename="../gui_qt/app.py" line="5163" />
+        <location filename="../gui_qt/app.py" line="3132" />
+        <location filename="../gui_qt/app.py" line="3182" />
+        <location filename="../gui_qt/app.py" line="4004" />
+        <location filename="../gui_qt/app.py" line="4897" />
+        <location filename="../gui_qt/app.py" line="5308" />
         <source>An install is already in progress.</source>
         <translation>Instalace již probíhá.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3107" />
+        <location filename="../gui_qt/app.py" line="3161" />
         <source>No install archive found for the selected mod(s).</source>
         <translation>Pro vybrané mody nebyl nalezen žádný instalační archiv.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3112" />
+        <location filename="../gui_qt/app.py" line="3166" />
         <source>Reinstalling {0} mod(s); {1} skipped (no archive found).</source>
         <translation>Přeinstalování modů „{0}“; „{1}“ bylo přeskočeno (nebyl nalezen žádný archiv).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3125" />
+        <location filename="../gui_qt/app.py" line="3179" />
         <source>A Quick Update is already running.</source>
         <translation>Aktualizace „Quick Update“ již probíhá.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3145" />
+        <location filename="../gui_qt/app.py" line="3199" />
         <source>No mods with a pending update to quick-update.</source>
         <translation>Žádné mody, u nichž je čekající aktualizace v systému quick-update.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3150" />
+        <location filename="../gui_qt/app.py" line="3204" />
         <source>Quick Update — checking {0} mod(s)…</source>
         <translation>Rychlá aktualizace — provádím kontrolu modů pro hru „{0}“…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3198" />
+        <location filename="../gui_qt/app.py" line="3252" />
         <source>Quick Update — downloading {0} mod(s)…</source>
         <translation>Rychlá aktualizace — stahují se mody pro hru „{0}“…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3306" />
+        <location filename="../gui_qt/app.py" line="3360" />
         <source>Quick Update: updated {0} mod(s)</source>
         <translation>Rychlá aktualizace: aktualizovány mody pro hru „{0}“</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3310" />
+        <location filename="../gui_qt/app.py" line="3364" />
         <source>Quick Update: nothing to update.</source>
         <translation>Rychlá aktualizace: není co aktualizovat.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3333" />
+        <location filename="../gui_qt/app.py" line="3387" />
         <source>No profile selected.</source>
         <translation>Není vybrán žádný profil.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3380" />
+        <location filename="../gui_qt/app.py" line="3434" />
         <source>'{0}' isn't a Nexus mod.</source>
         <translation>„{0}“ není mod pro Nexus.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3401" />
+        <location filename="../gui_qt/app.py" line="3455" />
         <source>Change Version</source>
         <translation>Změnit verzi</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3431" />
+        <location filename="../gui_qt/app.py" line="3485" />
         <source>'{0}' has no bundle configuration.</source>
         <translation>„{0}“ nemá žádnou konfiguraci balíčku.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3448" />
+        <location filename="../gui_qt/app.py" line="3502" />
         <source>Bundle: {0}</source>
         <translation>Balíček: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3464" />
+        <location filename="../gui_qt/app.py" line="3518" />
         <source>Could not update bundle: {0}</source>
         <translation>Nepodařilo se aktualizovat balíček: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3471" />
+        <location filename="../gui_qt/app.py" line="3525" />
         <source>Updated bundle: {0}</source>
         <translation>Aktualizovaný balíček: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3494" />
+        <location filename="../gui_qt/app.py" line="3548" />
         <source>Separator Settings</source>
         <translation>Nastavení oddělovače</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3623" />
+        <location filename="../gui_qt/app.py" line="3677" />
         <source>No missing requirements.</source>
         <translation>Žádné požadavky nechybí.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3653" />
+        <location filename="../gui_qt/app.py" line="3707" />
         <source>Missing Requirements</source>
         <translation>Chybějící požadavky</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3708" />
+        <location filename="../gui_qt/app.py" line="3762" />
         <source>Conflicts: {0}</source>
         <translation>Konflikty: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3728" />
+        <location filename="../gui_qt/app.py" line="3782" />
         <source>Endorsing {0} mod(s)…</source>
         <translation>Doporučuji mod(y) pro hru „{0}“…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3729" />
+        <location filename="../gui_qt/app.py" line="3783" />
         <source>Abstaining from {0} mod(s)…</source>
         <translation>Zdržuji se hlasování ohledně modifikací pro hru „{0}“…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3762" />
+        <location filename="../gui_qt/app.py" line="3816" />
         <source>Endorsed {0} mod(s).</source>
         <translation>Schváleno: mod(y) „{0}“.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3763" />
+        <location filename="../gui_qt/app.py" line="3817" />
         <source>Abstained from {0} mod(s).</source>
         <translation>Zdržel se hlasování o modifikaci({0}).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3767" />
+        <location filename="../gui_qt/app.py" line="3821" />
         <source>No mods were updated (already in that state or no Nexus id).</source>
         <translation>Žádné mody nebyly aktualizovány (buď již byly v tomto stavu, nebo neměly ID Nexus).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3786" />
+        <location filename="../gui_qt/app.py" line="3840" />
         <source>Could not resolve target profile: {0}</source>
         <translation>Nepodařilo se vyřešit profil cíle: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3812" />
+        <location filename="../gui_qt/app.py" line="3866" />
         <source>Copy cancelled.</source>
         <translation>Kopírování bylo zrušeno.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3833" />
+        <location filename="../gui_qt/app.py" line="3887" />
         <source>All selected mods already exist there.</source>
         <translation>Všechny vybrané mody tam již existují.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3854" />
+        <location filename="../gui_qt/app.py" line="3908" />
         <source>A copy/move is already in progress.</source>
         <translation>Kopírování/přesun již probíhá.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3857" />
+        <location filename="../gui_qt/app.py" line="3911" />
         <source>Moving</source>
         <translation>Stěhování</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3857" />
+        <location filename="../gui_qt/app.py" line="3911" />
         <source>Copying</source>
         <translation>Kopírování</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3860" />
+        <location filename="../gui_qt/app.py" line="3914" />
         <source>Moving {0} mod(s) to '{1}'…</source>
         <translation>Přesouvám mody „{0}“ do složky „{1}“…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3861" />
+        <location filename="../gui_qt/app.py" line="3915" />
         <source>Copying {0} mod(s) to '{1}'…</source>
         <translation>Kopíruji mody z adresáře „{0}“ do adresáře „{1}“…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3913" />
+        <location filename="../gui_qt/app.py" line="3967" />
         <source>Moved {0}/{1} mod(s) to '{2}'.</source>
         <translation>Přesunul jsem mody z adres {0} / {1} do složky „{2}“.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3914" />
+        <location filename="../gui_qt/app.py" line="3968" />
         <source>Copied {0}/{1} mod(s) to '{2}'.</source>
         <translation>Zkopíroval jsem mod(y) z adres {0} / {1} do adresáře „{2}“.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3940" />
+        <location filename="../gui_qt/app.py" line="3997" />
+        <source>Downloading {0}…</source>
+        <translation>Stahování souboru „{0}“…</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="3997" />
+        <source>Downloading…</source>
+        <translation>Stahování…</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="3999" />
+        <source>Nexus Download</source>
+        <translation>Stažení aplikace Nexus</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="4008" />
         <source>Log in to Nexus first.</source>
         <translation>Nejprve se přihlaste do služby Nexus.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3944" />
+        <location filename="../gui_qt/app.py" line="4012" />
         <source>That requirement has no Nexus mod page.</source>
         <translation>Tento požadavek nemá stránku v modifikátoru Nexus.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="3979" />
+        <location filename="../gui_qt/app.py" line="4047" />
         <source>No downloadable files for that mod.</source>
         <translation>Pro tento mod nejsou k dispozici žádné soubory ke stažení.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4131" />
+        <location filename="../gui_qt/app.py" line="4204" />
         <source>{0} game</source>
         <translation>{0} hra</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4152" />
-        <location filename="../gui_qt/app.py" line="4252" />
-        <location filename="../gui_qt/app.py" line="4428" />
+        <location filename="../gui_qt/app.py" line="4225" />
+        <location filename="../gui_qt/app.py" line="4325" />
+        <location filename="../gui_qt/app.py" line="4501" />
         <source>No game selected.</source>
         <translation>Není vybrána žádná hra.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4166" />
+        <location filename="../gui_qt/app.py" line="4239" />
         <source>Export Profile</source>
         <translation>Profil exportu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4212" />
+        <location filename="../gui_qt/app.py" line="4285" />
         <source>Could not read manifest: {0}</source>
         <translation>Nepodařilo se načíst manifest: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4215" />
+        <location filename="../gui_qt/app.py" line="4288" />
         <source>That file doesn't look like an Amethyst manifest.</source>
         <translation>Ten soubor nevypadá jako manifest Amethystu.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4223" />
+        <location filename="../gui_qt/app.py" line="4296" />
         <source>This profile targets '{0}', but the selected game is '{1}'. Switch games first, then import.</source>
         <translation>Tento profil je určen pro hru „{0}“, ale vybraná hra je „{1}“. Nejprve změňte hru a teprve poté proveďte import.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4245" />
+        <location filename="../gui_qt/app.py" line="4318" />
         <source>Import: {0}</source>
         <translation>Import: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4269" />
+        <location filename="../gui_qt/app.py" line="4342" />
         <source>Profile Settings</source>
         <translation>Nastavení profilu</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4315" />
+        <location filename="../gui_qt/app.py" line="4388" />
         <source>Profile '{0}' already exists.</source>
         <translation>Profil „{0}“ již existuje.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4340" />
+        <location filename="../gui_qt/app.py" line="4413" />
         <source>Profile '{0}' created</source>
         <translation>Byl vytvořen profil „{0}“</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4415" />
-        <location filename="../gui_qt/app.py" line="7407" />
+        <location filename="../gui_qt/app.py" line="4488" />
+        <location filename="../gui_qt/app.py" line="7567" />
         <source>▶  Play</source>
         <translation>▶  Přehrát</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4415" />
+        <location filename="../gui_qt/app.py" line="4488" />
         <source>▶  Run</source>
         <translation>▶  Spustit</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4460" />
+        <location filename="../gui_qt/app.py" line="4533" />
         <source>Executable not found: {0}</source>
         <translation>Spustitelný soubor nebyl nalezen: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4560" />
+        <location filename="../gui_qt/app.py" line="4633" />
         <source>Configure: {0}</source>
         <translation>Nastavení: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4593" />
+        <location filename="../gui_qt/app.py" line="4670" />
         <source>'{0}' does not support deployment.</source>
         <translation>„{0}“ nepodporuje nasazení.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4604" />
+        <location filename="../gui_qt/app.py" line="4687" />
         <source>Deploying {0}…</source>
         <translation>Spouštím {0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4696" />
+        <location filename="../gui_qt/app.py" line="4779" />
         <source>A deploy is in progress — try again shortly.</source>
         <translation>Probíhá nasazení — zkuste to za chvíli znovu.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4703" />
+        <location filename="../gui_qt/app.py" line="4786" />
         <source>Restoring {0}…</source>
         <translation>Obnovení stránky {0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4765" />
+        <location filename="../gui_qt/app.py" line="4861" />
         <source>Game</source>
         <translation>Hra</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4767" />
+        <location filename="../gui_qt/app.py" line="4863" />
         <source>{0} Deployed</source>
         <translation>{0} Nasazeno</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4768" />
+        <location filename="../gui_qt/app.py" line="4864" />
         <source>{0} Restored</source>
         <translation>{0} Obnovený</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4771" />
+        <location filename="../gui_qt/app.py" line="4867" />
         <source>Deploy failed — see log.</source>
         <translation>Nasazení se nezdařilo — viz protokol.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4772" />
+        <location filename="../gui_qt/app.py" line="4868" />
         <source>Restore failed — see log.</source>
         <translation>Obnovení se nezdařilo – viz protokol.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4829" />
+        <location filename="../gui_qt/app.py" line="4925" />
         <source>{0} is not configured for this game.</source>
         <translation>{0} není pro tuto hru nakonfigurováno.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4833" />
+        <location filename="../gui_qt/app.py" line="4929" />
         <source>{0} not found ({1}).</source>
         <translation>{0} nenalezeno ({1}).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4935" />
+        <location filename="../gui_qt/app.py" line="5031" />
         <source>Launching winetricks…</source>
         <translation>Spouštím winetricks…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4981" />
+        <location filename="../gui_qt/app.py" line="5077" />
         <source>A Proton installer is already running.</source>
         <translation>Instalační program Proton již běží.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="4986" />
+        <location filename="../gui_qt/app.py" line="5082" />
         <source>{0}…</source>
         <translation>{0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5006" />
+        <location filename="../gui_qt/app.py" line="5102" />
         <source>{0} — done.</source>
         <translation>{0} — hotovo.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5008" />
+        <location filename="../gui_qt/app.py" line="5104" />
         <source>{0} — failed (see log).</source>
         <translation>{0} — selhalo (viz protokol).</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5024" />
+        <location filename="../gui_qt/app.py" line="5120" />
         <source>No game selected</source>
         <translation>Není vybrána žádná hra</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5037" />
+        <location filename="../gui_qt/app.py" line="5133" />
         <source>No wizard tools for this game</source>
         <translation>Pro tuto hru nejsou k dispozici žádné nástroje průvodce</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5059" />
+        <location filename="../gui_qt/app.py" line="5141" />
+        <source>★ Favourites</source>
+        <translation>★ Oblíbené</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="5175" />
+        <source>Add Favourites…</source>
+        <translation>Přidat do oblíbených…</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="5176" />
+        <source>Choose which wizard tools appear at the top of this menu for quick access.</source>
+        <translation>Vyberte, které nástroje průvodce se mají zobrazovat v horní části tohoto menu, abyste k nim měli rychlý přístup.</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="5180" />
         <source>Manage Prefixes…</source>
         <translation>Správa předpon…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5060" />
+        <location filename="../gui_qt/app.py" line="5181" />
         <source>Browse every wizard-tool Wine prefix and delete them to reclaim disk space.</source>
         <translation>Projděte všechny prefixy Wine v nástroji Wizard a odstraňte je, abyste uvolnili místo na disku.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5076" />
+        <location filename="../gui_qt/app.py" line="5221" />
         <source>Manage Prefixes</source>
         <translation>Správa předpon</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5167" />
+        <location filename="../gui_qt/app.py" line="5312" />
         <source>No active profile.</source>
         <translation>Žádný aktivní profil.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5185" />
+        <location filename="../gui_qt/app.py" line="5330" />
         <source>Installing {0} mod(s)…</source>
         <translation>Instalace modů pro hru „{0}“…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5186" />
+        <location filename="../gui_qt/app.py" line="5331" />
         <source>Installing {0}…</source>
         <translation>Probíhá instalace {0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5314" />
-        <location filename="../gui_qt/app.py" line="5353" />
+        <location filename="../gui_qt/app.py" line="5459" />
+        <location filename="../gui_qt/app.py" line="5498" />
         <source>Install cancelled: {0}</source>
         <translation>Instalace byla zrušena: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5532" />
+        <location filename="../gui_qt/app.py" line="5677" />
         <source>A mod named '{0}' already exists.</source>
         <translation>Mod s názvem „{0}“ již existuje.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5538" />
+        <location filename="../gui_qt/app.py" line="5683" />
         <source>Rename failed: {0}</source>
         <translation>Přejmenování se nezdařilo: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5566" />
+        <location filename="../gui_qt/app.py" line="5711" />
         <source>Renamed to '{0}'.</source>
         <translation>Přejmenováno na „{0}“.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5589" />
+        <location filename="../gui_qt/app.py" line="5734" />
         <source>Installed {0}</source>
         <translation>Nainstalováno{0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5591" />
+        <location filename="../gui_qt/app.py" line="5736" />
         <source>Installed {0} mods</source>
         <translation>Nainstalované mody pro hru „{0}“</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5593" />
+        <location filename="../gui_qt/app.py" line="5738" />
         <source>Installed {0} of {1} mods — see log for failures.</source>
         <translation>Nainstalováno {0} z {1} mods — chyby viz protokol.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5596" />
+        <location filename="../gui_qt/app.py" line="5741" />
         <source>Install failed — see log.</source>
         <translation>Instalace se nezdařila – viz protokol.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5921" />
+        <location filename="../gui_qt/app.py" line="6066" />
         <source>Pack {0}</source>
         <translation>Balení{0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5922" />
+        <location filename="../gui_qt/app.py" line="6067" />
         <source>Unpack {0}</source>
         <translation>Rozbalte soubor „{0}“</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5961" />
-        <location filename="../gui_qt/app.py" line="6042" />
+        <location filename="../gui_qt/app.py" line="6106" />
+        <location filename="../gui_qt/app.py" line="6187" />
         <source>An archive operation is already running.</source>
         <translation>Archivační operace již probíhá.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5972" />
+        <location filename="../gui_qt/app.py" line="6117" />
         <source>Mod folder not found.</source>
         <translation>Složka „Mod“ nebyla nalezena.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="5976" />
+        <location filename="../gui_qt/app.py" line="6121" />
         <source>Profile is deployed — run Restore first, then pack the {0}.</source>
         <translation>Profil je nasazen – nejprve spusťte funkci „Obnovit“ a poté sbalte soubor „{0}“.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6012" />
+        <location filename="../gui_qt/app.py" line="6157" />
         <source>Packing {0}…</source>
         <translation>Balení {0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6055" />
+        <location filename="../gui_qt/app.py" line="6200" />
         <source>Profile is deployed — run Restore first, then unpack.</source>
         <translation>Profil je nasazen – nejprve spusťte funkci „Obnovit“ a poté jej rozbalte.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6079" />
+        <location filename="../gui_qt/app.py" line="6224" />
         <source>Unpacking {0} archive(s)…</source>
         <translation>Rozbalování archivu (archivů) „{0}“…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6111" />
+        <location filename="../gui_qt/app.py" line="6256" />
         <source>Cancelled.</source>
         <translation>Zrušeno.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6116" />
+        <location filename="../gui_qt/app.py" line="6261" />
         <source>{0} failed: {1}</source>
         <translation>{0} selhalo: {1}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6139" />
+        <location filename="../gui_qt/app.py" line="6284" />
         <source>Packed {0}{1}{2}</source>
         <translation>Packed {0} {1} {2}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6155" />
+        <location filename="../gui_qt/app.py" line="6300" />
         <source>Unpacked {0} file(s) from {1} archive(s)</source>
         <translation>Rozbalil soubor(y) „{0}“ z archivu(ů) „{1}“</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6245" />
+        <location filename="../gui_qt/app.py" line="6390" />
         <source>All mods enabled</source>
         <translation>Všechny mody jsou povoleny</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6245" />
+        <location filename="../gui_qt/app.py" line="6390" />
         <source>All mods disabled</source>
         <translation>Všechny mody jsou deaktivovány</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6256" />
+        <location filename="../gui_qt/app.py" line="6401" />
         <source>Collapse all</source>
         <translation>Sbalit vše</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6259" />
+        <location filename="../gui_qt/app.py" line="6404" />
         <source>Disable all</source>
         <translation>Vypnout vše</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6275" />
+        <location filename="../gui_qt/app.py" line="6420" />
         <source>Modlist refreshed</source>
         <translation>Seznam modulů byl aktualizován</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6489" />
+        <location filename="../gui_qt/app.py" line="6634" />
         <source>Mods with BA2 archives</source>
         <translation>Modifikace s archivy BA2</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6491" />
+        <location filename="../gui_qt/app.py" line="6636" />
         <source>Mods with BSA archives</source>
         <translation>Moduly s archivy BSA</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6737" />
+        <location filename="../gui_qt/app.py" line="6882" />
         <source>Enabled</source>
         <translation>Zapnuto</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6737" />
+        <location filename="../gui_qt/app.py" line="6882" />
         <source>Disabled</source>
         <translation>Znevýhodnění</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6839" />
-        <location filename="../gui_qt/app.py" line="7443" />
+        <location filename="../gui_qt/app.py" line="6984" />
+        <location filename="../gui_qt/app.py" line="7603" />
         <source>Plugins</source>
         <translation>Pluginy</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6840" />
+        <location filename="../gui_qt/app.py" line="6985" />
         <source>ESL</source>
         <translation>ESL</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6840" />
+        <location filename="../gui_qt/app.py" line="6985" />
         <source>Non-ESL</source>
         <translation>Ne-ESL</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6974" />
+        <location filename="../gui_qt/app.py" line="7119" />
         <source>No active profile — cannot configure groups.</source>
         <translation>Žádný aktivní profil – nelze nastavit skupiny.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6986" />
+        <location filename="../gui_qt/app.py" line="7131" />
         <source>LOOT Groups</source>
         <translation>Skupiny LOOT</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="6995" />
+        <location filename="../gui_qt/app.py" line="7140" />
         <source>No active profile — cannot configure plugin rules.</source>
         <translation>Žádný aktivní profil – nelze nakonfigurovat pravidla pluginu.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7011" />
+        <location filename="../gui_qt/app.py" line="7156" />
         <source>LOOT Plugin Rules</source>
         <translation>Pravidla pluginu LOOT</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7031" />
+        <location filename="../gui_qt/app.py" line="7176" />
         <source>{0} has no userlist rules to display.</source>
         <translation>{0} nemá žádná pravidla pro seznam uživatelů, která by se měla zobrazit.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7048" />
+        <location filename="../gui_qt/app.py" line="7193" />
         <source>Plugin Cycle</source>
         <translation>Cyklus pluginů</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7088" />
+        <location filename="../gui_qt/app.py" line="7233" />
         <source>userlist.yaml not found — cannot flip rule.</source>
         <translation>Soubor userlist.yaml nebyl nalezen — nelze provést převrácení pravidla.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7093" />
+        <location filename="../gui_qt/app.py" line="7238" />
         <source>Rule {0} '{1}' {2} not found in userlist.yaml.</source>
         <translation>Pravidlo {0} „{1}“ {2} nebylo nalezeno v souboru userlist.yaml.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7097" />
+        <location filename="../gui_qt/app.py" line="7242" />
         <source>Flipped: {0} now '{1}' {2}</source>
         <translation>Změna názvu: „{0}“ se nyní jmenuje „{1}“ {2}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7106" />
+        <location filename="../gui_qt/app.py" line="7251" />
         <source>No active profile — cannot edit userlist.</source>
         <translation>Žádný aktivní profil – nelze upravovat seznam uživatelů.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7116" />
+        <location filename="../gui_qt/app.py" line="7261" />
         <source>No active profile — cannot assign group.</source>
         <translation>Žádný aktivní profil – nelze přiřadit skupinu.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7129" />
+        <location filename="../gui_qt/app.py" line="7274" />
         <source>Removed from userlist: {0} plugin(s)</source>
         <translation>Odstraněno ze seznamu uživatelů: plugin(y) {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7139" />
+        <location filename="../gui_qt/app.py" line="7284" />
         <source>LOOT library not available — cannot sort.</source>
         <translation>Knihovna LOOT není k dispozici — nelze třídit.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7146" />
+        <location filename="../gui_qt/app.py" line="7291" />
         <source>LOOT sorting isn't supported for this game.</source>
         <translation>Třídění LOOTu není v této hře podporováno.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7150" />
+        <location filename="../gui_qt/app.py" line="7295" />
         <source>No plugins to sort.</source>
         <translation>Není třeba třídit žádné pluginy.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7153" />
+        <location filename="../gui_qt/app.py" line="7298" />
         <source>A sort is already running.</source>
         <translation>Třídění již probíhá.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7202" />
+        <location filename="../gui_qt/app.py" line="7347" />
         <source>Running LOOT on {0} plugins…</source>
         <translation>Spuštění programu LOOT na pluginech {0}…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7226" />
+        <location filename="../gui_qt/app.py" line="7371" />
         <source>LOOT sort failed — see log.</source>
         <translation>Třídění LOOT selhalo — viz protokol.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7250" />
+        <location filename="../gui_qt/app.py" line="7395" />
         <source>Failed to write load order: {0}</source>
         <translation>Nepodařilo se zapsat pořadí načítání: {0}</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7257" />
+        <location filename="../gui_qt/app.py" line="7402" />
         <source>Load order is already sorted.</source>
         <translation>Pořadí načítání je již seřazeno.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7260" />
+        <location filename="../gui_qt/app.py" line="7405" />
         <source>Sorted — 1 plugin moved.</source>
         <translation>Hotovo — 1 plugin byl přesunut.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7261" />
+        <location filename="../gui_qt/app.py" line="7406" />
         <source>Sorted — {0} plugins moved.</source>
         <translation>Vyřešeno — pluginy „{0}“ byly přesunuty.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7399" />
+        <location filename="../gui_qt/app.py" line="7559" />
         <source>+ Add custom EXE…</source>
         <translation>+ Přidat vlastní soubor EXE…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7424" />
+        <location filename="../gui_qt/app.py" line="7584" />
         <source>Open application folder</source>
         <translation>Otevřít složku s aplikacemi</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7443" />
+        <location filename="../gui_qt/app.py" line="7603" />
         <source>Mod Files</source>
         <translation>Soubory Mod</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7444" />
+        <location filename="../gui_qt/app.py" line="7604" />
         <source>Text Files</source>
         <translation>Textové soubory</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7444" />
+        <location filename="../gui_qt/app.py" line="7604" />
         <source>Data</source>
         <translation>Údaje</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7445" />
+        <location filename="../gui_qt/app.py" line="7605" />
         <source>Downloads</source>
         <translation>Soubory ke stažení</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7657" />
-        <location filename="../gui_qt/app.py" line="7762" />
+        <location filename="../gui_qt/app.py" line="7819" />
+        <location filename="../gui_qt/app.py" line="8037" />
         <source>Log</source>
         <translation>Protokol</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7662" />
+        <location filename="../gui_qt/app.py" line="7828" />
         <source>● Errors</source>
         <translation>● Chyby</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7665" />
+        <location filename="../gui_qt/app.py" line="7832" />
         <source>● Warnings</source>
         <translation>● Upozornění</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7668" />
+        <location filename="../gui_qt/app.py" line="7837" />
         <source>Open as tab</source>
         <translation>Otevřít jako záložku</translation>
     </message>
     <message>
-        <location filename="../gui_qt/app.py" line="7671" />
+        <location filename="../gui_qt/app.py" line="7840" />
         <source>Clear Log</source>
         <translation>Vymazat protokol</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="7848" />
+        <location filename="../gui_qt/app.py" line="8077" />
+        <source>Changelog</source>
+        <translation>Seznam změn</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="7855" />
+        <source>Github</source>
+        <translation>GitHub</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="7859" />
+        <source>Ko-Fi</source>
+        <translation>Ko-Fi</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="7864" />
+        <source>♥ Endorse AMM</source>
+        <translation>♥ Podpořte AMM</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="8069" />
+        <source>Could not read the changelog:
+{0}</source>
+        <translation>Nepodařilo se načíst seznam změn:
+{0}</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="8071" />
+        <source>Changelog file not found.</source>
+        <translation>Soubor se seznamem změn nebyl nalezen.</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="8100" />
+        <source>Log in first (Nexus ▸ Login) — opening the AMM page so you can endorse it there.</source>
+        <translation>Nejprve se přihlaste (Nexus ▸ Přihlásit se) — otevře se stránka AMM, kde ji můžete podpořit.</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="8117" />
+        <location filename="../gui_qt/app.py" line="8122" />
+        <source>Endorse AMM failed — {0}</source>
+        <translation>Podpora AMM selhala — {0}</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="8130" />
+        <source>Thank you for endorsing!</source>
+        <translation>Děkujeme za podporu!</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="8133" />
+        <source>You've already endorsed — thank you!</source>
+        <translation>Už jste vyjádřili svou podporu – děkujeme!</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="8137" />
+        <source>Nexus only lets you endorse the app after you've downloaded it at least once. Opening the AMM page — please download it there first, then endorse.</source>
+        <translation>Nexus vám umožní aplikaci doporučit až poté, co jste si ji alespoň jednou stáhli. Otevřete stránku AMM – nejprve si ji tam prosím stáhněte a teprve poté ji doporučte.</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="8142" />
+        <source>Endorse AMM: {0}</source>
+        <translation>Podpořte AMM: {0}</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/app.py" line="8145" />
+        <source>Endorsing Amethyst Mod Manager…</source>
+        <translation>Doporučuji Amethyst Mod Manager…</translation>
     </message>
 </context>
 <context>
@@ -4143,6 +4296,274 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
         <location filename="../gui_qt/mod_files_view.py" line="155" />
         <source>(no mod selected)</source>
         <translation>(není vybrán žádný moderátor)</translation>
+    </message>
+</context>
+<context>
+    <name>ModListMenu</name>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1137" />
+        <source>Abstain from Endorsement</source>
+        <translation>Zdržení se vyjádření podpory</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1138" />
+        <source>Abstain selected ({0})</source>
+        <translation>Zvolena možnost „zdržet se hlasování“ ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1139" />
+        <source>Add note</source>
+        <translation>Přidat poznámku</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1140" />
+        <source>Add note ({0})</source>
+        <translation>Přidat poznámku ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1141" />
+        <source>Add separator above</source>
+        <translation>Vložit oddělovač nad tento text</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1142" />
+        <source>Add separator below</source>
+        <translation>Vložit oddělovač níže</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1143" />
+        <source>Bundle options…</source>
+        <translation>Možnosti balíčků…</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1144" />
+        <source>Change Version</source>
+        <translation>Změnit verzi</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1145" />
+        <source>Check Updates</source>
+        <translation>Zkontrolovat aktualizace</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1146" />
+        <source>Check Updates ({0})</source>
+        <translation>Zkontrolovat aktualizace ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1147" />
+        <source>Copy to profile</source>
+        <translation>Kopírovat do profilu</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1148" />
+        <source>Copy to profile ({0})</source>
+        <translation>Kopírovat do profilu ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1149" />
+        <source>Create empty mod below</source>
+        <translation>Vytvořte níže prázdný mod</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1150" />
+        <source>Disable Root Folder install</source>
+        <translation>Zakázat instalaci do kořenového adresáře</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1151" />
+        <source>Disable Root Folder install ({0})</source>
+        <translation>Zakázat instalaci do kořenového adresáře ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1152" />
+        <source>Disable selected ({0})</source>
+        <translation>Zrušit výběr ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1153" />
+        <source>Edit note</source>
+        <translation>Poznámka k úpravě</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1154" />
+        <source>Enable Root Folder install</source>
+        <translation>Povolit instalaci do kořenového adresáře</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1155" />
+        <source>Enable Root Folder install ({0})</source>
+        <translation>Povolit instalaci do kořenového adresáře ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1156" />
+        <source>Enable selected ({0})</source>
+        <translation>Povolit vybrané ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1157" />
+        <source>Endorse Mod</source>
+        <translation>Podpořit mod</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1158" />
+        <source>Endorse selected ({0})</source>
+        <translation>Podpořit vybrané ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1159" />
+        <source>Lock Separator</source>
+        <translation>Oddělovač zámků</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1160" />
+        <source>Lock Separators</source>
+        <translation>Oddělovače zámků</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1161" />
+        <source>Log</source>
+        <translation>Protokol</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1162" />
+        <source>Missing Requirements</source>
+        <translation>Chybějící požadavky</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1163" />
+        <source>Missing Requirements ({0})</source>
+        <translation>Chybějící požadavky ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1164" />
+        <source>Move to profile</source>
+        <translation>Přejít na profil</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1165" />
+        <source>Move to profile ({0})</source>
+        <translation>Přejít na profil ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1166" />
+        <source>Move to separator</source>
+        <translation>Přesunout na oddělovač</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1167" />
+        <source>Move to separator ({0})</source>
+        <translation>Přejít na oddělovač ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1168" />
+        <source>Open folder</source>
+        <translation>Otevřít složku</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1169" />
+        <source>Open on Nexus</source>
+        <translation>Otevřít v Nexus</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1170" />
+        <source>Open on Nexus ({0})</source>
+        <translation>Otevřít na Nexus ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1171" />
+        <source>Open on mod.io</source>
+        <translation>Otevřít na mod.io</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1172" />
+        <source>Quick Update</source>
+        <translation>Rychlá aktualizace</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1173" />
+        <source>Quick Update ({0})</source>
+        <translation>Rychlá aktualizace ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1174" />
+        <source>Reinstall ({0})</source>
+        <translation>Přeinstalovat ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1175" />
+        <source>Reinstall Mod</source>
+        <translation>Přeinstalovat mod</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1176" />
+        <source>Remove mod</source>
+        <translation>Odstranit mod</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1177" />
+        <source>Remove mod ({0})</source>
+        <translation>Odstranit mod ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1178" />
+        <source>Remove note ({0})</source>
+        <translation>Odstranit poznámku ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1179" />
+        <source>Remove separator</source>
+        <translation>Odstranit oddělovač</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1180" />
+        <source>Remove separators ({0})</source>
+        <translation>Odstranit oddělovače ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1181" />
+        <source>Rename mod</source>
+        <translation>Mod „Přejmenovat“</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1182" />
+        <source>Rename separator</source>
+        <translation>Označit oddělovač</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1183" />
+        <source>Separator settings…</source>
+        <translation>Nastavení oddělovače…</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1184" />
+        <source>Set priority…</source>
+        <translation>Nastavit prioritu…</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1185" />
+        <source>Show Conflicts</source>
+        <translation>Zobrazit konflikty</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1186" />
+        <source>Sort Alphabetically ({0})</source>
+        <translation>Seřadit abecedně ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1187" />
+        <source>Unlock Separator</source>
+        <translation>Odemknout oddělovač</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1188" />
+        <source>Unlock Separators</source>
+        <translation>Odemknout oddělovače</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="1189" />
+        <source>{0} ({1})</source>
+        <translation>{0} ({1})</translation>
     </message>
 </context>
 <context>
@@ -4344,83 +4765,83 @@ nebo v šifrovaném souboru, pokud klíčenka není k dispozici).</translation>
 <context>
     <name>NexusBrowserView</name>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="142" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="147" />
         <source>☰ Categories</source>
         <translation>☰ Kategorie</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="172" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="177" />
         <source>Show adult</source>
         <translation>Zobrazit obsah pro dospělé</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="178" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="183" />
         <source>Refresh</source>
         <translation>Obnovit</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="207" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="212" />
         <source>Categories</source>
         <translation>Kategorie</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="228" />
-        <location filename="../gui_qt/nexus_browser_view.py" line="600" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="233" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="605" />
         <source>Loading…</source>
         <translation>Načítání…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="264" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="269" />
         <source>Search mods…</source>
         <translation>Vyhledat mody…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="271" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="276" />
         <source>Search</source>
         <translation>Hledat</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="280" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="285" />
         <source>◂ Prev</source>
         <translation>◂ Předchozí</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="286" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="291" />
         <source>Next ▸</source>
         <translation>Další ▸</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="292" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="297" />
         <source>Page</source>
         <translation>Stránka</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="369" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="374" />
         <source>No categories</source>
         <translation>Žádné kategorie</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="514" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="519" />
         <source>No Nexus domain for this game.</source>
         <translation>Pro tuto hru neexistuje doména Nexus.</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="704" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="709" />
         <source>Open on Nexus</source>
         <translation>Otevřít v Nexus</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="705" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="710" />
         <source>Install</source>
         <translation>Nainstalovat</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="707" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="712" />
         <source>Untrack</source>
         <translation>Zrušit sledování</translation>
     </message>
     <message>
-        <location filename="../gui_qt/nexus_browser_view.py" line="710" />
+        <location filename="../gui_qt/nexus_browser_view.py" line="715" />
         <source>Abstain</source>
         <translation>Zdržel se hlasování</translation>
     </message>
@@ -4670,12 +5091,12 @@ Každá hra má svou vlastní podsložku.</translation>
 <context>
     <name>OverwriteLogOverlay</name>
     <message>
-        <location filename="../gui_qt/overwrite_log_overlay.py" line="68" />
+        <location filename="../gui_qt/overwrite_log_overlay.py" line="70" />
         <source>Files swept into Overwrite (newest restore first)</source>
         <translation>Soubory přesunuté do složky „Overwrite“ (nejnovější obnovené soubory jako první)</translation>
     </message>
     <message>
-        <location filename="../gui_qt/overwrite_log_overlay.py" line="72" />
+        <location filename="../gui_qt/overwrite_log_overlay.py" line="74" />
         <source>Close</source>
         <translation>Zavřít</translation>
     </message>
@@ -5051,6 +5472,114 @@ Pro ověření proveďte nové prohledání.</translation>
     </message>
 </context>
 <context>
+    <name>PluginMenu</name>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="319" />
+        <source> ({0} ineligible skipped)</source>
+        <translation> (Přehlédnuto: {0} – nesplňuje podmínky)</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="320" />
+        <source>Add selected to group…</source>
+        <translation>Přidat vybrané do skupiny…</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="321" />
+        <source>Add to group…</source>
+        <translation>Přidat do skupiny…</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="322" />
+        <source>Add to userlist…</source>
+        <translation>Přidat do seznamu uživatelů…</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="323" />
+        <source>Disable plugin</source>
+        <translation>Deaktivovat plugin</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="324" />
+        <source>Disable selected ({0})</source>
+        <translation>Zrušit výběr ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="325" />
+        <source>Disable {0} BOS/SP-patched (safe to disable)</source>
+        <translation>Zakázat {0} BOS/SP s opravou (lze bezpečně zakázat)</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="326" />
+        <source>Disable — {0} patch replaces it</source>
+        <translation>Zakázat — nahrazuje jej oprava „{0}“</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="327" />
+        <source>Enable plugin</source>
+        <translation>Zapnout plugin</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="328" />
+        <source>Enable selected ({0})</source>
+        <translation>Povolit vybrané ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="329" />
+        <source>Mark as Light (ESL)</source>
+        <translation>Označit jako „Light“ (ESL)</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="330" />
+        <source>Mark as Light (ESL) — none eligible </source>
+        <translation>Označit jako „Light“ (ESL) — nikdo nesplňuje podmínky </translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="331" />
+        <source>Mark selected as Light (ESL) ({0})</source>
+        <translation>Mark byl vybrán jako Light (ESL) ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="332" />
+        <source>Not ESL-safe (per LOOT — compact in xEdit first)</source>
+        <translation>Není kompatibilní s ESL (podle LOOT – nejprve zkomprimujte v xEdit)</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="333" />
+        <source>Remove ESL flag (un-light)</source>
+        <translation>Odstranit označení ESL (zhasnout)</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="334" />
+        <source>Remove ESL flag from selected ({0})</source>
+        <translation>Odstranit označení ESL z vybraného ({0})</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="335" />
+        <source>Remove from userlist</source>
+        <translation>Odstranit ze seznamu uživatelů</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="336" />
+        <source>Remove selected from userlist</source>
+        <translation>Odstranit vybrané položky ze seznamu uživatelů</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="337" />
+        <source>Show cycle…</source>
+        <translation>Zobrazit cyklus…</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="338" />
+        <source>Show overlapping plugins…</source>
+        <translation>Zobrazit překrývající se pluginy…</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/plugin_menu.py" line="339" />
+        <source>Show userlist rules…</source>
+        <translation>Zobrazit pravidla pro seznam uživatelů…</translation>
+    </message>
+</context>
+<context>
     <name>PluginModel</name>
     <message>
         <location filename="../gui_qt/plugin_model.py" line="24" />
@@ -5256,7 +5785,8 @@ Chcete-li přidat pravidlo, přetáhněte plugin z levého panelu.</translation>
         <translation>Probíhá…</translation>
     </message>
     <message>
-        <location filename="../gui_qt/notifications.py" line="76" />
+        <location filename="../gui_qt/notifications.py" line="80" />
+        <location filename="../gui_qt/notifications.py" line="83" />
         <source>{0} / {1}</source>
         <translation>{0} / {1}</translation>
     </message>
@@ -7162,6 +7692,19 @@ Až skončíte, zavřete jej a poté klikněte na tlačítko Hotovo.</translatio
         <location filename="../gui_qt/export_profile_view.py" line="305" />
         <source>Preferred version (file id — version):</source>
         <translation>Preferovaná verze (ID souboru — verze):</translation>
+    </message>
+</context>
+<context>
+    <name>view</name>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="909" />
+        <source>Files swept into Root Folder (newest restore first)</source>
+        <translation>Soubory přesunuté do kořenové složky (nejnovější obnoveny jako první)</translation>
+    </message>
+    <message>
+        <location filename="../gui_qt/modlist_menu.py" line="911" />
+        <source>Files swept into Overwrite (newest restore first)</source>
+        <translation>Soubory přesunuté do složky „Overwrite“ (nejnovější obnovené soubory jako první)</translation>
     </message>
 </context>
 </TS>
