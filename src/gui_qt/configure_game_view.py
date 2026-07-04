@@ -154,27 +154,21 @@ class ConfigureGameView(QWidget):
         header = QWidget(); header.setObjectName("HeaderBar")
         hb = QHBoxLayout(header); hb.setContentsMargins(12, 8, 12, 8)
         verb = "Reconfigure" if configured else "Add"
-        title = QLabel(self.tr("{0} Game — {1}").format(verb, self._game.name))
-        title.setStyleSheet("font-size:15px; font-weight:600;")
-        hb.addWidget(title)
+        self._title_lbl = QLabel(
+            self.tr("{0} Game — {1}").format(verb, self._game.name))
+        self._title_lbl.setStyleSheet("font-size:15px; font-weight:600;")
+        hb.addWidget(self._title_lbl)
         hb.addStretch(1)
-        active = getattr(self._game, "_active_profile_dir", None)
-        self._profile_dir = (active if active is not None
-                             and active.name != "default" else None)
-        if self._profile_dir is not None:
-            scope = self.tr("Settings saved to profile: {0} (this profile only)").format(active.name)
-        else:
-            scope = self.tr("Editing shared settings (default profile)")
-        scope_lbl = QLabel(scope)
-        scope_lbl.setStyleSheet(f"color:{self._c('TEXT_WARN')};")
-        hb.addWidget(scope_lbl)
-        if self._profile_dir is not None and self._profile_has_overrides():
-            self._unpin_btn = self._small_btn(
-                self.tr("Use Shared Settings"), self._on_clear_overrides)
-            self._unpin_btn.setToolTip(self.tr(
-                "This profile has its own saved paths/options. Remove them so "
-                "it follows the shared (default profile) settings again."))
-            hb.addWidget(self._unpin_btn)
+        self._scope_lbl = QLabel()
+        self._scope_lbl.setStyleSheet(f"color:{self._c('TEXT_WARN')};")
+        hb.addWidget(self._scope_lbl)
+        self._unpin_btn = self._small_btn(
+            self.tr("Use Shared Settings"), self._on_clear_overrides)
+        self._unpin_btn.setToolTip(self.tr(
+            "This profile has its own saved paths/options. Remove them so "
+            "it follows the shared (default profile) settings again."))
+        hb.addWidget(self._unpin_btn)
+        self._refresh_scope_header()
         outer.addWidget(header)
 
         # Body — four distinct panels in a 2×2 grid: (top-left) image,
@@ -561,9 +555,43 @@ class ConfigureGameView(QWidget):
         self._found_path = None
         self._found_prefix = None
         self._prepopulate()
-        self._unpin_btn.hide()
+        self._refresh_scope_header()
         self._game_status.setText(
             self.tr("Profile now follows the shared (default profile) settings."))
+        self._game_status.setStyleSheet(f"color:{self._c('TEXT_OK')};")
+
+    def _refresh_scope_header(self):
+        """Sync the scope label + un-pin button to the game's active profile.
+        Records ``self._profile_dir`` (None for the default profile)."""
+        active = getattr(self._game, "_active_profile_dir", None)
+        self._profile_dir = (active if active is not None
+                             and active.name != "default" else None)
+        if self._profile_dir is not None:
+            self._scope_lbl.setText(self.tr(
+                "Settings saved to profile: {0} (this profile only)"
+            ).format(active.name))
+        else:
+            self._scope_lbl.setText(self.tr("Editing shared settings (default profile)"))
+        self._unpin_btn.setVisible(
+            self._profile_dir is not None and self._profile_has_overrides())
+
+    def refresh_for_profile(self):
+        """Re-read the game's paths/options for the now-active profile and
+        re-fill the form, without stealing focus. Called by the app when the
+        user switches profiles while this tab is open, so it always reflects
+        the profile being configured. Assumes GameState has already switched
+        the game's active profile dir (and run load_paths)."""
+        self._found_path = None
+        self._found_prefix = None
+        self._prepopulate()
+        self._refresh_scope_header()
+
+    def notify_saved(self):
+        """Called by the app after a Save that keeps the tab open (Reconfigure).
+        Re-sync the header (an override may have just been pinned/cleared) and
+        confirm the save inline, since the tab no longer closes to signal it."""
+        self._refresh_scope_header()
+        self._game_status.setText(self.tr("Settings saved."))
         self._game_status.setStyleSheet(f"color:{self._c('TEXT_OK')};")
 
     def _select_plugins_txt_default(self):

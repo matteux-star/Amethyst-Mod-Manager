@@ -1384,6 +1384,18 @@ class MainWindow(QMainWindow):
             v = getattr(self, "_profile_settings_view", None)
             if v is not None:
                 v.set_current_profile(name)
+        # Configure-Game tab tracks the active profile too — refresh its form +
+        # tab title in place (no focus change) so the user doesn't have to
+        # reopen it to configure a different profile.
+        if self._tabs.has_key("configure_game"):
+            v = getattr(self, "_configure_game_view", None)
+            if v is not None:
+                try:
+                    v.refresh_for_profile()
+                    self._tabs.set_tab_title(
+                        "configure_game", self._configure_tab_title(self._gs.game))
+                except Exception:
+                    pass
 
     def _on_game_action(self, which):
         if which == "add":
@@ -1424,7 +1436,9 @@ class MainWindow(QMainWindow):
             self._append_log(f"[game] custom game defined: {saved_defn['name']}")
             game = _GAMES.get(saved_defn["name"])
             if game is not None:
-                self._open_configure_game_tab(game)
+                # A freshly-defined custom game has no path yet — this is the
+                # add flow, so Save should close the tab when done.
+                self._open_configure_game_tab(game, from_add_game=True)
 
         view = CustomGameView(on_done=_done)
         self._tabs.open_tab(view, self.tr("Define custom game"), key="custom_game")
@@ -4282,14 +4296,22 @@ class MainWindow(QMainWindow):
             self._append_log(f"[game] {name} not found in registry")
             return
         self._tabs.close_tab("add_game")
-        self._open_configure_game_tab(game)
+        self._open_configure_game_tab(game, from_add_game=True)
 
-    def _open_configure_game_tab(self, game):
-        """Open the (live) Configure-Game view as a detachable tab."""
+    def _open_configure_game_tab(self, game, from_add_game: bool = False):
+        """Open the (live) Configure-Game view as a detachable tab.
+
+        *from_add_game* is True when reached via the Add-Game picker (a brand-new
+        instance). In that case Save closes the tab (the add flow is done); when
+        reconfiguring an already-configured game, Save keeps the tab open so the
+        user can keep tweaking (only Remove/Cancel close it)."""
         from gui_qt.configure_game_view import ConfigureGameView
 
         def _done(saved: bool, removed: bool):
-            self._tabs.close_tab("configure_game")
+            # Reconfigure saves keep the tab open; adding a game (or removing an
+            # instance, or cancelling) closes it.
+            if removed or not saved or from_add_game:
+                self._tabs.close_tab("configure_game")
             if saved or removed:
                 # Refresh the game registry + selector; switch to the game if it
                 # is now configured, else fall back to the current/ first game.
@@ -4322,9 +4344,30 @@ class MainWindow(QMainWindow):
                     else:
                         self._open_add_game_tab()
 
+            # Reconfigure kept the tab open — confirm the save inline and re-sync
+            # its header (a per-profile override may have just been pinned).
+            if saved and not removed and not from_add_game \
+                    and self._tabs.has_key("configure_game"):
+                v = getattr(self, "_configure_game_view", None)
+                if v is not None:
+                    try:
+                        v.notify_saved()
+                    except Exception:
+                        pass
+
         page = ConfigureGameView(game, on_done=_done)
+        self._configure_game_view = page
+        self._tabs.open_tab(page, self._configure_tab_title(game),
+                            key="configure_game")
+
+    def _configure_tab_title(self, game) -> str:
+        """Tab label for the configure view — includes the active profile name
+        so the user can see which profile they're configuring."""
         verb = "Reconfigure" if game.is_configured() else "Add"
-        self._tabs.open_tab(page, self.tr("{0} game").format(verb), key="configure_game")
+        prof = self._gs.profile
+        if prof:
+            return self.tr("{0} game — {1}").format(verb, prof)
+        return self.tr("{0} game").format(verb)
 
     def _on_profile_action(self, which):
         if which == "add":

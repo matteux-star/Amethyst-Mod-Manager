@@ -586,11 +586,17 @@ class DetachableTabWidget(QTabWidget):
 
     def set_tab_title(self, key: str, title: str):
         w = self._keys.get(key)
-        if w is None:
+        if w is not None:
+            idx = self.indexOf(w)
+            if idx != -1:
+                self.setTabText(idx, title)
             return
-        idx = self.indexOf(w)
-        if idx != -1:
-            self.setTabText(idx, title)
+        # Detached: retitle the floating window instead.
+        for flt in self._floats:
+            if getattr(flt, "_tab_key", None) == key:
+                flt._title = title
+                flt.setWindowTitle(title)
+                return
 
     def _refresh_close_buttons(self):
         """Permanent tabs show no close button."""

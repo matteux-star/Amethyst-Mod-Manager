@@ -880,6 +880,10 @@ The default profile's settings are not affected.</translation>
         <translation>Profile now follows the shared (default profile) settings.</translation>
     </message>
     <message>
+        <source>Settings saved.</source>
+        <translation>Settings saved.</translation>
+    </message>
+    <message>
         <source>Custom staging folder selected.</source>
         <translation>Custom staging folder selected.</translation>
     </message>
@@ -2939,6 +2943,10 @@ Remove the appended-collection entry?</translation>
     <message>
         <source>No downloadable files for that mod.</source>
         <translation>No downloadable files for that mod.</translation>
+    </message>
+    <message>
+        <source>{0} game — {1}</source>
+        <translation>{0} game — {1}</translation>
     </message>
     <message>
         <source>{0} game</source>
