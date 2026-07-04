@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal, QRect, QSize
+from PySide6.QtCore import Qt, Signal, QRect, QSize, QTimer
 from PySide6.QtGui import QTextCursor, QTextCharFormat, QColor, QFont, QPainter
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPlainTextEdit, QLineEdit,
@@ -64,6 +64,23 @@ class _CodeEditor(QPlainTextEdit):
         # scroll/resize event forces a recompute.
         super().setFont(font)
         self._update_gutter_width()
+
+    def showEvent(self, event):
+        # On first show the widget finally has real geometry, so recompute the
+        # gutter width/margin now. Without this the text is laid out against a
+        # stale (construction-time) viewport margin and gets clipped on the left
+        # until a scroll forces a re-layout. Deferred to the event loop so it
+        # runs after the tab is fully laid out.
+        super().showEvent(event)
+        QTimer.singleShot(0, self._reflow_gutter)
+
+    def _reflow_gutter(self):
+        # setViewportMargins is a no-op when the value is unchanged, which leaves
+        # the text painted under the gutter. Zero the margin first to force Qt to
+        # re-lay-out the document against the correct margin.
+        self.setViewportMargins(0, 0, 0, 0)
+        self._update_gutter_width()
+        self.viewport().update()
 
     def _update_gutter(self, rect, dy):
         if dy:
