@@ -1426,6 +1426,18 @@ Creation Kit se také může občas při spuštění pod Protonem zhroutit (zná
 <context>
     <name>DetachableTabWidget</name>
     <message>
+        <source>Pin to Modlist Panel</source>
+        <translation>Připnout na panel Modlist</translation>
+    </message>
+    <message>
+        <source>Pin to Plugins Panel</source>
+        <translation>Připnout na panel pluginů</translation>
+    </message>
+    <message>
+        <source>Pin to Full Screen</source>
+        <translation>Přepnout na celou obrazovku</translation>
+    </message>
+    <message>
         <source>Drop to redock</source>
         <translation>Přistát k opětovnému dokování</translation>
     </message>
@@ -2575,8 +2587,24 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
         <translation>Restartovat nyní</translation>
     </message>
     <message>
+        <source>Restart to change UI scale?</source>
+        <translation>Je třeba restartovat, aby se změnilo měřítko uživatelského rozhraní?</translation>
+    </message>
+    <message>
+        <source>The UI scale change takes effect after a restart. Restart now?</source>
+        <translation>Změna měřítka uživatelského rozhraní se projeví až po restartu. Chcete restartovat nyní?</translation>
+    </message>
+    <message>
         <source>Later</source>
         <translation>Později</translation>
+    </message>
+    <message>
+        <source>Restart to change theme?</source>
+        <translation>Je třeba restartovat, aby se změnil vzhled?</translation>
+    </message>
+    <message>
+        <source>The theme change takes effect after a restart. Restart now?</source>
+        <translation>Změna motivu se projeví až po restartu. Chcete restartovat nyní?</translation>
     </message>
     <message>
         <source>Syncing language files…</source>
@@ -2855,6 +2883,14 @@ Chcete odstranit záznam z přidané sbírky?</translation>
         <translation>Rychlá aktualizace — stahují se mody pro hru „{0}“…</translation>
     </message>
     <message>
+        <source>Downloading {0} mod(s)…</source>
+        <translation>Stahování modů pro hru „{0}“…</translation>
+    </message>
+    <message>
+        <source>Quick Update</source>
+        <translation>Rychlá aktualizace</translation>
+    </message>
+    <message>
         <source>Quick Update: updated {0} mod(s)</source>
         <translation>Rychlá aktualizace: aktualizovány mody pro hru „{0}“</translation>
     </message>
@@ -2973,6 +3009,10 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     <message>
         <source>Downloading…</source>
         <translation>Stahování…</translation>
+    </message>
+    <message>
+        <source>Downloading {0} files ({1} remaining)…</source>
+        <translation>Stahování souborů z adresáře „{0}“ (zbývá {1})…</translation>
     </message>
     <message>
         <source>Nexus Download</source>
@@ -3095,6 +3135,30 @@ Chcete odstranit záznam z přidané sbírky?</translation>
         <translation>{0} nenalezeno ({1}).</translation>
     </message>
     <message>
+        <source>Profile INI files folder</source>
+        <translation>Složka s profily INI</translation>
+    </message>
+    <message>
+        <source>Profile saves folder</source>
+        <translation>Složka pro ukládání profilů</translation>
+    </message>
+    <message>
+        <source>Quick configure</source>
+        <translation>Rychlé nastavení</translation>
+    </message>
+    <message>
+        <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
+        <translation>Způsob nasazení nelze změnit, dokud jsou mody nasazeny. Nejprve proveďte obnovení.</translation>
+    </message>
+    <message>
+        <source>Could not change {0}.</source>
+        <translation>Nepodařilo se změnit soubor „{0}“.</translation>
+    </message>
+    <message>
+        <source>Setting saved.</source>
+        <translation>Nastavení bylo uloženo.</translation>
+    </message>
+    <message>
         <source>Launching winetricks…</source>
         <translation>Spouštím winetricks…</translation>
     </message>
@@ -3147,6 +3211,10 @@ Chcete odstranit záznam z přidané sbírky?</translation>
         <translation>Správa předpon</translation>
     </message>
     <message>
+        <source>Install queued — {0} will install after the current install finishes.</source>
+        <translation>Instalace v pořadí — {0} se nainstaluje po dokončení aktuální instalace.</translation>
+    </message>
+    <message>
         <source>No active profile.</source>
         <translation>Žádný aktivní profil.</translation>
     </message>
@@ -3187,8 +3255,8 @@ Chcete přesto nasadit?</translation>
         <translation>Instalace byla zrušena: {0}</translation>
     </message>
     <message>
-        <source>A mod named '{0}' already exists.</source>
-        <translation>Mod s názvem „{0}“ již existuje.</translation>
+        <source>Replace failed: {0}</source>
+        <translation>Nahrazení se nezdařilo: {0}</translation>
     </message>
     <message>
         <source>Rename failed: {0}</source>
@@ -3291,24 +3359,16 @@ Chcete přesto nasadit?</translation>
         <translation>Moduly s archivy BSA</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Zapnuto</translation>
+        <source>{0} enabled of {1} mods</source>
+        <translation>{0} povoleno pro mody typu „{1}“</translation>
     </message>
     <message>
-        <source>Disabled</source>
-        <translation>Znevýhodnění</translation>
+        <source>{0} plugins ({1} ESL, {2} non-ESL)</source>
+        <translation>{0} pluginy ({1} ESL, {2} non-ESL)</translation>
     </message>
     <message>
         <source>Plugins</source>
         <translation>Pluginy</translation>
-    </message>
-    <message>
-        <source>ESL</source>
-        <translation>ESL</translation>
-    </message>
-    <message>
-        <source>Non-ESL</source>
-        <translation>Ne-ESL</translation>
     </message>
     <message>
         <source>No active profile — cannot configure groups.</source>
@@ -5480,6 +5540,30 @@ Restartujte prosím průvodce a nejprve nainstalujte Script Merger.</translation
         <translation>Skrýt příznaky konfliktů v archivu BSA/BA2 (zároveň se tím přeskočí kontrola konfliktů, což přinese mírné zrychlení).</translation>
     </message>
     <message>
+        <source>Theme</source>
+        <translation>Téma</translation>
+    </message>
+    <message>
+        <source>Auto (match display)</source>
+        <translation>Auto (zobrazení shody)</translation>
+    </message>
+    <message>
+        <source>UI Scale</source>
+        <translation>Měřítko uživatelského rozhraní</translation>
+    </message>
+    <message>
+        <source>Show mod description tooltips</source>
+        <translation>Zobrazit popisky nástrojových tipů k modulům</translation>
+    </message>
+    <message>
+        <source>Show a mod's Nexus description as a tooltip when you hover over its name in the mod list.</source>
+        <translation>Zobrazit popis modu na Nexusu jako popisek, když najedete kurzorem myši na jeho název v seznamu modů.</translation>
+    </message>
+    <message>
+        <source>Make the whole interface bigger or smaller. Changes take effect after a restart.</source>
+        <translation>Zvětšete nebo zmenšete celé rozhraní. Změny se projeví až po restartu.</translation>
+    </message>
+    <message>
         <source>Downloads &amp; Collections</source>
         <translation>Soubory ke stažení a sbírky</translation>
     </message>
@@ -5562,10 +5646,6 @@ Restartujte prosím průvodce a nejprve nainstalujte Script Merger.</translation
     <message>
         <source>Also offer beta and release-candidate app builds when checking for updates.</source>
         <translation>Při kontrole dostupnosti aktualizací nabízejte také beta verze a verze „release candidate“ aplikací.</translation>
-    </message>
-    <message>
-        <source>Appearance</source>
-        <translation>Vzhled</translation>
     </message>
     <message>
         <source>Paths</source>

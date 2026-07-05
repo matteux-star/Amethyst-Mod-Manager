@@ -1426,6 +1426,18 @@ Creation Kit также может иногда вылетать при запу
 <context>
     <name>DetachableTabWidget</name>
     <message>
+        <source>Pin to Modlist Panel</source>
+        <translation>Закрепить на панели «Modlist»</translation>
+    </message>
+    <message>
+        <source>Pin to Plugins Panel</source>
+        <translation>Закрепить на панели плагинов</translation>
+    </message>
+    <message>
+        <source>Pin to Full Screen</source>
+        <translation>Развернуть в полноэкранный режим</translation>
+    </message>
+    <message>
         <source>Drop to redock</source>
         <translation>Спуститься для повторной стыковки</translation>
     </message>
@@ -2575,8 +2587,24 @@ The original exe is kept as {0}.</source>
         <translation>Перезапустить сейчас</translation>
     </message>
     <message>
+        <source>Restart to change UI scale?</source>
+        <translation>Перезапустить, чтобы изменить масштаб интерфейса?</translation>
+    </message>
+    <message>
+        <source>The UI scale change takes effect after a restart. Restart now?</source>
+        <translation>Изменение масштаба интерфейса вступит в силу после перезапуска. Перезапустить сейчас?</translation>
+    </message>
+    <message>
         <source>Later</source>
         <translation>Позже</translation>
+    </message>
+    <message>
+        <source>Restart to change theme?</source>
+        <translation>Перезапустить, чтобы сменить тему?</translation>
+    </message>
+    <message>
+        <source>The theme change takes effect after a restart. Restart now?</source>
+        <translation>Изменения темы вступят в силу после перезапуска. Перезапустить сейчас?</translation>
     </message>
     <message>
         <source>Syncing language files…</source>
@@ -2855,6 +2883,14 @@ Remove the appended-collection entry?</source>
         <translation>Краткое обновление — загрузка модификаций для игры «{0}»…</translation>
     </message>
     <message>
+        <source>Downloading {0} mod(s)…</source>
+        <translation>Загрузка модификаций для игры «{0}»…</translation>
+    </message>
+    <message>
+        <source>Quick Update</source>
+        <translation>Краткое обновление</translation>
+    </message>
+    <message>
         <source>Quick Update: updated {0} mod(s)</source>
         <translation>Краткое обновление: обновлены модификации для игры «{0}»</translation>
     </message>
@@ -2973,6 +3009,10 @@ Remove the appended-collection entry?</source>
     <message>
         <source>Downloading…</source>
         <translation>Загрузка…</translation>
+    </message>
+    <message>
+        <source>Downloading {0} files ({1} remaining)…</source>
+        <translation>Загрузка файлов «{0}» (осталось {1})…</translation>
     </message>
     <message>
         <source>Nexus Download</source>
@@ -3095,6 +3135,30 @@ Remove the appended-collection entry?</source>
         <translation>{0} не найдено ({1}).</translation>
     </message>
     <message>
+        <source>Profile INI files folder</source>
+        <translation>Папка с файлами INI профилей</translation>
+    </message>
+    <message>
+        <source>Profile saves folder</source>
+        <translation>Папка для сохранения профилей</translation>
+    </message>
+    <message>
+        <source>Quick configure</source>
+        <translation>Быстрая настройка</translation>
+    </message>
+    <message>
+        <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
+        <translation>Невозможно изменить метод развертывания, пока модификации находятся в развернутом состоянии. Сначала необходимо выполнить восстановление.</translation>
+    </message>
+    <message>
+        <source>Could not change {0}.</source>
+        <translation>Не удалось изменить файл «{0}».</translation>
+    </message>
+    <message>
+        <source>Setting saved.</source>
+        <translation>Настройки сохранены.</translation>
+    </message>
+    <message>
         <source>Launching winetricks…</source>
         <translation>Запуск winetricks…</translation>
     </message>
@@ -3147,6 +3211,10 @@ Remove the appended-collection entry?</source>
         <translation>Управление префиксами</translation>
     </message>
     <message>
+        <source>Install queued — {0} will install after the current install finishes.</source>
+        <translation>Установка в очереди — «{0}» будет установлен после завершения текущей установки.</translation>
+    </message>
+    <message>
         <source>No active profile.</source>
         <translation>Активного профиля нет.</translation>
     </message>
@@ -3187,8 +3255,8 @@ CET не загрузится из файла cyber_engine_tweaks.asi, на ко
         <translation>Установка отменена: {0}</translation>
     </message>
     <message>
-        <source>A mod named '{0}' already exists.</source>
-        <translation>Модификация под названием «{0}» уже существует.</translation>
+        <source>Replace failed: {0}</source>
+        <translation>Ошибка при замене: {0}</translation>
     </message>
     <message>
         <source>Rename failed: {0}</source>
@@ -3291,24 +3359,16 @@ CET не загрузится из файла cyber_engine_tweaks.asi, на ко
         <translation>Модификации с архивами BSA</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Включено</translation>
+        <source>{0} enabled of {1} mods</source>
+        <translation>{0} включены модификации «{1}»</translation>
     </message>
     <message>
-        <source>Disabled</source>
-        <translation>С ограниченными возможностями</translation>
+        <source>{0} plugins ({1} ESL, {2} non-ESL)</source>
+        <translation>{0} плагины ({1} — для ESL, {2} — не для ESL)</translation>
     </message>
     <message>
         <source>Plugins</source>
         <translation>Плагины</translation>
-    </message>
-    <message>
-        <source>ESL</source>
-        <translation>ESL</translation>
-    </message>
-    <message>
-        <source>Non-ESL</source>
-        <translation>Не-ESL</translation>
     </message>
     <message>
         <source>No active profile — cannot configure groups.</source>
@@ -5480,6 +5540,30 @@ Please restart the wizard and install Script Merger first.</source>
         <translation>Скрыть флаги конфликтов в архиве BSA/BA2 (при этом также пропускается проверка на конфликты, что обеспечивает небольшое ускорение).</translation>
     </message>
     <message>
+        <source>Theme</source>
+        <translation>Тема</translation>
+    </message>
+    <message>
+        <source>Auto (match display)</source>
+        <translation>Авто (оптимальное отображение)</translation>
+    </message>
+    <message>
+        <source>UI Scale</source>
+        <translation>Масштаб интерфейса</translation>
+    </message>
+    <message>
+        <source>Show mod description tooltips</source>
+        <translation>Показать всплывающие подсказки с описанием модификаций</translation>
+    </message>
+    <message>
+        <source>Show a mod's Nexus description as a tooltip when you hover over its name in the mod list.</source>
+        <translation>Отображать описание мода из Nexus в виде всплывающей подсказки при наведении курсора на его название в списке модов.</translation>
+    </message>
+    <message>
+        <source>Make the whole interface bigger or smaller. Changes take effect after a restart.</source>
+        <translation>Увеличьте или уменьшите размер всего интерфейса. Изменения вступят в силу после перезапуска.</translation>
+    </message>
+    <message>
         <source>Downloads &amp; Collections</source>
         <translation>Загрузки и коллекции</translation>
     </message>
@@ -5562,10 +5646,6 @@ Please restart the wizard and install Script Merger first.</source>
     <message>
         <source>Also offer beta and release-candidate app builds when checking for updates.</source>
         <translation>Кроме того, при проверке наличия обновлений предлагайте бета-версии и версии-кандидаты приложений.</translation>
-    </message>
-    <message>
-        <source>Appearance</source>
-        <translation>Внешний вид</translation>
     </message>
     <message>
         <source>Paths</source>

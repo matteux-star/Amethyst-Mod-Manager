@@ -1426,6 +1426,18 @@ Le Creation Kit peut également parfois planter au démarrage sous Proton (un pr
 <context>
     <name>DetachableTabWidget</name>
     <message>
+        <source>Pin to Modlist Panel</source>
+        <translation>Épingler au panneau « Modlist »</translation>
+    </message>
+    <message>
+        <source>Pin to Plugins Panel</source>
+        <translation>Épingler au panneau des plugins</translation>
+    </message>
+    <message>
+        <source>Pin to Full Screen</source>
+        <translation>Afficher en plein écran</translation>
+    </message>
+    <message>
         <source>Drop to redock</source>
         <translation>Se poser pour se réamarrer</translation>
     </message>
@@ -2575,8 +2587,24 @@ Le fichier exe d'origine est conservé sous le nom {0}.</translation>
         <translation>Redémarrer maintenant</translation>
     </message>
     <message>
+        <source>Restart to change UI scale?</source>
+        <translation>Faut-il redémarrer pour modifier l'échelle de l'interface utilisateur ?</translation>
+    </message>
+    <message>
+        <source>The UI scale change takes effect after a restart. Restart now?</source>
+        <translation>La modification de l'échelle de l'interface utilisateur prendra effet après un redémarrage. Voulez-vous redémarrer maintenant ?</translation>
+    </message>
+    <message>
         <source>Later</source>
         <translation>Plus tard</translation>
+    </message>
+    <message>
+        <source>Restart to change theme?</source>
+        <translation>Faut-il redémarrer pour changer de thème ?</translation>
+    </message>
+    <message>
+        <source>The theme change takes effect after a restart. Restart now?</source>
+        <translation>Le changement de thème prendra effet après un redémarrage. Voulez-vous redémarrer maintenant ?</translation>
     </message>
     <message>
         <source>Syncing language files…</source>
@@ -2855,6 +2883,14 @@ Souhaitez-vous supprimer l'entrée de la collection associée ?</translation>
         <translation>Brève mise à jour — téléchargement en cours des mods d'{0}…</translation>
     </message>
     <message>
+        <source>Downloading {0} mod(s)…</source>
+        <translation>Téléchargement du ou des mods « {0} »…</translation>
+    </message>
+    <message>
+        <source>Quick Update</source>
+        <translation>Brève mise à jour</translation>
+    </message>
+    <message>
         <source>Quick Update: updated {0} mod(s)</source>
         <translation>Brève mise à jour : mise à jour du ou des mods « {0} »</translation>
     </message>
@@ -2973,6 +3009,10 @@ Souhaitez-vous supprimer l'entrée de la collection associée ?</translation>
     <message>
         <source>Downloading…</source>
         <translation>Téléchargement en cours…</translation>
+    </message>
+    <message>
+        <source>Downloading {0} files ({1} remaining)…</source>
+        <translation>Téléchargement des fichiers « {0} » (il reste {1})…</translation>
     </message>
     <message>
         <source>Nexus Download</source>
@@ -3095,6 +3135,30 @@ Souhaitez-vous supprimer l'entrée de la collection associée ?</translation>
         <translation>{0} introuvable ({1}).</translation>
     </message>
     <message>
+        <source>Profile INI files folder</source>
+        <translation>Dossier contenant les fichiers INI de profil</translation>
+    </message>
+    <message>
+        <source>Profile saves folder</source>
+        <translation>Dossier d'enregistrement des profils</translation>
+    </message>
+    <message>
+        <source>Quick configure</source>
+        <translation>Configuration rapide</translation>
+    </message>
+    <message>
+        <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
+        <translation>Il est impossible de modifier la méthode de déploiement tant que des mods sont déployés. Commencez par restaurer le système.</translation>
+    </message>
+    <message>
+        <source>Could not change {0}.</source>
+        <translation>Impossible de modifier « {0} ».</translation>
+    </message>
+    <message>
+        <source>Setting saved.</source>
+        <translation>Paramètre enregistré.</translation>
+    </message>
+    <message>
         <source>Launching winetricks…</source>
         <translation>Lancement de winetricks…</translation>
     </message>
@@ -3147,6 +3211,10 @@ Souhaitez-vous supprimer l'entrée de la collection associée ?</translation>
         <translation>Gérer les préfixes</translation>
     </message>
     <message>
+        <source>Install queued — {0} will install after the current install finishes.</source>
+        <translation>Installation en attente — « {0} » s'installera une fois l'installation en cours terminée.</translation>
+    </message>
+    <message>
         <source>No active profile.</source>
         <translation>Aucun profil actif.</translation>
     </message>
@@ -3187,8 +3255,8 @@ Voulez-vous tout de même procéder au déploiement ?</translation>
         <translation>Installation annulée : {0}</translation>
     </message>
     <message>
-        <source>A mod named '{0}' already exists.</source>
-        <translation>Il existe déjà un mod intitulé « {0} ».</translation>
+        <source>Replace failed: {0}</source>
+        <translation>Échec du remplacement : {0}</translation>
     </message>
     <message>
         <source>Rename failed: {0}</source>
@@ -3291,24 +3359,16 @@ Voulez-vous tout de même procéder au déploiement ?</translation>
         <translation>Mods avec archives BSA</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Activé</translation>
+        <source>{0} enabled of {1} mods</source>
+        <translation>{0} mods « {1} » activés</translation>
     </message>
     <message>
-        <source>Disabled</source>
-        <translation>Personnes handicapées</translation>
+        <source>{0} plugins ({1} ESL, {2} non-ESL)</source>
+        <translation>{0} plugins ({1} pour l'ESL, {2} pour les autres)</translation>
     </message>
     <message>
         <source>Plugins</source>
         <translation>Plug-ins</translation>
-    </message>
-    <message>
-        <source>ESL</source>
-        <translation>ESL</translation>
-    </message>
-    <message>
-        <source>Non-ESL</source>
-        <translation>Non-ESL</translation>
     </message>
     <message>
         <source>No active profile — cannot configure groups.</source>
@@ -5480,6 +5540,30 @@ Veuillez redémarrer l'assistant et installer d'abord Script Merger.</translatio
         <translation>Masquer les indicateurs de conflit des archives BSA/BA2 (ce qui permet également d'ignorer cette analyse de conflits pour un léger gain de vitesse).</translation>
     </message>
     <message>
+        <source>Theme</source>
+        <translation>Thème</translation>
+    </message>
+    <message>
+        <source>Auto (match display)</source>
+        <translation>Auto (affichage des correspondances)</translation>
+    </message>
+    <message>
+        <source>UI Scale</source>
+        <translation>Échelle de l'interface utilisateur</translation>
+    </message>
+    <message>
+        <source>Show mod description tooltips</source>
+        <translation>Afficher les infobulles de description des mods</translation>
+    </message>
+    <message>
+        <source>Show a mod's Nexus description as a tooltip when you hover over its name in the mod list.</source>
+        <translation>Afficher la description du mod sur Nexus sous forme d'info-bulle lorsque vous passez la souris sur son nom dans la liste des mods.</translation>
+    </message>
+    <message>
+        <source>Make the whole interface bigger or smaller. Changes take effect after a restart.</source>
+        <translation>Agrandissez ou réduisez l'interface dans son ensemble. Les modifications prendront effet après un redémarrage.</translation>
+    </message>
+    <message>
         <source>Downloads &amp; Collections</source>
         <translation>Téléchargements et collections</translation>
     </message>
@@ -5562,10 +5646,6 @@ Veuillez redémarrer l'assistant et installer d'abord Script Merger.</translatio
     <message>
         <source>Also offer beta and release-candidate app builds when checking for updates.</source>
         <translation>Proposez également des versions bêta et des versions candidates à la publication lors de la recherche de mises à jour.</translation>
-    </message>
-    <message>
-        <source>Appearance</source>
-        <translation>Aspect</translation>
     </message>
     <message>
         <source>Paths</source>

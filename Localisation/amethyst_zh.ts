@@ -1426,6 +1426,18 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
 <context>
     <name>DetachableTabWidget</name>
     <message>
+        <source>Pin to Modlist Panel</source>
+        <translation>固定到“Modlist”面板</translation>
+    </message>
+    <message>
+        <source>Pin to Plugins Panel</source>
+        <translation>固定到插件面板</translation>
+    </message>
+    <message>
+        <source>Pin to Full Screen</source>
+        <translation>固定为全屏</translation>
+    </message>
+    <message>
         <source>Drop to redock</source>
         <translation>脱离并重新对接</translation>
     </message>
@@ -2575,8 +2587,24 @@ The original exe is kept as {0}.</source>
         <translation>立即重启</translation>
     </message>
     <message>
+        <source>Restart to change UI scale?</source>
+        <translation>重启才能更改 UI 缩放比例吗？</translation>
+    </message>
+    <message>
+        <source>The UI scale change takes effect after a restart. Restart now?</source>
+        <translation>界面缩放比例的更改将在重启后生效。现在重启吗？</translation>
+    </message>
+    <message>
         <source>Later</source>
         <translation>稍后</translation>
+    </message>
+    <message>
+        <source>Restart to change theme?</source>
+        <translation>重启以更改主题？</translation>
+    </message>
+    <message>
+        <source>The theme change takes effect after a restart. Restart now?</source>
+        <translation>主题更改将在重启后生效。现在重启吗？</translation>
     </message>
     <message>
         <source>Syncing language files…</source>
@@ -2855,6 +2883,14 @@ Remove the appended-collection entry?</source>
         <translation>快速更新——正在下载《{0}》的模组……</translation>
     </message>
     <message>
+        <source>Downloading {0} mod(s)…</source>
+        <translation>正在下载《{0}》的模组……</translation>
+    </message>
+    <message>
+        <source>Quick Update</source>
+        <translation>简要更新</translation>
+    </message>
+    <message>
         <source>Quick Update: updated {0} mod(s)</source>
         <translation>快速更新：已更新{0}模组</translation>
     </message>
@@ -2973,6 +3009,10 @@ Remove the appended-collection entry?</source>
     <message>
         <source>Downloading…</source>
         <translation>正在下载……</translation>
+    </message>
+    <message>
+        <source>Downloading {0} files ({1} remaining)…</source>
+        <translation>正在下载{0}文件（还剩{1}）……</translation>
     </message>
     <message>
         <source>Nexus Download</source>
@@ -3095,6 +3135,30 @@ Remove the appended-collection entry?</source>
         <translation>{0} 未找到（{1}）。</translation>
     </message>
     <message>
+        <source>Profile INI files folder</source>
+        <translation>配置文件 INI 文件文件夹</translation>
+    </message>
+    <message>
+        <source>Profile saves folder</source>
+        <translation>配置文件保存文件夹</translation>
+    </message>
+    <message>
+        <source>Quick configure</source>
+        <translation>快速配置</translation>
+    </message>
+    <message>
+        <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
+        <translation>在模组已部署的情况下无法更改部署方式。请先还原。</translation>
+    </message>
+    <message>
+        <source>Could not change {0}.</source>
+        <translation>无法更改{0}。</translation>
+    </message>
+    <message>
+        <source>Setting saved.</source>
+        <translation>设置已保存。</translation>
+    </message>
+    <message>
         <source>Launching winetricks…</source>
         <translation>正在启动 winetricks…</translation>
     </message>
@@ -3147,6 +3211,10 @@ Remove the appended-collection entry?</source>
         <translation>管理前缀</translation>
     </message>
     <message>
+        <source>Install queued — {0} will install after the current install finishes.</source>
+        <translation>安装已加入队列 — {0} 将在当前安装完成后进行安装。</translation>
+    </message>
+    <message>
         <source>No active profile.</source>
         <translation>没有活跃的个人资料。</translation>
     </message>
@@ -3187,8 +3255,8 @@ CET 无法从符号链接的 cyber_engine_tweaks.asi 文件加载——请将部
         <translation>安装已取消：{0}</translation>
     </message>
     <message>
-        <source>A mod named '{0}' already exists.</source>
-        <translation>已经有一个名为“{0}”的模组了。</translation>
+        <source>Replace failed: {0}</source>
+        <translation>替换失败：{0}</translation>
     </message>
     <message>
         <source>Rename failed: {0}</source>
@@ -3291,24 +3359,16 @@ CET 无法从符号链接的 cyber_engine_tweaks.asi 文件加载——请将部
         <translation>包含BSA存档的模组</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>已启用</translation>
+        <source>{0} enabled of {1} mods</source>
+        <translation>{0} 已启用{1}模组</translation>
     </message>
     <message>
-        <source>Disabled</source>
-        <translation>已禁用</translation>
+        <source>{0} plugins ({1} ESL, {2} non-ESL)</source>
+        <translation>{0} 插件（{1} ESL，{2} 非ESL）</translation>
     </message>
     <message>
         <source>Plugins</source>
         <translation>插件</translation>
-    </message>
-    <message>
-        <source>ESL</source>
-        <translation>ESL</translation>
-    </message>
-    <message>
-        <source>Non-ESL</source>
-        <translation>非ESL</translation>
     </message>
     <message>
         <source>No active profile — cannot configure groups.</source>
@@ -5480,6 +5540,30 @@ Please restart the wizard and install Script Merger first.</source>
         <translation>隐藏 BSA/BA2 归档冲突标记（同时跳过该冲突扫描，以略微提高速度）。</translation>
     </message>
     <message>
+        <source>Theme</source>
+        <translation>主题</translation>
+    </message>
+    <message>
+        <source>Auto (match display)</source>
+        <translation>自动（匹配显示）</translation>
+    </message>
+    <message>
+        <source>UI Scale</source>
+        <translation>UI 比例</translation>
+    </message>
+    <message>
+        <source>Show mod description tooltips</source>
+        <translation>显示模组描述的工具提示</translation>
+    </message>
+    <message>
+        <source>Show a mod's Nexus description as a tooltip when you hover over its name in the mod list.</source>
+        <translation>当鼠标悬停在模组列表中的模组名称上时，显示该模组在Nexus上的描述作为工具提示。</translation>
+    </message>
+    <message>
+        <source>Make the whole interface bigger or smaller. Changes take effect after a restart.</source>
+        <translation>将整个界面放大或缩小。更改将在重启后生效。</translation>
+    </message>
+    <message>
         <source>Downloads &amp; Collections</source>
         <translation>下载与合集</translation>
     </message>
@@ -5562,10 +5646,6 @@ Please restart the wizard and install Script Merger first.</source>
     <message>
         <source>Also offer beta and release-candidate app builds when checking for updates.</source>
         <translation>在检查更新时，还应提供测试版和候选发布版应用构建。</translation>
-    </message>
-    <message>
-        <source>Appearance</source>
-        <translation>外观</translation>
     </message>
     <message>
         <source>Paths</source>

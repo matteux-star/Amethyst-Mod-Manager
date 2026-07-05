@@ -1426,6 +1426,18 @@ Il Creation Kit può anche occasionalmente bloccarsi all’avvio con Proton (un 
 <context>
     <name>DetachableTabWidget</name>
     <message>
+        <source>Pin to Modlist Panel</source>
+        <translation>Aggiungi ai preferiti nel pannello Modlist</translation>
+    </message>
+    <message>
+        <source>Pin to Plugins Panel</source>
+        <translation>Aggiungi ai plugin</translation>
+    </message>
+    <message>
+        <source>Pin to Full Screen</source>
+        <translation>Aggiungi ai preferiti in modalità a schermo intero</translation>
+    </message>
+    <message>
         <source>Drop to redock</source>
         <translation>Ritorno all'attracco</translation>
     </message>
@@ -2575,8 +2587,24 @@ Il file exe originale viene conservato come {0}.</translation>
         <translation>Riavvia ora</translation>
     </message>
     <message>
+        <source>Restart to change UI scale?</source>
+        <translation>Riavviare per modificare la scala dell'interfaccia utente?</translation>
+    </message>
+    <message>
+        <source>The UI scale change takes effect after a restart. Restart now?</source>
+        <translation>La modifica della scala dell'interfaccia utente avrà effetto dopo il riavvio. Vuoi riavviare ora?</translation>
+    </message>
+    <message>
         <source>Later</source>
         <translation>Più tardi</translation>
+    </message>
+    <message>
+        <source>Restart to change theme?</source>
+        <translation>Riavviare per cambiare tema?</translation>
+    </message>
+    <message>
+        <source>The theme change takes effect after a restart. Restart now?</source>
+        <translation>La modifica del tema avrà effetto dopo il riavvio. Vuoi riavviare ora?</translation>
     </message>
     <message>
         <source>Syncing language files…</source>
@@ -2855,6 +2883,14 @@ Rimuovere la voce della raccolta aggiunta?</translation>
         <translation>Aggiornamento veloce — download in corso delle mod di "{0}"...</translation>
     </message>
     <message>
+        <source>Downloading {0} mod(s)…</source>
+        <translation>Scaricamento delle mod di "{0}" in corso…</translation>
+    </message>
+    <message>
+        <source>Quick Update</source>
+        <translation>Aggiornamento veloce</translation>
+    </message>
+    <message>
         <source>Quick Update: updated {0} mod(s)</source>
         <translation>Aggiornamento veloce: mod "{0}" aggiornate</translation>
     </message>
@@ -2973,6 +3009,10 @@ Rimuovere la voce della raccolta aggiunta?</translation>
     <message>
         <source>Downloading…</source>
         <translation>Scaricamento in corso…</translation>
+    </message>
+    <message>
+        <source>Downloading {0} files ({1} remaining)…</source>
+        <translation>Scaricamento dei file "{0}" (ne restano {1})…</translation>
     </message>
     <message>
         <source>Nexus Download</source>
@@ -3095,6 +3135,30 @@ Rimuovere la voce della raccolta aggiunta?</translation>
         <translation>{0} non trovato ({1}).</translation>
     </message>
     <message>
+        <source>Profile INI files folder</source>
+        <translation>Cartella dei file INI di profilo</translation>
+    </message>
+    <message>
+        <source>Profile saves folder</source>
+        <translation>Cartella in cui vengono salvati i profili</translation>
+    </message>
+    <message>
+        <source>Quick configure</source>
+        <translation>Configurazione rapida</translation>
+    </message>
+    <message>
+        <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
+        <translation>Non è possibile modificare il metodo di distribuzione mentre le mod sono distribuite. Eseguire prima il ripristino.</translation>
+    </message>
+    <message>
+        <source>Could not change {0}.</source>
+        <translation>Impossibile modificare “{0}”.</translation>
+    </message>
+    <message>
+        <source>Setting saved.</source>
+        <translation>Impostazione salvata.</translation>
+    </message>
+    <message>
         <source>Launching winetricks…</source>
         <translation>Avvio di winetricks…</translation>
     </message>
@@ -3147,6 +3211,10 @@ Rimuovere la voce della raccolta aggiunta?</translation>
         <translation>Gestisci i prefissi</translation>
     </message>
     <message>
+        <source>Install queued — {0} will install after the current install finishes.</source>
+        <translation>Installazione in coda — {0} verrà installato al termine dell'installazione corrente.</translation>
+    </message>
+    <message>
         <source>No active profile.</source>
         <translation>Nessun profilo attivo.</translation>
     </message>
@@ -3187,8 +3255,8 @@ Vuoi procedere comunque con la distribuzione?</translation>
         <translation>Installazione annullata: {0}</translation>
     </message>
     <message>
-        <source>A mod named '{0}' already exists.</source>
-        <translation>Esiste già una mod chiamata "{0}".</translation>
+        <source>Replace failed: {0}</source>
+        <translation>Sostituzione non riuscita: {0}</translation>
     </message>
     <message>
         <source>Rename failed: {0}</source>
@@ -3291,24 +3359,16 @@ Vuoi procedere comunque con la distribuzione?</translation>
         <translation>Mod con archivi BSA</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Abilitato</translation>
+        <source>{0} enabled of {1} mods</source>
+        <translation>{0} mod di {1} abilitate</translation>
     </message>
     <message>
-        <source>Disabled</source>
-        <translation>Disabile</translation>
+        <source>{0} plugins ({1} ESL, {2} non-ESL)</source>
+        <translation>{0} plugin ({1} ESL, {2} non-ESL)</translation>
     </message>
     <message>
         <source>Plugins</source>
         <translation>Plugin</translation>
-    </message>
-    <message>
-        <source>ESL</source>
-        <translation>ESL</translation>
-    </message>
-    <message>
-        <source>Non-ESL</source>
-        <translation>Non ESL</translation>
     </message>
     <message>
         <source>No active profile — cannot configure groups.</source>
@@ -5480,6 +5540,30 @@ Si prega di riavviare la procedura guidata e di installare prima Script Merger.<
         <translation>Nascondi i flag di conflitto dell'archivio BSA/BA2 (inoltre salta la scansione dei conflitti per ottenere un leggero aumento della velocità).</translation>
     </message>
     <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Auto (match display)</source>
+        <translation>Auto (visualizzazione corrispondenza)</translation>
+    </message>
+    <message>
+        <source>UI Scale</source>
+        <translation>Scala dell'interfaccia utente</translation>
+    </message>
+    <message>
+        <source>Show mod description tooltips</source>
+        <translation>Mostra i suggerimenti con la descrizione delle modalità</translation>
+    </message>
+    <message>
+        <source>Show a mod's Nexus description as a tooltip when you hover over its name in the mod list.</source>
+        <translation>Mostra la descrizione della mod su Nexus come tooltip quando si passa il mouse sul suo nome nell'elenco delle mod.</translation>
+    </message>
+    <message>
+        <source>Make the whole interface bigger or smaller. Changes take effect after a restart.</source>
+        <translation>Ingrandisci o rimpicciolisci l'intera interfaccia. Le modifiche avranno effetto dopo il riavvio.</translation>
+    </message>
+    <message>
         <source>Downloads &amp; Collections</source>
         <translation>Download e raccolte</translation>
     </message>
@@ -5562,10 +5646,6 @@ Si prega di riavviare la procedura guidata e di installare prima Script Merger.<
     <message>
         <source>Also offer beta and release-candidate app builds when checking for updates.</source>
         <translation>Durante la verifica degli aggiornamenti, offri anche versioni beta e release candidate delle app.</translation>
-    </message>
-    <message>
-        <source>Appearance</source>
-        <translation>Aspetto</translation>
     </message>
     <message>
         <source>Paths</source>

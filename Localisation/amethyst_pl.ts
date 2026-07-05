@@ -1426,6 +1426,18 @@ Creation Kit może również sporadycznie ulegać awarii podczas uruchamiania w 
 <context>
     <name>DetachableTabWidget</name>
     <message>
+        <source>Pin to Modlist Panel</source>
+        <translation>Przypnij do panelu listy modów</translation>
+    </message>
+    <message>
+        <source>Pin to Plugins Panel</source>
+        <translation>Przypnij do panelu wtyczek</translation>
+    </message>
+    <message>
+        <source>Pin to Full Screen</source>
+        <translation>Przełącz na tryb pełnoekranowy</translation>
+    </message>
+    <message>
         <source>Drop to redock</source>
         <translation>Opuść, aby ponownie zadokować</translation>
     </message>
@@ -2575,8 +2587,24 @@ Oryginalny plik exe jest zachowywany pod nazwą {0}.</translation>
         <translation>Uruchom ponownie teraz</translation>
     </message>
     <message>
+        <source>Restart to change UI scale?</source>
+        <translation>Czy trzeba ponownie uruchomić system, aby zmienić skalę interfejsu użytkownika?</translation>
+    </message>
+    <message>
+        <source>The UI scale change takes effect after a restart. Restart now?</source>
+        <translation>Zmiana skali interfejsu użytkownika zacznie obowiązywać po ponownym uruchomieniu. Czy chcesz uruchomić ponownie teraz?</translation>
+    </message>
+    <message>
         <source>Later</source>
         <translation>Później</translation>
+    </message>
+    <message>
+        <source>Restart to change theme?</source>
+        <translation>Czy chcesz zrestartować komputer, aby zmienić motyw?</translation>
+    </message>
+    <message>
+        <source>The theme change takes effect after a restart. Restart now?</source>
+        <translation>Zmiana motywu zacznie obowiązywać po ponownym uruchomieniu. Czy chcesz uruchomić ponownie teraz?</translation>
     </message>
     <message>
         <source>Syncing language files…</source>
@@ -2855,6 +2883,14 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
         <translation>Krótka aktualizacja — trwa pobieranie modów z {0}…</translation>
     </message>
     <message>
+        <source>Downloading {0} mod(s)…</source>
+        <translation>Pobieranie modów do gry „{0}”…</translation>
+    </message>
+    <message>
+        <source>Quick Update</source>
+        <translation>Krótka aktualizacja</translation>
+    </message>
+    <message>
         <source>Quick Update: updated {0} mod(s)</source>
         <translation>Krótka aktualizacja: zaktualizowano mody z serii „{0}”</translation>
     </message>
@@ -2973,6 +3009,10 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
     <message>
         <source>Downloading…</source>
         <translation>Pobieranie…</translation>
+    </message>
+    <message>
+        <source>Downloading {0} files ({1} remaining)…</source>
+        <translation>Pobieranie plików z serwisu {0} (pozostało {1})…</translation>
     </message>
     <message>
         <source>Nexus Download</source>
@@ -3095,6 +3135,30 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
         <translation>{0} nie znaleziono ({1}).</translation>
     </message>
     <message>
+        <source>Profile INI files folder</source>
+        <translation>Folder plików INI profilu</translation>
+    </message>
+    <message>
+        <source>Profile saves folder</source>
+        <translation>Folder, w którym zapisywane są profile</translation>
+    </message>
+    <message>
+        <source>Quick configure</source>
+        <translation>Szybka konfiguracja</translation>
+    </message>
+    <message>
+        <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
+        <translation>Nie można zmienić metody wdrażania, gdy modyfikacje są już wdrożone. Najpierw przywróć poprzedni stan.</translation>
+    </message>
+    <message>
+        <source>Could not change {0}.</source>
+        <translation>Nie udało się zmienić pliku „{0}”.</translation>
+    </message>
+    <message>
+        <source>Setting saved.</source>
+        <translation>Ustawienia zostały zapisane.</translation>
+    </message>
+    <message>
         <source>Launching winetricks…</source>
         <translation>Uruchamianie programu winetricks…</translation>
     </message>
@@ -3147,6 +3211,10 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
         <translation>Zarządzaj prefiksami</translation>
     </message>
     <message>
+        <source>Install queued — {0} will install after the current install finishes.</source>
+        <translation>Instalacja w kolejce — program „{0}” zostanie zainstalowany po zakończeniu bieżącej instalacji.</translation>
+    </message>
+    <message>
         <source>No active profile.</source>
         <translation>Brak aktywnego profilu.</translation>
     </message>
@@ -3187,8 +3255,8 @@ Czy mimo to wdrożyć?</translation>
         <translation>Instalacja anulowana: {0}</translation>
     </message>
     <message>
-        <source>A mod named '{0}' already exists.</source>
-        <translation>Istnieje już mod o nazwie „{0}”.</translation>
+        <source>Replace failed: {0}</source>
+        <translation>Wymiana nie powiodła się: {0}</translation>
     </message>
     <message>
         <source>Rename failed: {0}</source>
@@ -3291,24 +3359,16 @@ Czy mimo to wdrożyć?</translation>
         <translation>Modyfikacje z archiwami BSA</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Włączone</translation>
+        <source>{0} enabled of {1} mods</source>
+        <translation>{0} włączone modyfikacje z serwisu {1}</translation>
     </message>
     <message>
-        <source>Disabled</source>
-        <translation>Niepełnosprawni</translation>
+        <source>{0} plugins ({1} ESL, {2} non-ESL)</source>
+        <translation>{0} wtyczki ({1} – ESL, {2} – nie-ESL)</translation>
     </message>
     <message>
         <source>Plugins</source>
         <translation>Wtyczki</translation>
-    </message>
-    <message>
-        <source>ESL</source>
-        <translation>ESL</translation>
-    </message>
-    <message>
-        <source>Non-ESL</source>
-        <translation>Nie-ESL</translation>
     </message>
     <message>
         <source>No active profile — cannot configure groups.</source>
@@ -5480,6 +5540,30 @@ Uruchom ponownie kreatora i zainstaluj najpierw program Script Merger.</translat
         <translation>Ukryj flagi konfliktów archiwum BSA/BA2 (pominięcie tego skanowania w poszukiwaniu konfliktów zapewnia również niewielkie przyspieszenie).</translation>
     </message>
     <message>
+        <source>Theme</source>
+        <translation>Temat</translation>
+    </message>
+    <message>
+        <source>Auto (match display)</source>
+        <translation>Auto (dopasowanie wyświetlania)</translation>
+    </message>
+    <message>
+        <source>UI Scale</source>
+        <translation>Skala interfejsu użytkownika</translation>
+    </message>
+    <message>
+        <source>Show mod description tooltips</source>
+        <translation>Pokaż podpowiedzi z opisem modów</translation>
+    </message>
+    <message>
+        <source>Show a mod's Nexus description as a tooltip when you hover over its name in the mod list.</source>
+        <translation>Wyświetlaj opis modyfikacji z serwisu Nexus jako podpowiedź po najechaniu kursorem na jej nazwę na liście modyfikacji.</translation>
+    </message>
+    <message>
+        <source>Make the whole interface bigger or smaller. Changes take effect after a restart.</source>
+        <translation>Zwiększ lub zmniejsz cały interfejs. Zmiany zaczną obowiązywać po ponownym uruchomieniu.</translation>
+    </message>
+    <message>
         <source>Downloads &amp; Collections</source>
         <translation>Pliki do pobrania i kolekcje</translation>
     </message>
@@ -5562,10 +5646,6 @@ Uruchom ponownie kreatora i zainstaluj najpierw program Script Merger.</translat
     <message>
         <source>Also offer beta and release-candidate app builds when checking for updates.</source>
         <translation>Podczas sprawdzania dostępności aktualizacji należy również udostępniać wersje beta i wersje kandydackie aplikacji.</translation>
-    </message>
-    <message>
-        <source>Appearance</source>
-        <translation>Wygląd</translation>
     </message>
     <message>
         <source>Paths</source>

@@ -1426,6 +1426,18 @@ De Creation Kit kan onder Proton soms ook crashen bij het opstarten (een bekend 
 <context>
     <name>DetachableTabWidget</name>
     <message>
+        <source>Pin to Modlist Panel</source>
+        <translation>Vastzetten in het Modlist-paneel</translation>
+    </message>
+    <message>
+        <source>Pin to Plugins Panel</source>
+        <translation>Vastzetten in het plug-ins-paneel</translation>
+    </message>
+    <message>
+        <source>Pin to Full Screen</source>
+        <translation>Op volledig scherm vastzetten</translation>
+    </message>
+    <message>
         <source>Drop to redock</source>
         <translation>Terugkeren naar de aanlegplaats</translation>
     </message>
@@ -2575,8 +2587,24 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
         <translation>Nu opnieuw opstarten</translation>
     </message>
     <message>
+        <source>Restart to change UI scale?</source>
+        <translation>Opnieuw opstarten om de schaal van de gebruikersinterface aan te passen?</translation>
+    </message>
+    <message>
+        <source>The UI scale change takes effect after a restart. Restart now?</source>
+        <translation>De wijziging van de schaal van de gebruikersinterface wordt pas van kracht na een herstart. Nu herstarten?</translation>
+    </message>
+    <message>
         <source>Later</source>
         <translation>Later</translation>
+    </message>
+    <message>
+        <source>Restart to change theme?</source>
+        <translation>Opnieuw opstarten om het thema te wijzigen?</translation>
+    </message>
+    <message>
+        <source>The theme change takes effect after a restart. Restart now?</source>
+        <translation>De wijziging van het thema wordt pas van kracht na een herstart. Nu herstarten?</translation>
     </message>
     <message>
         <source>Syncing language files…</source>
@@ -2855,6 +2883,14 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
         <translation>Korte update — het downloaden van de mod(s) voor {0} is bezig…</translation>
     </message>
     <message>
+        <source>Downloading {0} mod(s)…</source>
+        <translation>{0}-mod(s) wordt/worden gedownload…</translation>
+    </message>
+    <message>
+        <source>Quick Update</source>
+        <translation>Korte update</translation>
+    </message>
+    <message>
         <source>Quick Update: updated {0} mod(s)</source>
         <translation>Korte update: de mod(s) voor {0} zijn bijgewerkt</translation>
     </message>
@@ -2973,6 +3009,10 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
     <message>
         <source>Downloading…</source>
         <translation>Bezig met downloaden…</translation>
+    </message>
+    <message>
+        <source>Downloading {0} files ({1} remaining)…</source>
+        <translation>{0}-bestanden worden gedownload (nog {1})…</translation>
     </message>
     <message>
         <source>Nexus Download</source>
@@ -3095,6 +3135,30 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
         <translation>{0} niet gevonden ({1}).</translation>
     </message>
     <message>
+        <source>Profile INI files folder</source>
+        <translation>Map met INI-bestanden</translation>
+    </message>
+    <message>
+        <source>Profile saves folder</source>
+        <translation>Map waarin profielen worden opgeslagen</translation>
+    </message>
+    <message>
+        <source>Quick configure</source>
+        <translation>Snel instellen</translation>
+    </message>
+    <message>
+        <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
+        <translation>De implementatiemethode kan niet worden gewijzigd terwijl er mods zijn geïmplementeerd. Herstel deze eerst.</translation>
+    </message>
+    <message>
+        <source>Could not change {0}.</source>
+        <translation>{0} kon niet worden gewijzigd.</translation>
+    </message>
+    <message>
+        <source>Setting saved.</source>
+        <translation>Instelling opgeslagen.</translation>
+    </message>
+    <message>
         <source>Launching winetricks…</source>
         <translation>Winetricks wordt gestart…</translation>
     </message>
@@ -3147,6 +3211,10 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
         <translation>Voorvoegsels beheren</translation>
     </message>
     <message>
+        <source>Install queued — {0} will install after the current install finishes.</source>
+        <translation>Installatie in de wachtrij geplaatst — {0} wordt geïnstalleerd zodra de huidige installatie is voltooid.</translation>
+    </message>
+    <message>
         <source>No active profile.</source>
         <translation>Geen actief profiel.</translation>
     </message>
@@ -3187,8 +3255,8 @@ Toch doorgaan met implementeren?</translation>
         <translation>Installatie geannuleerd: {0}</translation>
     </message>
     <message>
-        <source>A mod named '{0}' already exists.</source>
-        <translation>Er bestaat al een mod met de naam '{0}'.</translation>
+        <source>Replace failed: {0}</source>
+        <translation>Vervanging mislukt: {0}</translation>
     </message>
     <message>
         <source>Rename failed: {0}</source>
@@ -3291,24 +3359,16 @@ Toch doorgaan met implementeren?</translation>
         <translation>Mods met BSA-archieven</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Ingeschakeld</translation>
+        <source>{0} enabled of {1} mods</source>
+        <translation>{0} {1}-mods ingeschakeld</translation>
     </message>
     <message>
-        <source>Disabled</source>
-        <translation>Gehandicapt</translation>
+        <source>{0} plugins ({1} ESL, {2} non-ESL)</source>
+        <translation>{0} plug-ins ({1} ESL, {2} niet-ESL)</translation>
     </message>
     <message>
         <source>Plugins</source>
         <translation>Plug-ins</translation>
-    </message>
-    <message>
-        <source>ESL</source>
-        <translation>ESL</translation>
-    </message>
-    <message>
-        <source>Non-ESL</source>
-        <translation>Niet-ESL</translation>
     </message>
     <message>
         <source>No active profile — cannot configure groups.</source>
@@ -5480,6 +5540,30 @@ Start de wizard opnieuw op en installeer eerst Script Merger.</translation>
         <translation>Conflictvlaggen van het BSA/BA2-archief verbergen (slaat ook die conflictscan over, wat een kleine snelheidswinst oplevert).</translation>
     </message>
     <message>
+        <source>Theme</source>
+        <translation>Thema</translation>
+    </message>
+    <message>
+        <source>Auto (match display)</source>
+        <translation>Auto (weergave aanpassen)</translation>
+    </message>
+    <message>
+        <source>UI Scale</source>
+        <translation>UI-schaal</translation>
+    </message>
+    <message>
+        <source>Show mod description tooltips</source>
+        <translation>Tooltips voor de modbeschrijving weergeven</translation>
+    </message>
+    <message>
+        <source>Show a mod's Nexus description as a tooltip when you hover over its name in the mod list.</source>
+        <translation>Geef de Nexus-beschrijving van een mod weer als tooltip wanneer je met de muis over de naam van de mod in de mod-lijst beweegt.</translation>
+    </message>
+    <message>
+        <source>Make the whole interface bigger or smaller. Changes take effect after a restart.</source>
+        <translation>Maak de hele interface groter of kleiner. De wijzigingen worden pas van kracht na een herstart.</translation>
+    </message>
+    <message>
         <source>Downloads &amp; Collections</source>
         <translation>Downloads en verzamelingen</translation>
     </message>
@@ -5562,10 +5646,6 @@ Start de wizard opnieuw op en installeer eerst Script Merger.</translation>
     <message>
         <source>Also offer beta and release-candidate app builds when checking for updates.</source>
         <translation>Bied bij het controleren op updates ook bèta- en release-candidate-versies van de app aan.</translation>
-    </message>
-    <message>
-        <source>Appearance</source>
-        <translation>Uiterlijk</translation>
     </message>
     <message>
         <source>Paths</source>

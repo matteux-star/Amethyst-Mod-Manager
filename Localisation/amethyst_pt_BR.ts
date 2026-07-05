@@ -1426,6 +1426,18 @@ O Creation Kit também pode, ocasionalmente, travar ao iniciar no Proton (um pro
 <context>
     <name>DetachableTabWidget</name>
     <message>
+        <source>Pin to Modlist Panel</source>
+        <translation>Fixar no painel Modlist</translation>
+    </message>
+    <message>
+        <source>Pin to Plugins Panel</source>
+        <translation>Fixar no painel de plugins</translation>
+    </message>
+    <message>
+        <source>Pin to Full Screen</source>
+        <translation>Fixar em tela cheia</translation>
+    </message>
+    <message>
         <source>Drop to redock</source>
         <translation>Descer para atracar novamente</translation>
     </message>
@@ -2575,8 +2587,24 @@ O arquivo exe original é mantido como {0}.</translation>
         <translation>Reiniciar agora</translation>
     </message>
     <message>
+        <source>Restart to change UI scale?</source>
+        <translation>É preciso reiniciar para alterar a escala da interface do usuário?</translation>
+    </message>
+    <message>
+        <source>The UI scale change takes effect after a restart. Restart now?</source>
+        <translation>A alteração na escala da interface do usuário entra em vigor após a reinicialização. Deseja reiniciar agora?</translation>
+    </message>
+    <message>
         <source>Later</source>
         <translation>Mais tarde</translation>
+    </message>
+    <message>
+        <source>Restart to change theme?</source>
+        <translation>Reiniciar para alterar o tema?</translation>
+    </message>
+    <message>
+        <source>The theme change takes effect after a restart. Restart now?</source>
+        <translation>A alteração do tema entra em vigor após a reinicialização. Deseja reiniciar agora?</translation>
     </message>
     <message>
         <source>Syncing language files…</source>
@@ -2855,6 +2883,14 @@ Deseja remover a entrada da coleção anexada?</translation>
         <translation>Atualização rápida — baixando o(s) mod(s) d{0}…</translation>
     </message>
     <message>
+        <source>Downloading {0} mod(s)…</source>
+        <translation>Baixando o(s) mod(s) de “{0}”…</translation>
+    </message>
+    <message>
+        <source>Quick Update</source>
+        <translation>Atualização rápida</translation>
+    </message>
+    <message>
         <source>Quick Update: updated {0} mod(s)</source>
         <translation>Atualização rápida: mod(s) do “{0}” atualizados</translation>
     </message>
@@ -2973,6 +3009,10 @@ Deseja remover a entrada da coleção anexada?</translation>
     <message>
         <source>Downloading…</source>
         <translation>Baixando…</translation>
+    </message>
+    <message>
+        <source>Downloading {0} files ({1} remaining)…</source>
+        <translation>Baixando os arquivos “{0}” (restam {1})…</translation>
     </message>
     <message>
         <source>Nexus Download</source>
@@ -3095,6 +3135,30 @@ Deseja remover a entrada da coleção anexada?</translation>
         <translation>{0} não encontrado ({1}).</translation>
     </message>
     <message>
+        <source>Profile INI files folder</source>
+        <translation>Pasta dos arquivos INI de perfil</translation>
+    </message>
+    <message>
+        <source>Profile saves folder</source>
+        <translation>Pasta de salvamento do perfil</translation>
+    </message>
+    <message>
+        <source>Quick configure</source>
+        <translation>Configuração rápida</translation>
+    </message>
+    <message>
+        <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
+        <translation>Não é possível alterar o método de implantação enquanto os mods estiverem implantados. Faça a restauração primeiro.</translation>
+    </message>
+    <message>
+        <source>Could not change {0}.</source>
+        <translation>Não foi possível alterar {0}.</translation>
+    </message>
+    <message>
+        <source>Setting saved.</source>
+        <translation>Configuração salva.</translation>
+    </message>
+    <message>
         <source>Launching winetricks…</source>
         <translation>Iniciando o winetricks…</translation>
     </message>
@@ -3147,6 +3211,10 @@ Deseja remover a entrada da coleção anexada?</translation>
         <translation>Gerenciar prefixos</translation>
     </message>
     <message>
+        <source>Install queued — {0} will install after the current install finishes.</source>
+        <translation>Instalação em fila — {0} será instalado assim que a instalação atual for concluída.</translation>
+    </message>
+    <message>
         <source>No active profile.</source>
         <translation>Não há perfil ativo.</translation>
     </message>
@@ -3187,8 +3255,8 @@ Deseja implantar mesmo assim?</translation>
         <translation>Instalação cancelada: {0}</translation>
     </message>
     <message>
-        <source>A mod named '{0}' already exists.</source>
-        <translation>Já existe um mod chamado “{0}”.</translation>
+        <source>Replace failed: {0}</source>
+        <translation>Falha na substituição: {0}</translation>
     </message>
     <message>
         <source>Rename failed: {0}</source>
@@ -3291,24 +3359,16 @@ Deseja implantar mesmo assim?</translation>
         <translation>Mods com arquivos BSA</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Ativado</translation>
+        <source>{0} enabled of {1} mods</source>
+        <translation>{0} mods do “{1}” ativados</translation>
     </message>
     <message>
-        <source>Disabled</source>
-        <translation>Desativado</translation>
+        <source>{0} plugins ({1} ESL, {2} non-ESL)</source>
+        <translation>{0} plug-ins ({1} ESL, {2} não-ESL)</translation>
     </message>
     <message>
         <source>Plugins</source>
         <translation>Plug-ins</translation>
-    </message>
-    <message>
-        <source>ESL</source>
-        <translation>ESL</translation>
-    </message>
-    <message>
-        <source>Non-ESL</source>
-        <translation>Não-ESL</translation>
     </message>
     <message>
         <source>No active profile — cannot configure groups.</source>
@@ -5480,6 +5540,30 @@ Reinicie o assistente e instale primeiro o Script Merger.</translation>
         <translation>Ocultar os indicadores de conflito do arquivo BSA/BA2 (além disso, ignora essa verificação de conflitos para proporcionar um pequeno ganho de velocidade).</translation>
     </message>
     <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Auto (match display)</source>
+        <translation>Automático (exibição de correspondência)</translation>
+    </message>
+    <message>
+        <source>UI Scale</source>
+        <translation>Escala da interface do usuário</translation>
+    </message>
+    <message>
+        <source>Show mod description tooltips</source>
+        <translation>Mostrar dicas de ferramenta com a descrição do modo</translation>
+    </message>
+    <message>
+        <source>Show a mod's Nexus description as a tooltip when you hover over its name in the mod list.</source>
+        <translation>Exibir a descrição do mod no Nexus como uma dica de ferramenta ao passar o mouse sobre o nome dele na lista de mods.</translation>
+    </message>
+    <message>
+        <source>Make the whole interface bigger or smaller. Changes take effect after a restart.</source>
+        <translation>Aumente ou diminua o tamanho de toda a interface. As alterações entram em vigor após a reinicialização.</translation>
+    </message>
+    <message>
         <source>Downloads &amp; Collections</source>
         <translation>Downloads e coleções</translation>
     </message>
@@ -5562,10 +5646,6 @@ Reinicie o assistente e instale primeiro o Script Merger.</translation>
     <message>
         <source>Also offer beta and release-candidate app builds when checking for updates.</source>
         <translation>Ofereça também versões beta e candidatas a lançamento dos aplicativos ao verificar se há atualizações.</translation>
-    </message>
-    <message>
-        <source>Appearance</source>
-        <translation>Aparência</translation>
     </message>
     <message>
         <source>Paths</source>
