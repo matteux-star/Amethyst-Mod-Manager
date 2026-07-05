@@ -88,7 +88,7 @@ def sync_custom_handlers(on_changed: Optional[Callable[[], None]] = None) -> Non
 
     def _do():
         try:
-            listing = fetch_text(_CUSTOM_HANDLERS_API_URL, timeout=15)
+            listing = fetch_text(_CUSTOM_HANDLERS_API_URL, timeout=15, min_interval=3600)
             if listing is None:
                 return
             data = json.loads(listing)
@@ -134,7 +134,7 @@ def sync_plugins(on_changed: Optional[Callable[[], None]] = None) -> None:
 
     def _do():
         try:
-            listing = fetch_text(_PLUGINS_API_URL, timeout=15)
+            listing = fetch_text(_PLUGINS_API_URL, timeout=15, min_interval=3600)
             if listing is None:
                 return
             data = json.loads(listing)
@@ -196,7 +196,10 @@ def sync_languages(on_changed: Optional[Callable[[], None]] = None,
 
     def _do():
         try:
-            listing = fetch_text(_LANGUAGES_API_URL, timeout=15, force=force)
+            listing = fetch_text(
+                _LANGUAGES_API_URL, timeout=15,
+                min_interval=(0 if force else 3600), force=force,
+            )
             if listing is None:
                 return
             data = json.loads(listing)
