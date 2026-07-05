@@ -15,6 +15,23 @@ from PySide6.QtGui import QActionGroup
 from PySide6.QtCore import Qt, QSize
 
 
+class _StayOpenMenu(QMenu):
+    """A QMenu that does NOT close when a checkable/enabled action is clicked —
+    the action is triggered (toggling it) but the menu stays open so several
+    options can be flipped in one visit. Non-checkable actions (e.g. a nested
+    submenu title or a normal command) close it as usual."""
+
+    def mouseReleaseEvent(self, event):
+        act = self.activeAction()
+        if (act is not None and act.isEnabled() and act.isCheckable()
+                and act.menu() is None):
+            # Toggle + fire the action ourselves, then swallow the event so the
+            # base class never runs its close-the-menu path.
+            act.trigger()
+            return
+        super().mouseReleaseEvent(event)
+
+
 class SelectorButton(QToolButton):
     def __init__(self, *, items=None, current=None, actions=None,
                  on_select: "Callable[[str], None] | None" = None,
@@ -106,6 +123,19 @@ class SelectorButton(QToolButton):
         self._item_icons = dict(item_icons or {})
         self._rebuild()
 
+    def set_actions(self, actions):
+        """Replace the pinned action entries (below the item separator) and
+        rebuild the menu. Each entry is (label, cb) or (label, cb, opts) where
+        cb is a callable, a list of nested entries (→ a submenu), or None (a
+        disabled/header row). *opts* is an optional dict with any of:
+          checkable — draw a check indicator; checked reflects `checked`
+          checked   — initial checked state
+          group     — a hashable id; entries sharing it become mutually
+                      exclusive (radio) within their menu
+          separator_after — add a separator after this entry."""
+        self._actions = list(actions or [])
+        self._rebuild()
+
     def current(self) -> str:
         return self._current
 
@@ -166,18 +196,61 @@ class SelectorButton(QToolButton):
         self._add_actions(self._menu, self._actions)
 
     def _add_actions(self, menu, actions):
-        """Append pinned action entries to *menu*. Each entry is (label, cb)
-        where cb is either a callable or a list of (label, cb) pairs (→ a
-        submenu, nested arbitrarily deep)."""
-        for label, cb in actions:
+        """Append pinned action entries to *menu*. Each entry is (label, cb) or
+        (label, cb, opts) where cb is a callable, a list of nested entries (→ a
+        submenu, nested arbitrarily deep), or None (a plain/disabled row).
+        *opts* (optional dict) may set checkable/checked/group/separator_after —
+        see set_actions()."""
+        groups: dict = {}   # group id → QActionGroup (per this menu level)
+        for entry in actions:
+            label, cb = entry[0], entry[1]
+            opts = entry[2] if len(entry) > 2 else {}
             if isinstance(cb, list):
-                sub = menu.addMenu(label)
+                # If any child entry wants to keep the menu open on click, back
+                # the submenu with a stay-open QMenu so toggling doesn't dismiss.
+                if any(len(e) > 2 and e[2].get("keep_open") for e in cb):
+                    sub = _StayOpenMenu(label, menu)
+                    menu.addMenu(sub)
+                else:
+                    sub = menu.addMenu(label)
                 self._add_actions(sub, cb)
             elif cb is not None:
                 a = menu.addAction(label)
-                a.triggered.connect(lambda _=False, c=cb: c())
+                stateful = bool(opts.get("checkable") or opts.get("group"))
+                if opts.get("checkable"):
+                    a.setCheckable(True)
+                    a.setChecked(bool(opts.get("checked")))
+                if "value" in opts:
+                    # Stash the entry's underlying value on the action so callers
+                    # can find the sibling matching a given value (e.g. to revert
+                    # a radio group after a blocked change).
+                    a.setData(opts["value"])
+                gid = opts.get("group")
+                if gid is not None:
+                    grp = groups.get(gid)
+                    if grp is None:
+                        grp = QActionGroup(menu)
+                        grp.setExclusive(True)
+                        groups[gid] = grp
+                    grp.addAction(a)
+                if stateful:
+                    # `checked` is the action's post-toggle state; hand it to the
+                    # cb so toggle/radio callbacks receive the value to apply.
+                    # keep_open entries also get their QAction so the callback can
+                    # revert the checkbox/radio in place (the menu stays open).
+                    if opts.get("keep_open"):
+                        a.triggered.connect(
+                            lambda checked=False, c=cb, act=a: c(checked, act))
+                    else:
+                        a.triggered.connect(lambda checked=False, c=cb: c(checked))
+                else:
+                    # Plain action items keep the historical zero-arg contract.
+                    a.triggered.connect(lambda _=False, c=cb: c())
             else:
-                menu.addAction(label)
+                a = menu.addAction(label)
+                a.setEnabled(False)
+            if opts.get("separator_after"):
+                menu.addSeparator()
 
     def paintEvent(self, event):
         # Let the base class paint the (centred) text + chrome, then draw the

@@ -23,8 +23,13 @@ from __future__ import annotations
 from PySide6.QtCore import Qt, QPoint, Signal, QCoreApplication
 from PySide6.QtWidgets import (
     QTabWidget, QTabBar, QWidget, QVBoxLayout, QMainWindow, QStackedWidget,
-    QLabel,
+    QLabel, QMenu,
 )
+
+# The three ways a view can be presented (see DetachableTabWidget docstring).
+MODE_FULL = "full"          # a normal full-UI tab (like the Nexus browser)
+MODE_MODLIST = "modlist"    # panel-scoped: takes over the modlist panel only
+MODE_PLUGINS = "plugins"    # panel-scoped: takes over the plugins panel only
 
 
 # -- reliable mouse-button-down probe -----------------------------------------
@@ -116,11 +121,17 @@ class _DetachTabBar(QTabBar):
     here with a clear vertical-distance threshold)."""
 
     detach_requested = Signal(int, QPoint)   # (tab index, global drop pos)
+    pin_requested = Signal(int, QPoint)      # (tab index, global menu pos)
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setMovable(True)               # reorder within the bar
         self._press_index = -1
+
+    def contextMenuEvent(self, event):
+        idx = self.tabAt(event.pos())
+        if idx != -1:
+            self.pin_requested.emit(idx, event.globalPos())
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -214,10 +225,25 @@ class DetachableTabWidget(QTabWidget):
         self._scoped: dict[int, tuple] = {}
         self._permanent_widget: QWidget | None = None
         self._active_scoped: int | None = None
+        # Panel stacks a view can be re-pinned into, and each open view's current
+        # presentation mode (keyed by id(content-widget)). The content widget is
+        # the REAL view for both full and scoped tabs (for scoped tabs that's the
+        # widget in the panel stack, NOT the empty bar placeholder).
+        self._modlist_stack: QStackedWidget | None = None
+        self._plugins_stack: QStackedWidget | None = None
+        self._modes: dict[int, str] = {}
 
         self.tabCloseRequested.connect(self._on_close_requested)
         self._bar.detach_requested.connect(self._detach)
+        self._bar.pin_requested.connect(self._on_pin_requested)
         self.currentChanged.connect(self._on_current_changed)
+
+    def register_scope_targets(self, modlist_stack: QStackedWidget,
+                               plugins_stack: QStackedWidget):
+        """Tell the widget which panel stacks the 'Pin to Modlist/Plugins' menu
+        should target. Call once after the panels are built."""
+        self._modlist_stack = modlist_stack
+        self._plugins_stack = plugins_stack
 
     def _update_bar_visibility(self):
         self.tabBar().setVisible(self.count() > 1)
@@ -287,6 +313,16 @@ class DetachableTabWidget(QTabWidget):
         if key is not None and key in self._keys:
             self._focus(self._keys[key])
             return self._keys[key]
+        # Honour a saved pin (user re-pinned this view before). A pin to a
+        # different panel swaps the target stack; a pin to full screen routes to
+        # open_tab instead. Falls back to the requested stack if unregistered.
+        pinned = self._saved_pin(key)
+        if pinned == MODE_FULL:
+            return self.open_tab(scoped_widget, title, key=key)
+        if pinned in (MODE_MODLIST, MODE_PLUGINS):
+            alt = self._stack_for_mode(pinned)
+            if alt is not None:
+                target_stack = alt
         # The tab page itself is an empty placeholder — the real content lives in
         # target_stack. addTab needs a widget; this 0-size stub never shows.
         placeholder = QWidget()
@@ -296,9 +332,33 @@ class DetachableTabWidget(QTabWidget):
         if key is not None:
             self._keys[key] = placeholder
             placeholder.setProperty("_tab_key", key)
+        self._modes[id(scoped_widget)] = self._mode_for_stack(target_stack)
         self.setCurrentIndex(idx)
         self._update_bar_visibility()
         return placeholder
+
+    def _mode_for_stack(self, stack: QStackedWidget) -> str:
+        if stack is self._plugins_stack:
+            return MODE_PLUGINS
+        return MODE_MODLIST
+
+    def _stack_for_mode(self, mode: str) -> QStackedWidget | None:
+        if mode == MODE_PLUGINS:
+            return self._plugins_stack
+        if mode == MODE_MODLIST:
+            return self._modlist_stack
+        return None
+
+    def _saved_pin(self, key: "str | None") -> "str | None":
+        """The persisted preferred mode for *key*, or None. Isolated so it never
+        breaks tab-opening if ui_config is unavailable."""
+        if not key:
+            return None
+        try:
+            from Utils.ui_config import get_tab_pin
+            return get_tab_pin(key)
+        except Exception:
+            return None
 
     def open_tab(self, widget: QWidget, title: str, key: str | None = None):
         """Open *widget* as a tab and focus it. If *key* is already open
@@ -307,10 +367,18 @@ class DetachableTabWidget(QTabWidget):
             existing = self._keys[key]
             self._focus(existing)
             return existing
+        # Honour a saved pin to a panel (user re-pinned this full view into a
+        # panel before). Route to open_scoped_tab if that stack is registered.
+        pinned = self._saved_pin(key)
+        if pinned in (MODE_MODLIST, MODE_PLUGINS):
+            stack = self._stack_for_mode(pinned)
+            if stack is not None:
+                return self.open_scoped_tab(widget, title, stack, key=key)
         idx = self.addTab(widget, title)
         if key is not None:
             self._keys[key] = widget
             widget.setProperty("_tab_key", key)
+        self._modes[id(widget)] = MODE_FULL
         self.setCurrentIndex(idx)
         self._update_bar_visibility()
         return widget
@@ -338,6 +406,7 @@ class DetachableTabWidget(QTabWidget):
         if idx != -1:
             self.removeTab(idx)
             self._forget(widget)
+            self._modes.pop(id(widget), None)
             widget.deleteLater()
             self._update_bar_visibility()
             return
@@ -362,6 +431,7 @@ class DetachableTabWidget(QTabWidget):
             return
         self.removeTab(index)
         self._forget(w)
+        self._modes.pop(id(w), None)
         w.deleteLater()
         self._update_bar_visibility()
 
@@ -371,6 +441,7 @@ class DetachableTabWidget(QTabWidget):
         target_stack, scoped_widget, _idx = self._scoped.pop(id(placeholder))
         target_stack.setCurrentIndex(0)
         target_stack.removeWidget(scoped_widget)
+        self._modes.pop(id(scoped_widget), None)
         scoped_widget.deleteLater()
         tab_idx = self.indexOf(placeholder)
         if tab_idx != -1:
@@ -385,6 +456,120 @@ class DetachableTabWidget(QTabWidget):
             if pi != -1:
                 self.setCurrentIndex(pi)
         self._update_bar_visibility()
+
+    # -- re-pin (move a view between full / modlist / plugins) --------------
+    def _on_pin_requested(self, index: int, global_pos: QPoint):
+        w = self.widget(index)
+        if w is None or id(w) in self._permanent:
+            return
+        # Resolve the REAL content widget + its current mode. For a scoped tab
+        # the QTabWidget page is the empty placeholder; the content lives in the
+        # panel stack.
+        scoped = self._scoped.get(id(w))
+        content = scoped[1] if scoped is not None else w
+        current = self._modes.get(id(content), MODE_FULL)
+
+        menu = QMenu(self)
+        entries = [
+            (MODE_MODLIST, QCoreApplication.translate(
+                "DetachableTabWidget", "Pin to Modlist Panel"),
+             self._modlist_stack),
+            (MODE_PLUGINS, QCoreApplication.translate(
+                "DetachableTabWidget", "Pin to Plugins Panel"),
+             self._plugins_stack),
+            (MODE_FULL, QCoreApplication.translate(
+                "DetachableTabWidget", "Pin to Full Screen"), True),
+        ]
+        for mode, label, target in entries:
+            if target is None:      # panel stack not registered → skip
+                continue
+            act = menu.addAction(label)
+            act.setCheckable(True)
+            if mode == current:
+                act.setChecked(True)
+                act.setEnabled(False)   # already in this mode
+            act.triggered.connect(
+                lambda _=False, m=mode, c=content: self._repin(c, m))
+        menu.exec(global_pos)
+
+    def _repin(self, content: QWidget, target_mode: str):
+        """Move an already-open view *content* into *target_mode*, preserving its
+        state, key and title. Reuses the extract logic from detach/redock — the
+        widget is reparented, never recreated."""
+        if self._modes.get(id(content)) == target_mode:
+            return
+
+        # 1. Locate + extract the content widget from wherever it lives now,
+        #    capturing (title, key). We do NOT delete it.
+        title = ""
+        key = content.property("_tab_key")
+
+        # a) Currently a floating window? Redock intent → pull its page.
+        flt = next((f for f in self._floats if f._page is content), None)
+        if flt is not None:
+            title = flt._title
+            self._floats = [f for f in self._floats if f is not flt]
+            content = flt.take_page() or content
+            flt.close()
+        else:
+            # b) Currently a scoped tab? Placeholder is the bar page; content is
+            #    in a panel stack.
+            placeholder = None
+            for pid, (ts, sw, _pi) in list(self._scoped.items()):
+                if sw is content:
+                    placeholder = self._widget_by_id(pid)
+                    if placeholder is not None:
+                        title = self.tabText(self.indexOf(placeholder))
+                        # For a scoped tab the _tab_key lives on the PLACEHOLDER,
+                        # not the content widget — read it there.
+                        if not key:
+                            key = placeholder.property("_tab_key")
+                    ts.setCurrentIndex(0)
+                    ts.removeWidget(content)
+                    self._scoped.pop(pid, None)
+                    ti = self.indexOf(placeholder) if placeholder else -1
+                    if ti != -1:
+                        self.removeTab(ti)
+                    if placeholder is not None:
+                        self._forget(placeholder)
+                        placeholder.deleteLater()
+                    break
+            else:
+                # c) A plain full-UI tab.
+                ti = self.indexOf(content)
+                if ti != -1:
+                    title = self.tabText(ti)
+                    self.removeTab(ti)
+        self._modes.pop(id(content), None)
+
+        # 2. Persist the choice so this view reopens in target_mode next time.
+        #    Saved BEFORE re-inserting so the open_* redirect (which reads the
+        #    pin) agrees with where we're putting it, not the old value.
+        if key:
+            try:
+                from Utils.ui_config import save_tab_pin
+                save_tab_pin(key, target_mode)
+            except Exception:
+                pass
+
+        # 3. Re-insert via the target mode's normal path. Clear the stale key
+        #    first so the focus-if-open guard doesn't short-circuit.
+        if key and key in self._keys:
+            del self._keys[key]
+        if target_mode == MODE_FULL:
+            self.open_tab(content, title, key=key)
+        else:
+            stack = self._stack_for_mode(target_mode)
+            content.setProperty("_tab_key", key)
+            self.open_scoped_tab(content, title, stack, key=key)
+        self._update_bar_visibility()
+
+    def _widget_by_id(self, wid: int) -> QWidget | None:
+        for i in range(self.count()):
+            w = self.widget(i)
+            if w is not None and id(w) == wid:
+                return w
+        return None
 
     def _detach(self, index: int, drop_pos: QPoint):
         w = self.widget(index)

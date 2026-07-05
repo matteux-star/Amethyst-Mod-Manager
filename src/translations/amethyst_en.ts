@@ -1420,6 +1420,18 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
 <context>
     <name>DetachableTabWidget</name>
     <message>
+        <source>Pin to Modlist Panel</source>
+        <translation>Pin to Modlist Panel</translation>
+    </message>
+    <message>
+        <source>Pin to Plugins Panel</source>
+        <translation>Pin to Plugins Panel</translation>
+    </message>
+    <message>
+        <source>Pin to Full Screen</source>
+        <translation>Pin to Full Screen</translation>
+    </message>
+    <message>
         <source>Drop to redock</source>
         <translation>Drop to redock</translation>
     </message>
@@ -3117,6 +3129,30 @@ Remove the appended-collection entry?</translation>
         <translation>{0} not found ({1}).</translation>
     </message>
     <message>
+        <source>Profile INI files folder</source>
+        <translation>Profile INI files folder</translation>
+    </message>
+    <message>
+        <source>Profile saves folder</source>
+        <translation>Profile saves folder</translation>
+    </message>
+    <message>
+        <source>Quick configure</source>
+        <translation>Quick configure</translation>
+    </message>
+    <message>
+        <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
+        <translation>Cannot change the deploy method while mods are deployed. Restore first.</translation>
+    </message>
+    <message>
+        <source>Could not change {0}.</source>
+        <translation>Could not change {0}.</translation>
+    </message>
+    <message>
+        <source>Setting saved.</source>
+        <translation>Setting saved.</translation>
+    </message>
+    <message>
         <source>Launching winetricks…</source>
         <translation>Launching winetricks…</translation>
     </message>
@@ -3317,24 +3353,16 @@ Deploy anyway?</translation>
         <translation>Mods with BSA archives</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Enabled</translation>
+        <source>{0} enabled of {1} mods</source>
+        <translation>{0} enabled of {1} mods</translation>
     </message>
     <message>
-        <source>Disabled</source>
-        <translation>Disabled</translation>
+        <source>{0} plugins ({1} ESL, {2} non-ESL)</source>
+        <translation>{0} plugins ({1} ESL, {2} non-ESL)</translation>
     </message>
     <message>
         <source>Plugins</source>
         <translation>Plugins</translation>
-    </message>
-    <message>
-        <source>ESL</source>
-        <translation>ESL</translation>
-    </message>
-    <message>
-        <source>Non-ESL</source>
-        <translation>Non-ESL</translation>
     </message>
     <message>
         <source>No active profile — cannot configure groups.</source>
