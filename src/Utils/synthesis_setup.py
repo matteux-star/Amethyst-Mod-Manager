@@ -698,6 +698,69 @@ def _step_vcredist(pfx: Path, wine: Path, log: LogFn) -> bool:
     return True
 
 
+# The NuGet.Config below is the offline fallback. The live copy is pulled from
+# the Amethyst-Mod-Manager ``Resources`` branch first (see
+# ``_resolve_nuget_config``) so the trustedSigners fingerprints / package
+# sources can be updated without shipping a whole new app build.
+_NUGET_CONFIG_URL = (
+    "https://raw.githubusercontent.com/ChrisDKN/Amethyst-Mod-Manager/"
+    "Resources/Synthesis/NuGet.Config"
+)
+
+_NUGET_CONFIG_FALLBACK = (
+    '﻿<?xml version="1.0" encoding="utf-8"?>\n'
+    '<configuration>\n'
+    '  <packageSources>\n'
+    '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />\n'
+    '  </packageSources>\n'
+    '  <config>\n'
+    '    <add key="signatureValidationMode" value="accept" />\n'
+    '  </config>\n'
+    '  <trustedSigners>\n'
+    '    <author name="microsoft">\n'
+    '      <certificate fingerprint="3F9001EA83C560D712C24CF213C3D312CB3BFF51EE89435D3430BD06B5D0EECE" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '      <certificate fingerprint="AA12DA22A49BCE7D5C1AE64CC1F3D892F150DA76140F210ABD2CBFFCA2C18A27" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '      <certificate fingerprint="566A31882BE208BE4422F7CFD66ED09F5D4524A5994F50CCC8B05EC0528C1353" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '      <certificate fingerprint="8A17C2B974AD64F4A47982E292D9F89DCC10F0E2AE9C09CBC38C180AA94C9CBA" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '      <certificate fingerprint="51044706BD237B91B89B781337E6D62656C69F0FCFFBE8E43741367948127862" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '      <certificate fingerprint="9DC17888B5CFAD98B3CB35C1994E96227F061675955B6C5B0C842BE5B89E5885" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '      <certificate fingerprint="AFCEA55DD42024B8B1D07F6E5D5DD0E4A0DAF12A78AEF80C4D7C11880BE21E45" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '    </author>\n'
+    '    <author name="dotnet-foundation">\n'
+    '      <certificate fingerprint="024F162B1D09F6A0868C38B4C8B4257C1EEA6C5A31589416D520CF1624917EB3" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '      <certificate fingerprint="0ED671B806A0FAFC2571A7C4901EBF424CE38698872CF6B8047AD0343DC2D697" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '      <certificate fingerprint="8983371A2FF43E674DD3179E22A70934BBB3243FB38DC2EF12C6030E85DBAA81" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '    </author>\n'
+    '    <repository name="nuget.org" serviceIndex="https://api.nuget.org/v3/index.json">\n'
+    '      <certificate fingerprint="0E5F38F57DC1BCC806D8494F4F90FBCEDD988B46760709CBEEC6F4219AA6157D" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '      <certificate fingerprint="5A2901D6ADA3D18260B9C6DFE2133C95D74B9EEF6AE0E5DC334C8454D1477DF4" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '      <certificate fingerprint="1F4B311D9ACC115C8DC8018B5A49E00FCE6DA8E2855F9F014CA6F34570BC482D" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
+    '    </repository>\n'
+    '  </trustedSigners>\n'
+    '</configuration>\n'
+)
+
+
+def _resolve_nuget_config() -> tuple[str, str]:
+    """Return ``(content, source)`` for the NuGet.Config to write.
+
+    Tries the ``Resources`` branch copy first (ETag-cached, throttled) so the
+    trustedSigners / package sources can be patched without an app update. Any
+    network failure, missing file, or content that does not look like a NuGet
+    config falls back to the hardcoded ``_NUGET_CONFIG_FALLBACK``.
+    """
+    try:
+        from Utils.gh_cache import fetch_text
+        raw = fetch_text(
+            _NUGET_CONFIG_URL, accept="*/*", timeout=10, min_interval=3600,
+        )
+        if raw and "<configuration>" in raw and "<trustedSigners>" in raw:
+            return raw, "Resources branch"
+    except Exception:
+        pass
+    return _NUGET_CONFIG_FALLBACK, "built-in fallback"
+
+
 def _step_nuget_config(pfx: Path, wine: Path, log: LogFn) -> bool:
     """Write NuGet.Config that accepts expired-timestamp signed packages."""
     if _is_done(pfx, "nuget_config_v9"):
@@ -705,41 +768,10 @@ def _step_nuget_config(pfx: Path, wine: Path, log: LogFn) -> bool:
     cfg = (pfx / "drive_c" / "users" / "steamuser"
            / "AppData" / "Roaming" / "NuGet" / "NuGet.Config")
     cfg.parent.mkdir(parents=True, exist_ok=True)
-    content = (
-        '﻿<?xml version="1.0" encoding="utf-8"?>\n'
-        '<configuration>\n'
-        '  <packageSources>\n'
-        '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />\n'
-        '  </packageSources>\n'
-        '  <config>\n'
-        '    <add key="signatureValidationMode" value="accept" />\n'
-        '  </config>\n'
-        '  <trustedSigners>\n'
-        '    <author name="microsoft">\n'
-        '      <certificate fingerprint="3F9001EA83C560D712C24CF213C3D312CB3BFF51EE89435D3430BD06B5D0EECE" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '      <certificate fingerprint="AA12DA22A49BCE7D5C1AE64CC1F3D892F150DA76140F210ABD2CBFFCA2C18A27" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '      <certificate fingerprint="566A31882BE208BE4422F7CFD66ED09F5D4524A5994F50CCC8B05EC0528C1353" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '      <certificate fingerprint="8A17C2B974AD64F4A47982E292D9F89DCC10F0E2AE9C09CBC38C180AA94C9CBA" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '      <certificate fingerprint="51044706BD237B91B89B781337E6D62656C69F0FCFFBE8E43741367948127862" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '      <certificate fingerprint="9DC17888B5CFAD98B3CB35C1994E96227F061675955B6C5B0C842BE5B89E5885" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '      <certificate fingerprint="AFCEA55DD42024B8B1D07F6E5D5DD0E4A0DAF12A78AEF80C4D7C11880BE21E45" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '    </author>\n'
-        '    <author name="dotnet-foundation">\n'
-        '      <certificate fingerprint="024F162B1D09F6A0868C38B4C8B4257C1EEA6C5A31589416D520CF1624917EB3" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '      <certificate fingerprint="0ED671B806A0FAFC2571A7C4901EBF424CE38698872CF6B8047AD0343DC2D697" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '      <certificate fingerprint="8983371A2FF43E674DD3179E22A70934BBB3243FB38DC2EF12C6030E85DBAA81" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '    </author>\n'
-        '    <repository name="nuget.org" serviceIndex="https://api.nuget.org/v3/index.json">\n'
-        '      <certificate fingerprint="0E5F38F57DC1BCC806D8494F4F90FBCEDD988B46760709CBEEC6F4219AA6157D" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '      <certificate fingerprint="5A2901D6ADA3D18260B9C6DFE2133C95D74B9EEF6AE0E5DC334C8454D1477DF4" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '      <certificate fingerprint="1F4B311D9ACC115C8DC8018B5A49E00FCE6DA8E2855F9F014CA6F34570BC482D" hashAlgorithm="SHA256" allowUntrustedRoot="true" />\n'
-        '    </repository>\n'
-        '  </trustedSigners>\n'
-        '</configuration>\n'
-    )
+    content, source = _resolve_nuget_config()
     cfg.write_text(content, encoding="utf-8")
     _mark_done(pfx, "nuget_config_v9")
-    log("  NuGet.Config written with trustedSigners (allowUntrustedRoot).")
+    log(f"  NuGet.Config written with trustedSigners (allowUntrustedRoot) [{source}].")
     return True
 
 
