@@ -45,7 +45,8 @@ def copy_fomod_choice(src_profile_dir: Path, dst_profile_dir: Path,
 def copy_mod_to_profile(src_staging: Path, src_profile_dir: Path,
                         target_staging: Path, target_profile_dir: Path,
                         mod_name: str, enabled: bool = True, *,
-                        dest_name: "str | None" = None) -> "str | None":
+                        dest_name: "str | None" = None,
+                        game=None) -> "str | None":
     """Copy the ``<src_staging>/<mod_name>`` folder into *target_staging* (as
     *dest_name* if given), copy its FOMOD/BAIN choice, and register it in the
     target profile's ``modlist.txt`` (prepend = highest priority, dedup by name,
@@ -53,7 +54,12 @@ def copy_mod_to_profile(src_staging: Path, src_profile_dir: Path,
 
     The caller must resolve collisions first: pass ``dest_name`` to install under
     a new name, or delete the existing folder to replace it. If the dest folder
-    already exists (and wasn't handled), the copy fails and returns None."""
+    already exists (and wasn't handled), the copy fails and returns None.
+
+    *game* (optional but recommended) lets us add the copied mod to the target
+    staging's ``modindex.bin`` incrementally — without it, the target profile's
+    cached index is stale and the mod is invisible to the filemap rebuild
+    (no deploy / no plugins / no conflicts) until a full Refresh."""
     src_folder = Path(src_staging) / mod_name
     if not src_folder.is_dir():
         return None
@@ -68,8 +74,62 @@ def copy_mod_to_profile(src_staging: Path, src_profile_dir: Path,
         return None
     copy_fomod_choice(src_profile_dir, target_profile_dir, mod_name,
                       dest_name=out)
+    if game is not None:
+        _update_target_index(game, target_staging, target_profile_dir,
+                             out, dest_folder)
     _register_in_modlist(target_profile_dir / "modlist.txt", out, enabled)
     return out
+
+
+def _update_target_index(game, target_staging: Path, target_profile_dir: Path,
+                         mod_name: str, dest_root: Path) -> None:
+    """Incrementally add the just-copied mod to the target staging's
+    ``modindex.bin`` (+ ``bsa_index.bin``).
+
+    Without this the target profile's cached index is stale after a copy/move
+    and the mod is invisible to the filemap rebuild — no deploy, no plugins,
+    no conflicts — until a full Refresh rescans the index from disk.
+
+    The index/BSA-index live next to the *target* staging (= where
+    ``build_filemap`` reads them for that profile), which may not be the active
+    profile. We reuse :func:`filemap.rescan_mods_in_index` so the single-mod
+    entry is written with EXACTLY the same strip-prefix / extension rules a full
+    Refresh would apply (raw index keys must match, or a later reorder-only
+    rebuild reads mismatched paths).
+
+    Best-effort: any failure just leaves the index stale and is silently
+    swallowed (the next full Refresh rescans it)."""
+    try:
+        from Utils.filemap import rescan_mods_in_index
+        from Utils.deploy import load_per_mod_strip_prefixes
+        index_dir = Path(target_staging).parent
+        # A root-flagged mod must NOT have strip_prefixes applied. The flag
+        # lives in the mod's own meta.ini (copied verbatim into dest_root); read
+        # it directly — the target modlist isn't updated until after this call.
+        root_mods = None
+        try:
+            from Nexus.nexus_meta import read_meta
+            if read_meta(Path(dest_root) / "meta.ini").root_folder:
+                root_mods = {mod_name}
+        except Exception:
+            root_mods = None
+        rescan_mods_in_index(
+            index_dir / "modindex.bin", Path(target_staging), [mod_name],
+            strip_prefixes=set(getattr(game, "mod_folder_strip_prefixes", None) or ()) or None,
+            per_mod_strip_prefixes=load_per_mod_strip_prefixes(target_profile_dir),
+            allowed_extensions=set(getattr(game, "mod_install_extensions", None) or ()) or None,
+            normalize_folder_case=getattr(game, "normalize_folder_case", True),
+            root_folder_mods=root_mods,
+        )
+        archive_exts = frozenset(
+            getattr(game, "archive_extensions", frozenset()) or frozenset())
+        if archive_exts:
+            from Utils.bsa_filemap import update_bsa_index
+            update_bsa_index(index_dir / "bsa_index.bin",
+                             mod_name, dest_root, archive_exts)
+    except Exception:
+        # Best-effort — the next full index rescan (Refresh) will pick it up.
+        pass
 
 
 def _register_in_modlist(target_modlist: Path, name: str, enabled: bool) -> None:

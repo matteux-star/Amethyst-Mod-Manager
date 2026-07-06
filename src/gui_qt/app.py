@@ -4639,7 +4639,8 @@ class MainWindow(QMainWindow):
                     out = mod_copy.copy_mod_to_profile(
                         Path(src_staging), Path(src_profile_dir),
                         Path(target_staging), Path(target_profile_dir),
-                        nm, enabled_map.get(nm, True), dest_name=dest_name)
+                        nm, enabled_map.get(nm, True), dest_name=dest_name,
+                        game=game)
                     if out:
                         copied.append(nm)
                 except Exception as exc:
@@ -7516,7 +7517,7 @@ class MainWindow(QMainWindow):
                 sync_modlist_with_mods_folder(ml, staging)
             except Exception as exc:
                 print(f"[gui_qt] modlist sync failed: {exc}", flush=True)
-        self._reload_modlist(rescan_index=True)
+        self._reload_modlist(rescan_index=True, preserve_overlays=True)
         self._reload_plugins()
         self._refresh_footer_toggle_labels()
         self._notify(self.tr("Modlist refreshed"), "info")
@@ -7774,10 +7775,17 @@ class MainWindow(QMainWindow):
             return
         self._gs.reassert_active_profile()
 
-    def _reload_modlist(self, rescan_index: bool = False):
+    def _reload_modlist(self, rescan_index: bool = False,
+                        preserve_overlays: bool = False):
         """Load the active game/profile's modlist + metadata into the model.
         rescan_index=True forces the conflict rebuild to rescan the index from
-        disk (Refresh button)."""
+        disk (Refresh button).
+
+        preserve_overlays=True keeps the current flag/conflict icons on screen
+        until the async re-read lands (Refresh of the SAME game/profile — the
+        overlays are keyed by mod name so they still render correctly). Leave it
+        False for a game/profile switch, where the old overlays are stale and
+        must be cleared immediately."""
         from Utils.modlist import read_modlist
         from gui_qt.modlist_data import read_meta_for_entries
 
@@ -7809,11 +7817,13 @@ class MainWindow(QMainWindow):
         # The gen bump also drops a stale in-flight read on switch.
         self._modlist_meta_gen += 1
         meta_gen = self._modlist_meta_gen
-        self._modlist_model._versions = {}
-        self._modlist_model._installed = {}
-        self._modlist_model._categories = {}
+        if not preserve_overlays:
+            self._modlist_model._versions = {}
+            self._modlist_model._installed = {}
+            self._modlist_model._categories = {}
         self._modlist_model.set_entries(entries)
-        self._modlist_model.set_flags({})
+        if not preserve_overlays:
+            self._modlist_model.set_flags({})
         self._modlist_model.set_notes(self._read_mod_notes())
         if entries and staging is not None:
             import threading
@@ -7834,7 +7844,8 @@ class MainWindow(QMainWindow):
 
             threading.Thread(target=meta_worker, daemon=True,
                              name="modlist-meta").start()
-        self._modlist_model.set_conflicts({}, {})   # clear stale; recomputed async
+        if not preserve_overlays:
+            self._modlist_model.set_conflicts({}, {})   # clear stale; recomputed async
         # Persist edits back to this modlist; rebuild conflicts after each save.
         self._modlist_model.modlist_path = ml_path
         self._modlist_model.on_saved = self._rebuild_conflicts_async

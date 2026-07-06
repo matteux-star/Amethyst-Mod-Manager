@@ -1964,13 +1964,8 @@ def _write_install_meta(dest_root: Path, archive: Path, game, log_fn: LogFn,
 def _update_indexes(game, profile_dir: Path, mod_name: str, dest_root: Path,
                     log_fn: LogFn) -> None:
     try:
-        from Utils.filemap import _scan_dir, update_mod_index
-        strip = frozenset(s.lower() for s in (getattr(game, "strip_prefixes", None) or []))
-        exts = frozenset(e.lower() for e in (getattr(game, "install_extensions", None) or []))
-        root = frozenset(s.lower() for s in (getattr(game, "root_deploy_folders", None) or []))
-        # _scan_dir returns (name, normal, root, extras); take the first three.
-        scan = _scan_dir(mod_name, str(dest_root), strip, exts, root)
-        normal_files, root_files = scan[1], scan[2]
+        from Utils.filemap import rescan_mods_in_index
+        from Utils.deploy import load_per_mod_strip_prefixes
         # The index MUST live where build_filemap reads it — next to the
         # effective filemap (= staging.parent / game root), NOT the profile dir.
         # Writing it to the profile dir leaves a fresh install invisible to the
@@ -1980,9 +1975,33 @@ def _update_indexes(game, profile_dir: Path, mod_name: str, dest_root: Path,
         except Exception:
             index_dir = profile_dir
         index_path = index_dir / "modindex.bin"
-        norm_case = getattr(game, "normalize_folder_case", True)
-        update_mod_index(index_path, mod_name, normal_files, root_files,
-                         normalize_folder_case=norm_case)
+        staging_root = Path(dest_root).parent
+        # Reuse rescan_mods_in_index (shares logic with rebuild_mod_index, the
+        # Refresh path) so the single-mod entry is written with EXACTLY the same
+        # strip-prefix / extension / per-mod / root-folder rules a full Refresh
+        # applies. The canonical game attributes are mod_folder_strip_prefixes /
+        # mod_install_extensions — the older strip_prefixes / install_extensions
+        # names don't exist on the game classes (getattr → None), which wrote an
+        # UNSTRIPPED entry (e.g. Bethesda "Data/…" kept), inconsistent with a
+        # Refresh → deploy double-nested paths / wrong conflicts until Refresh.
+        # A root-flagged mod (e.g. SKSE) must NOT be stripped — read the flag
+        # from the just-written meta.ini (the modlist isn't updated yet here).
+        root_mods = None
+        try:
+            from Nexus.nexus_meta import read_meta
+            if read_meta(Path(dest_root) / "meta.ini").root_folder:
+                root_mods = {mod_name}
+        except Exception:
+            root_mods = None
+        rescan_mods_in_index(
+            index_path, staging_root, [mod_name],
+            strip_prefixes=set(getattr(game, "mod_folder_strip_prefixes", None) or ()) or None,
+            per_mod_strip_prefixes=load_per_mod_strip_prefixes(profile_dir),
+            allowed_extensions=set(getattr(game, "mod_install_extensions", None) or ()) or None,
+            normalize_folder_case=getattr(game, "normalize_folder_case", True),
+            root_folder_mods=root_mods,
+            log_fn=log_fn,
+        )
         archive_exts = frozenset(getattr(game, "archive_extensions", frozenset()) or frozenset())
         if archive_exts:
             from Utils.bsa_filemap import update_bsa_index
