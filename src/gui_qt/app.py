@@ -245,6 +245,7 @@ class MainWindow(QMainWindow):
     _appended_col_removed = Signal(str, bool)  # appended-collection remove worker → UI
     _col_import_done = Signal(object)          # (profile_name, installed, total, skipped)
     _import_file_picked = Signal(object)       # portal picker result (Path|None) → UI thread
+    _export_code_ready = Signal(object, int)   # (code str|None, mod_count) share-code build → UI thread
     _install_files_picked = Signal(object)     # portal picker result (list[Path]) → UI thread
     _custom_exe_picked = Signal(object)        # portal picker result (Path|None) → UI thread
     # Worker blocks on these to show the deferred FOMOD / BAIN pickers (holder+Event).
@@ -458,6 +459,7 @@ class MainWindow(QMainWindow):
         self._appended_col_removed.connect(self._on_appended_col_removed)
         self._col_import_done.connect(self._on_import_bundle_done)
         self._import_file_picked.connect(self._on_import_file_picked)
+        self._export_code_ready.connect(self._on_export_code_ready)
         self._install_files_picked.connect(self._on_install_files_picked)
         self._custom_exe_picked.connect(self._on_custom_exe_picked)
         self._col_fomod.connect(self._on_col_fomod_ui)
@@ -5009,12 +5011,18 @@ class MainWindow(QMainWindow):
                 self._append_log("[profile] no game selected.")
                 return
             self._new_profile_bar.open_for()
+        elif which == "remove":
+            self._remove_current_profile()
         elif which == "settings":
             self._open_profile_settings_tab()
         elif which == "export":
             self._open_export_profile_tab()
         elif which == "import":
             self._import_profile()
+        elif which == "export_code":
+            self._export_profile_code()
+        elif which == "import_code":
+            self._import_profile_code()
         else:
             self._append_log(f"[profile] {which} (not wired yet)")
 
@@ -5088,6 +5096,25 @@ class MainWindow(QMainWindow):
             self._notify(self.tr("That file doesn't look like an Amethyst manifest."),
                          "warning")
             return
+        bundle_zip = path if Path(path).suffix.lower() in (".amethyst", ".zip") else ""
+        self._open_manifest_import(manifest, Path(path).stem, bundle_zip=bundle_zip)
+
+    def _open_manifest_import(self, manifest, source_stem, *, bundle_zip="",
+                              allow_append=False):
+        """Shared import continuation: validate the manifest's game domain against
+        the selected game, then open the collection detail tab (which drives the
+        install pipeline). Used by both file-import and code-import. *allow_append*
+        permits appending into an existing profile (safe only when there is no
+        bundle — i.e. a code import)."""
+        game = self._gs.game
+        if game is None or not game.is_configured():
+            self._notify(self.tr("No configured game selected."), "warning")
+            return
+        api = self._ensure_nexus_api()
+        if api is None:
+            self._notify(self.tr("Log in first: Nexus ▸ Login to Nexus ▸ Login via SSO."),
+                         "warning")
+            return
         # Game-domain guard: v1 requires the selected game to match the manifest.
         man_domain = ((manifest.get("info") or {}).get("domainName") or "").strip()
         game_domain = (getattr(game, "nexus_game_domain", "") or "").strip()
@@ -5099,23 +5126,125 @@ class MainWindow(QMainWindow):
         # Build a bare NexusCollection + open the detail tab populated from the
         # manifest; the bundle zip (if a .amethyst) restores mods/profile after.
         from Nexus.nexus_api import NexusCollection
-        name = (manifest.get("info") or {}).get("name") or Path(path).stem
+        name = (manifest.get("info") or {}).get("name") or source_stem
         collection = NexusCollection(
-            id=0, slug=f"import_{Path(path).stem}", name=name,
+            id=0, slug=f"import_{source_stem}", name=name,
             game_domain=man_domain or game_domain)
-        bundle_zip = path if Path(path).suffix.lower() in (".amethyst", ".zip") else ""
-        key = f"import_profile_{Path(path).stem}"
+        key = f"import_profile_{source_stem}"
         if self._tabs.has_key(key):
             self._tabs.focus_key(key)
             return
         from gui_qt.collection_detail_view import CollectionDetailView
         view = CollectionDetailView(
             api, collection, game, log_fn=self._append_log,
-            local_manifest=manifest, bundle_zip=bundle_zip)
+            local_manifest=manifest, bundle_zip=bundle_zip,
+            allow_append=allow_append)
         view.set_install_handler(
             lambda chosen, skipped, intent="install": self._install_collection(
                 collection, view, chosen, skipped, intent))
         self._tabs.open_tab(view, self.tr("Import: {0}").format(name), key=key)
+
+    # ---- Share code: export / import a modlist as a text string -----------
+    def _export_profile_code(self):
+        """Build a compact share code for the active profile (mods with a
+        modId + fileId, FOMOD/BAIN choices, load order) and show it with a
+        Copy-to-clipboard overlay. The build runs on a worker thread because it
+        may prefetch file sizes from Nexus."""
+        if self._gs.game_name is None:
+            self._notify(self.tr("No game selected."), "warning")
+            return
+        game = self._gs.game
+        if game is None or not game.is_configured():
+            self._notify(self.tr("No configured game selected."), "warning")
+            return
+        # The code carries no file sizes (the recipient's install pipeline
+        # resolves them from Nexus), so no API call is needed to build it — but
+        # the modlist read + FOMOD/BAIN sidecar reads still run off the UI thread.
+        import threading
+        threading.Thread(
+            target=self._export_code_worker, args=(game,),
+            daemon=True, name="export-code").start()
+
+    def _export_code_worker(self, game):
+        try:
+            from Utils import profile_export
+            from Utils.modlist import read_modlist
+            pd = getattr(game, "_active_profile_dir", None)
+            modlist_path = (Path(pd) / "modlist.txt") if pd else None
+            if not modlist_path or not modlist_path.is_file():
+                self._export_code_ready.emit(None, 0)
+                return
+            # read_modlist returns index 0 = highest priority (top of modlist);
+            # build_code_manifest expects exactly that order.
+            entries = [e for e in read_modlist(modlist_path)
+                       if not e.is_separator]
+            try:
+                from version import __version__ as app_version
+            except Exception:
+                app_version = ""
+            profile_name = Path(pd).name if pd else None
+            manifest = profile_export.build_code_manifest(
+                entries, game, app_version, profile_name=profile_name)
+            mods = manifest.get("mods") or []
+            if not mods:
+                self._export_code_ready.emit("", 0)
+                return
+            code = profile_export.encode_manifest(manifest)
+            self._export_code_ready.emit(code, len(mods))
+        except Exception as exc:
+            self._append_log(f"[export-code] failed: {exc}")
+            self._export_code_ready.emit(None, -1)
+
+    def _on_export_code_ready(self, code, mod_count):
+        if code is None:
+            if mod_count == -1:
+                self._notify(self.tr("Could not build share code."), "error")
+            else:
+                self._notify(self.tr("No active profile to export."), "warning")
+            return
+        if not code:
+            self._notify(
+                self.tr("No mods with a Nexus mod + file ID to share."), "warning")
+            return
+        from gui_qt.share_code_overlay import ShareCodeExportOverlay
+        ShareCodeExportOverlay(self.window(), code, mod_count)
+        self._append_log(f"[export-code] built code for {mod_count} mod(s).")
+
+    def _import_profile_code(self):
+        """Prompt for a pasted share code, decode it, then reuse the manifest
+        import pipeline to build a new profile from it."""
+        game = self._gs.game
+        if game is None or not game.is_configured():
+            self._notify(self.tr("No configured game selected."), "warning")
+            return
+        if self._ensure_nexus_api() is None:
+            self._notify(self.tr("Log in first: Nexus ▸ Login to Nexus ▸ Login via SSO."),
+                         "warning")
+            return
+
+        def _got(text):
+            if not text:
+                return
+            from Utils import profile_export
+            try:
+                manifest = profile_export.decode_manifest(text)
+            except Exception as exc:
+                self._notify(self.tr("Could not read code: {0}").format(exc), "error")
+                return
+            # Name the imported profile "<source profile> - Code". The source name
+            # is carried in the manifest's info.name; overwrite it with the "- Code"
+            # form so both the collection/profile name and the import tab title use
+            # it (build_code_manifest stores the bare name, so re-exporting an
+            # imported profile won't stack "- Code - Code").
+            info = manifest.setdefault("info", {})
+            src_name = (info.get("name") or "Imported").strip()
+            info["name"] = f"{src_name} - Code"
+            # A code has no bundle, so appending into an existing profile is safe.
+            self._open_manifest_import(
+                manifest, f"{src_name}_code", bundle_zip="", allow_append=True)
+
+        from gui_qt.share_code_overlay import ShareCodeImportOverlay
+        ShareCodeImportOverlay(self.window(), _got)
 
     def _open_profile_settings_tab(self):
         """Open the Profile Settings panel scoped over the MODLIST panel (like the
@@ -5127,8 +5256,17 @@ class MainWindow(QMainWindow):
         if self._tabs.has_key("profile_settings"):
             self._tabs.focus_key("profile_settings")
             return
+        view = self._make_profile_settings_view()
+        self._profile_settings_view = view
+        self._tabs.open_scoped_tab(
+            view, self.tr("Profile Settings"), self._modlist_panel_stack,
+            key="profile_settings")
+
+    def _make_profile_settings_view(self):
+        """Build a ProfileSettingsView wired to the app's selector/reload
+        callbacks. Used both by the scoped tab and the dropdown's Remove action."""
         from gui_qt.profile_settings_view import ProfileSettingsView
-        view = ProfileSettingsView(
+        return ProfileSettingsView(
             self,
             game_name=self._gs.game_name,
             current_profile=self._gs.profile,
@@ -5137,10 +5275,34 @@ class MainWindow(QMainWindow):
             on_profiles_changed=self._on_profiles_lock_changed,
             log_fn=self._append_log,
         )
-        self._profile_settings_view = view
-        self._tabs.open_scoped_tab(
-            view, self.tr("Profile Settings"), self._modlist_panel_stack,
-            key="profile_settings")
+
+    def _current_profile_locked(self) -> bool:
+        """True when the active profile is locked (or the original default) and so
+        must not be removable from the dropdown. Mirrors the Profile Settings row
+        gate without opening the tab."""
+        if self._gs.game_name is None or self._gs.profile is None:
+            return True
+        try:
+            view = self._make_profile_settings_view()
+            return view._is_profile_locked(self._gs.profile)
+        except Exception:
+            return True
+
+    def _remove_current_profile(self):
+        """Remove the active profile via the same flow as Profile Settings'
+        Remove button (confirm overlays, restore-if-deployed, delete, selector
+        reload). Kept alive on self until the async remove worker finishes."""
+        if self._gs.game_name is None or self._gs.profile is None:
+            self._notify(self.tr("No profile selected."), "warning")
+            return
+        profile = self._gs.profile
+        view = self._make_profile_settings_view()
+        if view._is_profile_locked(profile):
+            return
+        # Retain a reference — the remove runs on a worker thread and emits back
+        # into the (parentless) view; without this it could be collected mid-op.
+        self._profile_remove_helper = view
+        view._on_remove(profile)
 
     # -- Profile Settings callbacks (view → app: refresh selector + reload) --
     def _on_profiles_lock_changed(self):
@@ -5778,16 +5940,35 @@ class MainWindow(QMainWindow):
                     (self.tr("Profile saves folder"),
                      lambda: self._open_profile_dir("saves")))
         actions = []
+        # Add new profile always comes first.
+        add_opts = {"separator_after": True}
+        # Remove current profile — hidden for locked (and default) profiles, so
+        # the "Add" entry keeps the trailing separator when Remove is absent.
+        can_remove = (self._gs.profile is not None
+                      and not self._current_profile_locked())
+        if can_remove:
+            add_opts = {}
+        actions.append(
+            (self.tr("Add new profile…"), lambda: self._on_profile_action("add"),
+             add_opts))
+        if can_remove:
+            actions.append(
+                (self.tr("Remove current profile…"),
+                 lambda: self._on_profile_action("remove"),
+                 {"separator_after": True}))
         if open_items:
             actions.append((self.tr("Open"), open_items))
         quick = self._quick_configure_submenu(game)
         if quick:
             actions.append((self.tr("Quick configure"), quick))
+        # Profile settings, then the export/import group (profile + code together).
         actions.extend([
-            (self.tr("Add new profile…"), lambda: self._on_profile_action("add")),
-            (self.tr("Profile settings…"), lambda: self._on_profile_action("settings")),
+            (self.tr("Profile settings…"), lambda: self._on_profile_action("settings"),
+             {"separator_after": True}),
             (self.tr("Export profile…"), lambda: self._on_profile_action("export")),
             (self.tr("Import profile…"), lambda: self._on_profile_action("import")),
+            (self.tr("Export code…"), lambda: self._on_profile_action("export_code")),
+            (self.tr("Import code…"), lambda: self._on_profile_action("import_code")),
         ])
         return actions
 

@@ -105,7 +105,7 @@ class CollectionDetailView(QWidget):
 
     def __init__(self, api, collection, game, log_fn=None, on_install=None,
                  revision_number=None, local_manifest=None, bundle_zip=None,
-                 parent=None):
+                 allow_append=False, parent=None):
         super().__init__(parent)
         self._api = api
         self._collection = collection
@@ -122,7 +122,11 @@ class CollectionDetailView(QWidget):
         # .amethyst zip after install. Forces a NEW profile (no revision on Nexus).
         self._local_manifest = local_manifest
         self._bundle_zip_path = str(bundle_zip) if bundle_zip else ""
-        self._recommend_new_profile = bool(local_manifest)  # imports → new profile
+        # Imports normally force a NEW profile (a .amethyst bundle carries profile
+        # state — plugins/saves — that can't be safely merged). A code import has
+        # no bundle, so the caller may pass allow_append=True to permit appending
+        # into an existing profile.
+        self._recommend_new_profile = bool(local_manifest) and not allow_append
         self._opt_boxes: list[tuple[QCheckBox, int]] = []   # (checkbox, file_id)
         self._revision_number = revision_number    # None = latest published
         # A ctor-requested revision (e.g. Open Current) — the FIRST fetch is still

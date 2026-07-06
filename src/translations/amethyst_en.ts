@@ -3148,6 +3148,22 @@ Remove the appended-collection entry?</translation>
         <translation>Import: {0}</translation>
     </message>
     <message>
+        <source>Could not build share code.</source>
+        <translation>Could not build share code.</translation>
+    </message>
+    <message>
+        <source>No active profile to export.</source>
+        <translation>No active profile to export.</translation>
+    </message>
+    <message>
+        <source>No mods with a Nexus mod + file ID to share.</source>
+        <translation>No mods with a Nexus mod + file ID to share.</translation>
+    </message>
+    <message>
+        <source>Could not read code: {0}</source>
+        <translation>Could not read code: {0}</translation>
+    </message>
+    <message>
         <source>Profile Settings</source>
         <translation>Profile Settings</translation>
     </message>
@@ -3228,8 +3244,20 @@ Remove the appended-collection entry?</translation>
         <translation>Profile saves folder</translation>
     </message>
     <message>
+        <source>Remove current profile…</source>
+        <translation>Remove current profile…</translation>
+    </message>
+    <message>
         <source>Quick configure</source>
         <translation>Quick configure</translation>
+    </message>
+    <message>
+        <source>Export code…</source>
+        <translation>Export code…</translation>
+    </message>
+    <message>
+        <source>Import code…</source>
+        <translation>Import code…</translation>
     </message>
     <message>
         <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
@@ -5781,6 +5809,52 @@ Please restart the wizard and install Script Merger first.</translation>
     <message>
         <source>Failed to save setting: {0}</source>
         <translation>Failed to save setting: {0}</translation>
+    </message>
+</context>
+<context>
+    <name>ShareCodeExportOverlay</name>
+    <message>
+        <source>Export code</source>
+        <translation>Export code</translation>
+    </message>
+    <message>
+        <source>Share this code with someone to send them your load order ({0} {1}). They can add it with Import code.</source>
+        <translation>Share this code with someone to send them your load order ({0} {1}). They can add it with Import code.</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Close</translation>
+    </message>
+    <message>
+        <source>Copy to clipboard</source>
+        <translation>Copy to clipboard</translation>
+    </message>
+    <message>
+        <source>Copied ✓</source>
+        <translation>Copied ✓</translation>
+    </message>
+</context>
+<context>
+    <name>ShareCodeImportOverlay</name>
+    <message>
+        <source>Import code</source>
+        <translation>Import code</translation>
+    </message>
+    <message>
+        <source>Paste a share code below to build a new profile from someone else's load order.</source>
+        <translation>Paste a share code below to build a new profile from someone else's load order.</translation>
+    </message>
+    <message>
+        <source>Paste from clipboard</source>
+        <translation>Paste from clipboard</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Import</translation>
     </message>
 </context>
 <context>
