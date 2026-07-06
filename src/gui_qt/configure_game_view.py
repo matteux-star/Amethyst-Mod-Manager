@@ -54,6 +54,7 @@ def _heroic_app_names(game) -> list[str]:
 
 class _ScanSignals(QObject):
     game_found = Signal(object, str)        # (path|None, source)
+    drive_scan_found = Signal(object)       # (path|None) — full-drive Scan button
     prefix_found = Signal(object)           # (path|None)
     # Browse (portal) picks — fired from the portal WORKER thread, so they must
     # be marshalled to the GUI thread via a Signal before touching any widget.
@@ -87,6 +88,7 @@ class ConfigureGameView(QWidget):
 
         self._sig = _ScanSignals()
         self._sig.game_found.connect(self._on_game_found)
+        self._sig.drive_scan_found.connect(self._on_drive_scan_found)
         self._sig.prefix_found.connect(self._on_prefix_found)
         self._sig.game_picked.connect(self._on_game_picked)
         self._sig.prefix_picked.connect(self._on_prefix_picked)
@@ -272,7 +274,8 @@ class ConfigureGameView(QWidget):
         row.addWidget(self._small_btn(self.tr("Browse manually…"), self._browse_game))
         self._game_open = self._small_btn(self.tr("Open"), lambda: self._open_path(self._found_path))
         row.addWidget(self._game_open)
-        row.addWidget(self._small_btn(self.tr("Scan"), self._start_game_scan))
+        self._scan_btn = self._small_btn(self.tr("Scan"), self._start_drive_scan)
+        row.addWidget(self._scan_btn)
         row.addStretch(1)
         v.addLayout(row)
         v.addWidget(self._divider())
@@ -736,9 +739,12 @@ class ConfigureGameView(QWidget):
         threading.Thread(target=self._game_scan_worker, daemon=True).start()
 
     def _game_scan_worker(self):
+        from Utils.app_log import app_log
         g = self._game
         found = None
         source = "steam"
+        game_name = getattr(g, "name", repr(g))
+        app_log(f"[Configure Game] Auto-detecting: {game_name}")
         try:
             from Utils.steam_finder import (
                 find_steam_libraries, find_game_by_steam_id, find_game_in_libraries)
@@ -747,6 +753,7 @@ class ConfigureGameView(QWidget):
             exe_names = [getattr(g, "exe_name", None)] + list(
                 getattr(g, "exe_name_alts", []) or [])
             exe_names = [e for e in exe_names if e]
+            app_log(f"[Configure Game] Checking Heroic (exe names: {exe_names})")
             for exe in exe_names:
                 info = find_heroic_game_info_by_exe(exe)
                 if info:
@@ -754,26 +761,48 @@ class ConfigureGameView(QWidget):
                     source = "heroic"
                     if fpfx is not None:
                         self._found_prefix = fpfx
+                    app_log(f"[Configure Game] Found via Heroic exe scan ({exe}): {found}")
                     break
             if not found and _heroic_app_names(g):
-                found = find_heroic_game(_heroic_app_names(g))
+                heroic_names = _heroic_app_names(g)
+                app_log(f"[Configure Game] Checking Heroic app names: {heroic_names}")
+                found = find_heroic_game(heroic_names)
                 if found:
                     source = "heroic"
+                    app_log(f"[Configure Game] Found via Heroic app name: {found}")
             if not found:
                 libs = find_steam_libraries()
+                app_log(f"[Configure Game] Steam libraries found: "
+                        f"{libs if libs else 'none'}")
                 sid = getattr(g, "steam_id", None)
                 if sid:
+                    app_log(f"[Configure Game] Checking Steam manifest "
+                            f"(app ID: {sid}, exes: {exe_names})")
                     for exe in exe_names:
                         found = find_game_by_steam_id(libs, sid, exe)
                         if found:
+                            app_log(f"[Configure Game] Found via Steam manifest "
+                                    f"({exe}): {found}")
                             break
+                else:
+                    app_log("[Configure Game] No Steam app ID configured for this game")
                 if not found:
+                    app_log("[Configure Game] Falling back to exe scan across Steam libraries")
                     for exe in exe_names:
                         found = find_game_in_libraries(libs, exe)
                         if found:
+                            app_log(f"[Configure Game] Found via Steam exe scan "
+                                    f"({exe}): {found}")
                             break
-        except Exception:
+                    else:
+                        app_log(f"[Configure Game] Not found via Steam exe scan "
+                                f"(tried: {exe_names})")
+        except Exception as exc:
+            import traceback
+            app_log(f"[Configure Game] Scan failed: {exc}\n{traceback.format_exc()}")
             found = None
+        if not found:
+            app_log(f"[Configure Game] Game location not auto-detected for: {game_name}")
         self._sig.game_found.emit(found, source)
 
     def _on_game_found(self, found, source):
@@ -786,6 +815,55 @@ class ConfigureGameView(QWidget):
         else:
             self._game_status.setText(
                 self.tr("Not found automatically. Browse manually to locate the game folder."))
+            self._game_status.setStyleSheet(f"color:{self._c('TEXT_ERR')};")
+
+    # ---- full-drive Scan button -------------------------------------------
+    def _start_drive_scan(self):
+        """The Scan button: walk every mounted drive for the game exe.
+
+        Distinct from the automatic Steam/Heroic library detection that runs on
+        open — this catches non-Steam / GOG / manually-installed copies the
+        library scan can't see (Tk parity: the Tk Scan button did the same
+        all-drives walk, not a Steam re-scan)."""
+        g = self._game
+        exe_names = [getattr(g, "exe_name", None)] + list(
+            getattr(g, "exe_name_alts", []) or [])
+        exe_names = [e for e in exe_names if e]
+        if not exe_names:
+            self._game_status.setText(
+                self.tr("No executable name configured for this game."))
+            self._game_status.setStyleSheet(f"color:{self._c('TEXT_ERR')};")
+            return
+        self._game_status.setText(self.tr("Scanning all drives…"))
+        self._game_status.setStyleSheet(f"color:{self._c('TEXT_WARN')};")
+        self._scan_btn.setEnabled(False)
+        threading.Thread(target=self._drive_scan_worker, args=(exe_names,),
+                         daemon=True, name="drive-scan").start()
+
+    def _drive_scan_worker(self, exe_names):
+        from Utils.app_log import app_log
+        found = None
+        try:
+            from Utils.steam_finder import scan_drives_for_exe
+            app_log(f"[Configure Game] Scanning all drives for: {exe_names}")
+            found = scan_drives_for_exe(exe_names)
+            app_log(f"[Configure Game] Drive scan result: {found or 'not found'}")
+        except Exception as exc:
+            import traceback
+            app_log(f"[Configure Game] Drive scan failed: {exc}\n"
+                    f"{traceback.format_exc()}")
+            found = None
+        self._sig.drive_scan_found.emit(found)
+
+    def _on_drive_scan_found(self, found):
+        self._scan_btn.setEnabled(True)
+        if found:
+            self._set_game(Path(found), source="manual")
+            self._game_status.setText(self.tr("Found via drive scan."))
+            self._game_status.setStyleSheet(f"color:{self._c('TEXT_OK')};")
+        else:
+            self._game_status.setText(
+                self.tr("Game executable not found on any drive."))
             self._game_status.setStyleSheet(f"color:{self._c('TEXT_ERR')};")
 
     def _start_prefix_scan(self):

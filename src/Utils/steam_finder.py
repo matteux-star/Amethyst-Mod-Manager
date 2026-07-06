@@ -750,6 +750,85 @@ def find_game_in_libraries(libraries: list[Path], exe_name: str) -> Path | None:
     return None
 
 
+def scan_drives_for_exe(exe_names: list[str],
+                        stop_event: "threading.Event | None" = None) -> Path | None:
+    """Scan all mounted drives for any of *exe_names*, stopping at first match.
+
+    Walks every real (non-pseudo) mount point from /proc/mounts, fanning the
+    top-level subtree walks out across a thread pool so a big multi-drive scan
+    doesn't run serially. Matching is on the bare filename (case-sensitive, to
+    match the Tk behaviour); *exe_names* entries with sub-paths are matched on
+    their final component. Returns the directory holding the exe, or None.
+
+    Pass *stop_event* to allow an external caller (e.g. a closing dialog) to
+    abort the walk early.
+    """
+    import concurrent.futures
+    import threading as _threading
+
+    names = {Path(e.replace("\\", "/")).name for e in exe_names if e}
+    if not names:
+        return None
+
+    skip_types = {"sysfs", "proc", "devtmpfs", "devpts", "tmpfs", "cgroup",
+                  "cgroup2", "pstore", "bpf", "tracefs", "debugfs",
+                  "securityfs", "fusectl", "hugetlbfs", "mqueue", "configfs",
+                  "efivarfs", "overlay", "squashfs"}
+    skip_dirs = {"proc", "sys", "dev", "run", "snap"}
+
+    roots: list[Path] = []
+    try:
+        with open("/proc/mounts", "r", encoding="utf-8") as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) < 3:
+                    continue
+                fstype = parts[2]
+                mountpoint = parts[1]
+                if fstype in skip_types:
+                    continue
+                p = Path(mountpoint)
+                if p == Path("/"):
+                    roots.insert(0, p)  # scan root first
+                else:
+                    roots.append(p)
+    except OSError:
+        roots = [Path("/")]
+
+    if stop_event is None:
+        stop_event = _threading.Event()
+
+    def _scan_subtree(start: Path) -> Path | None:
+        for dirpath, dirnames, filenames in os.walk(start, followlinks=False):
+            if stop_event.is_set():
+                return None
+            dirnames[:] = [d for d in dirnames if d not in skip_dirs]
+            if names & set(filenames):
+                return Path(dirpath)
+        return None
+
+    scan_roots: list[Path] = []
+    for root in roots:
+        try:
+            scan_roots.extend(
+                p for p in root.iterdir()
+                if p.is_dir() and p.name not in skip_dirs)
+        except (PermissionError, OSError):
+            pass
+
+    found: Path | None = None
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+        futures = {pool.submit(_scan_subtree, sr): sr for sr in scan_roots}
+        for future in concurrent.futures.as_completed(futures):
+            result = future.result()
+            if result is not None:
+                found = result
+                stop_event.set()
+                break
+
+    return found
+
+
 def find_wine() -> tuple[str, Path]:
     """
     Finds a wine binary and the Proton root.

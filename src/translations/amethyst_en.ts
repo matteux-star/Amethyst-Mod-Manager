@@ -904,6 +904,22 @@ The default profile's settings are not affected.</translation>
         <translation>Not found automatically. Browse manually to locate the game folder.</translation>
     </message>
     <message>
+        <source>No executable name configured for this game.</source>
+        <translation>No executable name configured for this game.</translation>
+    </message>
+    <message>
+        <source>Scanning all drives…</source>
+        <translation>Scanning all drives…</translation>
+    </message>
+    <message>
+        <source>Found via drive scan.</source>
+        <translation>Found via drive scan.</translation>
+    </message>
+    <message>
+        <source>Game executable not found on any drive.</source>
+        <translation>Game executable not found on any drive.</translation>
+    </message>
+    <message>
         <source>Scanning for Proton prefix…</source>
         <translation>Scanning for Proton prefix…</translation>
     </message>
