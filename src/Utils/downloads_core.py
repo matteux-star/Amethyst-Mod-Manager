@@ -183,9 +183,22 @@ def section_label_for_dir(dl_dir: Path, game_name: Optional[str]) -> str:
     return f"{dl_dir}"
 
 
+def _is_default_downloads_dir(dl_dir: Path) -> bool:
+    """True if dl_dir is the system default Downloads folder (the only location
+    that sorts newest-first; cache/extras stay alphabetical)."""
+    def _res(p):
+        try:
+            return p.resolve()
+        except OSError:
+            return p
+    return _res(dl_dir) == _res(get_default_downloads_dir())
+
+
 def scan_download_dirs(game_name: Optional[str]) -> list[DownloadEntry]:
     """Scan all configured locations for archives → [DownloadEntry] with one
-    section header per source dir, archives sorted newest-first within each."""
+    section header per source dir. The default Downloads location is sorted
+    newest-first (by mtime); the Mod Manager Cache and extra locations stay
+    alphabetical."""
     entries: list[DownloadEntry] = []
     for dl_dir in get_scan_dirs(game_name):
         bucket: list[tuple[Path, float, int]] = []
@@ -200,8 +213,13 @@ def scan_download_dirs(game_name: Optional[str]) -> list[DownloadEntry]:
                         bucket.append((entry, st.st_mtime, st.st_size))
             except OSError:
                 pass
-        # Alphabetical (case-insensitive) within each location.
-        bucket.sort(key=lambda t: t[0].name.casefold())
+        if _is_default_downloads_dir(dl_dir):
+            # Downloads: newest first (by modified time), so freshly downloaded
+            # archives appear at the top.
+            bucket.sort(key=lambda t: t[1], reverse=True)
+        else:
+            # Cache / extra locations: alphabetical (case-insensitive).
+            bucket.sort(key=lambda t: t[0].name.casefold())
         # A section header is emitted for EVERY scan dir (even empty ones) so the
         # cache / extra locations always show — Tk parity.
         entries.append(DownloadEntry(

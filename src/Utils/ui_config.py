@@ -1507,6 +1507,206 @@ def save_onboarding_complete(value: bool) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Custom install-name regex patterns
+#
+# User-defined search/replace rules applied to a downloaded archive's filename
+# stem *before* the built-in Nexus/mod.io parsers, so users can adapt to a new
+# download-name format (Nexus changes these often) without a code change. Each
+# rule is a {"search": <regex>, "replace": <repl>, "enabled": bool} dict;
+# ``re.sub(search, replace, stem)`` is applied in order. Stored as a JSON list
+# under one option so the ordered pairs round-trip cleanly through configparser.
+# ---------------------------------------------------------------------------
+_NAME_PATTERNS_SECTION = "install_name_patterns"
+_NAME_PATTERNS_OPTION = "patterns"
+# One-shot marker: the built-in default rules are seeded into `patterns` exactly
+# once (the first time the rules are read). Without this, a user who deletes all
+# the default rows would get them re-added on the next launch.
+_NAME_PATTERNS_SEEDED_OPTION = "seeded"
+# Comma-separated ids of the default rules already introduced to this config.
+# A default id not in this list is injected once (at its canonical position) so a
+# NEW built-in rule shipped in an update reaches users who were seeded earlier —
+# without re-adding a default the user deliberately deleted (its id is recorded
+# here from the first seed, so it won't come back).
+_NAME_PATTERNS_INTRODUCED_OPTION = "introduced"
+
+
+def _read_install_name_patterns_raw(parser) -> list[dict] | None:
+    """Parse the stored JSON list, or None if the option is absent/blank/bad."""
+    import json
+    raw = parser.get(_NAME_PATTERNS_SECTION, _NAME_PATTERNS_OPTION, fallback="").strip()
+    if not raw:
+        return None
+    try:
+        data = json.loads(raw)
+    except Exception:
+        return None
+    if not isinstance(data, list):
+        return None
+    rules: list[dict] = []
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        search = str(item.get("search", ""))
+        if not search:
+            continue
+        rule = {
+            "search": search,
+            "replace": str(item.get("replace", "")),
+            "enabled": bool(item.get("enabled", True)),
+        }
+        # id/label are carried for built-in default rows so the editor can offer
+        # a reset; user-added rows simply omit them.
+        if item.get("id"):
+            rule["id"] = str(item["id"])
+        if item.get("label"):
+            rule["label"] = str(item["label"])
+        rules.append(rule)
+    return rules
+
+
+def load_install_name_patterns() -> list[dict]:
+    """Return the install-name rules (built-in defaults + user rules), in order.
+
+    Each item is ``{"search", "replace", "enabled"[, "id", "label"]}``. On the
+    very first read the built-in defaults (``mod_name_utils.default_install_name_rules``)
+    are seeded into the config, so callers and the editor always see the same
+    list. Returns ``[]`` only when the config is unreadable.
+    """
+    path = get_ui_config_path()
+    if not path.is_file():
+        # Config not created yet — return defaults without writing (the ini is
+        # written on first save/seed once load_ui_scale has created the file).
+        try:
+            from Utils.mod_name_utils import default_install_name_rules
+            return default_install_name_rules()
+        except Exception:
+            return []
+    try:
+        from Utils.mod_name_utils import default_install_name_rules
+        defaults = default_install_name_rules()
+    except Exception:
+        defaults = []
+    try:
+        parser = _new_parser()
+        parser.read(path)
+        rules = _read_install_name_patterns_raw(parser)
+        already_seeded = parser.getboolean(
+            _NAME_PATTERNS_SECTION, _NAME_PATTERNS_SEEDED_OPTION, fallback=False)
+        if rules is None and not already_seeded:
+            # First run: seed the built-in defaults and persist them so they show
+            # (editable) in the editor and run at install time.
+            save_install_name_patterns(defaults)
+            return defaults
+        rules = rules or []
+        # Migration: inject any default rule NOT yet introduced to this config
+        # (a new built-in shipped in an update), at its canonical position, once.
+        intro_raw = parser.get(
+            _NAME_PATTERNS_SECTION, _NAME_PATTERNS_INTRODUCED_OPTION, fallback="")
+        introduced = {x.strip() for x in intro_raw.split(",") if x.strip()}
+        # Legacy configs seeded before the `introduced` marker existed: treat the
+        # ids currently present as already-introduced so we don't re-add a rule
+        # the user deleted from that original set.
+        if not introduced:
+            introduced = {str(r.get("id")) for r in rules if r.get("id")}
+        new_defaults = [d for d in defaults
+                        if d.get("id") and d["id"] not in introduced]
+        if new_defaults:
+            merged = _merge_new_defaults(rules, defaults, new_defaults)
+            save_install_name_patterns(merged)
+            return merged
+        return rules
+    except Exception:
+        return []
+
+
+def _merge_new_defaults(rules: list[dict], defaults: list[dict],
+                        new_defaults: list[dict]) -> list[dict]:
+    """Insert *new_defaults* into *rules* at their canonical position (relative
+    to the other defaults in *defaults*), leaving existing rules and their order
+    otherwise untouched."""
+    default_order = [d.get("id") for d in defaults]
+    merged = list(rules)
+    for nd in new_defaults:
+        nid = nd.get("id")
+        try:
+            di = default_order.index(nid)
+        except ValueError:
+            merged.append(dict(nd))
+            continue
+        # Find the insert point: after the last already-present default that
+        # precedes this one in the canonical order.
+        insert_at = len(merged)
+        prior_ids = {default_order[j] for j in range(di)}
+        last_prior = -1
+        for idx, r in enumerate(merged):
+            if r.get("id") in prior_ids:
+                last_prior = idx
+        if last_prior >= 0:
+            insert_at = last_prior + 1
+        else:
+            # No preceding default present → put it before the first custom row
+            # (i.e. before the first row without a known default id).
+            default_ids = set(default_order)
+            for idx, r in enumerate(merged):
+                if r.get("id") not in default_ids:
+                    insert_at = idx
+                    break
+        merged.insert(insert_at, dict(nd))
+    return merged
+
+
+def save_install_name_patterns(rules: list[dict]) -> None:
+    """Persist the install-name rules to amethyst.ini as a JSON list.
+
+    Rules with an empty ``search`` are dropped. Order is preserved (rules are
+    applied top-to-bottom at install time). Carries the optional ``id``/``label``
+    on built-in default rows so the editor can offer a reset. Always sets the
+    ``seeded`` marker so defaults are seeded at most once (see load_*)."""
+    import json
+    cleaned = []
+    for r in rules:
+        if not str(r.get("search", "")).strip():
+            continue
+        item = {
+            "search": str(r.get("search", "")),
+            "replace": str(r.get("replace", "")),
+            "enabled": bool(r.get("enabled", True)),
+        }
+        if r.get("id"):
+            item["id"] = str(r["id"])
+        if r.get("label"):
+            item["label"] = str(r["label"])
+        cleaned.append(item)
+    path = get_ui_config_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    parser = _new_parser()
+    if path.is_file():
+        parser.read(path)
+    if _NAME_PATTERNS_SECTION not in parser:
+        parser[_NAME_PATTERNS_SECTION] = {}
+    parser[_NAME_PATTERNS_SECTION][_NAME_PATTERNS_OPTION] = json.dumps(cleaned)
+    parser[_NAME_PATTERNS_SECTION][_NAME_PATTERNS_SEEDED_OPTION] = "true"
+    # Record every shipped default id as "introduced" (union with what's already
+    # there), so a default remains introduced even after the user deletes it —
+    # it won't be re-added by the load-time migration.
+    try:
+        from Utils.mod_name_utils import default_install_name_rules
+        default_ids = {str(d["id"]) for d in default_install_name_rules() if d.get("id")}
+    except Exception:
+        default_ids = set()
+    prior_intro = {
+        x.strip()
+        for x in parser.get(_NAME_PATTERNS_SECTION,
+                            _NAME_PATTERNS_INTRODUCED_OPTION, fallback="").split(",")
+        if x.strip()
+    }
+    parser[_NAME_PATTERNS_SECTION][_NAME_PATTERNS_INTRODUCED_OPTION] = \
+        ",".join(sorted(prior_intro | default_ids))
+    with path.open("w", encoding="utf-8") as f:
+        parser.write(f)
+
+
+# ---------------------------------------------------------------------------
 # Theme colours
 # ---------------------------------------------------------------------------
 _THEME_SECTION = "theme"

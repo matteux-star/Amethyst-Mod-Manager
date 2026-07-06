@@ -76,6 +76,17 @@ _NEW_NEXUS_SPACED_RE = re.compile(
     rf"^(?P<name>.+?) (?P<id>\d+) (?P<ver>\d+(?:\.\d+)*[A-Za-z]*) (?P<slug>{_NEXUS_SLUG})$"
 )
 
+# Still-later Nexus download format (rolled out 2026-07, 4th format change):
+#   "<mod name> <mod id> <version> <timestamp> <slug>"
+#     e.g. "Fuse00 Legionary Armor 184575 1 2026-07-06T18-32Z Ae46W7hI2"
+# Same as the spaced form but with an ISO-ish upload timestamp
+# (YYYY-MM-DDThh-mmZ) inserted between the version and the slug.
+_NEXUS_TIMESTAMP = r"\d{4}-\d{2}-\d{2}T[\dNRZ:-]+Z"
+_NEW_NEXUS_SPACED_TS_RE = re.compile(
+    rf"^(?P<name>.+?) (?P<id>\d+) (?P<ver>\d+(?:\.\d+)*[A-Za-z]*) "
+    rf"(?P<ts>{_NEXUS_TIMESTAMP}) (?P<slug>{_NEXUS_SLUG})$"
+)
+
 # mod.io download names append a truncated-UUID tail: an underscore, the first
 # two hex groups of the mod's UUID (``<8hex>-<4hex>``), then one or more short
 # trailing groups (1-4 chars each) ending in a random token — e.g.
@@ -84,6 +95,132 @@ _NEW_NEXUS_SPACED_RE = re.compile(
 # ``_<8hex>-<4hex>`` anchor is distinct from any Nexus tail, so matching is
 # unambiguous and never touches Nexus names.
 _MODIO_TAIL_RE = re.compile(r"_[0-9a-f]{8}-[0-9a-f]{4}(?:-[0-9a-z]{1,4})+$")
+
+
+# ---------------------------------------------------------------------------
+# Default (built-in) install-name rules, exposed as editable regex rows.
+#
+# These mirror the known download-name formats above as plain search/replace
+# regex so a user can SEE and tweak what runs — the editor seeds them into the
+# config on first use and offers a per-row / global "restore default". They run
+# through the same _apply_custom_patterns path as user rules (as Step 0 of
+# _suggest_mod_names). The heuristic Python parsers below (_strip_nexus_new_format
+# etc.) still run afterwards as a fallback safety net, so a rule a user disables
+# or mangles won't wholly break name cleaning.
+#
+# Each default is {id, label, search, replace, enabled}. `id` is stable so the
+# editor can match a saved row back to its default for the reset action.
+DEFAULT_INSTALL_NAME_RULES: list[dict] = [
+    {
+        "id": "nexus_spaced_timestamp",
+        "label": "Nexus: name id version timestamp slug",
+        "search": r"^(.+?) \d+ \d+(?:\.\d+)*[A-Za-z]* "
+                  r"\d{4}-\d{2}-\d{2}T[\dNRZ:-]+Z [A-Za-z0-9]{6,16}$",
+        "replace": r"\1",
+        "enabled": True,
+    },
+    {
+        "id": "nexus_spaced",
+        "label": "Nexus: name id version slug",
+        "search": r"^(.+?) \d+ \d+(?:\.\d+)*[A-Za-z]* [A-Za-z0-9]{6,16}$",
+        "replace": r"\1",
+        "enabled": True,
+    },
+    {
+        "id": "nexus_legacy_dash_tail",
+        "label": "Nexus (legacy): strip -id-version-timestamp tail",
+        "search": r"(?:-\d+[A-Za-z]*){2,}$",
+        "replace": r"",
+        "enabled": True,
+    },
+    {
+        "id": "modio_uuid_tail",
+        "label": "mod.io: strip UUID tail",
+        "search": r"_[0-9a-f]{8}-[0-9a-f]{4}(?:-[0-9a-z]{1,4})+$",
+        "replace": r"",
+        "enabled": True,
+    },
+]
+
+
+def default_install_name_rules() -> list[dict]:
+    """Return a fresh copy of the built-in default rules (id/label/search/
+    replace/enabled). Used to seed a new config and to power the editor's
+    reset-to-default action."""
+    return [dict(r) for r in DEFAULT_INSTALL_NAME_RULES]
+
+
+# ids of the built-in defaults whose FORMAT is ALSO handled by a heuristic
+# Python parser below (_strip_nexus_new_format / the mod.io tail strip). The
+# editor's rules are authoritative: when the user disables (or deletes) the rule
+# for one of these, the matching Python parser step is skipped too — otherwise
+# the internal parser would silently shadow the disabled rule and disabling
+# would appear to do nothing. Formats WITHOUT a duplicate parser (e.g. the
+# underscore ``<name>_<ver>_<slug>`` form, legacy dash tails) always run.
+_GATED_DEFAULT_IDS = {
+    "nexus_spaced_timestamp", "nexus_spaced",
+    "nexus_legacy_dash_tail", "modio_uuid_tail",
+}
+
+
+def _disabled_gated_ids() -> set[str]:
+    """Return the set of gated default-rule ids that the user has disabled or
+    removed. A gated Python parser step is skipped for any id in this set so the
+    editor's rules stay authoritative. On any error, returns an empty set (parse
+    everything — the safe default)."""
+    try:
+        from Utils.ui_config import load_install_name_patterns
+        rules = load_install_name_patterns()
+    except Exception:
+        return set()
+    present_enabled = {
+        str(r.get("id"))
+        for r in rules
+        if r.get("id") and r.get("enabled", True)
+    }
+    # Disabled = a gated default that is NOT present-and-enabled (covers both an
+    # explicitly-disabled row and a removed one).
+    return {rid for rid in _GATED_DEFAULT_IDS if rid not in present_enabled}
+
+
+def _apply_custom_patterns(stem: str) -> str | None:
+    """Apply the user's custom install-name search/replace rules to *stem*.
+
+    Rules come from Settings ▸ (install name patterns) via
+    ``ui_config.load_install_name_patterns`` and are applied in order — each
+    enabled rule runs ``re.sub(search, replace, stem)``. Nexus keeps changing
+    its download-name format, so this lets a user adapt without a code change.
+
+    Returns the transformed name when at least one enabled rule actually changed
+    the stem, else ``None`` so the caller falls through to the built-in parsing.
+    A rule with an invalid regex is skipped (never raises into the installer).
+    """
+    try:
+        from Utils.ui_config import load_install_name_patterns
+        rules = load_install_name_patterns()
+    except Exception:
+        return None
+    if not rules:
+        return None
+    result = stem
+    changed = False
+    for rule in rules:
+        if not rule.get("enabled", True):
+            continue
+        search = rule.get("search", "")
+        if not search:
+            continue
+        try:
+            new = re.sub(search, rule.get("replace", ""), result)
+        except re.error:
+            continue
+        if new != result:
+            result = new
+            changed = True
+    result = result.strip()
+    if changed and result:
+        return result
+    return None
 
 
 def _slug_like(token: str) -> bool:
@@ -98,19 +235,36 @@ def _slug_like(token: str) -> bool:
     return (has_digit and has_alpha) or (has_upper and has_lower)
 
 
-def _strip_nexus_new_format(stem: str) -> str | None:
+def _strip_nexus_new_format(stem: str, disabled_ids: set[str] | None = None) -> str | None:
     """If *stem* matches the post-2026-06-11 Nexus download format
     ``<mod name>_<version>[_<slug>]``, return the decoded mod name (underscores
     → spaces).  Returns ``None`` when *stem* does not match, so callers can fall
     back to the legacy parsing untouched.
+
+    *disabled_ids* names built-in default rules the user has turned off in the
+    editor; the matching (duplicated) parser step is skipped so the editor's
+    rules stay authoritative. The underscore forms below are NOT duplicated by an
+    editor rule, so they always run.
     """
-    # Newest spaced form "<name> <id> <version> <slug>": anchored on the trailing
+    disabled_ids = disabled_ids or set()
+
+    # Newest spaced form with an upload timestamp
+    # "<name> <id> <version> <timestamp> <slug>": try this before the timestamp-
+    # less spaced form so the timestamp isn't mistaken for the version/slug.
+    if "nexus_spaced_timestamp" not in disabled_ids:
+        m = _NEW_NEXUS_SPACED_TS_RE.match(stem)
+        if m and _slug_like(m.group("slug")):
+            name = m.group("name").strip()
+            return name or None
+
+    # Spaced form "<name> <id> <version> <slug>": anchored on the trailing
     # slug plus the numeric mod-id, so it is unambiguous and never touches the
     # underscore or legacy dash formats (different separators).
-    m = _NEW_NEXUS_SPACED_RE.match(stem)
-    if m and _slug_like(m.group("slug")):
-        name = m.group("name").strip()
-        return name or None
+    if "nexus_spaced" not in disabled_ids:
+        m = _NEW_NEXUS_SPACED_RE.match(stem)
+        if m and _slug_like(m.group("slug")):
+            name = m.group("name").strip()
+            return name or None
 
     # Prefer the slug-anchored form: when the trailing token is a random Nexus
     # slug we can trust the segment before it as the version even if it is a
@@ -196,16 +350,32 @@ def _suggest_mod_names(filename_stem: str) -> list[str]:
     parentheses (Stardew framework tags "(CP)"/"(AT)", disambiguators like
     "(Black)" vs "(Silver)", etc.) that the old default silently destroyed.
     """
+    # Step 0: user-defined custom rules (Settings) win over every built-in
+    # parser — this is the escape hatch for a new Nexus download-name format we
+    # haven't shipped a built-in for yet. When a rule matches, the transformed
+    # name is the default candidate; the built-in suggestions are still appended
+    # below as fallbacks in the rename dialog.
+    custom_names: list[str] = []
+    custom = _apply_custom_patterns(filename_stem)
+    if custom:
+        custom_names.append(custom)
+
+    # Which built-in default rules has the user turned off? The matching
+    # (duplicated) parser steps below are skipped so the editor's rules stay
+    # authoritative — disabling a default rule visibly changes the result.
+    disabled = _disabled_gated_ids()
+
     # Step 1: strip duplicate-download suffix added by browsers/OS (e.g. " (1)", " (2)")
     stem = re.sub(r"\s*\(\d+\)\s*$", "", filename_stem).strip()
 
     # Step 1b: strip the mod.io UUID-fragment tail (distinct from any Nexus
     # tail).  The cleaned name is the default; the raw stem stays as a fallback.
-    modio_clean = _MODIO_TAIL_RE.sub("", stem)
+    # Gated on the mod.io default rule being enabled.
+    modio_clean = stem if "modio_uuid_tail" in disabled else _MODIO_TAIL_RE.sub("", stem)
     if modio_clean != stem:
         seen = set()
         result = []
-        for candidate in (modio_clean, filename_stem):
+        for candidate in (*custom_names, modio_clean, filename_stem):
             if candidate and candidate not in seen:
                 seen.add(candidate)
                 result.append(candidate)
@@ -215,7 +385,7 @@ def _suggest_mod_names(filename_stem: str) -> list[str]:
     #   "<mod name>_<version>[_<slug>]".  When it matches, the decoded name is
     # the least-destructive (default) candidate.  Old-format downloads don't
     # match and fall through to the legacy dash-tail handling below unchanged.
-    new_format = _strip_nexus_new_format(stem)
+    new_format = _strip_nexus_new_format(stem, disabled)
     if new_format:
         # Skip the dash-tail strip: the underscore format has no Nexus dash tail,
         # and the decoded name may legitimately contain dashes ("A - B").
@@ -227,7 +397,7 @@ def _suggest_mod_names(filename_stem: str) -> list[str]:
         kept_number = stem.replace("_", " ").strip()
         seen = set()
         result = []
-        for candidate in (nexus_clean, title_clean, kept_number, filename_stem):
+        for candidate in (*custom_names, nexus_clean, title_clean, kept_number, filename_stem):
             if candidate and candidate not in seen:
                 seen.add(candidate)
                 result.append(candidate)
@@ -237,11 +407,19 @@ def _suggest_mod_names(filename_stem: str) -> list[str]:
     # a dash followed by digits and optional trailing letters (e.g. "-4a", "-2SE"
     # that Nexus appends for versioned uploads).  We require at least two such
     # segments so a single "-2" inside a real title (e.g. "Mod-2") is left alone.
-    nexus_clean = re.sub(r"(?:-\d+[A-Za-z]*){2,}$", "", stem).strip()
-    if nexus_clean == stem:
-        # Fall back to the looser numeric-only strip for names with just one
-        # trailing -digits segment (rare, but keep prior behaviour for those).
-        nexus_clean = re.sub(r"(-\d+)+$", "", stem).strip()
+    # Gated on the legacy-tail default rule being enabled (editor is
+    # authoritative): when the user disables that rule, BOTH the primary strip
+    # and the single-segment fallback below are skipped, since they are two
+    # facets of the same "strip legacy Nexus dash tail" behaviour the rule
+    # represents. Otherwise disabling the rule would appear to do nothing.
+    if "nexus_legacy_dash_tail" in disabled:
+        nexus_clean = stem
+    else:
+        nexus_clean = re.sub(r"(?:-\d+[A-Za-z]*){2,}$", "", stem).strip()
+        if nexus_clean == stem:
+            # Fall back to the looser numeric-only strip for names with just one
+            # trailing -digits segment (rare, but keep prior behaviour for those).
+            nexus_clean = re.sub(r"(-\d+)+$", "", stem).strip()
 
     # Aggressively-cleaned variant: strip parens/brackets/version/edition tags.
     # Offered as a fallback candidate only — NOT the default (see docstring).
@@ -250,7 +428,7 @@ def _suggest_mod_names(filename_stem: str) -> list[str]:
     # Build de-duplicated list, default (least-destructive) first.
     seen = set()
     result = []
-    for candidate in (nexus_clean, title_clean, filename_stem):
+    for candidate in (*custom_names, nexus_clean, title_clean, filename_stem):
         if candidate and candidate not in seen:
             seen.add(candidate)
             result.append(candidate)

@@ -707,6 +707,18 @@ class MainWindow(QMainWindow):
         self._tabs.open_scoped_tab(
             view, self.tr("Settings"), self._modlist_panel_stack, key="settings")
 
+    def _open_install_name_patterns_tab(self):
+        """Open the custom install-name rules editor scoped over the MODLIST
+        panel (like Settings). Re-opening focuses the existing tab."""
+        from gui_qt.install_name_patterns_view import InstallNamePatternsView
+        if self._tabs.has_key("install_name_patterns"):
+            self._tabs.focus_key("install_name_patterns")
+            return
+        view = InstallNamePatternsView(self)
+        self._tabs.open_scoped_tab(
+            view, self.tr("Install-name Rules"),
+            self._modlist_panel_stack, key="install_name_patterns")
+
     def _open_theme_editor_tab(self):
         """Open the Theme Editor as a full-screen tab (its own key). Editing a
         theme touches the whole window, so unlike Settings it takes over the

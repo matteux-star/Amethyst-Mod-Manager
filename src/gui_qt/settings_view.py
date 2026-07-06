@@ -323,6 +323,12 @@ class SettingsView(QWidget):
         if callable(opener):
             opener()
 
+    def _open_install_name_patterns(self):
+        """Open the custom install-name rules editor tab via the main window."""
+        opener = getattr(self._window, "_open_install_name_patterns_tab", None)
+        if callable(opener):
+            opener()
+
     def _build_ui_scale(self, g):
         """Add the UI Scale row: an Auto checkbox + a 50–200% slider.
 
@@ -531,6 +537,16 @@ class SettingsView(QWidget):
             g, self.tr("Rename mod after install"),
             uc.load_rename_mod_after_install, uc.save_rename_mod_after_install,
             help=self.tr("Show a rename prompt after installing a mod."))
+        # Custom install-name rules — a full editor (opened as its own tab)
+        # rather than a single control, so it gets a button + help row here.
+        row = self._next_row(g)
+        patt_btn = QPushButton(self.tr("Edit custom install-name rules…"))
+        patt_btn.setCursor(Qt.PointingHandCursor)
+        patt_btn.clicked.connect(self._open_install_name_patterns)
+        g.addWidget(patt_btn, row, 0, 1, 2, Qt.AlignLeft)
+        self._add_help(g, self.tr(
+            "Add your own regex search/replace rules to clean up mod names on "
+            "install — useful when a download site changes its filename format."))
         self._checkbox(
             g, self.tr("Restore on close"),
             uc.load_restore_on_close, uc.save_restore_on_close,

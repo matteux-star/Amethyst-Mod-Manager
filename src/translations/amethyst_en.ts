@@ -2222,6 +2222,65 @@ The original exe is kept as {0}.</translation>
     </message>
 </context>
 <context>
+    <name>InstallNamePatternsView</name>
+    <message>
+        <source>Install-name rules</source>
+        <translation>Install-name rules</translation>
+    </message>
+    <message>
+        <source>Rules are applied in order to a downloaded archive's filename (without extension) to work out the mod name. The built-in rules for the known Nexus / mod.io download formats are shown below and can be edited or reset to their defaults; add your own to adapt to a new format without waiting for an update. Each rule runs a regular-expression search/replace; use \1, \2 … to keep captured groups.</source>
+        <translation>Rules are applied in order to a downloaded archive's filename (without extension) to work out the mod name. The built-in rules for the known Nexus / mod.io download formats are shown below and can be edited or reset to their defaults; add your own to adapt to a new format without waiting for an update. Each rule runs a regular-expression search/replace; use \1, \2 … to keep captured groups.</translation>
+    </message>
+    <message>
+        <source>Rules</source>
+        <translation>Rules</translation>
+    </message>
+    <message>
+        <source>Built-in rules</source>
+        <translation>Built-in rules</translation>
+    </message>
+    <message>
+        <source>Custom rules</source>
+        <translation>Custom rules</translation>
+    </message>
+    <message>
+        <source>No rules yet — add one below.</source>
+        <translation>No rules yet — add one below.</translation>
+    </message>
+    <message>
+        <source>Add rule</source>
+        <translation>Add rule</translation>
+    </message>
+    <message>
+        <source>Restore defaults</source>
+        <translation>Restore defaults</translation>
+    </message>
+    <message>
+        <source>Reset the built-in rules to their defaults and re-add any that were removed. Your own custom rules are kept.</source>
+        <translation>Reset the built-in rules to their defaults and re-add any that were removed. Your own custom rules are kept.</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>Test</translation>
+    </message>
+    <message>
+        <source>Paste a downloaded filename to see the resulting mod name.</source>
+        <translation>Paste a downloaded filename to see the resulting mod name.</translation>
+    </message>
+    <message>
+        <source>Failed to save rules: {0}</source>
+        <translation>Failed to save rules: {0}</translation>
+    </message>
+    <message>
+        <source>Result: {0}   (a rule has an invalid regex — skipped)</source>
+        <translation>Result: {0}   (a rule has an invalid regex — skipped)</translation>
+    </message>
+    <message>
+        <source>Result: {0}</source>
+        <translation>Result: {0}</translation>
+    </message>
+</context>
+<context>
     <name>LauncherSettingsOverlay</name>
     <message>
         <source>Launch settings — {0}</source>
@@ -2595,6 +2654,10 @@ The original exe is kept as {0}.</translation>
     <message>
         <source>Restart now</source>
         <translation>Restart now</translation>
+    </message>
+    <message>
+        <source>Install-name Rules</source>
+        <translation>Install-name Rules</translation>
     </message>
     <message>
         <source>Theme Editor</source>
@@ -5656,6 +5719,14 @@ Please restart the wizard and install Script Merger first.</translation>
         <translation>Show a rename prompt after installing a mod.</translation>
     </message>
     <message>
+        <source>Edit custom install-name rules…</source>
+        <translation>Edit custom install-name rules…</translation>
+    </message>
+    <message>
+        <source>Add your own regex search/replace rules to clean up mod names on install — useful when a download site changes its filename format.</source>
+        <translation>Add your own regex search/replace rules to clean up mod names on install — useful when a download site changes its filename format.</translation>
+    </message>
+    <message>
         <source>Restore on close</source>
         <translation>Restore on close</translation>
     </message>
@@ -6609,6 +6680,29 @@ Close it when you are done, then click Done.</translation>
     <message>
         <source>Preferred version (file id — version):</source>
         <translation>Preferred version (file id — version):</translation>
+    </message>
+</context>
+<context>
+    <name>parent_view</name>
+    <message>
+        <source>Enable this rule</source>
+        <translation>Enable this rule</translation>
+    </message>
+    <message>
+        <source>Search regex</source>
+        <translation>Search regex</translation>
+    </message>
+    <message>
+        <source>Replacement (e.g. \1)</source>
+        <translation>Replacement (e.g. \1)</translation>
+    </message>
+    <message>
+        <source>Reset this rule to its default</source>
+        <translation>Reset this rule to its default</translation>
+    </message>
+    <message>
+        <source>Remove this rule</source>
+        <translation>Remove this rule</translation>
     </message>
 </context>
 <context>
