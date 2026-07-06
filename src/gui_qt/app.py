@@ -9013,10 +9013,11 @@ class MainWindow(QMainWindow):
         h.addWidget(self._log_toggle)
 
         # These only show when the log is open. The Error/Warning entries are
-        # clickable toggles: clicking one filters the log to show only lines of
-        # that severity (both off = show everything, Tk feel).
-        self._show_errors = True
-        self._show_warnings = True
+        # clickable toggles: clicking one filters the log to show ONLY lines of
+        # that severity; clicking the active one again clears the filter and
+        # shows everything again. Only one severity filter can be active at a
+        # time. ``_log_filter`` is None (show all), "error", or "warning".
+        self._log_filter = None
         self._errors_lbl = QLabel(self.tr("● Errors"))
         self._errors_lbl.setCursor(Qt.PointingHandCursor)
         self._errors_lbl.mousePressEvent = lambda e: self._toggle_log_filter("error")
@@ -9126,13 +9127,12 @@ class MainWindow(QMainWindow):
 
     def _line_visible(self, severity: str) -> bool:
         """Whether a line of this severity passes the current Error/Warning
-        toggle filter. Filters only hide when at least one is disabled; both
-        enabled shows everything (Tk feel)."""
-        if severity == "error":
-            return self._show_errors
-        if severity == "warning":
-            return self._show_warnings
-        return True   # plain lines always show
+        filter. With no filter active every line shows; when a filter is active
+        only lines of that severity show."""
+        active = getattr(self, "_log_filter", None)
+        if active is None:
+            return True
+        return severity == active
 
     def _init_log_file(self):
         """Create one on-disk log file per session (Tk status_bar parity).
@@ -9221,26 +9221,31 @@ class MainWindow(QMainWindow):
                 pass
 
     def _toggle_log_filter(self, which: str):
-        """Flip an Error/Warning filter toggle and re-render the log."""
-        if which == "error":
-            self._show_errors = not self._show_errors
-        elif which == "warning":
-            self._show_warnings = not self._show_warnings
+        """Filter the log to only *which* severity; clicking the active filter
+        again clears it (shows everything). Only one filter at a time."""
+        if getattr(self, "_log_filter", None) == which:
+            self._log_filter = None   # clicking the active filter clears it
+        else:
+            self._log_filter = which
         self._refresh_log_filter_labels()
         self._render_log()
 
     def _refresh_log_filter_labels(self):
-        """Colour the filter labels; dim (strike-through) when their filter is
-        off so it reads as an active toggle."""
-        err_on = getattr(self, "_show_errors", True)
-        warn_on = getattr(self, "_show_warnings", True)
+        """Colour the filter labels; highlight (bold) the active filter, dim the
+        inactive one when a filter is engaged so it reads as an active toggle."""
+        active = getattr(self, "_log_filter", None)
         dim = _c(self._pal, "TEXT_DIM")
-        self._errors_lbl.setStyleSheet(
-            f"color:{_c(self._pal,'TEXT_ERR')};" if err_on
-            else f"color:{dim}; text-decoration:line-through;")
-        self._warnings_lbl.setStyleSheet(
-            f"color:{_c(self._pal,'TEXT_WARN')};" if warn_on
-            else f"color:{dim}; text-decoration:line-through;")
+        err_c = _c(self._pal, "TEXT_ERR")
+        warn_c = _c(self._pal, "TEXT_WARN")
+        if active == "error":
+            self._errors_lbl.setStyleSheet(f"color:{err_c}; font-weight:bold;")
+            self._warnings_lbl.setStyleSheet(f"color:{dim};")
+        elif active == "warning":
+            self._errors_lbl.setStyleSheet(f"color:{dim};")
+            self._warnings_lbl.setStyleSheet(f"color:{warn_c}; font-weight:bold;")
+        else:
+            self._errors_lbl.setStyleSheet(f"color:{err_c};")
+            self._warnings_lbl.setStyleSheet(f"color:{warn_c};")
 
     def _clear_log(self):
         """Clear both the docked log view and the full-screen log tab (if open)."""

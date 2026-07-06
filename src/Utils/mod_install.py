@@ -1923,6 +1923,22 @@ def _install_multi_mod(p: "PreparedInstall", log_fn: LogFn, _pp) -> str | None:
     return installed[0]
 
 
+def _build_nexus_api():
+    """Build a shared NexusAPI from saved OAuth tokens, or None if not logged
+    in. Neutral (no GUI dependency) so the install worker can reverse-look-up
+    metadata by MD5 without the API being threaded down from the app. Mirrors
+    what the Qt app's _ensure_nexus_api() does at startup."""
+    try:
+        from Nexus.nexus_oauth import load_oauth_tokens
+        from Nexus.nexus_api import NexusAPI
+        tokens = load_oauth_tokens()
+        if tokens is None:
+            return None
+        return NexusAPI.from_oauth(tokens)
+    except Exception:
+        return None
+
+
 def _write_install_meta(dest_root: Path, archive: Path, game, log_fn: LogFn,
                         prebuilt_meta=None, endorsed: bool = False,
                         is_bain: bool = False) -> None:
@@ -1940,7 +1956,12 @@ def _write_install_meta(dest_root: Path, archive: Path, game, log_fn: LogFn,
             meta = prebuilt_meta
         else:
             try:
-                meta = resolve_nexus_meta_for_archive(archive, domain, log_fn=log_fn)
+                # Pass a live API so resolve_nexus_meta_for_archive can do the
+                # MD5 reverse lookup (its Strategy 2 is skipped when api=None) —
+                # this is what the Tk installer did and the Qt port dropped.
+                api = _build_nexus_api()
+                meta = resolve_nexus_meta_for_archive(
+                    archive, domain, api=api, log_fn=log_fn)
             except Exception:
                 meta = None
         if meta is None:
