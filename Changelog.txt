@@ -4,7 +4,7 @@
 - Overlays now open as tabs that can be switched between and undocked
 - Tabs can be right clicked and repinned to a different location
 - Added localisation support and several languages (Translated via the deepl api)
-- Better theme support
+- Better theme support, Added a theme editor
 - Hovering over progress bars or notifications will hide them so buttons don't get blocked by them
 ## Other things
 - Removed the generate separators function, Personally I didn't find it that useful and was wasted screenspace
