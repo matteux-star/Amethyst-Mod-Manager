@@ -377,6 +377,16 @@ class ProfileSettingsView(QWidget):
         self._populate_list()
         self._on_profile_renamed(old_name, new_name)
 
+    def _overlay_host(self):
+        """Top-level window to host the confirm overlays. When this view lives in
+        a scoped tab, ``self.window()`` is the app window; when it's built headless
+        for the profile dropdown's Remove action (never shown), fall back to the
+        app window directly so the overlay attaches to a visible widget."""
+        w = self.window()
+        if w is self or not w.isVisible():
+            return self._window
+        return w
+
     # -- remove -------------------------------------------------------------
     def _on_remove(self, profile: str):
         if self._is_original_default(profile) or self._is_profile_locked(profile):
@@ -399,7 +409,7 @@ class ProfileSettingsView(QWidget):
 
             if profile_dir.is_dir() and profile_uses_specific_mods(profile_dir):
                 ConfirmOverlay.show_over(
-                    self.window(), "Remove Profile",
+                    self._overlay_host(), "Remove Profile",
                     f"The '{profile}' profile has profile-specific mods.\n\n"
                     "Removing it will permanently delete its installed mods and "
                     "modlist. Continue?",
@@ -409,7 +419,7 @@ class ProfileSettingsView(QWidget):
                 proceed()
 
         ConfirmOverlay.show_over(
-            self.window(), "Remove Profile",
+            self._overlay_host(), "Remove Profile",
             f"Are you sure you want to remove the '{profile}' profile?\n\n"
             "The game will be restored first if this profile is deployed.",
             on_done=after_first, confirm_label="Remove")

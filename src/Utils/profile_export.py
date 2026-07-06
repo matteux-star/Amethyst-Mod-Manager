@@ -34,7 +34,9 @@ A *row* is a plain dict describing one mod's export configuration::
 
 from __future__ import annotations
 
+import base64
 import json
+import zlib
 import zipfile
 import shutil
 from pathlib import Path
@@ -497,3 +499,82 @@ def install_local_bundle(src_path, profile_dir, mods_dir, overwrite_dir=None, *,
         log(f"Import: modlist reconcile failed: {exc}")
 
     return staged
+
+
+# ---------------------------------------------------------------------------
+# Share code — a compressed, copy-pasteable text form of the manifest
+# ---------------------------------------------------------------------------
+#
+# The "Export code" feature turns the same Amethyst manifest into a short text
+# string the user can paste into a chat / forum to share a modlist. It carries
+# only what a recipient can rebuild from Nexus — mods with BOTH a modId and a
+# fileId — plus embedded FOMOD/BAIN installer choices. No mod files are bundled
+# (that's what the .amethyst zip is for), so a code stays small.
+#
+# Load order is carried by the ORDER of the manifest's ``mods`` array (top of
+# modlist first): the collection-install pipeline that consumes an imported
+# manifest topo-sorts ``mods`` when no explicit ``loadOrder`` block is present,
+# so mods-array order == modlist priority. For FBLO games (BG3) we additionally
+# emit a ``loadOrder`` block so the exact order survives.
+
+CODE_PREFIX = "AMMCODE1:"   # version tag; bump the digit on a format change.
+
+
+def build_code_manifest(entries, game, app_version: str, *,
+                        profile_name=None) -> dict:
+    """Build a share-code manifest from *entries* — non-separator modlist entries
+    in ``read_modlist`` order (index 0 = HIGHEST priority = top of modlist).
+    Includes only mods with both a modId and a fileId; embeds FOMOD/BAIN choices.
+
+    The collection-install pipeline that consumes an imported manifest treats the
+    ``mods`` array as LOW-priority first (``mods[-1]`` becomes the top of the
+    modlist — see ``collection_reset._topo_sort_collection``). *entries* is highest-
+    priority first, so we reverse when writing the array to keep the imported load
+    order identical to the source. No separate ``loadOrder`` block is emitted (that
+    would switch the importer onto its FBLO code path); the mods-array order alone
+    carries the load order, matching the ``.amethyst`` export."""
+    rows = load_rows(entries, game)
+    # Keep only Nexus-resolvable mods: need modId + a fileId (from meta or label).
+    keep = [r for r in rows if r.get("mod_id") and _row_file_id(r)]
+    game_domain = (getattr(game, "nexus_game_domain", "") or "") if game else ""
+    game_name = game.name if game else None
+    profile_dir = getattr(game, "_active_profile_dir", None) if game else None
+    # Reverse so the emitted mods array is low-priority first (importer puts
+    # mods[-1] at the top of the modlist).
+    manifest = build_manifest(
+        list(reversed(keep)), game_domain, app_version,
+        game_name=game_name, profile_dir=profile_dir)
+
+    # Carry the source profile name so the imported profile can be named after it.
+    if profile_name:
+        manifest.setdefault("info", {})["name"] = profile_name
+    return manifest
+
+
+def encode_manifest(manifest: dict) -> str:
+    """Serialise a manifest into a compact, copy-pasteable share code:
+    JSON → zlib(level 9) → urlsafe base64, with a version prefix."""
+    raw = json.dumps(manifest, separators=(",", ":")).encode("utf-8")
+    packed = zlib.compress(raw, 9)
+    b64 = base64.urlsafe_b64encode(packed).decode("ascii")
+    return CODE_PREFIX + b64
+
+
+def decode_manifest(code: str) -> dict:
+    """Reverse :func:`encode_manifest`. Accepts a code with or without the
+    ``AMMCODE1:`` prefix and tolerates surrounding whitespace / line breaks.
+    Raises ``ValueError`` on a malformed code."""
+    if not code:
+        raise ValueError("Empty code.")
+    text = "".join(code.split())   # strip all whitespace / newlines
+    if text.startswith(CODE_PREFIX):
+        text = text[len(CODE_PREFIX):]
+    try:
+        packed = base64.urlsafe_b64decode(text.encode("ascii"))
+        raw = zlib.decompress(packed)
+        manifest = json.loads(raw.decode("utf-8"))
+    except Exception as exc:
+        raise ValueError(f"Not a valid Amethyst code: {exc}") from exc
+    if not isinstance(manifest, dict) or not manifest.get("mods"):
+        raise ValueError("Code does not contain a valid manifest.")
+    return manifest
