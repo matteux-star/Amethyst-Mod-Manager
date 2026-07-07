@@ -910,6 +910,22 @@ Die Einstellungen des Standardprofils bleiben davon unberührt.</translation>
         <translation>Wurde nicht automatisch gefunden. Suchen Sie den Spielordner manuell.</translation>
     </message>
     <message>
+        <source>No executable name configured for this game.</source>
+        <translation>Für dieses Spiel wurde kein Name für die ausführbare Datei konfiguriert.</translation>
+    </message>
+    <message>
+        <source>Scanning all drives…</source>
+        <translation>Alle Laufwerke werden gescannt…</translation>
+    </message>
+    <message>
+        <source>Found via drive scan.</source>
+        <translation>Wurde bei einem Laufwerksscan gefunden.</translation>
+    </message>
+    <message>
+        <source>Game executable not found on any drive.</source>
+        <translation>Die ausführbare Datei des Spiels wurde auf keinem Laufwerk gefunden.</translation>
+    </message>
+    <message>
         <source>Scanning for Proton prefix…</source>
         <translation>Wird nach dem Präfix „Proton“ gesucht…</translation>
     </message>
@@ -1780,8 +1796,20 @@ Mod „{0}“, der in Ihrer Mod-Liste erscheint.</translation>
 <context>
     <name>ExeSettingsView</name>
     <message>
+        <source>Install Java into prefix</source>
+        <translation>Java unter dem Präfix installieren</translation>
+    </message>
+    <message>
         <source>Configure: {0}</source>
         <translation>Konfigurieren: {0}</translation>
+    </message>
+    <message>
+        <source>Host (system java)</source>
+        <translation>Host (Java-System)</translation>
+    </message>
+    <message>
+        <source>Proton prefix (Windows Java)</source>
+        <translation>Proton-Präfix (Windows Java)</translation>
     </message>
     <message>
         <source>Insert game path</source>
@@ -1810,6 +1838,10 @@ Mod „{0}“, der in Ihrer Mod-Liste erscheint.</translation>
     <message>
         <source>(no mods found)</source>
         <translation>(Es wurden keine Mods gefunden.)</translation>
+    </message>
+    <message>
+        <source>Installing Java …</source>
+        <translation>Java wird installiert …</translation>
     </message>
 </context>
 <context>
@@ -2212,6 +2244,65 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
     </message>
 </context>
 <context>
+    <name>InstallNamePatternsView</name>
+    <message>
+        <source>Install-name rules</source>
+        <translation>Regeln für den Installationsnamen</translation>
+    </message>
+    <message>
+        <source>Rules are applied in order to a downloaded archive's filename (without extension) to work out the mod name. The built-in rules for the known Nexus / mod.io download formats are shown below and can be edited or reset to their defaults; add your own to adapt to a new format without waiting for an update. Each rule runs a regular-expression search/replace; use \1, \2 … to keep captured groups.</source>
+        <translation>Die Regeln werden der Reihe nach auf den Dateinamen (ohne Erweiterung) eines heruntergeladenen Archivs angewendet, um den Mod-Namen zu ermitteln. Die integrierten Regeln für die bekannten Download-Formate von Nexus und mod.io sind unten aufgeführt und können bearbeitet oder auf ihre Standardwerte zurückgesetzt werden; füge eigene Regeln hinzu, um dich an ein neues Format anzupassen, ohne auf ein Update warten zu müssen. Jede Regel führt eine Suche und Ersetzung mit regulären Ausdrücken durch; verwenden Sie \1, \2 …, um erfasste Gruppen beizubehalten.</translation>
+    </message>
+    <message>
+        <source>Rules</source>
+        <translation>Regeln</translation>
+    </message>
+    <message>
+        <source>Built-in rules</source>
+        <translation>Vordefinierte Regeln</translation>
+    </message>
+    <message>
+        <source>Custom rules</source>
+        <translation>Benutzerdefinierte Regeln</translation>
+    </message>
+    <message>
+        <source>No rules yet — add one below.</source>
+        <translation>Es gibt noch keine Regeln – füge unten eine hinzu.</translation>
+    </message>
+    <message>
+        <source>Add rule</source>
+        <translation>Regel hinzufügen</translation>
+    </message>
+    <message>
+        <source>Restore defaults</source>
+        <translation>Standardeinstellungen wiederherstellen</translation>
+    </message>
+    <message>
+        <source>Reset the built-in rules to their defaults and re-add any that were removed. Your own custom rules are kept.</source>
+        <translation>Setzen Sie die integrierten Regeln auf ihre Standardwerte zurück und fügen Sie alle Regeln, die entfernt wurden, erneut hinzu. Ihre eigenen benutzerdefinierten Regeln bleiben erhalten.</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>Test</translation>
+    </message>
+    <message>
+        <source>Paste a downloaded filename to see the resulting mod name.</source>
+        <translation>Fügen Sie den Namen einer heruntergeladenen Datei ein, um den daraus resultierenden Mod-Namen anzuzeigen.</translation>
+    </message>
+    <message>
+        <source>Failed to save rules: {0}</source>
+        <translation>Das Speichern der Regeln ist fehlgeschlagen: {0}</translation>
+    </message>
+    <message>
+        <source>Result: {0}   (a rule has an invalid regex — skipped)</source>
+        <translation>Ergebnis: {0}   (Eine Regel enthält einen ungültigen regulären Ausdruck – wurde übersprungen)</translation>
+    </message>
+    <message>
+        <source>Result: {0}</source>
+        <translation>Ergebnis: {0}</translation>
+    </message>
+</context>
+<context>
     <name>LauncherSettingsOverlay</name>
     <message>
         <source>Launch settings — {0}</source>
@@ -2585,6 +2676,22 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
     <message>
         <source>Restart now</source>
         <translation>Jetzt neu starten</translation>
+    </message>
+    <message>
+        <source>Install-name Rules</source>
+        <translation>Regeln für den Installationsnamen</translation>
+    </message>
+    <message>
+        <source>Theme Editor</source>
+        <translation>Theme-Editor</translation>
+    </message>
+    <message>
+        <source>Edit custom game…</source>
+        <translation>Benutzerdefiniertes Spiel bearbeiten…</translation>
+    </message>
+    <message>
+        <source>Edit custom game</source>
+        <translation>Benutzerdefiniertes Spiel bearbeiten</translation>
     </message>
     <message>
         <source>Restart to change UI scale?</source>
@@ -3063,6 +3170,22 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Import: {0}</translation>
     </message>
     <message>
+        <source>Could not build share code.</source>
+        <translation>Der Share-Code konnte nicht erstellt werden.</translation>
+    </message>
+    <message>
+        <source>No active profile to export.</source>
+        <translation>Es gibt kein aktives Profil zum Exportieren.</translation>
+    </message>
+    <message>
+        <source>No mods with a Nexus mod + file ID to share.</source>
+        <translation>Keine Mods mit einer Nexus-Mod-Datei-ID zum Teilen.</translation>
+    </message>
+    <message>
+        <source>Could not read code: {0}</source>
+        <translation>Der Code konnte nicht gelesen werden: {0}</translation>
+    </message>
+    <message>
         <source>Profile Settings</source>
         <translation>Profileinstellungen</translation>
     </message>
@@ -3143,8 +3266,20 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Ordner „Profil-Speicher“</translation>
     </message>
     <message>
+        <source>Remove current profile…</source>
+        <translation>Aktuelles Profil entfernen…</translation>
+    </message>
+    <message>
         <source>Quick configure</source>
         <translation>Schnellkonfiguration</translation>
+    </message>
+    <message>
+        <source>Export code…</source>
+        <translation>Code exportieren…</translation>
+    </message>
+    <message>
+        <source>Import code…</source>
+        <translation>Code importieren…</translation>
     </message>
     <message>
         <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
@@ -5552,6 +5687,10 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>UI-Skalierung</translation>
     </message>
     <message>
+        <source>Edit / Create Theme…</source>
+        <translation>Thema bearbeiten / erstellen…</translation>
+    </message>
+    <message>
         <source>Show mod description tooltips</source>
         <translation>Tooltips zur Mod-Beschreibung anzeigen</translation>
     </message>
@@ -5632,6 +5771,14 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>Nach der Installation eines Mods eine Aufforderung zur Umbenennung anzeigen.</translation>
     </message>
     <message>
+        <source>Edit custom install-name rules…</source>
+        <translation>Benutzerdefinierte Regeln für den Installationsnamen bearbeiten…</translation>
+    </message>
+    <message>
+        <source>Add your own regex search/replace rules to clean up mod names on install — useful when a download site changes its filename format.</source>
+        <translation>Füge deine eigenen Regex-Such- und Ersetzungsregeln hinzu, um Mod-Namen bei der Installation zu bereinigen – nützlich, wenn eine Download-Seite ihr Dateinamenformat ändert.</translation>
+    </message>
+    <message>
         <source>Restore on close</source>
         <translation>Beim Schließen wiederherstellen</translation>
     </message>
@@ -5686,6 +5833,52 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
     <message>
         <source>Failed to save setting: {0}</source>
         <translation>Einstellung konnte nicht gespeichert werden: {0}</translation>
+    </message>
+</context>
+<context>
+    <name>ShareCodeExportOverlay</name>
+    <message>
+        <source>Export code</source>
+        <translation>Code exportieren</translation>
+    </message>
+    <message>
+        <source>Share this code with someone to send them your load order ({0} {1}). They can add it with Import code.</source>
+        <translation>Teile diesen Code mit jemandem, um ihm deine Lade-Reihenfolge zu senden ({0} {1}). Er kann sie über „Code importieren“ hinzufügen.</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Schließen</translation>
+    </message>
+    <message>
+        <source>Copy to clipboard</source>
+        <translation>In die Zwischenablage kopieren</translation>
+    </message>
+    <message>
+        <source>Copied ✓</source>
+        <translation>Kopiert ✓</translation>
+    </message>
+</context>
+<context>
+    <name>ShareCodeImportOverlay</name>
+    <message>
+        <source>Import code</source>
+        <translation>Code importieren</translation>
+    </message>
+    <message>
+        <source>Paste a share code below to build a new profile from someone else's load order.</source>
+        <translation>Füge unten einen Freigabecode ein, um anhand der Ladefolge einer anderen Person ein neues Profil zu erstellen.</translation>
+    </message>
+    <message>
+        <source>Paste from clipboard</source>
+        <translation>Aus der Zwischenablage einfügen</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importieren</translation>
     </message>
 </context>
 <context>
@@ -6093,6 +6286,77 @@ Das Ergebnis wird direkt in Ihre Mod-Liste als Mod „{0}“ eingetragen.</trans
     </message>
 </context>
 <context>
+    <name>ThemeEditorView</name>
+    <message>
+        <source>Theme Editor</source>
+        <translation>Theme-Editor</translation>
+    </message>
+    <message>
+        <source>Start from:</source>
+        <translation>Startpunkt:</translation>
+    </message>
+    <message>
+        <source>Advanced (show all colours)</source>
+        <translation>Erweitert (alle Farben anzeigen)</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Speichern</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation>Speichern unter…</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Löschen</translation>
+    </message>
+    <message>
+        <source>Restart to apply</source>
+        <translation>Neustart, um die Änderungen zu übernehmen</translation>
+    </message>
+    <message>
+        <source>✕ Close</source>
+        <translation>✕ Schließen</translation>
+    </message>
+    <message>
+        <source>Save As New…</source>
+        <translation>Als neue Datei speichern…</translation>
+    </message>
+    <message>
+        <source>Editing a base colour adjusts its hover/variants automatically. Tick Advanced to edit every colour individually. Use "Restart to apply" to save your theme and see it across the whole app.</source>
+        <translation>Wenn Sie eine Grundfarbe bearbeiten, werden die Hover-Farben und Varianten automatisch angepasst. Aktivieren Sie das Kontrollkästchen „Erweitert“, um jede Farbe einzeln zu bearbeiten. Klicken Sie auf „Neustart, um Änderungen zu übernehmen“, um Ihr Design zu speichern und es in der gesamten App anzuzeigen.</translation>
+    </message>
+    <message>
+        <source>Pick colour: {0}</source>
+        <translation>Farbe auswählen: {0}</translation>
+    </message>
+    <message>
+        <source>Save Theme</source>
+        <translation>Theme speichern</translation>
+    </message>
+    <message>
+        <source>Theme name:</source>
+        <translation>Name des Themas:</translation>
+    </message>
+    <message>
+        <source>Save failed</source>
+        <translation>Speichern fehlgeschlagen</translation>
+    </message>
+    <message>
+        <source>{0} (edited)</source>
+        <translation>{0} (bearbeitet)</translation>
+    </message>
+    <message>
+        <source>Delete theme?</source>
+        <translation>Theme löschen?</translation>
+    </message>
+    <message>
+        <source>Delete the custom theme "{0}"? This cannot be undone.</source>
+        <translation>Das benutzerdefinierte Design „{0}“ löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
+    </message>
+</context>
+<context>
     <name>UpdateOverlay</name>
     <message>
         <source>Update Collection</source>
@@ -6343,6 +6607,28 @@ Laden Sie das Archiv manuell herunter (verwenden Sie NICHT die Download-Schaltfl
         <translation>Weiter →</translation>
     </message>
     <message>
+        <source>Step 1: Download xEdit (Discord version)</source>
+        <translation>Schritt 1: xEdit (Discord-Version) herunterladen</translation>
+    </message>
+    <message>
+        <source>The latest official xEdit is now released through the xEdit Discord — a single multi-game download that is NOT on Nexus Mods.
+
+To get it:
+  1. Find and join the xEdit Discord server (search for it yourself — we do not link it here as the invite can change).
+  2. Download the latest xEdit archive (e.g. "xEdit 4.1.5q.7z") from the #xedit-builds channel.
+  3. Leave the archive in your Downloads folder and click Next.
+
+It contains xFOEdit (Fallout), xSFEdit (Starfield) and xTESEdit (Elder Scrolls); the wizard runs the one for this game automatically.</source>
+        <translation>Die neueste offizielle xEdit-Version wurde nun über den xEdit-Discord-Server veröffentlicht – ein einziger Download für mehrere Spiele, der NICHT auf Nexus Mods verfügbar ist.
+
+So erhältst du sie:
+  1. Suche den xEdit-Discord-Server und trete ihm bei (suche selbst danach – wir verlinken ihn hier nicht, da sich die Einladung ändern kann).
+  2. Lade das neueste xEdit-Archiv (z. B. „xEdit 4.1.5q.7z“) aus dem Kanal #xedit-builds herunter.
+  3. Lass das Archiv in deinem Download-Ordner und klicke auf „Weiter“.
+
+Es enthält xFOEdit (Fallout), xSFEdit (Starfield) und xTESEdit (Elder Scrolls); der Assistent startet automatisch die für das jeweilige Spiel passende Version.</translation>
+    </message>
+    <message>
         <source>Step 2: Locate the Archive</source>
         <translation>Schritt 2: Das Archiv suchen</translation>
     </message>
@@ -6521,6 +6807,29 @@ Schließen Sie es, wenn Sie fertig sind, und klicken Sie anschließend auf „Fe
     <message>
         <source>Preferred version (file id — version):</source>
         <translation>Bevorzugte Version (Datei-ID – Version):</translation>
+    </message>
+</context>
+<context>
+    <name>parent_view</name>
+    <message>
+        <source>Enable this rule</source>
+        <translation>Diese Regel aktivieren</translation>
+    </message>
+    <message>
+        <source>Search regex</source>
+        <translation>Suche nach regulären Ausdrücken</translation>
+    </message>
+    <message>
+        <source>Replacement (e.g. \1)</source>
+        <translation>Ersetzung (z. B. \1)</translation>
+    </message>
+    <message>
+        <source>Reset this rule to its default</source>
+        <translation>Diese Regel auf die Standardeinstellung zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Remove this rule</source>
+        <translation>Diese Regel entfernen</translation>
     </message>
 </context>
 <context>

@@ -910,6 +910,22 @@ The default profile's settings are not affected.</source>
         <translation>Не найдено автоматически. Найдите папку с игрой вручную.</translation>
     </message>
     <message>
+        <source>No executable name configured for this game.</source>
+        <translation>Для этой игры не указано имя исполняемого файла.</translation>
+    </message>
+    <message>
+        <source>Scanning all drives…</source>
+        <translation>Проверка всех дисков…</translation>
+    </message>
+    <message>
+        <source>Found via drive scan.</source>
+        <translation>Обнаружено в ходе сканирования диска.</translation>
+    </message>
+    <message>
+        <source>Game executable not found on any drive.</source>
+        <translation>Исполняемый файл игры не найден ни на одном диске.</translation>
+    </message>
+    <message>
         <source>Scanning for Proton prefix…</source>
         <translation>Поиск префикса «Proton»…</translation>
     </message>
@@ -1780,8 +1796,20 @@ When ESLifier finishes, it writes its output as the
 <context>
     <name>ExeSettingsView</name>
     <message>
+        <source>Install Java into prefix</source>
+        <translation>Установить Java в каталог с префиксом</translation>
+    </message>
+    <message>
         <source>Configure: {0}</source>
         <translation>Настройки: {0}</translation>
+    </message>
+    <message>
+        <source>Host (system java)</source>
+        <translation>Хост (система Java)</translation>
+    </message>
+    <message>
+        <source>Proton prefix (Windows Java)</source>
+        <translation>Префикс «Proton» (Java для Windows)</translation>
     </message>
     <message>
         <source>Insert game path</source>
@@ -1810,6 +1838,10 @@ When ESLifier finishes, it writes its output as the
     <message>
         <source>(no mods found)</source>
         <translation>(модификации не найдены)</translation>
+    </message>
+    <message>
+        <source>Installing Java …</source>
+        <translation>Установка Java …</translation>
     </message>
 </context>
 <context>
@@ -2212,6 +2244,65 @@ The original exe is kept as {0}.</source>
     </message>
 </context>
 <context>
+    <name>InstallNamePatternsView</name>
+    <message>
+        <source>Install-name rules</source>
+        <translation>Правила именования установок</translation>
+    </message>
+    <message>
+        <source>Rules are applied in order to a downloaded archive's filename (without extension) to work out the mod name. The built-in rules for the known Nexus / mod.io download formats are shown below and can be edited or reset to their defaults; add your own to adapt to a new format without waiting for an update. Each rule runs a regular-expression search/replace; use \1, \2 … to keep captured groups.</source>
+        <translation>Правила применяются по порядку к имени файла загруженного архива (без расширения) для определения названия мода. Встроенные правила для известных форматов загрузки с Nexus и mod.io приведены ниже; их можно редактировать или сбросить до значений по умолчанию; добавьте свои собственные правила, чтобы адаптироваться к новому формату, не дожидаясь обновления. Каждое правило выполняет поиск и замену с помощью регулярных выражений; используйте \1, \2 … для сохранения захваченных групп.</translation>
+    </message>
+    <message>
+        <source>Rules</source>
+        <translation>Правила</translation>
+    </message>
+    <message>
+        <source>Built-in rules</source>
+        <translation>Встроенные правила</translation>
+    </message>
+    <message>
+        <source>Custom rules</source>
+        <translation>Пользовательские правила</translation>
+    </message>
+    <message>
+        <source>No rules yet — add one below.</source>
+        <translation>Правил пока нет — добавьте одно ниже.</translation>
+    </message>
+    <message>
+        <source>Add rule</source>
+        <translation>Добавить правило</translation>
+    </message>
+    <message>
+        <source>Restore defaults</source>
+        <translation>Восстановить настройки по умолчанию</translation>
+    </message>
+    <message>
+        <source>Reset the built-in rules to their defaults and re-add any that were removed. Your own custom rules are kept.</source>
+        <translation>Сбросьте настройки встроенных правил до значений по умолчанию и заново добавьте те из них, которые были удалены. Ваши собственные настраиваемые правила сохранятся.</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>Тест</translation>
+    </message>
+    <message>
+        <source>Paste a downloaded filename to see the resulting mod name.</source>
+        <translation>Вставьте имя загруженного файла, чтобы увидеть название получающегося мода.</translation>
+    </message>
+    <message>
+        <source>Failed to save rules: {0}</source>
+        <translation>Не удалось сохранить правила: {0}</translation>
+    </message>
+    <message>
+        <source>Result: {0}   (a rule has an invalid regex — skipped)</source>
+        <translation>Результат: {0}   (в правиле используется недопустимое регулярное выражение — пропущено)</translation>
+    </message>
+    <message>
+        <source>Result: {0}</source>
+        <translation>Результат: {0}</translation>
+    </message>
+</context>
+<context>
     <name>LauncherSettingsOverlay</name>
     <message>
         <source>Launch settings — {0}</source>
@@ -2585,6 +2676,22 @@ The original exe is kept as {0}.</source>
     <message>
         <source>Restart now</source>
         <translation>Перезапустить сейчас</translation>
+    </message>
+    <message>
+        <source>Install-name Rules</source>
+        <translation>Правила именования установок</translation>
+    </message>
+    <message>
+        <source>Theme Editor</source>
+        <translation>Редактор тем</translation>
+    </message>
+    <message>
+        <source>Edit custom game…</source>
+        <translation>Редактировать пользовательскую игру…</translation>
+    </message>
+    <message>
+        <source>Edit custom game</source>
+        <translation>Редактировать пользовательскую игру</translation>
     </message>
     <message>
         <source>Restart to change UI scale?</source>
@@ -3063,6 +3170,22 @@ Remove the appended-collection entry?</source>
         <translation>Источник: {0}</translation>
     </message>
     <message>
+        <source>Could not build share code.</source>
+        <translation>Не удалось скомпилировать код для совместного использования.</translation>
+    </message>
+    <message>
+        <source>No active profile to export.</source>
+        <translation>Активных профилей для экспорта нет.</translation>
+    </message>
+    <message>
+        <source>No mods with a Nexus mod + file ID to share.</source>
+        <translation>Нет модов с указанием «Nexus mod» и идентификатором файла для публикации.</translation>
+    </message>
+    <message>
+        <source>Could not read code: {0}</source>
+        <translation>Не удалось прочитать код: {0}</translation>
+    </message>
+    <message>
         <source>Profile Settings</source>
         <translation>Настройки профиля</translation>
     </message>
@@ -3143,8 +3266,20 @@ Remove the appended-collection entry?</source>
         <translation>Папка для сохранения профилей</translation>
     </message>
     <message>
+        <source>Remove current profile…</source>
+        <translation>Удалить текущий профиль…</translation>
+    </message>
+    <message>
         <source>Quick configure</source>
         <translation>Быстрая настройка</translation>
+    </message>
+    <message>
+        <source>Export code…</source>
+        <translation>Экспорт кода…</translation>
+    </message>
+    <message>
+        <source>Import code…</source>
+        <translation>Импортировать код…</translation>
     </message>
     <message>
         <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
@@ -5552,6 +5687,10 @@ Please restart the wizard and install Script Merger first.</source>
         <translation>Масштаб интерфейса</translation>
     </message>
     <message>
+        <source>Edit / Create Theme…</source>
+        <translation>Редактировать / Создать тему…</translation>
+    </message>
+    <message>
         <source>Show mod description tooltips</source>
         <translation>Показать всплывающие подсказки с описанием модификаций</translation>
     </message>
@@ -5632,6 +5771,14 @@ Please restart the wizard and install Script Merger first.</source>
         <translation>После установки мода отображать запрос на переименование.</translation>
     </message>
     <message>
+        <source>Edit custom install-name rules…</source>
+        <translation>Редактировать пользовательские правила для имени установки…</translation>
+    </message>
+    <message>
+        <source>Add your own regex search/replace rules to clean up mod names on install — useful when a download site changes its filename format.</source>
+        <translation>Добавьте собственные правила поиска и замены с помощью регулярных выражений для очистки имен модулей при установке — это пригодится, если сайт, с которого вы скачиваете файлы, изменит формат имен файлов.</translation>
+    </message>
+    <message>
         <source>Restore on close</source>
         <translation>Восстановить при закрытии</translation>
     </message>
@@ -5686,6 +5833,52 @@ Please restart the wizard and install Script Merger first.</source>
     <message>
         <source>Failed to save setting: {0}</source>
         <translation>Не удалось сохранить настройку: {0}</translation>
+    </message>
+</context>
+<context>
+    <name>ShareCodeExportOverlay</name>
+    <message>
+        <source>Export code</source>
+        <translation>Экспорт кода</translation>
+    </message>
+    <message>
+        <source>Share this code with someone to send them your load order ({0} {1}). They can add it with Import code.</source>
+        <translation>Поделитесь этим кодом с кем-нибудь, чтобы отправить ему свой порядок загрузки ({0} {1}). Он сможет добавить его с помощью функции «Импорт кода».</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>Copy to clipboard</source>
+        <translation>Скопировать в буфер обмена</translation>
+    </message>
+    <message>
+        <source>Copied ✓</source>
+        <translation>Скопировано ✓</translation>
+    </message>
+</context>
+<context>
+    <name>ShareCodeImportOverlay</name>
+    <message>
+        <source>Import code</source>
+        <translation>Импортировать код</translation>
+    </message>
+    <message>
+        <source>Paste a share code below to build a new profile from someone else's load order.</source>
+        <translation>Вставьте ниже код для публикации, чтобы создать новый профиль на основе чужого порядка загрузки.</translation>
+    </message>
+    <message>
+        <source>Paste from clipboard</source>
+        <translation>Вставить из буфера обмена</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отменить</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Импорт</translation>
     </message>
 </context>
 <context>
@@ -6093,6 +6286,77 @@ Output is written directly into your mod list as the '{0}' mod.</source>
     </message>
 </context>
 <context>
+    <name>ThemeEditorView</name>
+    <message>
+        <source>Theme Editor</source>
+        <translation>Редактор тем</translation>
+    </message>
+    <message>
+        <source>Start from:</source>
+        <translation>Начать с:</translation>
+    </message>
+    <message>
+        <source>Advanced (show all colours)</source>
+        <translation>Расширенный (показать все цвета)</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Сохранить</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation>«Сохранить как…»</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Restart to apply</source>
+        <translation>Перезапустите, чтобы применить изменения</translation>
+    </message>
+    <message>
+        <source>✕ Close</source>
+        <translation>✕ Закрыть</translation>
+    </message>
+    <message>
+        <source>Save As New…</source>
+        <translation>Сохранить как новый…</translation>
+    </message>
+    <message>
+        <source>Editing a base colour adjusts its hover/variants automatically. Tick Advanced to edit every colour individually. Use "Restart to apply" to save your theme and see it across the whole app.</source>
+        <translation>При изменении основного цвета его варианты и цвета при наведении курсора обновляются автоматически. Установите флажок «Расширенные настройки», чтобы редактировать каждый цвет отдельно. Нажмите «Перезапустить для применения», чтобы сохранить тему и увидеть её во всём приложении.</translation>
+    </message>
+    <message>
+        <source>Pick colour: {0}</source>
+        <translation>Выберите цвет: {0}</translation>
+    </message>
+    <message>
+        <source>Save Theme</source>
+        <translation>Сохранить тему</translation>
+    </message>
+    <message>
+        <source>Theme name:</source>
+        <translation>Название темы:</translation>
+    </message>
+    <message>
+        <source>Save failed</source>
+        <translation>Сохранение не удалось</translation>
+    </message>
+    <message>
+        <source>{0} (edited)</source>
+        <translation>{0} (отредактировано)</translation>
+    </message>
+    <message>
+        <source>Delete theme?</source>
+        <translation>Удалить тему?</translation>
+    </message>
+    <message>
+        <source>Delete the custom theme "{0}"? This cannot be undone.</source>
+        <translation>Удалить пользовательскую тему «{0}»? Это действие нельзя отменить.</translation>
+    </message>
+</context>
+<context>
     <name>UpdateOverlay</name>
     <message>
         <source>Update Collection</source>
@@ -6343,6 +6607,28 @@ Download the archive manually (do NOT use the Mod Manager download button), then
         <translation>Далее →</translation>
     </message>
     <message>
+        <source>Step 1: Download xEdit (Discord version)</source>
+        <translation>Шаг 1: Загрузите xEdit (версия для Discord)</translation>
+    </message>
+    <message>
+        <source>The latest official xEdit is now released through the xEdit Discord — a single multi-game download that is NOT on Nexus Mods.
+
+To get it:
+  1. Find and join the xEdit Discord server (search for it yourself — we do not link it here as the invite can change).
+  2. Download the latest xEdit archive (e.g. "xEdit 4.1.5q.7z") from the #xedit-builds channel.
+  3. Leave the archive in your Downloads folder and click Next.
+
+It contains xFOEdit (Fallout), xSFEdit (Starfield) and xTESEdit (Elder Scrolls); the wizard runs the one for this game automatically.</source>
+        <translation>Последняя официальная версия xEdit теперь доступна на Discord-сервере xEdit — это единый пакет для нескольких игр, которого НЕТ на Nexus Mods.
+
+Чтобы получить его:
+  1. Найдите и присоединитесь к Discord-серверу xEdit (ищите его самостоятельно — мы не размещаем здесь ссылку, так как приглашение может измениться).
+  2. Скачайте последний архив xEdit (например, «xEdit 4.1.5q.7z») из канала #xedit-builds.
+  3. Оставьте архив в папке «Загрузки» и нажмите «Далее».
+
+Архив содержит xFOEdit (Fallout), xSFEdit (Starfield) и xTESEdit (Elder Scrolls); мастер установки автоматически запустит программу, соответствующую данной игре.</translation>
+    </message>
+    <message>
         <source>Step 2: Locate the Archive</source>
         <translation>Шаг 2: Найдите архив</translation>
     </message>
@@ -6521,6 +6807,29 @@ Close it when you are done, then click Done.</source>
     <message>
         <source>Preferred version (file id — version):</source>
         <translation>Предпочтительная версия (идентификатор файла — версия):</translation>
+    </message>
+</context>
+<context>
+    <name>parent_view</name>
+    <message>
+        <source>Enable this rule</source>
+        <translation>Включить это правило</translation>
+    </message>
+    <message>
+        <source>Search regex</source>
+        <translation>Поиск по регулярному выражению</translation>
+    </message>
+    <message>
+        <source>Replacement (e.g. \1)</source>
+        <translation>Замена (например, \1)</translation>
+    </message>
+    <message>
+        <source>Reset this rule to its default</source>
+        <translation>Сбросить настройки этого правила до значений по умолчанию</translation>
+    </message>
+    <message>
+        <source>Remove this rule</source>
+        <translation>Удалить это правило</translation>
     </message>
 </context>
 <context>

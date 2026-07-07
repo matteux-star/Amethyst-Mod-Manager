@@ -910,6 +910,22 @@ The default profile's settings are not affected.</source>
         <translation>未自动找到。请手动浏览以定位游戏文件夹。</translation>
     </message>
     <message>
+        <source>No executable name configured for this game.</source>
+        <translation>未为此游戏配置可执行文件名称。</translation>
+    </message>
+    <message>
+        <source>Scanning all drives…</source>
+        <translation>正在扫描所有驱动器……</translation>
+    </message>
+    <message>
+        <source>Found via drive scan.</source>
+        <translation>通过磁盘扫描发现。</translation>
+    </message>
+    <message>
+        <source>Game executable not found on any drive.</source>
+        <translation>在任何驱动器上均未找到游戏可执行文件。</translation>
+    </message>
+    <message>
         <source>Scanning for Proton prefix…</source>
         <translation>正在扫描 Proton 前缀……</translation>
     </message>
@@ -1780,8 +1796,20 @@ When ESLifier finishes, it writes its output as the
 <context>
     <name>ExeSettingsView</name>
     <message>
+        <source>Install Java into prefix</source>
+        <translation>将 Java 安装到前缀目录下</translation>
+    </message>
+    <message>
         <source>Configure: {0}</source>
         <translation>配置：{0}</translation>
+    </message>
+    <message>
+        <source>Host (system java)</source>
+        <translation>主机（Java 系统）</translation>
+    </message>
+    <message>
+        <source>Proton prefix (Windows Java)</source>
+        <translation>Proton 前缀（Windows Java）</translation>
     </message>
     <message>
         <source>Insert game path</source>
@@ -1810,6 +1838,10 @@ When ESLifier finishes, it writes its output as the
     <message>
         <source>(no mods found)</source>
         <translation>(未找到模组)</translation>
+    </message>
+    <message>
+        <source>Installing Java …</source>
+        <translation>正在安装 Java …</translation>
     </message>
 </context>
 <context>
@@ -2212,6 +2244,65 @@ The original exe is kept as {0}.</source>
     </message>
 </context>
 <context>
+    <name>InstallNamePatternsView</name>
+    <message>
+        <source>Install-name rules</source>
+        <translation>安装名称规则</translation>
+    </message>
+    <message>
+        <source>Rules are applied in order to a downloaded archive's filename (without extension) to work out the mod name. The built-in rules for the known Nexus / mod.io download formats are shown below and can be edited or reset to their defaults; add your own to adapt to a new format without waiting for an update. Each rule runs a regular-expression search/replace; use \1, \2 … to keep captured groups.</source>
+        <translation>系统会按顺序将规则应用于下载的压缩包文件名（不带扩展名），以确定模组名称。以下列出了针对已知 Nexus / mod.io 下载格式的内置规则，这些规则可以编辑或重置为默认值；您还可以添加自定义规则，以便在不等待更新的情况下适应新格式。 每条规则都会执行正则表达式搜索/替换操作；请使用 \1、\2 … 来保留捕获组。</translation>
+    </message>
+    <message>
+        <source>Rules</source>
+        <translation>规则</translation>
+    </message>
+    <message>
+        <source>Built-in rules</source>
+        <translation>内置规则</translation>
+    </message>
+    <message>
+        <source>Custom rules</source>
+        <translation>自定义规则</translation>
+    </message>
+    <message>
+        <source>No rules yet — add one below.</source>
+        <translation>目前还没有规则——请在下面添加一条。</translation>
+    </message>
+    <message>
+        <source>Add rule</source>
+        <translation>添加规则</translation>
+    </message>
+    <message>
+        <source>Restore defaults</source>
+        <translation>恢复默认设置</translation>
+    </message>
+    <message>
+        <source>Reset the built-in rules to their defaults and re-add any that were removed. Your own custom rules are kept.</source>
+        <translation>将内置规则重置为默认值，并重新添加任何已被移除的规则。您自定义的规则将保留。</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>测试</translation>
+    </message>
+    <message>
+        <source>Paste a downloaded filename to see the resulting mod name.</source>
+        <translation>粘贴已下载的文件名，即可查看生成的模组名称。</translation>
+    </message>
+    <message>
+        <source>Failed to save rules: {0}</source>
+        <translation>保存规则失败：{0}</translation>
+    </message>
+    <message>
+        <source>Result: {0}   (a rule has an invalid regex — skipped)</source>
+        <translation>结果：{0}  （某条规则的正则表达式无效——已跳过）</translation>
+    </message>
+    <message>
+        <source>Result: {0}</source>
+        <translation>结果：{0}</translation>
+    </message>
+</context>
+<context>
     <name>LauncherSettingsOverlay</name>
     <message>
         <source>Launch settings — {0}</source>
@@ -2585,6 +2676,22 @@ The original exe is kept as {0}.</source>
     <message>
         <source>Restart now</source>
         <translation>立即重启</translation>
+    </message>
+    <message>
+        <source>Install-name Rules</source>
+        <translation>安装名称规则</translation>
+    </message>
+    <message>
+        <source>Theme Editor</source>
+        <translation>主题编辑器</translation>
+    </message>
+    <message>
+        <source>Edit custom game…</source>
+        <translation>编辑自定义游戏……</translation>
+    </message>
+    <message>
+        <source>Edit custom game</source>
+        <translation>编辑自定义游戏</translation>
     </message>
     <message>
         <source>Restart to change UI scale?</source>
@@ -3063,6 +3170,22 @@ Remove the appended-collection entry?</source>
         <translation>导入：{0}</translation>
     </message>
     <message>
+        <source>Could not build share code.</source>
+        <translation>无法构建共享代码。</translation>
+    </message>
+    <message>
+        <source>No active profile to export.</source>
+        <translation>没有可导出的活跃个人资料。</translation>
+    </message>
+    <message>
+        <source>No mods with a Nexus mod + file ID to share.</source>
+        <translation>没有模组，但有Nexus模组及文件ID可分享。</translation>
+    </message>
+    <message>
+        <source>Could not read code: {0}</source>
+        <translation>无法读取代码：{0}</translation>
+    </message>
+    <message>
         <source>Profile Settings</source>
         <translation>个人资料设置</translation>
     </message>
@@ -3143,8 +3266,20 @@ Remove the appended-collection entry?</source>
         <translation>配置文件保存文件夹</translation>
     </message>
     <message>
+        <source>Remove current profile…</source>
+        <translation>删除当前个人资料……</translation>
+    </message>
+    <message>
         <source>Quick configure</source>
         <translation>快速配置</translation>
+    </message>
+    <message>
+        <source>Export code…</source>
+        <translation>导出代码……</translation>
+    </message>
+    <message>
+        <source>Import code…</source>
+        <translation>导入代码……</translation>
     </message>
     <message>
         <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
@@ -5552,6 +5687,10 @@ Please restart the wizard and install Script Merger first.</source>
         <translation>UI 比例</translation>
     </message>
     <message>
+        <source>Edit / Create Theme…</source>
+        <translation>编辑/创建主题…</translation>
+    </message>
+    <message>
         <source>Show mod description tooltips</source>
         <translation>显示模组描述的工具提示</translation>
     </message>
@@ -5632,6 +5771,14 @@ Please restart the wizard and install Script Merger first.</source>
         <translation>安装模组后显示重命名提示。</translation>
     </message>
     <message>
+        <source>Edit custom install-name rules…</source>
+        <translation>编辑自定义安装名称规则……</translation>
+    </message>
+    <message>
+        <source>Add your own regex search/replace rules to clean up mod names on install — useful when a download site changes its filename format.</source>
+        <translation>添加自定义正则表达式搜索/替换规则，以便在安装时清理模组名称——当下载网站更改文件名格式时，此功能非常有用。</translation>
+    </message>
+    <message>
         <source>Restore on close</source>
         <translation>关闭时恢复</translation>
     </message>
@@ -5686,6 +5833,52 @@ Please restart the wizard and install Script Merger first.</source>
     <message>
         <source>Failed to save setting: {0}</source>
         <translation>保存设置失败：{0}</translation>
+    </message>
+</context>
+<context>
+    <name>ShareCodeExportOverlay</name>
+    <message>
+        <source>Export code</source>
+        <translation>导出代码</translation>
+    </message>
+    <message>
+        <source>Share this code with someone to send them your load order ({0} {1}). They can add it with Import code.</source>
+        <translation>将此代码分享给他人，向他们发送您的加载顺序（{0} {1}）。他们可以通过“导入代码”功能将其添加进去。</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <source>Copy to clipboard</source>
+        <translation>复制到剪贴板</translation>
+    </message>
+    <message>
+        <source>Copied ✓</source>
+        <translation>已复制 ✓</translation>
+    </message>
+</context>
+<context>
+    <name>ShareCodeImportOverlay</name>
+    <message>
+        <source>Import code</source>
+        <translation>导入代码</translation>
+    </message>
+    <message>
+        <source>Paste a share code below to build a new profile from someone else's load order.</source>
+        <translation>在下方粘贴分享代码，即可根据他人的加载顺序创建一个新配置文件。</translation>
+    </message>
+    <message>
+        <source>Paste from clipboard</source>
+        <translation>从剪贴板粘贴</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>导入</translation>
     </message>
 </context>
 <context>
@@ -6093,6 +6286,77 @@ Output is written directly into your mod list as the '{0}' mod.</source>
     </message>
 </context>
 <context>
+    <name>ThemeEditorView</name>
+    <message>
+        <source>Theme Editor</source>
+        <translation>主题编辑器</translation>
+    </message>
+    <message>
+        <source>Start from:</source>
+        <translation>从以下内容开始：</translation>
+    </message>
+    <message>
+        <source>Advanced (show all colours)</source>
+        <translation>高级（显示所有颜色）</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation>另存为…</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Restart to apply</source>
+        <translation>重新启动以应用更改</translation>
+    </message>
+    <message>
+        <source>✕ Close</source>
+        <translation>✕ 关闭</translation>
+    </message>
+    <message>
+        <source>Save As New…</source>
+        <translation>另存为新文件…</translation>
+    </message>
+    <message>
+        <source>Editing a base colour adjusts its hover/variants automatically. Tick Advanced to edit every colour individually. Use "Restart to apply" to save your theme and see it across the whole app.</source>
+        <translation>编辑基础颜色会自动调整其悬停效果/变体。勾选“高级”选项可单独编辑每种颜色。点击“重新启动以应用”可保存主题，并在整个应用中查看效果。</translation>
+    </message>
+    <message>
+        <source>Pick colour: {0}</source>
+        <translation>选择颜色：{0}</translation>
+    </message>
+    <message>
+        <source>Save Theme</source>
+        <translation>保存主题</translation>
+    </message>
+    <message>
+        <source>Theme name:</source>
+        <translation>主题名称：</translation>
+    </message>
+    <message>
+        <source>Save failed</source>
+        <translation>保存失败</translation>
+    </message>
+    <message>
+        <source>{0} (edited)</source>
+        <translation>{0} （已编辑）</translation>
+    </message>
+    <message>
+        <source>Delete theme?</source>
+        <translation>删除主题？</translation>
+    </message>
+    <message>
+        <source>Delete the custom theme "{0}"? This cannot be undone.</source>
+        <translation>是否要删除自定义主题“{0}”？此操作无法撤销。</translation>
+    </message>
+</context>
+<context>
     <name>UpdateOverlay</name>
     <message>
         <source>Update Collection</source>
@@ -6343,6 +6607,28 @@ Download the archive manually (do NOT use the Mod Manager download button), then
         <translation>下一页 →</translation>
     </message>
     <message>
+        <source>Step 1: Download xEdit (Discord version)</source>
+        <translation>步骤 1：下载 xEdit（Discord 版本）</translation>
+    </message>
+    <message>
+        <source>The latest official xEdit is now released through the xEdit Discord — a single multi-game download that is NOT on Nexus Mods.
+
+To get it:
+  1. Find and join the xEdit Discord server (search for it yourself — we do not link it here as the invite can change).
+  2. Download the latest xEdit archive (e.g. "xEdit 4.1.5q.7z") from the #xedit-builds channel.
+  3. Leave the archive in your Downloads folder and click Next.
+
+It contains xFOEdit (Fallout), xSFEdit (Starfield) and xTESEdit (Elder Scrolls); the wizard runs the one for this game automatically.</source>
+        <translation>最新的官方版 xEdit 现已通过 xEdit Discord 发布——这是一个包含多款游戏的单一下载包，Nexus Mods 上没有该版本。
+
+获取方法：
+  1. 查找并加入 xEdit Discord 服务器（请自行搜索——我们在此不提供链接，因为邀请链接可能会变更）。
+  2. 从 #xedit-builds 频道下载最新的 xEdit 压缩包（例如“xEdit 4.1.5q.7z”）。
+  3. 将压缩包保留在“下载”文件夹中，然后点击“下一步”。
+
+该压缩包包含 xFOEdit（《辐射》）、xSFEdit（《星野》）和 xTESEdit（《上古卷轴》）；安装向导会自动运行对应游戏的编辑器。</translation>
+    </message>
+    <message>
         <source>Step 2: Locate the Archive</source>
         <translation>步骤 2：找到存档</translation>
     </message>
@@ -6521,6 +6807,29 @@ Close it when you are done, then click Done.</source>
     <message>
         <source>Preferred version (file id — version):</source>
         <translation>首选版本（文件 ID — 版本）：</translation>
+    </message>
+</context>
+<context>
+    <name>parent_view</name>
+    <message>
+        <source>Enable this rule</source>
+        <translation>启用此规则</translation>
+    </message>
+    <message>
+        <source>Search regex</source>
+        <translation>搜索正则表达式</translation>
+    </message>
+    <message>
+        <source>Replacement (e.g. \1)</source>
+        <translation>替换（例如 \1）</translation>
+    </message>
+    <message>
+        <source>Reset this rule to its default</source>
+        <translation>将此规则重置为默认值</translation>
+    </message>
+    <message>
+        <source>Remove this rule</source>
+        <translation>删除此规则</translation>
     </message>
 </context>
 <context>

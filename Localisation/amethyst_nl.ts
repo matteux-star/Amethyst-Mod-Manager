@@ -910,6 +910,22 @@ De instellingen van het standaardprofiel blijven ongewijzigd.</translation>
         <translation>Niet automatisch gevonden. Blader handmatig om de map met het spel te vinden.</translation>
     </message>
     <message>
+        <source>No executable name configured for this game.</source>
+        <translation>Geen uitvoerbare naam ingesteld voor dit spel.</translation>
+    </message>
+    <message>
+        <source>Scanning all drives…</source>
+        <translation>Scannen van alle schijven..</translation>
+    </message>
+    <message>
+        <source>Found via drive scan.</source>
+        <translation>Gevonden via drive scan.</translation>
+    </message>
+    <message>
+        <source>Game executable not found on any drive.</source>
+        <translation>Spel uitvoerbaar niet gevonden op een schijf.</translation>
+    </message>
+    <message>
         <source>Scanning for Proton prefix…</source>
         <translation>Zoeken naar het voorvoegsel 'Proton'…</translation>
     </message>
@@ -1780,8 +1796,20 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
 <context>
     <name>ExeSettingsView</name>
     <message>
+        <source>Install Java into prefix</source>
+        <translation>Installeer Java in voorvoegsel</translation>
+    </message>
+    <message>
         <source>Configure: {0}</source>
         <translation>Configureren: {0}</translation>
+    </message>
+    <message>
+        <source>Host (system java)</source>
+        <translation>Host (systeem java)</translation>
+    </message>
+    <message>
+        <source>Proton prefix (Windows Java)</source>
+        <translation>Protonvoorvoegsel (Windows Java)</translation>
     </message>
     <message>
         <source>Insert game path</source>
@@ -1810,6 +1838,10 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
     <message>
         <source>(no mods found)</source>
         <translation>(er zijn geen mods gevonden)</translation>
+    </message>
+    <message>
+        <source>Installing Java …</source>
+        <translation>Java installeren ..</translation>
     </message>
 </context>
 <context>
@@ -2212,6 +2244,65 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
     </message>
 </context>
 <context>
+    <name>InstallNamePatternsView</name>
+    <message>
+        <source>Install-name rules</source>
+        <translation>Naamregels installeren</translation>
+    </message>
+    <message>
+        <source>Rules are applied in order to a downloaded archive's filename (without extension) to work out the mod name. The built-in rules for the known Nexus / mod.io download formats are shown below and can be edited or reset to their defaults; add your own to adapt to a new format without waiting for an update. Each rule runs a regular-expression search/replace; use \1, \2 … to keep captured groups.</source>
+        <translation>Regels worden toegepast om de bestandsnaam van een gedownload archief (zonder extensie) uit te werken. De ingebouwde regels voor de bekende Nexus / mod.io download formaten worden hieronder weergegeven en kunnen worden bewerkt of opnieuw ingesteld op hun standaards; voeg uw eigen om aan te passen aan een nieuw formaat zonder te wachten op een update. Elke regel voert een reguliere expressie zoek/vervang; gebruik \1, \2 ... om gevangen groepen te houden.</translation>
+    </message>
+    <message>
+        <source>Rules</source>
+        <translation>Regels</translation>
+    </message>
+    <message>
+        <source>Built-in rules</source>
+        <translation>Ingebouwde regels</translation>
+    </message>
+    <message>
+        <source>Custom rules</source>
+        <translation>Aangepaste regels</translation>
+    </message>
+    <message>
+        <source>No rules yet — add one below.</source>
+        <translation>Nog geen regels toevoegen hieronder.</translation>
+    </message>
+    <message>
+        <source>Add rule</source>
+        <translation>Regel toevoegen</translation>
+    </message>
+    <message>
+        <source>Restore defaults</source>
+        <translation>Standaardinstellingen herstellen</translation>
+    </message>
+    <message>
+        <source>Reset the built-in rules to their defaults and re-add any that were removed. Your own custom rules are kept.</source>
+        <translation>Reset de ingebouwde regels op hun standaardinstellingen en voeg alle verwijderde regels opnieuw toe. Je eigen aangepaste regels worden nageleefd.</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>Test</translation>
+    </message>
+    <message>
+        <source>Paste a downloaded filename to see the resulting mod name.</source>
+        <translation>Plak een gedownloade bestandsnaam om de resulterende modnaam te zien.</translation>
+    </message>
+    <message>
+        <source>Failed to save rules: {0}</source>
+        <translation>Opslaan van regels is mislukt: {0}</translation>
+    </message>
+    <message>
+        <source>Result: {0}   (a rule has an invalid regex — skipped)</source>
+        <translation>Resultaat: {0} (een regel heeft een ongeldige regex overgeslagen)</translation>
+    </message>
+    <message>
+        <source>Result: {0}</source>
+        <translation>Resultaat: {0}</translation>
+    </message>
+</context>
+<context>
     <name>LauncherSettingsOverlay</name>
     <message>
         <source>Launch settings — {0}</source>
@@ -2585,6 +2676,22 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
     <message>
         <source>Restart now</source>
         <translation>Nu opnieuw opstarten</translation>
+    </message>
+    <message>
+        <source>Install-name Rules</source>
+        <translation>Naamregels installeren</translation>
+    </message>
+    <message>
+        <source>Theme Editor</source>
+        <translation>Thema-editor</translation>
+    </message>
+    <message>
+        <source>Edit custom game…</source>
+        <translation>Aangepast spel bewerken..</translation>
+    </message>
+    <message>
+        <source>Edit custom game</source>
+        <translation>Aangepast spel bewerken</translation>
     </message>
     <message>
         <source>Restart to change UI scale?</source>
@@ -3063,6 +3170,22 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
         <translation>Import: {0}</translation>
     </message>
     <message>
+        <source>Could not build share code.</source>
+        <translation>Kon geen gedeelde code bouwen.</translation>
+    </message>
+    <message>
+        <source>No active profile to export.</source>
+        <translation>Geen actief profiel om te exporteren.</translation>
+    </message>
+    <message>
+        <source>No mods with a Nexus mod + file ID to share.</source>
+        <translation>Geen mods met een Nexus mod + bestand ID om te delen.</translation>
+    </message>
+    <message>
+        <source>Could not read code: {0}</source>
+        <translation>Kon code niet lezen: {0}</translation>
+    </message>
+    <message>
         <source>Profile Settings</source>
         <translation>Profielinstellingen</translation>
     </message>
@@ -3143,8 +3266,20 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
         <translation>Map waarin profielen worden opgeslagen</translation>
     </message>
     <message>
+        <source>Remove current profile…</source>
+        <translation>Huidig profiel verwijderen..</translation>
+    </message>
+    <message>
         <source>Quick configure</source>
         <translation>Snel instellen</translation>
+    </message>
+    <message>
+        <source>Export code…</source>
+        <translation>Code exporteren..</translation>
+    </message>
+    <message>
+        <source>Import code…</source>
+        <translation>Code importeren..</translation>
     </message>
     <message>
         <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
@@ -5552,6 +5687,10 @@ Start de wizard opnieuw op en installeer eerst Script Merger.</translation>
         <translation>UI-schaal</translation>
     </message>
     <message>
+        <source>Edit / Create Theme…</source>
+        <translation>Thema bewerken / aanmaken..</translation>
+    </message>
+    <message>
         <source>Show mod description tooltips</source>
         <translation>Tooltips voor de modbeschrijving weergeven</translation>
     </message>
@@ -5632,6 +5771,14 @@ Start de wizard opnieuw op en installeer eerst Script Merger.</translation>
         <translation>Geef een vraag om de naam te wijzigen weer na het installeren van een mod.</translation>
     </message>
     <message>
+        <source>Edit custom install-name rules…</source>
+        <translation>Aangepaste installatienaamregels bewerken..</translation>
+    </message>
+    <message>
+        <source>Add your own regex search/replace rules to clean up mod names on install — useful when a download site changes its filename format.</source>
+        <translation>Voeg uw eigen regex zoek-/vervangregels toe om mod-namen op te ruimen bij installeren, nuttig wanneer een download-site zijn bestandsnaamformaat wijzigt.</translation>
+    </message>
+    <message>
         <source>Restore on close</source>
         <translation>Terugzetten bij het sluiten</translation>
     </message>
@@ -5686,6 +5833,52 @@ Start de wizard opnieuw op en installeer eerst Script Merger.</translation>
     <message>
         <source>Failed to save setting: {0}</source>
         <translation>Het opslaan van de instelling is mislukt: {0}</translation>
+    </message>
+</context>
+<context>
+    <name>ShareCodeExportOverlay</name>
+    <message>
+        <source>Export code</source>
+        <translation>Uitvoercode</translation>
+    </message>
+    <message>
+        <source>Share this code with someone to send them your load order ({0} {1}). They can add it with Import code.</source>
+        <translation>Deel deze code met iemand om ze uw lastorder te sturen ({0} {1}). Ze kunnen het toevoegen met importcode.</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Sluiten</translation>
+    </message>
+    <message>
+        <source>Copy to clipboard</source>
+        <translation>Kopiëren naar klembord</translation>
+    </message>
+    <message>
+        <source>Copied ✓</source>
+        <translation>Gekopiëerd</translation>
+    </message>
+</context>
+<context>
+    <name>ShareCodeImportOverlay</name>
+    <message>
+        <source>Import code</source>
+        <translation>Invoercode</translation>
+    </message>
+    <message>
+        <source>Paste a share code below to build a new profile from someone else's load order.</source>
+        <translation>Plak een gedeelde code hieronder om een nieuw profiel te maken van iemand anders zijn laadorder.</translation>
+    </message>
+    <message>
+        <source>Paste from clipboard</source>
+        <translation>Plakken vanaf klembord</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importeren</translation>
     </message>
 </context>
 <context>
@@ -6093,6 +6286,77 @@ De uitvoer wordt rechtstreeks in je modlijst opgeslagen als de mod ‘{0}’.</t
     </message>
 </context>
 <context>
+    <name>ThemeEditorView</name>
+    <message>
+        <source>Theme Editor</source>
+        <translation>Thema-editor</translation>
+    </message>
+    <message>
+        <source>Start from:</source>
+        <translation>Begin bij:</translation>
+    </message>
+    <message>
+        <source>Advanced (show all colours)</source>
+        <translation>Geavanceerd (alle kleuren tonen)</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Opslaan</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation>Opslaan als..</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
+        <source>Restart to apply</source>
+        <translation>Herstarten om toe te passen</translation>
+    </message>
+    <message>
+        <source>✕ Close</source>
+        <translation>✕ Sluiten</translation>
+    </message>
+    <message>
+        <source>Save As New…</source>
+        <translation>Opslaan als nieuw..</translation>
+    </message>
+    <message>
+        <source>Editing a base colour adjusts its hover/variants automatically. Tick Advanced to edit every colour individually. Use "Restart to apply" to save your theme and see it across the whole app.</source>
+        <translation>Een basiskleur bewerken past automatisch zijn zweef/variant aan. Tick Advanced om elke kleur individueel te bewerken. Gebruik "Restart to apply" om uw thema op te slaan en te zien over de hele app.</translation>
+    </message>
+    <message>
+        <source>Pick colour: {0}</source>
+        <translation>Kies kleur: {0}</translation>
+    </message>
+    <message>
+        <source>Save Theme</source>
+        <translation>Thema opslaan</translation>
+    </message>
+    <message>
+        <source>Theme name:</source>
+        <translation>Themanaam:</translation>
+    </message>
+    <message>
+        <source>Save failed</source>
+        <translation>Opslaan mislukt</translation>
+    </message>
+    <message>
+        <source>{0} (edited)</source>
+        <translation>{0} (bewerken)</translation>
+    </message>
+    <message>
+        <source>Delete theme?</source>
+        <translation>Thema verwijderen?</translation>
+    </message>
+    <message>
+        <source>Delete the custom theme "{0}"? This cannot be undone.</source>
+        <translation>Het aangepaste thema "{0}" verwijderen? Dit kan niet ongedaan worden gemaakt.</translation>
+    </message>
+</context>
+<context>
     <name>UpdateOverlay</name>
     <message>
         <source>Update Collection</source>
@@ -6343,6 +6607,28 @@ Download het archief handmatig (gebruik NIET de downloadknop van de Mod Manager)
         <translation>Volgende →</translation>
     </message>
     <message>
+        <source>Step 1: Download xEdit (Discord version)</source>
+        <translation>Stap 1: Download xEdit (Discord versie)</translation>
+    </message>
+    <message>
+        <source>The latest official xEdit is now released through the xEdit Discord — a single multi-game download that is NOT on Nexus Mods.
+
+To get it:
+  1. Find and join the xEdit Discord server (search for it yourself — we do not link it here as the invite can change).
+  2. Download the latest xEdit archive (e.g. "xEdit 4.1.5q.7z") from the #xedit-builds channel.
+  3. Leave the archive in your Downloads folder and click Next.
+
+It contains xFOEdit (Fallout), xSFEdit (Starfield) and xTESEdit (Elder Scrolls); the wizard runs the one for this game automatically.</source>
+        <translation>De nieuwste officiële xEdit wordt nu uitgebracht via de xEdit Discord 
+
+Om het te krijgen:
+1. Zoek en sluit je aan bij de xEdit Discord-server (zoek het zelf op, we koppelen het hier niet omdat de uitnodiging kan veranderen).
+2. Download het nieuwste xEdit archief (bijv. "xEdit 4.1.5q.7z") van het #xedit-builds kanaal.
+3. Laat het archief in uw map Downloads en klik op Volgende.
+
+Het bevat xFOEdit (Fallout), xSFEdit (Starfield) en xTESEdit (Elder Scrolls); de wizard draait de ene voor dit spel automatisch.</translation>
+    </message>
+    <message>
         <source>Step 2: Locate the Archive</source>
         <translation>Stap 2: Zoek het archief</translation>
     </message>
@@ -6521,6 +6807,29 @@ Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</trans
     <message>
         <source>Preferred version (file id — version):</source>
         <translation>Voorkeursversie (bestands-id — versie):</translation>
+    </message>
+</context>
+<context>
+    <name>parent_view</name>
+    <message>
+        <source>Enable this rule</source>
+        <translation>Deze regel inschakelen</translation>
+    </message>
+    <message>
+        <source>Search regex</source>
+        <translation>Regex zoeken</translation>
+    </message>
+    <message>
+        <source>Replacement (e.g. \1)</source>
+        <translation>Vervanging (bv. \1)</translation>
+    </message>
+    <message>
+        <source>Reset this rule to its default</source>
+        <translation>Deze regel terugzetten naar standaard</translation>
+    </message>
+    <message>
+        <source>Remove this rule</source>
+        <translation>Deze regel verwijderen</translation>
     </message>
 </context>
 <context>

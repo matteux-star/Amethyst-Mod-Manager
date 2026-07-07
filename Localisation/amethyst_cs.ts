@@ -910,6 +910,22 @@ Nastavení výchozího profilu tím nebude ovlivněno.</translation>
         <translation>Nebylo nalezeno automaticky. Vyhledejte složku s hrou ručně.</translation>
     </message>
     <message>
+        <source>No executable name configured for this game.</source>
+        <translation>Pro tuto hru není nakonfigurován žádný spustitelný název.</translation>
+    </message>
+    <message>
+        <source>Scanning all drives…</source>
+        <translation>Skenuji všechny disky..</translation>
+    </message>
+    <message>
+        <source>Found via drive scan.</source>
+        <translation>Nalezeno přes drive scan.</translation>
+    </message>
+    <message>
+        <source>Game executable not found on any drive.</source>
+        <translation>Hra spustitelná nebyla nalezena na žádném disku.</translation>
+    </message>
+    <message>
         <source>Scanning for Proton prefix…</source>
         <translation>Vyhledávání předpony „Proton“…</translation>
     </message>
@@ -1780,8 +1796,20 @@ mod „{0}“, který se objeví ve vašem seznamu modů.</translation>
 <context>
     <name>ExeSettingsView</name>
     <message>
+        <source>Install Java into prefix</source>
+        <translation>Nainstalovat Java do prefixu</translation>
+    </message>
+    <message>
         <source>Configure: {0}</source>
         <translation>Nastavení: {0}</translation>
+    </message>
+    <message>
+        <source>Host (system java)</source>
+        <translation>Hostitel (systém java)</translation>
+    </message>
+    <message>
+        <source>Proton prefix (Windows Java)</source>
+        <translation>Proton prefix (Windows Java)</translation>
     </message>
     <message>
         <source>Insert game path</source>
@@ -1810,6 +1838,10 @@ mod „{0}“, který se objeví ve vašem seznamu modů.</translation>
     <message>
         <source>(no mods found)</source>
         <translation>(nebyly nalezeny žádné mody)</translation>
+    </message>
+    <message>
+        <source>Installing Java …</source>
+        <translation>Instalace Java..</translation>
     </message>
 </context>
 <context>
@@ -2212,6 +2244,65 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
     </message>
 </context>
 <context>
+    <name>InstallNamePatternsView</name>
+    <message>
+        <source>Install-name rules</source>
+        <translation>Pravidla týkající se názvu</translation>
+    </message>
+    <message>
+        <source>Rules are applied in order to a downloaded archive's filename (without extension) to work out the mod name. The built-in rules for the known Nexus / mod.io download formats are shown below and can be edited or reset to their defaults; add your own to adapt to a new format without waiting for an update. Each rule runs a regular-expression search/replace; use \1, \2 … to keep captured groups.</source>
+        <translation>Pravidla se uplatňují pro název souboru staženého archivu (bez rozšíření), aby bylo možné zjistit název modu. Built- in pravidla pro známé formáty pro stahování Nexus / mod.io jsou uvedeny níže a mohou být editovány nebo resetovat na jejich selhání; přidat vlastní přizpůsobit do nového formátu bez čekání na aktualizaci. Každé pravidlo běží regulér- výraz vyhledávání / nahradit; použijte\ 1,\ 2... k udržení zachycené skupiny.</translation>
+    </message>
+    <message>
+        <source>Rules</source>
+        <translation>Pravidla</translation>
+    </message>
+    <message>
+        <source>Built-in rules</source>
+        <translation>Stavební pravidla</translation>
+    </message>
+    <message>
+        <source>Custom rules</source>
+        <translation>Celní pravidla</translation>
+    </message>
+    <message>
+        <source>No rules yet — add one below.</source>
+        <translation>Zatím žádná pravidla - přidejte jeden níže.</translation>
+    </message>
+    <message>
+        <source>Add rule</source>
+        <translation>Přidat pravidlo</translation>
+    </message>
+    <message>
+        <source>Restore defaults</source>
+        <translation>Obnovit závady</translation>
+    </message>
+    <message>
+        <source>Reset the built-in rules to their defaults and re-add any that were removed. Your own custom rules are kept.</source>
+        <translation>Obnovit built- v pravidlech k jejich selhání a přidat všechny, které byly odstraněny. Vaše vlastní pravidla jsou dodržována.</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>Zkouška</translation>
+    </message>
+    <message>
+        <source>Paste a downloaded filename to see the resulting mod name.</source>
+        <translation>Vložte stažené jméno souboru, abyste viděli výsledný název modu.</translation>
+    </message>
+    <message>
+        <source>Failed to save rules: {0}</source>
+        <translation>Nepodařilo se uložit pravidla: {0}</translation>
+    </message>
+    <message>
+        <source>Result: {0}   (a rule has an invalid regex — skipped)</source>
+        <translation>Výsledek: {0} (pravidlo má neplatný regex - přeskočen)</translation>
+    </message>
+    <message>
+        <source>Result: {0}</source>
+        <translation>Výsledek: {0}</translation>
+    </message>
+</context>
+<context>
     <name>LauncherSettingsOverlay</name>
     <message>
         <source>Launch settings — {0}</source>
@@ -2585,6 +2676,22 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
     <message>
         <source>Restart now</source>
         <translation>Restartovat nyní</translation>
+    </message>
+    <message>
+        <source>Install-name Rules</source>
+        <translation>Instal- name Rules</translation>
+    </message>
+    <message>
+        <source>Theme Editor</source>
+        <translation>Editor témat</translation>
+    </message>
+    <message>
+        <source>Edit custom game…</source>
+        <translation>Upravit vlastní hru..</translation>
+    </message>
+    <message>
+        <source>Edit custom game</source>
+        <translation>Upravit vlastní hru</translation>
     </message>
     <message>
         <source>Restart to change UI scale?</source>
@@ -3063,6 +3170,22 @@ Chcete odstranit záznam z přidané sbírky?</translation>
         <translation>Import: {0}</translation>
     </message>
     <message>
+        <source>Could not build share code.</source>
+        <translation>Nelze vytvořit kód sdílení.</translation>
+    </message>
+    <message>
+        <source>No active profile to export.</source>
+        <translation>Žádný aktivní profil pro export.</translation>
+    </message>
+    <message>
+        <source>No mods with a Nexus mod + file ID to share.</source>
+        <translation>Žádný mods s identifikací souboru Nexus mod +.</translation>
+    </message>
+    <message>
+        <source>Could not read code: {0}</source>
+        <translation>Nelze přečíst kód: {0}</translation>
+    </message>
+    <message>
         <source>Profile Settings</source>
         <translation>Nastavení profilu</translation>
     </message>
@@ -3143,8 +3266,20 @@ Chcete odstranit záznam z přidané sbírky?</translation>
         <translation>Složka pro ukládání profilů</translation>
     </message>
     <message>
+        <source>Remove current profile…</source>
+        <translation>Odstranit aktuální profil..</translation>
+    </message>
+    <message>
         <source>Quick configure</source>
         <translation>Rychlé nastavení</translation>
+    </message>
+    <message>
+        <source>Export code…</source>
+        <translation>Vývozní kód..</translation>
+    </message>
+    <message>
+        <source>Import code…</source>
+        <translation>Dovozní kód..</translation>
     </message>
     <message>
         <source>Cannot change the deploy method while mods are deployed. Restore first.</source>
@@ -5552,6 +5687,10 @@ Restartujte prosím průvodce a nejprve nainstalujte Script Merger.</translation
         <translation>Měřítko uživatelského rozhraní</translation>
     </message>
     <message>
+        <source>Edit / Create Theme…</source>
+        <translation>Upravit / vytvořit téma..</translation>
+    </message>
+    <message>
         <source>Show mod description tooltips</source>
         <translation>Zobrazit popisky nástrojových tipů k modulům</translation>
     </message>
@@ -5632,6 +5771,14 @@ Restartujte prosím průvodce a nejprve nainstalujte Script Merger.</translation
         <translation>Po instalaci modifikace zobrazit výzvu k přejmenování.</translation>
     </message>
     <message>
+        <source>Edit custom install-name rules…</source>
+        <translation>Upravit vlastní install-name pravidla..</translation>
+    </message>
+    <message>
+        <source>Add your own regex search/replace rules to clean up mod names on install — useful when a download site changes its filename format.</source>
+        <translation>Přidat vlastní regex vyhledávání / nahradit pravidla pro čištění mod jmen na instalaci - užitečné, když stránky ke stažení změní svůj formát názvu souboru.</translation>
+    </message>
+    <message>
         <source>Restore on close</source>
         <translation>Obnovit při zavření</translation>
     </message>
@@ -5686,6 +5833,52 @@ Restartujte prosím průvodce a nejprve nainstalujte Script Merger.</translation
     <message>
         <source>Failed to save setting: {0}</source>
         <translation>Nepodařilo se uložit nastavení: {0}</translation>
+    </message>
+</context>
+<context>
+    <name>ShareCodeExportOverlay</name>
+    <message>
+        <source>Export code</source>
+        <translation>Kód vývozu</translation>
+    </message>
+    <message>
+        <source>Share this code with someone to send them your load order ({0} {1}). They can add it with Import code.</source>
+        <translation>Sdílejte tento kód s někým, kdo jim pošle vaši objednávku nákladu ({0} {1}). Mohou to přidat importním kódem.</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Zavřít</translation>
+    </message>
+    <message>
+        <source>Copy to clipboard</source>
+        <translation>Kopírovat do schránky</translation>
+    </message>
+    <message>
+        <source>Copied ✓</source>
+        <translation>Name</translation>
+    </message>
+</context>
+<context>
+    <name>ShareCodeImportOverlay</name>
+    <message>
+        <source>Import code</source>
+        <translation>Dovozní kód</translation>
+    </message>
+    <message>
+        <source>Paste a share code below to build a new profile from someone else's load order.</source>
+        <translation>Vložte kód sdílení níže a vytvořte nový profil z objednávky nákladu někoho jiného.</translation>
+    </message>
+    <message>
+        <source>Paste from clipboard</source>
+        <translation>Vložit z schránky</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Zrušit</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importovat</translation>
     </message>
 </context>
 <context>
@@ -6093,6 +6286,77 @@ Výstup se zapíše přímo do vašeho seznamu modů jako mod „{0}“.</transl
     </message>
 </context>
 <context>
+    <name>ThemeEditorView</name>
+    <message>
+        <source>Theme Editor</source>
+        <translation>Editor témat</translation>
+    </message>
+    <message>
+        <source>Start from:</source>
+        <translation>Začněte od:</translation>
+    </message>
+    <message>
+        <source>Advanced (show all colours)</source>
+        <translation>Pokročilé (zobrazit všechny barvy)</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Uložit</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation>Uložit jako..</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Odstranit</translation>
+    </message>
+    <message>
+        <source>Restart to apply</source>
+        <translation>Obnovit aplikaci</translation>
+    </message>
+    <message>
+        <source>✕ Close</source>
+        <translation>✕ Zavřít</translation>
+    </message>
+    <message>
+        <source>Save As New…</source>
+        <translation>Uložit jako nový..</translation>
+    </message>
+    <message>
+        <source>Editing a base colour adjusts its hover/variants automatically. Tick Advanced to edit every colour individually. Use "Restart to apply" to save your theme and see it across the whole app.</source>
+        <translation>Úprava základní barvy automaticky upravuje jeho vznášedlo / varianty. Tick Advanced upravit každou barvu individuálně. Pomocí "Restartovat pro aplikaci" uložit téma a vidět to přes celou aplikaci.</translation>
+    </message>
+    <message>
+        <source>Pick colour: {0}</source>
+        <translation>Barva výběru: {0}</translation>
+    </message>
+    <message>
+        <source>Save Theme</source>
+        <translation>Uložit téma</translation>
+    </message>
+    <message>
+        <source>Theme name:</source>
+        <translation>Jméno tématu:</translation>
+    </message>
+    <message>
+        <source>Save failed</source>
+        <translation>Uložit selhalo</translation>
+    </message>
+    <message>
+        <source>{0} (edited)</source>
+        <translation>{0} (editovaný)</translation>
+    </message>
+    <message>
+        <source>Delete theme?</source>
+        <translation>Smazat téma?</translation>
+    </message>
+    <message>
+        <source>Delete the custom theme "{0}"? This cannot be undone.</source>
+        <translation>Smazat vlastní téma "{0}"? To se nedá odčinit.</translation>
+    </message>
+</context>
+<context>
     <name>UpdateOverlay</name>
     <message>
         <source>Update Collection</source>
@@ -6343,6 +6607,28 @@ Archiv si stáhněte ručně (NEPOUŽÍVEJTE tlačítko pro stažení v Mod Mana
         <translation>Další →</translation>
     </message>
     <message>
+        <source>Step 1: Download xEdit (Discord version)</source>
+        <translation>Krok 1: Stáhnout xEdit (Discord verze)</translation>
+    </message>
+    <message>
+        <source>The latest official xEdit is now released through the xEdit Discord — a single multi-game download that is NOT on Nexus Mods.
+
+To get it:
+  1. Find and join the xEdit Discord server (search for it yourself — we do not link it here as the invite can change).
+  2. Download the latest xEdit archive (e.g. "xEdit 4.1.5q.7z") from the #xedit-builds channel.
+  3. Leave the archive in your Downloads folder and click Next.
+
+It contains xFOEdit (Fallout), xSFEdit (Starfield) and xTESEdit (Elder Scrolls); the wizard runs the one for this game automatically.</source>
+        <translation>Nejnovější oficiální xEdit je nyní propuštěn přes xEdit Discord - jedno multi- herní stažení, které není na Nexus Mods.
+
+Chcete-li získat:
+1. Najděte a přidejte se k serveru xEdit Discord (vyhledejte si ho sami - nespojujeme ho zde, protože pozvánka se může změnit).
+2. Stáhnout nejnovější xEdit archiv (např. "xEdit 4.1.5q.7z") z # xedit- builds kanálu.
+3. Zanechte archiv ve složce ke stažení a klikněte na Další.
+
+Obsahuje xFOEdit (Fallout), xSFEdit (Starfield) a xTESEdit (Elder Scrolls); průvodce běží pro tuto hru automaticky.</translation>
+    </message>
+    <message>
         <source>Step 2: Locate the Archive</source>
         <translation>Krok 2: Vyhledejte archiv</translation>
     </message>
@@ -6521,6 +6807,29 @@ Až skončíte, zavřete jej a poté klikněte na tlačítko Hotovo.</translatio
     <message>
         <source>Preferred version (file id — version):</source>
         <translation>Preferovaná verze (ID souboru — verze):</translation>
+    </message>
+</context>
+<context>
+    <name>parent_view</name>
+    <message>
+        <source>Enable this rule</source>
+        <translation>Povolit toto pravidlo</translation>
+    </message>
+    <message>
+        <source>Search regex</source>
+        <translation>Name</translation>
+    </message>
+    <message>
+        <source>Replacement (e.g. \1)</source>
+        <translation>Náhrada (např.\ 1)</translation>
+    </message>
+    <message>
+        <source>Reset this rule to its default</source>
+        <translation>Obnovit toto pravidlo na jeho výchozí</translation>
+    </message>
+    <message>
+        <source>Remove this rule</source>
+        <translation>Odstranit toto pravidlo</translation>
     </message>
 </context>
 <context>
