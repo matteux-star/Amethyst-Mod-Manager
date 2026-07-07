@@ -582,7 +582,7 @@ class NexusBrowserView(QWidget):
                     else:
                         entries = self._api.search_mods(
                             domain, query, count=size, offset=page * size,
-                            category_names=cats)
+                            category_names=cats, sort_key=sort_key)
                     status = f"Search '{query}': page {page + 1} ({len(entries)} result(s))"
                 elif section == "Browse":
                     entries = self._api.get_top_mods(

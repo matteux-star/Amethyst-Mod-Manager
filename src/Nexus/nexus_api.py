@@ -1891,11 +1891,16 @@ class NexusAPI:
     def search_mods(
         self, game_domain: str, query_text: str, count: int = 10, offset: int = 0,
         category_names: list[str] | None = None,
+        sort_key: str = "downloads",
     ) -> list[NexusModInfo]:
         """
         Search mods by name for a game via the GraphQL v2 API.
         Pass category_names to restrict results to specific categories.
+        Results are sorted by `sort_key` descending (see get_top_mods for the
+        valid values); invalid keys fall back to "downloads".
         """
+        if sort_key not in self._TOP_MODS_SORT_KEYS:
+            sort_key = "downloads"
         base_filter = self._build_mods_filter(game_domain, category_names)
         # Inject the name search into the filter.
         #
@@ -1911,15 +1916,15 @@ class NexusAPI:
             base_filter["filter"].append(name_cond)
         else:
             base_filter.update(name_cond)
-        query = """
-        query SearchMods($filter: ModsFilter, $count: Int, $offset: Int) {
+        query = f"""
+        query SearchMods($filter: ModsFilter, $count: Int, $offset: Int) {{
             mods(
                 filter: $filter
-                sort: [{ downloads: { direction: DESC } }]
+                sort: [{{ {sort_key}: {{ direction: DESC }} }}]
                 count: $count
                 offset: $offset
-            ) {
-                nodes {
+            ) {{
+                nodes {{
                     modId
                     name
                     summary
@@ -1933,10 +1938,10 @@ class NexusAPI:
                     createdAt
                     updatedAt
                     fileSize
-                    modCategory { name }
-                }
-            }
-        }
+                    modCategory {{ name }}
+                }}
+            }}
+        }}
         """
         variables = {
             "filter": base_filter,
