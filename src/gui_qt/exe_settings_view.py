@@ -181,6 +181,7 @@ class ExeSettingsView(QWidget):
         tool_row = QHBoxLayout()
         tool_row.setSpacing(6)
         for label, cb in (("Run EXE in prefix…", self._run_exe_in_prefix),
+                          ("Run winecfg", self._run_winecfg_in_prefix),
                           ("Run winetricks", self._run_winetricks_in_prefix),
                           ("Open prefix folder", self._open_prefix_folder)):
             b = QPushButton(label)
@@ -384,6 +385,24 @@ class ExeSettingsView(QWidget):
 
         threading.Thread(target=worker, daemon=True,
                          name="exe-prefix-winetricks").start()
+
+    def _run_winecfg_in_prefix(self):
+        selected = self._selected_proton()
+        if selected is None:
+            return
+        game, exe_path, log = self._game, self._exe_path, self._log
+
+        def worker():
+            result = exe_launch.prepare_tool_prefix(exe_path, selected, game,
+                                                    log_fn=log)
+            if result is None:
+                return
+            proton_script, prefix_dir, env = result
+            exe_launch.launch_wine_tool_in_prefix(
+                proton_script, prefix_dir, env, "winecfg", log_fn=log)
+
+        threading.Thread(target=worker, daemon=True,
+                         name="exe-prefix-winecfg").start()
 
     def _install_java_into_prefix(self):
         """Install a Windows JRE (with JavaFX) into the jar's target prefix.
