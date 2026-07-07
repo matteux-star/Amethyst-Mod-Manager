@@ -157,6 +157,8 @@ class Fallout_3(BaseGame):
         "script_extender_swap",
         "profile_ini_files",
         "profile_saves",
+
+        "plugins_txt_filename",
     )
 
     # BAIN packages are authored for Bethesda games, so re-enable the
@@ -540,18 +542,24 @@ class Fallout_3(BaseGame):
         self._profile_ini_files = data.get("profile_ini_files", False)
         self._profile_saves = data.get("profile_saves", False)
         raw_pfname = data.get("plugins_txt_filename")
+        # Only treat a stored value as an override when it differs from the
+        # game's class default, so a value equal to the default (which we now
+        # always persist — see _save_paths_extra) doesn't masquerade as one.
+        pfname = str(raw_pfname) if raw_pfname else ""
         self._plugins_txt_filename_override = (
-            str(raw_pfname) if raw_pfname else None)
+            pfname if pfname and pfname != self._PLUGINS_TXT_FILENAME else None)
 
     def _save_paths_extra(self) -> dict:
-        extra = {
+        # Always emit the effective filename (never omit it): omitting it left a
+        # stale value in paths.json when the user switched back to the default,
+        # so the change appeared to do nothing. A concrete value here also lets
+        # save_paths() pin it per-profile via profile_overridable_paths_extras.
+        return {
             "script_extender_swap": self._script_extender_swap,
             "profile_ini_files":    self._profile_ini_files,
             "profile_saves":        self._profile_saves,
+            "plugins_txt_filename": self.plugins_txt_filename,
         }
-        if self._plugins_txt_filename_override is not None:
-            extra["plugins_txt_filename"] = self._plugins_txt_filename_override
-        return extra
 
     def set_staging_path(self, path: "Path | str | None") -> None:
         self._staging_path = Path(path) if path else None
@@ -790,6 +798,15 @@ class Fallout_3(BaseGame):
         content = source.read_text(encoding="utf-8")
         for target in targets:
             deploy_plugins_copy(target.parent, target.name, content, _log)
+            if self._lock_plugins_txt:
+                # Mark read-only so Fallout 4's AE launcher can't rewrite it on
+                # launch. Restore deletes the file (unlink ignores the read-only
+                # bit), so the next deploy writes a fresh copy — no need to clear
+                # the flag first.
+                try:
+                    target.chmod(0o444)
+                except OSError as exc:
+                    _log(f"  WARN: could not set {target.name} read-only: {exc}")
 
     def _remove_plugins_txt_symlink(self, log_fn) -> None:
         """Remove the deployed plugins.txt copy (or legacy symlink) on restore."""
@@ -809,6 +826,11 @@ class Fallout_3(BaseGame):
 
     # Every Bethesda engine loads master-flagged plugins before non-masters.
     plugins_master_block = True
+
+    # When True, the deployed plugins.txt is marked read-only. Only Fallout 4
+    # needs this (its AE launcher rewrites the file on launch); every other
+    # Bethesda game leaves it writable.
+    _lock_plugins_txt = False
 
     def _orders_plugins_by_mtime(self) -> bool:
         return self._plugin_load_order_by_mtime and not self.plugins_use_star_prefix
@@ -1192,6 +1214,55 @@ class Fallout_3(BaseGame):
                                  self._invalidation_archive_list_key, None)
         names = ", ".join(p.name for p in ini_paths)
         _log(f"  Archive invalidation reverted in {names}.")
+
+    # (section, key, value) triples forced into the game's INIs on every deploy,
+    # independent of archive invalidation. Removed again on restore. Used by
+    # Fallout 4 to set [Bethesda.net] bEnablePlatform=0, which stops the AE
+    # launcher's Creations/Bethesda.net sync from rewriting plugins.txt.
+    _ini_override_keys: tuple[tuple[str, str, str], ...] = ()
+
+    def apply_ini_overrides(self, log_fn) -> None:
+        """Force ``_ini_override_keys`` into every managed game INI.
+
+        Unlike archive invalidation, this is not gated on any setting — the
+        keys are written on every deploy and always set to our value (an
+        existing user value is overwritten, since the whole point is to
+        override it).
+        """
+        if not self._ini_override_keys:
+            return
+        _log = log_fn
+        ini_paths = self._get_archive_ini_paths()
+        if not ini_paths:
+            return
+        for ini_path in ini_paths:
+            ini_path.parent.mkdir(parents=True, exist_ok=True)
+            for section, key, value in self._ini_override_keys:
+                if _read_ini_key(ini_path, section, key) == value:
+                    continue
+                _set_ini_key(ini_path, section, key, value)
+        names = ", ".join(p.name for p in ini_paths)
+        _log(f"  Applied INI overrides in {names}.")
+
+    def revert_ini_overrides(self, log_fn) -> None:
+        """Remove any ``_ini_override_keys`` this game previously wrote.
+
+        Only removes a key whose current value still matches what we wrote, so
+        a value the user has since changed by hand is left untouched.
+        """
+        if not self._ini_override_keys:
+            return
+        _log = log_fn
+        ini_paths = [p for p in self._get_archive_ini_paths() if p.is_file()]
+        if not ini_paths:
+            return
+        for ini_path in ini_paths:
+            for section, key, value in self._ini_override_keys:
+                if _read_ini_key(ini_path, section, key) != value:
+                    continue
+                _set_ini_key(ini_path, section, key, None)
+        names = ", ".join(p.name for p in ini_paths)
+        _log(f"  Reverted INI overrides in {names}.")
 
     def _write_dummy_bsa_file(self, _log) -> None:
         """Write the dummy BSA into the game's Data folder, if configured."""
@@ -1580,6 +1651,8 @@ class Fallout_3(BaseGame):
         _log("Step 7: Applying archive invalidation ...")
         self.apply_archive_invalidation(_log)
 
+        self.apply_ini_overrides(_log)
+
         if self._orders_plugins_by_mtime():
             _log("Step 8: Setting plugin mtimes to match load order ...")
             self.stamp_plugin_load_order(profile, _log)
@@ -1604,6 +1677,8 @@ class Fallout_3(BaseGame):
 
         _log("Restore: reverting archive invalidation ...")
         self.revert_archive_invalidation(_log)
+
+        self.revert_ini_overrides(_log)
 
         _profile_dir = self._active_profile_dir
         _entries = read_modlist(_profile_dir / "modlist.txt") if _profile_dir else []
@@ -2032,6 +2107,11 @@ class Fallout_4(Fallout_3):
     _ARCHIVE_INI_FILENAME = "Fallout4.ini"
     _ARCHIVE_PREFS_INI_FILENAME = "Fallout4Prefs.ini"
     _archive_invalidation_extra_keys = (("sResourceDataDirsFinal", ""),)
+    # Disable the AE launcher's Creations/Bethesda.net platform sync, which
+    # otherwise rewrites plugins.txt on launch and clobbers our load order.
+    _ini_override_keys = (("Bethesda.net", "bEnablePlatform", "0"),)
+    # The AE launcher rewrites plugins.txt on launch — mark it read-only.
+    _lock_plugins_txt = True
     # BA2-based — no dummy BSA, only the bInvalidateOlderFiles INI key.
     _invalidation_bsa_name = None
     _invalidation_bsa_version = None
