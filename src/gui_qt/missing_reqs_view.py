@@ -17,6 +17,7 @@ from __future__ import annotations
 import threading
 
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QCheckBox,
     QScrollArea, QFrame,
@@ -24,6 +25,30 @@ from PySide6.QtWidgets import (
 
 from gui_qt.theme_qt import active_palette, _c, danger_close_button
 from gui_qt.safe_emit import safe_emit
+
+
+class _ElidedLabel(QLabel):
+    """A QLabel that never grows past *max_width*, eliding its text with an
+    ellipsis instead of wrapping or forcing the panel wider. The full text is
+    kept so the tooltip / re-elide-on-resize can use it."""
+
+    def __init__(self, text="", max_width=360):
+        super().__init__()
+        self._full = text
+        self.setMaximumWidth(max_width)
+        self._apply_elide()
+
+    def setText(self, text):  # noqa: N802 (Qt override)
+        self._full = text
+        self._apply_elide()
+
+    def _apply_elide(self):
+        fm = QFontMetrics(self.font())
+        super().setText(fm.elidedText(self._full, Qt.ElideRight, self.width()))
+
+    def resizeEvent(self, event):  # noqa: N802 (Qt override)
+        super().resizeEvent(event)
+        self._apply_elide()
 
 
 class _ReqCard(QFrame):
@@ -117,8 +142,12 @@ class MissingReqsView(QWidget):
         # Toolbar: title + Ignore requirements + Close.
         bar = QWidget(); bar.setObjectName("HeaderBar")
         hb = QHBoxLayout(bar); hb.setContentsMargins(12, 8, 8, 8); hb.setSpacing(8)
-        title = QLabel(self.tr("Missing requirements — {0}").format(self._title_text()))
+        full = self.tr("Missing requirements — {0}").format(self._title_text())
+        title = _ElidedLabel(full, max_width=360)
         title.setStyleSheet(f"color:{_c(p,'TEXT_MAIN')}; font-weight:600;")
+        # A long mod name must not be allowed to force the whole panel wide — the
+        # label caps its own width and elides the overflow (full name in tooltip).
+        title.setToolTip(full)
         hb.addWidget(title)
         hb.addStretch(1)
 
