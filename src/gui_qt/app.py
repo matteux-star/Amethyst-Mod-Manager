@@ -3708,7 +3708,9 @@ class MainWindow(QMainWindow):
         from Nexus.nexus_update_checker import check_for_updates
 
         def _worker():
-            out = {"nexus": None, "modio": []}
+            # Carry the checked subset (None = all) so _on_updates_ready can do a
+            # scoped, filemap-free flag refresh instead of a full reload.
+            out = {"nexus": None, "modio": [], "subset": subset}
             try:
                 # Run the mod.io check (BG3) in parallel with the Nexus check —
                 # they hit different APIs and write disjoint meta.ini keys.
@@ -3794,8 +3796,12 @@ class MainWindow(QMainWindow):
             _finish(", ".join(parts) + ".", "warning")
         else:
             _finish(self.tr("All mods are up to date."), "info")
-        # Re-read meta.ini (now updated on disk) → repaint flags + refresh filters.
-        self._reload_modlist()
+        # Check Updates only rewrote meta.ini flags (update / missing-reqs) —
+        # the deployed file set is unchanged, so skip the full reload + filemap
+        # rebuild and just re-read the affected flags (endorse/note parity).
+        # subset is None for a full check (re-reads all flags) or the checked
+        # names for a right-click subset; either way, no filemap rebuild.
+        self._refresh_modlist_flags(result.get("subset"))
 
     # ---- Quick Update -----------------------------------------------------
 
@@ -4203,10 +4209,20 @@ class MainWindow(QMainWindow):
 
     def _close_change_version_tab(self):
         """Close the Change Version overlay + refresh modlist flags (an Ignore-
-        Update toggle or an install may have changed meta.ini)."""
+        Update toggle or an install may have changed meta.ini).
+
+        When an install kicked off from this tab is still in flight, do nothing:
+        the install's own completion path (_on_install_done) reloads the modlist
+        + rebuilds the filemap once at the end. Reloading here as well caused a
+        redundant refresh (+ filemap rebuild) BEFORE the "replace old mod?"
+        dialog, on top of the necessary one after. For a plain close (Ignore-
+        Update toggle only touched meta.ini flags) a light flag refresh is
+        enough — no filemap rebuild needed."""
         if self._tabs.has_key("change_version"):
             self._tabs.close_tab("change_version")
-        self._reload_modlist()
+        if getattr(self, "_install_running", False):
+            return
+        self._refresh_modlist_flags()
 
     # ---- Bundle options (plugins-panel-scoped overlay) --------------------
 
@@ -9097,21 +9113,16 @@ class MainWindow(QMainWindow):
                 f"[rescan-diag] gen={gen}: index path = {index_path} "
                 f"(exists={index_path.is_file()})")
             try:
-                pr = self._gs.game.get_profile_root() if self._gs.game else None
+                canon = index_path.resolve()
                 pd = self._gs.profile_dir()
-                rivals = []
-                for base in (pr, pd, staging.parent):
-                    if base is None:
-                        continue
-                    cand = base / "modindex.bin"
-                    if cand != index_path and cand.is_file() and cand not in rivals:
-                        rivals.append(cand)
-                if rivals:
+                stray = (pd / "modindex.bin") if pd is not None else None
+                if (stray is not None and stray.is_file()
+                        and stray.resolve() != canon):
                     self._append_log(
-                        f"[rescan-diag] gen={gen}: WARNING — RIVAL modindex.bin "
-                        f"also exists at {', '.join(str(r) for r in rivals)} — "
-                        f"staging-path resolution split (stale profile dir); the "
-                        f"build may be reading a different index than it writes.")
+                        f"[rescan-diag] gen={gen}: WARNING — stray modindex.bin "
+                        f"at {stray} describes the same shared mods folder as the "
+                        f"canonical index ({index_path}); it is a legacy leftover "
+                        f"and should be removed (a Refresh sweep removes it).")
             except Exception:
                 pass
             enabled = [e.name for e in read_modlist(ml)
