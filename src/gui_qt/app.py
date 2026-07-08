@@ -14,7 +14,7 @@ from PySide6.QtCore import Qt, QSize, Signal, QTimer
 from PySide6.QtGui import QAction, QTextCursor
 from PySide6.QtWidgets import (
     QMainWindow, QToolButton, QWidget, QSplitter, QApplication,
-    QLabel, QVBoxLayout, QHBoxLayout, QPlainTextEdit,
+    QLabel, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QTextBrowser,
     QFrame, QLineEdit, QPushButton, QMenu, QStackedWidget, QSizePolicy,
 )
 
@@ -9615,12 +9615,43 @@ class MainWindow(QMainWindow):
                 text = self.tr("Could not read the changelog:\n{0}").format(exc)
         else:
             text = self.tr("Changelog file not found.")
-        view = QPlainTextEdit()
+        view = QTextBrowser()
         view.setReadOnly(True)
         view.setObjectName("LogView")
-        view.setPlainText(text)
+        view.setOpenExternalLinks(True)
+        # Render the changelog as Markdown (## headings, - bullets, etc.)
+        # with a slightly larger base font for readability.
+        font = view.font()
+        font.setPointSizeF(font.pointSizeF() + 2)
+        view.setFont(font)
+        view.setMarkdown(self._changelog_to_markdown(text))
         view.moveCursor(QTextCursor.Start)
         self._tabs.open_tab(view, self.tr("Changelog"), key="changelog")
+
+    @staticmethod
+    def _changelog_to_markdown(text):
+        """Adapt the release-format Changelog.txt for Markdown rendering
+        without editing the file itself.
+
+        Version entries are written as ``- vX.Y.Z`` bullets (a format the
+        release workflow depends on).  Turn those specific lines into level-1
+        headings so they render as prominent titles, leaving every other line
+        untouched.
+        """
+        import re
+        version_re = re.compile(r"^\s*-\s*(v\d+(?:\.\d+)*)\s*$")
+        out = []
+        for line in text.splitlines():
+            m = version_re.match(line)
+            if m:
+                # Blank line before the heading so Markdown doesn't fold it
+                # into the preceding bullet list.
+                if out and out[-1].strip():
+                    out.append("")
+                out.append("# {0}".format(m.group(1)))
+            else:
+                out.append(line)
+        return "\n".join(out)
 
     # ------------------------------------------------------ social buttons
     def _open_github(self):
