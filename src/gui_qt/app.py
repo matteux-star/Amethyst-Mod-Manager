@@ -2588,6 +2588,8 @@ class MainWindow(QMainWindow):
             return
         dl_path = getattr(detail_view, "download_link_path", "") or ""
         revision_number = getattr(detail_view, "_revision_number", None)
+        if revision_number is None and hasattr(detail_view, "_resolved_viewing_revision"):
+            revision_number = detail_view._resolved_viewing_revision()
         # True collection size (installed/uncompressed) shown in the detail header —
         # surfaced in the install overlay's aggregate label (the compressed download
         # total is much smaller and misrepresents the collection's real size).
