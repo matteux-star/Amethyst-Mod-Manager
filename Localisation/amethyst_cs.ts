@@ -3346,10 +3346,6 @@ Chcete odstranit záznam z přidané sbírky?</translation>
         <translation>Správa předpon</translation>
     </message>
     <message>
-        <source>Install queued — {0} will install after the current install finishes.</source>
-        <translation>Instalace v pořadí — {0} se nainstaluje po dokončení aktuální instalace.</translation>
-    </message>
-    <message>
         <source>No active profile.</source>
         <translation>Žádný aktivní profil.</translation>
     </message>
@@ -3364,18 +3360,6 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     <message>
         <source>Cyber Engine Tweaks requires Hardlink mode</source>
         <translation>Aplikace Cyber Engine Tweaks vyžaduje režim Hardlink</translation>
-    </message>
-    <message>
-        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
-
-CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
-
-Deploy anyway?</source>
-        <translation>Funkce Cyber Engine Tweaks je zapnutá, ale režim nasazení je nastaven na „Symlink“.
-
-CET se nenačte ze souboru cyber_engine_tweaks.asi, na který odkazuje symbolický odkaz — přepněte režim nasazení na „Hardlink“, aby CET fungoval.
-
-Chcete přesto nasadit?</translation>
     </message>
     <message>
         <source>Deploy anyway</source>
@@ -3508,6 +3492,34 @@ Chcete přesto nasadit?</translation>
     <message>
         <source>No active profile — cannot configure groups.</source>
         <translation>Žádný aktivní profil – nelze konfigurovat skupiny.</translation>
+    </message>
+    <message>
+        <source>install</source>
+        <translation>nainstalovat</translation>
+    </message>
+    <message>
+        <source>deploy</source>
+        <translation>nasadit</translation>
+    </message>
+    <message>
+        <source>Install queued — {0} will install after the current {1} finishes.</source>
+        <translation>Nainstalujte queued - {0} nainstaluje po skončení aktuálního {1}.</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but cyber_engine_tweaks.asi will be symlinked.
+
+CET will not load from a symlinked asi. This happens when the deploy mode is Symlink, or when it is Hardlink but the game folder and mod staging folder are on different drives (hardlinks fall back to symlinks across drives).
+
+Use Hardlink mode with both folders on the same drive for CET to work.
+
+Deploy anyway?</source>
+        <translation>Cyber Engine Tweaks je zapnutý, ale kyber _ engine _ tweaks.asi bude symployováno.
+
+CET nebude nabíjet ze symployovaného asi. To se stává, když je režim nasazení Symlink, nebo když je to Hardlink, ale herní složka a složka mod staging jsou na různých diskech (pevné odkazy spadají zpět do symlinků přes disky).
+
+Použijte Hardlink režim s oběma složkami na stejném disku pro CET pracovat.
+
+Rozmístit?</translation>
     </message>
     <message>
         <source>LOOT Groups</source>
@@ -4827,6 +4839,10 @@ Pro ověření proveďte nové skenování.</translation>
         <translation>Vlajky</translation>
     </message>
     <message>
+        <source>P</source>
+        <translation>P</translation>
+    </message>
+    <message>
         <source>Index</source>
         <translation>Obsah</translation>
     </message>
@@ -4860,6 +4876,13 @@ Klikněte pravým tlačítkem myši na plugin a vyberte možnost „Pravidla plu
 Drag a plugin from the left pane to add a rule.</source>
         <translation>Zatím žádná pravidla.
 Chcete-li přidat pravidlo, přetáhněte plugin z levého panelu.</translation>
+    </message>
+</context>
+<context>
+    <name>PluginView</name>
+    <message>
+        <source>Show / hide columns</source>
+        <translation>Zobrazit / skrýt sloupce</translation>
     </message>
 </context>
 <context>
@@ -5735,14 +5758,6 @@ Restartujte prosím průvodce a nejprve nainstalujte Script Merger.</translation
         <translation>Extrakce jsou omezeny dostupnou pamětí; skutečný počet může být nižší než nastavený.</translation>
     </message>
     <message>
-        <source>Check downloads locations</source>
-        <translation>Zkontrolujte umístění stažených souborů</translation>
-    </message>
-    <message>
-        <source>Scan the system Downloads folder (and any custom locations) for an archive before downloading it again.</source>
-        <translation>Než soubor stáhnete znovu, zkontrolujte, zda se v systémové složce „Downloads“ (a v případných dalších vlastních umístěních) již nenachází jeho archiv.</translation>
-    </message>
-    <message>
         <source>Caches</source>
         <translation>Meziúložiště</translation>
     </message>
@@ -6287,6 +6302,734 @@ Výstup se zapíše přímo do vašeho seznamu modů jako mod „{0}“.</transl
 </context>
 <context>
     <name>ThemeEditorView</name>
+    <message>
+        <source>Backgrounds</source>
+        <translation>Východiska</translation>
+    </message>
+    <message>
+        <source>App background (deepest)</source>
+        <translation>Pozadí aplikace (nejhlubší)</translation>
+    </message>
+    <message>
+        <source>Panel / card surface</source>
+        <translation>Plocha panelu / karty</translation>
+    </message>
+    <message>
+        <source>Header / toolbar</source>
+        <translation>Záhlaví / nástrojová lišta</translation>
+    </message>
+    <message>
+        <source>List row</source>
+        <translation>Řádek seznamu</translation>
+    </message>
+    <message>
+        <source>List row (alt stripe)</source>
+        <translation>Seznam řádků (alt stripe)</translation>
+    </message>
+    <message>
+        <source>List row hover</source>
+        <translation>Seznam řádek vznášedlo</translation>
+    </message>
+    <message>
+        <source>Tree / list surface</source>
+        <translation>Plocha stromu / seznamu</translation>
+    </message>
+    <message>
+        <source>Separator fill</source>
+        <translation>Zaplnění oddělovače</translation>
+    </message>
+    <message>
+        <source>Hover highlight</source>
+        <translation>Vrchní zvýraznění</translation>
+    </message>
+    <message>
+        <source>Selection highlight</source>
+        <translation>Výběr zvýraznění</translation>
+    </message>
+    <message>
+        <source>Text input field</source>
+        <translation>Textové vstupní pole</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Text</translation>
+    </message>
+    <message>
+        <source>Primary text</source>
+        <translation>Primární text</translation>
+    </message>
+    <message>
+        <source>Dimmed text</source>
+        <translation>Zrušený text</translation>
+    </message>
+    <message>
+        <source>Muted text</source>
+        <translation>Tlumený text</translation>
+    </message>
+    <message>
+        <source>Faint text</source>
+        <translation>Slabý text</translation>
+    </message>
+    <message>
+        <source>Separator text</source>
+        <translation>Text oddělovače</translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation>Bílá</translation>
+    </message>
+    <message>
+        <source>Black</source>
+        <translation>Černá</translation>
+    </message>
+    <message>
+        <source>Success text</source>
+        <translation>Úspěšný text</translation>
+    </message>
+    <message>
+        <source>Error text</source>
+        <translation>Chyba textu</translation>
+    </message>
+    <message>
+        <source>Warning text</source>
+        <translation>Text varování</translation>
+    </message>
+    <message>
+        <source>Success text (bright)</source>
+        <translation>Úspěšný text (jasný)</translation>
+    </message>
+    <message>
+        <source>Error text (bright)</source>
+        <translation>Chyba text (jasný)</translation>
+    </message>
+    <message>
+        <source>Warning text (bright)</source>
+        <translation>Výstražný text (jasný)</translation>
+    </message>
+    <message>
+        <source>Card text</source>
+        <translation>Text karty</translation>
+    </message>
+    <message>
+        <source>Card text (dim)</source>
+        <translation>Text karty (dim)</translation>
+    </message>
+    <message>
+        <source>Card text (medium)</source>
+        <translation>Text karty (střední)</translation>
+    </message>
+    <message>
+        <source>Tree foreground</source>
+        <translation>Popředí stromu</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>Přírůstek</translation>
+    </message>
+    <message>
+        <source>Accent hover</source>
+        <translation>Převodovka</translation>
+    </message>
+    <message>
+        <source>Text on accent</source>
+        <translation>Text o přízvuku</translation>
+    </message>
+    <message>
+        <source>Hyperlink</source>
+        <translation>Hyperlink</translation>
+    </message>
+    <message>
+        <source>Dropdown arrow</source>
+        <translation>Šipka dolů</translation>
+    </message>
+    <message>
+        <source>Borders</source>
+        <translation>Hranice</translation>
+    </message>
+    <message>
+        <source>Border</source>
+        <translation>Hranice</translation>
+    </message>
+    <message>
+        <source>Border (dim)</source>
+        <translation>Hranice (dim)</translation>
+    </message>
+    <message>
+        <source>Border (faint)</source>
+        <translation>Ohraničení (slabé)</translation>
+    </message>
+    <message>
+        <source>Buttons — Red</source>
+        <translation>Tlačítka - červená</translation>
+    </message>
+    <message>
+        <source>Danger</source>
+        <translation>Nebezpečí</translation>
+    </message>
+    <message>
+        <source>Danger hover</source>
+        <translation>Nebezpečí vznášedlo</translation>
+    </message>
+    <message>
+        <source>Danger (alt)</source>
+        <translation>Nebezpečí (alt)</translation>
+    </message>
+    <message>
+        <source>Danger alt hover</source>
+        <translation>Nebezpečí alt hover</translation>
+    </message>
+    <message>
+        <source>Danger (deep)</source>
+        <translation>Nebezpečí (hluboké)</translation>
+    </message>
+    <message>
+        <source>Danger deep hover</source>
+        <translation>Nebezpečný hluboký vznášeč</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Zrušit</translation>
+    </message>
+    <message>
+        <source>Cancel hover</source>
+        <translation>Zrušit vznášení</translation>
+    </message>
+    <message>
+        <source>Red (legacy)</source>
+        <translation>Červená (odkaz)</translation>
+    </message>
+    <message>
+        <source>Red hover (legacy)</source>
+        <translation>Červený vznášeč (odkaz)</translation>
+    </message>
+    <message>
+        <source>Buttons — Green</source>
+        <translation>Tlačítka - zelená</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>Úspěch</translation>
+    </message>
+    <message>
+        <source>Success hover</source>
+        <translation>Úspěšný vznášeč</translation>
+    </message>
+    <message>
+        <source>Success (alt)</source>
+        <translation>Úspěch</translation>
+    </message>
+    <message>
+        <source>Success alt hover</source>
+        <translation>Úspěšný alt hover</translation>
+    </message>
+    <message>
+        <source>Success (deep)</source>
+        <translation>Úspěch (hluboký)</translation>
+    </message>
+    <message>
+        <source>Success deep hover</source>
+        <translation>Úspěšný hluboký vznášeč</translation>
+    </message>
+    <message>
+        <source>Buttons — Orange</source>
+        <translation>Knoflíky - oranžové</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Varování</translation>
+    </message>
+    <message>
+        <source>Warning hover</source>
+        <translation>Výstražný vznášeč</translation>
+    </message>
+    <message>
+        <source>Warning (deep)</source>
+        <translation>Varování (hluboké)</translation>
+    </message>
+    <message>
+        <source>Warning deep hover</source>
+        <translation>Výstražný hluboký vznášeč</translation>
+    </message>
+    <message>
+        <source>Warning (brown)</source>
+        <translation>Varování (hnědé)</translation>
+    </message>
+    <message>
+        <source>Warning brown hover</source>
+        <translation>Varovný hnědý vznášeč</translation>
+    </message>
+    <message>
+        <source>Warning (orange)</source>
+        <translation>Varování (oranžová)</translation>
+    </message>
+    <message>
+        <source>Warning orange hover</source>
+        <translation>Varovný oranžový vznášeč</translation>
+    </message>
+    <message>
+        <source>Buttons — Blue</source>
+        <translation>Tlačítka - modrá</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>Informace</translation>
+    </message>
+    <message>
+        <source>Info hover</source>
+        <translation>Info hover</translation>
+    </message>
+    <message>
+        <source>Info (deep)</source>
+        <translation>Informace (hluboké)</translation>
+    </message>
+    <message>
+        <source>Info deep hover</source>
+        <translation>Info hluboký vznášeč</translation>
+    </message>
+    <message>
+        <source>Neutral</source>
+        <translation>Neutrální</translation>
+    </message>
+    <message>
+        <source>Neutral hover</source>
+        <translation>Neutrální vznášedlo</translation>
+    </message>
+    <message>
+        <source>Buttons — Grey</source>
+        <translation>Knoflíky - šedé</translation>
+    </message>
+    <message>
+        <source>Grey</source>
+        <translation>Šedý</translation>
+    </message>
+    <message>
+        <source>Grey hover</source>
+        <translation>Hovadina šedá</translation>
+    </message>
+    <message>
+        <source>Grey (alt)</source>
+        <translation>Šedý (alt)</translation>
+    </message>
+    <message>
+        <source>Grey alt hover</source>
+        <translation>Želva šedá</translation>
+    </message>
+    <message>
+        <source>Buttons — Purple</source>
+        <translation>Knoflíky - Fialové</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Fialová</translation>
+    </message>
+    <message>
+        <source>Purple hover</source>
+        <translation>Hovadina purpurová</translation>
+    </message>
+    <message>
+        <source>Tree tags</source>
+        <translation>Značky stromů</translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation>Složka</translation>
+    </message>
+    <message>
+        <source>BSA archive</source>
+        <translation>Archiv BSA</translation>
+    </message>
+    <message>
+        <source>BSA archive (alt)</source>
+        <translation>Archiv BSA (alt)</translation>
+    </message>
+    <message>
+        <source>INI profile</source>
+        <translation>INI profil</translation>
+    </message>
+    <message>
+        <source>Bundled (text)</source>
+        <translation>Splétaná (text)</translation>
+    </message>
+    <message>
+        <source>Bundled (background)</source>
+        <translation>Splétaná (pozadí)</translation>
+    </message>
+    <message>
+        <source>Installed (background)</source>
+        <translation>Nainstalováno (pozadí)</translation>
+    </message>
+    <message>
+        <source>Unordered (text)</source>
+        <translation>Neobjednané (text)</translation>
+    </message>
+    <message>
+        <source>Tones</source>
+        <translation>Tones</translation>
+    </message>
+    <message>
+        <source>Green tone</source>
+        <translation>Zelený tón</translation>
+    </message>
+    <message>
+        <source>Red tone</source>
+        <translation>Červený tón</translation>
+    </message>
+    <message>
+        <source>Blue tone</source>
+        <translation>Modrý tón</translation>
+    </message>
+    <message>
+        <source>Cyan tone</source>
+        <translation>Kyanový tón</translation>
+    </message>
+    <message>
+        <source>Soft blue tone</source>
+        <translation>Měkký modrý tón</translation>
+    </message>
+    <message>
+        <source>Flag tone</source>
+        <translation>Tón vlajky</translation>
+    </message>
+    <message>
+        <source>Scrollbars</source>
+        <translation>Svitky</translation>
+    </message>
+    <message>
+        <source>Scrollbar background</source>
+        <translation>Skrolní pozadí</translation>
+    </message>
+    <message>
+        <source>Scrollbar trough</source>
+        <translation>Scrollbar</translation>
+    </message>
+    <message>
+        <source>Scrollbar thumb (active)</source>
+        <translation>Skroční palec (aktivní)</translation>
+    </message>
+    <message>
+        <source>Overlays &amp; tinted rows</source>
+        <translation>Překryvy a zabarvené řádky</translation>
+    </message>
+    <message>
+        <source>Error overlay</source>
+        <translation>Překrytí chyb</translation>
+    </message>
+    <message>
+        <source>Deep overlay</source>
+        <translation>Hluboké překrytí</translation>
+    </message>
+    <message>
+        <source>Card</source>
+        <translation>Karta</translation>
+    </message>
+    <message>
+        <source>Card (alt)</source>
+        <translation>Karta (alt)</translation>
+    </message>
+    <message>
+        <source>Green row</source>
+        <translation>Zelená řada</translation>
+    </message>
+    <message>
+        <source>Green (deep)</source>
+        <translation>Zelená (hluboká)</translation>
+    </message>
+    <message>
+        <source>Red (deep)</source>
+        <translation>Červená (hluboká)</translation>
+    </message>
+    <message>
+        <source>Orange (deep)</source>
+        <translation>Oranžová (hluboká)</translation>
+    </message>
+    <message>
+        <source>Blue (deep)</source>
+        <translation>Modré (hluboké)</translation>
+    </message>
+    <message>
+        <source>Green tint text</source>
+        <translation>Zelený text</translation>
+    </message>
+    <message>
+        <source>Red tint text</source>
+        <translation>Červený text</translation>
+    </message>
+    <message>
+        <source>Orange tint text</source>
+        <translation>Pomerančový text</translation>
+    </message>
+    <message>
+        <source>Blue tint text</source>
+        <translation>Modrý text</translation>
+    </message>
+    <message>
+        <source>Dark blue</source>
+        <translation>Tmavě modrá</translation>
+    </message>
+    <message>
+        <source>Dark green</source>
+        <translation>Tmavě zelená</translation>
+    </message>
+    <message>
+        <source>Save button</source>
+        <translation>Uložit tlačítko</translation>
+    </message>
+    <message>
+        <source>Selection bar</source>
+        <translation>Vybírací lišta</translation>
+    </message>
+    <message>
+        <source>Required mod</source>
+        <translation>Požadované mod</translation>
+    </message>
+    <message>
+        <source>Optional mod</source>
+        <translation>Volitelná mod</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Stav</translation>
+    </message>
+    <message>
+        <source>Error (bright)</source>
+        <translation>Chyba (jasná)</translation>
+    </message>
+    <message>
+        <source>Badge red</source>
+        <translation>Odznak červený</translation>
+    </message>
+    <message>
+        <source>Badge green</source>
+        <translation>Odznak zelený</translation>
+    </message>
+    <message>
+        <source>Success (solid)</source>
+        <translation>Úspěch (pevný)</translation>
+    </message>
+    <message>
+        <source>Queued</source>
+        <translation>Kvóty</translation>
+    </message>
+    <message>
+        <source>Download green</source>
+        <translation>Stáhnout zelenou</translation>
+    </message>
+    <message>
+        <source>Plugin cycle &amp; files</source>
+        <translation>Modulové soubory cyklu</translation>
+    </message>
+    <message>
+        <source>Cycle error row (bg)</source>
+        <translation>Řádek chyb cyklu (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle error row (text)</source>
+        <translation>Řádek chyb cyklu (text)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (bg)</source>
+        <translation>Cyklus ok řádek (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (text)</source>
+        <translation>Cyklus ok řádek (text)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (bg)</source>
+        <translation>Řádek varování cyklu (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (text)</source>
+        <translation>Řádek varování cyklu (text)</translation>
+    </message>
+    <message>
+        <source>Cycle anchor</source>
+        <translation>Kotevní úchyt cyklu</translation>
+    </message>
+    <message>
+        <source>Cycle link</source>
+        <translation>Cyklus</translation>
+    </message>
+    <message>
+        <source>File winning</source>
+        <translation>Vyhrání souboru</translation>
+    </message>
+    <message>
+        <source>File overridden</source>
+        <translation>Soubor přehozen</translation>
+    </message>
+    <message>
+        <source>File dim</source>
+        <translation>Soubor dim</translation>
+    </message>
+    <message>
+        <source>File anchor</source>
+        <translation>Ukotvení souboru</translation>
+    </message>
+    <message>
+        <source>Drag selection outline</source>
+        <translation>Nákres výběru drag</translation>
+    </message>
+    <message>
+        <source>Conflict highlights</source>
+        <translation>Ukázky konfliktu</translation>
+    </message>
+    <message>
+        <source>Conflict row — winning</source>
+        <translation>Konflikt řádek - vítězství</translation>
+    </message>
+    <message>
+        <source>Conflict row — overridden</source>
+        <translation>Konflikt řádek - overridden</translation>
+    </message>
+    <message>
+        <source>Conflict row — anchor</source>
+        <translation>Konfliktní řada - kotva</translation>
+    </message>
+    <message>
+        <source>Framework detection</source>
+        <translation>Rámcové zjišťování</translation>
+    </message>
+    <message>
+        <source>Installed (bg)</source>
+        <translation>Nainstalováno (bg)</translation>
+    </message>
+    <message>
+        <source>Installed (text)</source>
+        <translation>Nainstalováno (text)</translation>
+    </message>
+    <message>
+        <source>Staged (bg)</source>
+        <translation>Vyřazeno (bg)</translation>
+    </message>
+    <message>
+        <source>Staged (text)</source>
+        <translation>Vyřazeno (text)</translation>
+    </message>
+    <message>
+        <source>Disabled (bg)</source>
+        <translation>Zakázáno (bg)</translation>
+    </message>
+    <message>
+        <source>Disabled (text)</source>
+        <translation>Zakázáno (text)</translation>
+    </message>
+    <message>
+        <source>Missing (bg)</source>
+        <translation>Chybějící (bg)</translation>
+    </message>
+    <message>
+        <source>Missing (text)</source>
+        <translation>Chybějící (text)</translation>
+    </message>
+    <message>
+        <source>Separator bands</source>
+        <translation>Separátorové pásy</translation>
+    </message>
+    <message>
+        <source>Overwrite band (bg)</source>
+        <translation>Přepsat pásmo (bg)</translation>
+    </message>
+    <message>
+        <source>Overwrite band (text)</source>
+        <translation>Přepsat pásmo (text)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (bg)</source>
+        <translation>Pásmo kořenové složky (bg)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (text)</source>
+        <translation>Root Folder band (text)</translation>
+    </message>
+    <message>
+        <source>Checkboxes</source>
+        <translation>Kontrolní schránky</translation>
+    </message>
+    <message>
+        <source>Checkbox fill (checked)</source>
+        <translation>Vyplňte políčko (zaškrtnuto)</translation>
+    </message>
+    <message>
+        <source>Window, panels, list rows and input fields — the app's surfaces.</source>
+        <translation>Okno, panely, seznam řádků a vstupních polí - povrchy aplikace.</translation>
+    </message>
+    <message>
+        <source>Label and list text throughout the app, plus success/warning/error text.</source>
+        <translation>Štítek a seznam textu v celé aplikaci, plus úspěch / varování / chyba textu.</translation>
+    </message>
+    <message>
+        <source>The highlight colour: links, dropdown arrows and accented controls.</source>
+        <translation>Barva zvýraznění: odkazy, šipky a zvýrazněné ovládání.</translation>
+    </message>
+    <message>
+        <source>Lines and frames around panels, lists and inputs.</source>
+        <translation>Čáry a rámy kolem panelů, seznamů a vstupů.</translation>
+    </message>
+    <message>
+        <source>Danger / cancel / remove buttons (delete, remove profile, ✕ close).</source>
+        <translation>Nebezpečí / zrušit / odstranit tlačítka (smazat, odstranit profil, zavřít).</translation>
+    </message>
+    <message>
+        <source>Success / confirm buttons (Install, Done, Play).</source>
+        <translation>Tlačítka Úspěch / potvrzení (nainstalovat, Hotovo, Přehrát).</translation>
+    </message>
+    <message>
+        <source>Warning buttons (Reinstall, download / update actions).</source>
+        <translation>Výstražná tlačítka (Reinstalovat, stáhnout / aktualizovat akce).</translation>
+    </message>
+    <message>
+        <source>Info / neutral action buttons (Select, Groups, Plugin Rules).</source>
+        <translation>Info / neutrální akční tlačítka (vyberte, skupiny, pravidla modulu).</translation>
+    </message>
+    <message>
+        <source>Secondary / neutral buttons (View, minor actions).</source>
+        <translation>Sekundární / neutrální tlačítka (Zobrazit, menší akce).</translation>
+    </message>
+    <message>
+        <source>Accent buttons like Ko-Fi.</source>
+        <translation>Acent tlačítka jako Ko-Fi.</translation>
+    </message>
+    <message>
+        <source>Coloured labels in file trees (folders, BSA archives, bundled/installed).</source>
+        <translation>Barevné etikety v souborových stromech (složky, BSA archivy, sdružené / nainstalované).</translation>
+    </message>
+    <message>
+        <source>Shared accent tones reused by flags, icons and small highlights.</source>
+        <translation>Sdílený přízvuk tóny znovu použity vlajky, ikony a malé zvýraznění.</translation>
+    </message>
+    <message>
+        <source>The scrollbar track and thumb.</source>
+        <translation>Stopa a palec.</translation>
+    </message>
+    <message>
+        <source>Popup/overlay backgrounds and coloured info rows (required/optional mods, cards).</source>
+        <translation>Popup / overlay pozadí a barevné řádky informací (povinné / volitelné módy, karty).</translation>
+    </message>
+    <message>
+        <source>Small status pills and badges (queued, download progress, error/success).</source>
+        <translation>Malý status pilulky a odznaky (fronta, stáhnout pokrok, chyba / úspěch).</translation>
+    </message>
+    <message>
+        <source>Plugin-cycle rows and file-conflict colours in the Data / Mod Files views.</source>
+        <translation>Řádky plugin- cyklu a barvy souborů - konflikt v zobrazení souborů Data / Mod.</translation>
+    </message>
+    <message>
+        <source>Row tints when a conflicting mod is selected (winning / overridden / anchor).</source>
+        <translation>Řadový tón při výběru protichůdné mod (výherní / přeridden / kotva).</translation>
+    </message>
+    <message>
+        <source>The framework-status banner above the Plugins list (installed / staged / disabled / missing).</source>
+        <translation>Banner framework- status nad seznamem Plugins (instalován / nahrazen / zakázán / chybí).</translation>
+    </message>
+    <message>
+        <source>The pinned Overwrite and Root Folder bands at the top of the modlist.</source>
+        <translation>Kroužené přepsat a Root složky kapely v horní části seznamu.</translation>
+    </message>
+    <message>
+        <source>The fill colour of a ticked checkbox (the tick stays auto-contrasted).</source>
+        <translation>Barva vyplnění zaškrtnutého políčka (klíště zůstává autokontrastní).</translation>
+    </message>
     <message>
         <source>Theme Editor</source>
         <translation>Editor témat</translation>

@@ -3346,10 +3346,6 @@ Remove the appended-collection entry?</source>
         <translation>Управление префиксами</translation>
     </message>
     <message>
-        <source>Install queued — {0} will install after the current install finishes.</source>
-        <translation>Установка в очереди — «{0}» будет установлен после завершения текущей установки.</translation>
-    </message>
-    <message>
         <source>No active profile.</source>
         <translation>Активного профиля нет.</translation>
     </message>
@@ -3364,18 +3360,6 @@ Remove the appended-collection entry?</source>
     <message>
         <source>Cyber Engine Tweaks requires Hardlink mode</source>
         <translation>Для работы Cyber Engine Tweaks требуется режим Hardlink</translation>
-    </message>
-    <message>
-        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
-
-CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
-
-Deploy anyway?</source>
-        <translation>Функция «Cyber Engine Tweaks» включена, но режим развертывания установлен на «Symlink».
-
-CET не загрузится из файла cyber_engine_tweaks.asi, на который создана символьная ссылка — переключите режим развертывания на «Hardlink», чтобы CET заработал.
-
-Все равно развернуть?</translation>
     </message>
     <message>
         <source>Deploy anyway</source>
@@ -3508,6 +3492,34 @@ CET не загрузится из файла cyber_engine_tweaks.asi, на ко
     <message>
         <source>No active profile — cannot configure groups.</source>
         <translation>Активного профиля нет — настроить группы невозможно.</translation>
+    </message>
+    <message>
+        <source>install</source>
+        <translation>устанавливать</translation>
+    </message>
+    <message>
+        <source>deploy</source>
+        <translation>развертывание</translation>
+    </message>
+    <message>
+        <source>Install queued — {0} will install after the current {1} finishes.</source>
+        <translation>Установка в очередь — {0} будет установлен после окончания текущего {1}.</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but cyber_engine_tweaks.asi will be symlinked.
+
+CET will not load from a symlinked asi. This happens when the deploy mode is Symlink, or when it is Hardlink but the game folder and mod staging folder are on different drives (hardlinks fall back to symlinks across drives).
+
+Use Hardlink mode with both folders on the same drive for CET to work.
+
+Deploy anyway?</source>
+        <translation>Cyber Engine Tweaks включен, но Cyber engine tweaks.asi будет symlinked.
+
+CET не будет загружаться из symlinked asi. Это происходит, когда режим развертывания Symlink, или когда это Hardlink, но папка игры и папка постановки модов находятся на разных дисках (hardlinks возвращаются к симлинкам на дисках).
+
+Используйте режим Hardlink с обеими папками на одном диске для работы CET.
+
+Все равно развернуть?</translation>
     </message>
     <message>
         <source>LOOT Groups</source>
@@ -4827,6 +4839,10 @@ Re-scan to verify.</source>
         <translation>Флаги</translation>
     </message>
     <message>
+        <source>P</source>
+        <translation>P</translation>
+    </message>
+    <message>
         <source>Index</source>
         <translation>Указатель</translation>
     </message>
@@ -4860,6 +4876,13 @@ Right-click a plugin and choose 'Plugin Rules'.</source>
 Drag a plugin from the left pane to add a rule.</source>
         <translation>Правил пока нет.
 Перетащите плагин из левой панели, чтобы добавить правило.</translation>
+    </message>
+</context>
+<context>
+    <name>PluginView</name>
+    <message>
+        <source>Show / hide columns</source>
+        <translation>Показать / скрыть столбцы</translation>
     </message>
 </context>
 <context>
@@ -5735,14 +5758,6 @@ Please restart the wizard and install Script Merger first.</source>
         <translation>Выполнение извлечений ограничивается объемом доступной памяти; фактическое количество может оказаться меньше заданного.</translation>
     </message>
     <message>
-        <source>Check downloads locations</source>
-        <translation>Проверить папки для загрузок</translation>
-    </message>
-    <message>
-        <source>Scan the system Downloads folder (and any custom locations) for an archive before downloading it again.</source>
-        <translation>Прежде чем загружать файл заново, проверьте, нет ли его в системной папке «Загрузки» (а также в любых пользовательских папках).</translation>
-    </message>
-    <message>
         <source>Caches</source>
         <translation>Кэши</translation>
     </message>
@@ -6287,6 +6302,734 @@ Output is written directly into your mod list as the '{0}' mod.</source>
 </context>
 <context>
     <name>ThemeEditorView</name>
+    <message>
+        <source>Backgrounds</source>
+        <translation>Справочная информация</translation>
+    </message>
+    <message>
+        <source>App background (deepest)</source>
+        <translation>Фон приложения (глубокий)</translation>
+    </message>
+    <message>
+        <source>Panel / card surface</source>
+        <translation>Панель/карточная поверхность</translation>
+    </message>
+    <message>
+        <source>Header / toolbar</source>
+        <translation>Заголовок / Toolbar</translation>
+    </message>
+    <message>
+        <source>List row</source>
+        <translation>Список строк</translation>
+    </message>
+    <message>
+        <source>List row (alt stripe)</source>
+        <translation>Список строк (alt Stripe)</translation>
+    </message>
+    <message>
+        <source>List row hover</source>
+        <translation>Лист строки парение</translation>
+    </message>
+    <message>
+        <source>Tree / list surface</source>
+        <translation>Поверхность списка</translation>
+    </message>
+    <message>
+        <source>Separator fill</source>
+        <translation>Заполнение разделителя</translation>
+    </message>
+    <message>
+        <source>Hover highlight</source>
+        <translation>Надувная подсветка</translation>
+    </message>
+    <message>
+        <source>Selection highlight</source>
+        <translation>Изюминка выбора</translation>
+    </message>
+    <message>
+        <source>Text input field</source>
+        <translation>Поле ввода текста</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Текст</translation>
+    </message>
+    <message>
+        <source>Primary text</source>
+        <translation>Первичный текст</translation>
+    </message>
+    <message>
+        <source>Dimmed text</source>
+        <translation>Тусклый текст</translation>
+    </message>
+    <message>
+        <source>Muted text</source>
+        <translation>Приглушенный текст</translation>
+    </message>
+    <message>
+        <source>Faint text</source>
+        <translation>Слабый текст</translation>
+    </message>
+    <message>
+        <source>Separator text</source>
+        <translation>Разделительный текст</translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation>Белый</translation>
+    </message>
+    <message>
+        <source>Black</source>
+        <translation>Черный</translation>
+    </message>
+    <message>
+        <source>Success text</source>
+        <translation>Успешный текст</translation>
+    </message>
+    <message>
+        <source>Error text</source>
+        <translation>Текст ошибки</translation>
+    </message>
+    <message>
+        <source>Warning text</source>
+        <translation>Предупреждающий текст</translation>
+    </message>
+    <message>
+        <source>Success text (bright)</source>
+        <translation>Успешный текст (яркий)</translation>
+    </message>
+    <message>
+        <source>Error text (bright)</source>
+        <translation>Текст ошибки (яркий)</translation>
+    </message>
+    <message>
+        <source>Warning text (bright)</source>
+        <translation>Предупреждающий текст (яркий)</translation>
+    </message>
+    <message>
+        <source>Card text</source>
+        <translation>Текст карточки</translation>
+    </message>
+    <message>
+        <source>Card text (dim)</source>
+        <translation>Текст карточки (dim)</translation>
+    </message>
+    <message>
+        <source>Card text (medium)</source>
+        <translation>Текст карты (средний)</translation>
+    </message>
+    <message>
+        <source>Tree foreground</source>
+        <translation>Передний план дерева</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>Акцент</translation>
+    </message>
+    <message>
+        <source>Accent hover</source>
+        <translation>Акцентный пар</translation>
+    </message>
+    <message>
+        <source>Text on accent</source>
+        <translation>Текст с акцентом</translation>
+    </message>
+    <message>
+        <source>Hyperlink</source>
+        <translation>Гиперссылка</translation>
+    </message>
+    <message>
+        <source>Dropdown arrow</source>
+        <translation>Сброшенная стрела</translation>
+    </message>
+    <message>
+        <source>Borders</source>
+        <translation>Границы</translation>
+    </message>
+    <message>
+        <source>Border</source>
+        <translation>Граница</translation>
+    </message>
+    <message>
+        <source>Border (dim)</source>
+        <translation>Граница (dim)</translation>
+    </message>
+    <message>
+        <source>Border (faint)</source>
+        <translation>Граница (слабая)</translation>
+    </message>
+    <message>
+        <source>Buttons — Red</source>
+        <translation>Кнопки — красные</translation>
+    </message>
+    <message>
+        <source>Danger</source>
+        <translation>Опасность</translation>
+    </message>
+    <message>
+        <source>Danger hover</source>
+        <translation>Зависание опасности</translation>
+    </message>
+    <message>
+        <source>Danger (alt)</source>
+        <translation>Опасность (альт)</translation>
+    </message>
+    <message>
+        <source>Danger alt hover</source>
+        <translation>Опасность Alt Hover</translation>
+    </message>
+    <message>
+        <source>Danger (deep)</source>
+        <translation>Опасность (глубокая)</translation>
+    </message>
+    <message>
+        <source>Danger deep hover</source>
+        <translation>Опасность глубокого зависания</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отменить</translation>
+    </message>
+    <message>
+        <source>Cancel hover</source>
+        <translation>Отменить парение</translation>
+    </message>
+    <message>
+        <source>Red (legacy)</source>
+        <translation>Красный (наследие)</translation>
+    </message>
+    <message>
+        <source>Red hover (legacy)</source>
+        <translation>Красный пар (наследие)</translation>
+    </message>
+    <message>
+        <source>Buttons — Green</source>
+        <translation>Кнопки — зеленые</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>Успех</translation>
+    </message>
+    <message>
+        <source>Success hover</source>
+        <translation>Успех парит</translation>
+    </message>
+    <message>
+        <source>Success (alt)</source>
+        <translation>Успех (альт)</translation>
+    </message>
+    <message>
+        <source>Success alt hover</source>
+        <translation>Успех Alt Hover</translation>
+    </message>
+    <message>
+        <source>Success (deep)</source>
+        <translation>Успех (глубокий)</translation>
+    </message>
+    <message>
+        <source>Success deep hover</source>
+        <translation>Успех в глубоком зависании</translation>
+    </message>
+    <message>
+        <source>Buttons — Orange</source>
+        <translation>Кнопки — Orange</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Предупреждение</translation>
+    </message>
+    <message>
+        <source>Warning hover</source>
+        <translation>Предупреждающий вихрь</translation>
+    </message>
+    <message>
+        <source>Warning (deep)</source>
+        <translation>Предупреждение (глубокое)</translation>
+    </message>
+    <message>
+        <source>Warning deep hover</source>
+        <translation>Предупреждение о глубоком зависании</translation>
+    </message>
+    <message>
+        <source>Warning (brown)</source>
+        <translation>Предупреждение (коричневый)</translation>
+    </message>
+    <message>
+        <source>Warning brown hover</source>
+        <translation>Предупреждающий коричневый пар</translation>
+    </message>
+    <message>
+        <source>Warning (orange)</source>
+        <translation>Предупреждение (оранжевый)</translation>
+    </message>
+    <message>
+        <source>Warning orange hover</source>
+        <translation>Предупреждающий оранжевый пар</translation>
+    </message>
+    <message>
+        <source>Buttons — Blue</source>
+        <translation>Кнопки — синие</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>Информация</translation>
+    </message>
+    <message>
+        <source>Info hover</source>
+        <translation>Инфопоток</translation>
+    </message>
+    <message>
+        <source>Info (deep)</source>
+        <translation>Информация (глубокая)</translation>
+    </message>
+    <message>
+        <source>Info deep hover</source>
+        <translation>Скриншоты Deep Hover</translation>
+    </message>
+    <message>
+        <source>Neutral</source>
+        <translation>Нейтральный</translation>
+    </message>
+    <message>
+        <source>Neutral hover</source>
+        <translation>Нейтральный пар</translation>
+    </message>
+    <message>
+        <source>Buttons — Grey</source>
+        <translation>Кнопки — серые</translation>
+    </message>
+    <message>
+        <source>Grey</source>
+        <translation>Серый</translation>
+    </message>
+    <message>
+        <source>Grey hover</source>
+        <translation>Серый пар</translation>
+    </message>
+    <message>
+        <source>Grey (alt)</source>
+        <translation>Грей (альт)</translation>
+    </message>
+    <message>
+        <source>Grey alt hover</source>
+        <translation>Серый альт парит</translation>
+    </message>
+    <message>
+        <source>Buttons — Purple</source>
+        <translation>Кнопки — фиолетовые</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Фиолетовый</translation>
+    </message>
+    <message>
+        <source>Purple hover</source>
+        <translation>Фиолетовый пар</translation>
+    </message>
+    <message>
+        <source>Tree tags</source>
+        <translation>Тэги деревьев</translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation>Папка</translation>
+    </message>
+    <message>
+        <source>BSA archive</source>
+        <translation>Архив BSA</translation>
+    </message>
+    <message>
+        <source>BSA archive (alt)</source>
+        <translation>BSA Archive (альт)</translation>
+    </message>
+    <message>
+        <source>INI profile</source>
+        <translation>Профиль ИНИ</translation>
+    </message>
+    <message>
+        <source>Bundled (text)</source>
+        <translation>Bundled (текст)</translation>
+    </message>
+    <message>
+        <source>Bundled (background)</source>
+        <translation>Bundled (на заднем плане)</translation>
+    </message>
+    <message>
+        <source>Installed (background)</source>
+        <translation>Установка (background)</translation>
+    </message>
+    <message>
+        <source>Unordered (text)</source>
+        <translation>Неупорядоченный (текст)</translation>
+    </message>
+    <message>
+        <source>Tones</source>
+        <translation>Тон</translation>
+    </message>
+    <message>
+        <source>Green tone</source>
+        <translation>Зеленый тон</translation>
+    </message>
+    <message>
+        <source>Red tone</source>
+        <translation>Красный тон</translation>
+    </message>
+    <message>
+        <source>Blue tone</source>
+        <translation>Синий тон</translation>
+    </message>
+    <message>
+        <source>Cyan tone</source>
+        <translation>Голубой тон</translation>
+    </message>
+    <message>
+        <source>Soft blue tone</source>
+        <translation>Мягкий синий тон</translation>
+    </message>
+    <message>
+        <source>Flag tone</source>
+        <translation>Тон флага</translation>
+    </message>
+    <message>
+        <source>Scrollbars</source>
+        <translation>Свитки</translation>
+    </message>
+    <message>
+        <source>Scrollbar background</source>
+        <translation>Фон свитка</translation>
+    </message>
+    <message>
+        <source>Scrollbar trough</source>
+        <translation>Корыто свитка</translation>
+    </message>
+    <message>
+        <source>Scrollbar thumb (active)</source>
+        <translation>Большой палец Scrollbar (активный)</translation>
+    </message>
+    <message>
+        <source>Overlays &amp; tinted rows</source>
+        <translation>Накладки и тонированные ряды</translation>
+    </message>
+    <message>
+        <source>Error overlay</source>
+        <translation>Наложение ошибок</translation>
+    </message>
+    <message>
+        <source>Deep overlay</source>
+        <translation>Глубокое наложение</translation>
+    </message>
+    <message>
+        <source>Card</source>
+        <translation>Карта</translation>
+    </message>
+    <message>
+        <source>Card (alt)</source>
+        <translation>Карта (альт)</translation>
+    </message>
+    <message>
+        <source>Green row</source>
+        <translation>Зеленый ряд</translation>
+    </message>
+    <message>
+        <source>Green (deep)</source>
+        <translation>Зеленый (глубокий)</translation>
+    </message>
+    <message>
+        <source>Red (deep)</source>
+        <translation>Красный (глубокий)</translation>
+    </message>
+    <message>
+        <source>Orange (deep)</source>
+        <translation>Оранжевый (глубокий)</translation>
+    </message>
+    <message>
+        <source>Blue (deep)</source>
+        <translation>Синий (глубокий)</translation>
+    </message>
+    <message>
+        <source>Green tint text</source>
+        <translation>Зеленый оттенок текста</translation>
+    </message>
+    <message>
+        <source>Red tint text</source>
+        <translation>Текст красного оттенка</translation>
+    </message>
+    <message>
+        <source>Orange tint text</source>
+        <translation>Оранжевый текст</translation>
+    </message>
+    <message>
+        <source>Blue tint text</source>
+        <translation>Синий оттенок текста</translation>
+    </message>
+    <message>
+        <source>Dark blue</source>
+        <translation>Темно-синий</translation>
+    </message>
+    <message>
+        <source>Dark green</source>
+        <translation>Темно-зеленый</translation>
+    </message>
+    <message>
+        <source>Save button</source>
+        <translation>Сохранить кнопку</translation>
+    </message>
+    <message>
+        <source>Selection bar</source>
+        <translation>Бар выбора</translation>
+    </message>
+    <message>
+        <source>Required mod</source>
+        <translation>Требуемый мод</translation>
+    </message>
+    <message>
+        <source>Optional mod</source>
+        <translation>Необязательный мод</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Статус</translation>
+    </message>
+    <message>
+        <source>Error (bright)</source>
+        <translation>Ошибка (яркая)</translation>
+    </message>
+    <message>
+        <source>Badge red</source>
+        <translation>Красный значок</translation>
+    </message>
+    <message>
+        <source>Badge green</source>
+        <translation>Зеленый значок</translation>
+    </message>
+    <message>
+        <source>Success (solid)</source>
+        <translation>Успех (твердый)</translation>
+    </message>
+    <message>
+        <source>Queued</source>
+        <translation>Очередь</translation>
+    </message>
+    <message>
+        <source>Download green</source>
+        <translation>Скачать Green</translation>
+    </message>
+    <message>
+        <source>Plugin cycle &amp; files</source>
+        <translation>Плагиновый цикл и файлы</translation>
+    </message>
+    <message>
+        <source>Cycle error row (bg)</source>
+        <translation>Серия ошибок цикла (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle error row (text)</source>
+        <translation>Цикл ошибки строка (текст)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (bg)</source>
+        <translation>Цикл ОК ряд (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (text)</source>
+        <translation>Cycle ok row (текст)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (bg)</source>
+        <translation>Цикл предупреждения строка (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (text)</source>
+        <translation>Cycle warning row (текст)</translation>
+    </message>
+    <message>
+        <source>Cycle anchor</source>
+        <translation>Якорь цикла</translation>
+    </message>
+    <message>
+        <source>Cycle link</source>
+        <translation>Циклическая связь</translation>
+    </message>
+    <message>
+        <source>File winning</source>
+        <translation>Файл победный</translation>
+    </message>
+    <message>
+        <source>File overridden</source>
+        <translation>Файл закрыт</translation>
+    </message>
+    <message>
+        <source>File dim</source>
+        <translation>Файл тусклый</translation>
+    </message>
+    <message>
+        <source>File anchor</source>
+        <translation>Файл якоря</translation>
+    </message>
+    <message>
+        <source>Drag selection outline</source>
+        <translation>Схема выбора тангажа</translation>
+    </message>
+    <message>
+        <source>Conflict highlights</source>
+        <translation>Конфликт подчеркивает</translation>
+    </message>
+    <message>
+        <source>Conflict row — winning</source>
+        <translation>Конфликтный ряд — победа</translation>
+    </message>
+    <message>
+        <source>Conflict row — overridden</source>
+        <translation>Конфликтный ряд - Overrided</translation>
+    </message>
+    <message>
+        <source>Conflict row — anchor</source>
+        <translation>Конфликтный ряд - якорь</translation>
+    </message>
+    <message>
+        <source>Framework detection</source>
+        <translation>Рамочное обнаружение</translation>
+    </message>
+    <message>
+        <source>Installed (bg)</source>
+        <translation>Установка (bg)</translation>
+    </message>
+    <message>
+        <source>Installed (text)</source>
+        <translation>Установка (текст)</translation>
+    </message>
+    <message>
+        <source>Staged (bg)</source>
+        <translation>Стадион (bg)</translation>
+    </message>
+    <message>
+        <source>Staged (text)</source>
+        <translation>Staged (текст)</translation>
+    </message>
+    <message>
+        <source>Disabled (bg)</source>
+        <translation>Инвалиды (bg)</translation>
+    </message>
+    <message>
+        <source>Disabled (text)</source>
+        <translation>Инвалид (текст)</translation>
+    </message>
+    <message>
+        <source>Missing (bg)</source>
+        <translation>Пропавшие (bg)</translation>
+    </message>
+    <message>
+        <source>Missing (text)</source>
+        <translation>Пропавший (текст)</translation>
+    </message>
+    <message>
+        <source>Separator bands</source>
+        <translation>Группы разделителей</translation>
+    </message>
+    <message>
+        <source>Overwrite band (bg)</source>
+        <translation>Перезаписывающая полоса (bg)</translation>
+    </message>
+    <message>
+        <source>Overwrite band (text)</source>
+        <translation>Overwrite Band (текст)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (bg)</source>
+        <translation>Группа Root Folder (bg)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (text)</source>
+        <translation>Root Folder Band (текст)</translation>
+    </message>
+    <message>
+        <source>Checkboxes</source>
+        <translation>Чекбоксы</translation>
+    </message>
+    <message>
+        <source>Checkbox fill (checked)</source>
+        <translation>Checkbox fill (проверено)</translation>
+    </message>
+    <message>
+        <source>Window, panels, list rows and input fields — the app's surfaces.</source>
+        <translation>Окно, панели, строки списка и поля ввода — поверхности приложения.</translation>
+    </message>
+    <message>
+        <source>Label and list text throughout the app, plus success/warning/error text.</source>
+        <translation>Маркировка и список текста по всему приложению, а также текст успеха / предупреждения / ошибки.</translation>
+    </message>
+    <message>
+        <source>The highlight colour: links, dropdown arrows and accented controls.</source>
+        <translation>Цвет подсветки: ссылки, выпадающие стрелки и акцентированные элементы управления.</translation>
+    </message>
+    <message>
+        <source>Lines and frames around panels, lists and inputs.</source>
+        <translation>Линии и рамки вокруг панелей, списков и входов.</translation>
+    </message>
+    <message>
+        <source>Danger / cancel / remove buttons (delete, remove profile, ✕ close).</source>
+        <translation>Опасность / отмена / удаление кнопок (удалить, удалить профиль, закрыть).</translation>
+    </message>
+    <message>
+        <source>Success / confirm buttons (Install, Done, Play).</source>
+        <translation>Кнопки «Установить, сделать, сыграть» (Install, Done, Play).</translation>
+    </message>
+    <message>
+        <source>Warning buttons (Reinstall, download / update actions).</source>
+        <translation>Кнопки предупреждения (переустановка, загрузка / обновление действий).</translation>
+    </message>
+    <message>
+        <source>Info / neutral action buttons (Select, Groups, Plugin Rules).</source>
+        <translation>Инфо/кнопки нейтрального действия (Выбор, Группы, Правила плагина).</translation>
+    </message>
+    <message>
+        <source>Secondary / neutral buttons (View, minor actions).</source>
+        <translation>Вторичные/нейтральные кнопки (Вид, незначительные действия).</translation>
+    </message>
+    <message>
+        <source>Accent buttons like Ko-Fi.</source>
+        <translation>Кнопки акцента, такие как Ko-Fi.</translation>
+    </message>
+    <message>
+        <source>Coloured labels in file trees (folders, BSA archives, bundled/installed).</source>
+        <translation>Цветные ярлыки в файловых деревьях (папки, архивы BSA, в комплекте/установлено).</translation>
+    </message>
+    <message>
+        <source>Shared accent tones reused by flags, icons and small highlights.</source>
+        <translation>Общие акцентные тона, повторно используемые флагами, значками и небольшими подсветками.</translation>
+    </message>
+    <message>
+        <source>The scrollbar track and thumb.</source>
+        <translation>Путь прокрутки и большой палец.</translation>
+    </message>
+    <message>
+        <source>Popup/overlay backgrounds and coloured info rows (required/optional mods, cards).</source>
+        <translation>Всплывающие / накладные фоны и цветные информационные строки (необходимые / необязательные моды, карты).</translation>
+    </message>
+    <message>
+        <source>Small status pills and badges (queued, download progress, error/success).</source>
+        <translation>Таблетки с небольшим статусом и значки (в очереди, прогресс загрузки, ошибка / успех).</translation>
+    </message>
+    <message>
+        <source>Plugin-cycle rows and file-conflict colours in the Data / Mod Files views.</source>
+        <translation>Ряды цикла плагинов и цвета конфликтов файлов в просмотрах файлов данных / модов.</translation>
+    </message>
+    <message>
+        <source>Row tints when a conflicting mod is selected (winning / overridden / anchor).</source>
+        <translation>Очертания рядов при выборе конфликтующего мода (выигрыш / переопределение / якорь).</translation>
+    </message>
+    <message>
+        <source>The framework-status banner above the Plugins list (installed / staged / disabled / missing).</source>
+        <translation>Фреймворк-статус баннера над списком плагинов (установлен / поставлен / отключен / отсутствует).</translation>
+    </message>
+    <message>
+        <source>The pinned Overwrite and Root Folder bands at the top of the modlist.</source>
+        <translation>Прикрепленные группы Overwrite и Root Folder в верхней части модлиста.</translation>
+    </message>
+    <message>
+        <source>The fill colour of a ticked checkbox (the tick stays auto-contrasted).</source>
+        <translation>Цвет заполнения тикающей коробки (клещ остается автоконтрастным).</translation>
+    </message>
     <message>
         <source>Theme Editor</source>
         <translation>Редактор тем</translation>

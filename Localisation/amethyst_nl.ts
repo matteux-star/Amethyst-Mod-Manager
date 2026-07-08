@@ -3346,10 +3346,6 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
         <translation>Voorvoegsels beheren</translation>
     </message>
     <message>
-        <source>Install queued — {0} will install after the current install finishes.</source>
-        <translation>Installatie in de wachtrij geplaatst — {0} wordt geïnstalleerd zodra de huidige installatie is voltooid.</translation>
-    </message>
-    <message>
         <source>No active profile.</source>
         <translation>Geen actief profiel.</translation>
     </message>
@@ -3364,18 +3360,6 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
     <message>
         <source>Cyber Engine Tweaks requires Hardlink mode</source>
         <translation>Voor Cyber Engine Tweaks is de Hardlink-modus vereist</translation>
-    </message>
-    <message>
-        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
-
-CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
-
-Deploy anyway?</source>
-        <translation>Cyber Engine Tweaks is ingeschakeld, maar de implementatiemodus is ingesteld op Symlink.
-
-CET kan niet worden geladen vanuit een cyber_engine_tweaks.asi-bestand waarnaar een symlink is gemaakt — stel de implementatiemodus in op Hardlink om CET te laten werken.
-
-Toch doorgaan met implementeren?</translation>
     </message>
     <message>
         <source>Deploy anyway</source>
@@ -3508,6 +3492,34 @@ Toch doorgaan met implementeren?</translation>
     <message>
         <source>No active profile — cannot configure groups.</source>
         <translation>Geen actief profiel — groepen kunnen niet worden geconfigureerd.</translation>
+    </message>
+    <message>
+        <source>install</source>
+        <translation>installeren</translation>
+    </message>
+    <message>
+        <source>deploy</source>
+        <translation>implementeren</translation>
+    </message>
+    <message>
+        <source>Install queued — {0} will install after the current {1} finishes.</source>
+        <translation>Installeer wachtrijen {0} zal installeren nadat de huidige {1} klaar is.</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but cyber_engine_tweaks.asi will be symlinked.
+
+CET will not load from a symlinked asi. This happens when the deploy mode is Symlink, or when it is Hardlink but the game folder and mod staging folder are on different drives (hardlinks fall back to symlinks across drives).
+
+Use Hardlink mode with both folders on the same drive for CET to work.
+
+Deploy anyway?</source>
+        <translation>Cyber Engine Tweaks is ingeschakeld, maar cyber engine tweaks.asi wordt symlinked.
+
+CET zal niet worden geladen vanaf een symlinked asi. Dit gebeurt wanneer de deploy mode Symlink is, of wanneer het Hardlink is, maar de game map en mod staging map zijn op verschillende schijven (hardlinks vallen terug naar symbolische koppelingen over schijven).
+
+Gebruik de Hardlink-modus met beide mappen op dezelfde schijf voor CET om te werken.
+
+Toch inzetten?</translation>
     </message>
     <message>
         <source>LOOT Groups</source>
@@ -4827,6 +4839,10 @@ Scan opnieuw om te controleren.</translation>
         <translation>Vlaggen</translation>
     </message>
     <message>
+        <source>P</source>
+        <translation>P</translation>
+    </message>
+    <message>
         <source>Index</source>
         <translation>Inhoudsopgave</translation>
     </message>
@@ -4860,6 +4876,13 @@ Klik met de rechtermuisknop op een plug-in en kies 'Plug-inregels'.</translation
 Drag a plugin from the left pane to add a rule.</source>
         <translation>Er zijn nog geen regels.
 Sleep een plug-in vanuit het linkerdeelvenster om een regel toe te voegen.</translation>
+    </message>
+</context>
+<context>
+    <name>PluginView</name>
+    <message>
+        <source>Show / hide columns</source>
+        <translation>Kolommen weergeven / verbergen</translation>
     </message>
 </context>
 <context>
@@ -5735,14 +5758,6 @@ Start de wizard opnieuw op en installeer eerst Script Merger.</translation>
         <translation>Het aantal extracties wordt beperkt door de beschikbare geheugencapaciteit; het werkelijke aantal kan lager zijn dan het ingestelde aantal.</translation>
     </message>
     <message>
-        <source>Check downloads locations</source>
-        <translation>Controleer de downloadlocaties</translation>
-    </message>
-    <message>
-        <source>Scan the system Downloads folder (and any custom locations) for an archive before downloading it again.</source>
-        <translation>Controleer de map ‘Downloads’ van het systeem (en eventuele aangepaste locaties) op de aanwezigheid van een archiefbestand voordat u het opnieuw downloadt.</translation>
-    </message>
-    <message>
         <source>Caches</source>
         <translation>Caches</translation>
     </message>
@@ -6287,6 +6302,734 @@ De uitvoer wordt rechtstreeks in je modlijst opgeslagen als de mod ‘{0}’.</t
 </context>
 <context>
     <name>ThemeEditorView</name>
+    <message>
+        <source>Backgrounds</source>
+        <translation>Achtergronden</translation>
+    </message>
+    <message>
+        <source>App background (deepest)</source>
+        <translation>Achtergrond van de app (diepste)</translation>
+    </message>
+    <message>
+        <source>Panel / card surface</source>
+        <translation>Paneel/kaartoppervlak</translation>
+    </message>
+    <message>
+        <source>Header / toolbar</source>
+        <translation>Header / werkbalk</translation>
+    </message>
+    <message>
+        <source>List row</source>
+        <translation>Lijst rij</translation>
+    </message>
+    <message>
+        <source>List row (alt stripe)</source>
+        <translation>Lijst rij (altstripe)</translation>
+    </message>
+    <message>
+        <source>List row hover</source>
+        <translation>Lijst rij zweven</translation>
+    </message>
+    <message>
+        <source>Tree / list surface</source>
+        <translation>Boom/lijstoppervlak</translation>
+    </message>
+    <message>
+        <source>Separator fill</source>
+        <translation>Scheidingsteken vullen</translation>
+    </message>
+    <message>
+        <source>Hover highlight</source>
+        <translation>Hover highlight</translation>
+    </message>
+    <message>
+        <source>Selection highlight</source>
+        <translation>Selectiemarkering</translation>
+    </message>
+    <message>
+        <source>Text input field</source>
+        <translation>Tekstinvoerveld</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Tekst</translation>
+    </message>
+    <message>
+        <source>Primary text</source>
+        <translation>Primaire tekst</translation>
+    </message>
+    <message>
+        <source>Dimmed text</source>
+        <translation>Tekst gedimd</translation>
+    </message>
+    <message>
+        <source>Muted text</source>
+        <translation>Gedempte tekst</translation>
+    </message>
+    <message>
+        <source>Faint text</source>
+        <translation>Tekst vervagen</translation>
+    </message>
+    <message>
+        <source>Separator text</source>
+        <translation>Scheidingstekst</translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation>Wit</translation>
+    </message>
+    <message>
+        <source>Black</source>
+        <translation>Zwart</translation>
+    </message>
+    <message>
+        <source>Success text</source>
+        <translation>Succestekst</translation>
+    </message>
+    <message>
+        <source>Error text</source>
+        <translation>Fouttekst</translation>
+    </message>
+    <message>
+        <source>Warning text</source>
+        <translation>Waarschuwingstekst</translation>
+    </message>
+    <message>
+        <source>Success text (bright)</source>
+        <translation>Succestekst (helder)</translation>
+    </message>
+    <message>
+        <source>Error text (bright)</source>
+        <translation>Fouttekst (helder)</translation>
+    </message>
+    <message>
+        <source>Warning text (bright)</source>
+        <translation>Waarschuwingstekst (helder)</translation>
+    </message>
+    <message>
+        <source>Card text</source>
+        <translation>Kaarttekst</translation>
+    </message>
+    <message>
+        <source>Card text (dim)</source>
+        <translation>Kaarttekst (dim)</translation>
+    </message>
+    <message>
+        <source>Card text (medium)</source>
+        <translation>Kaarttekst (medium)</translation>
+    </message>
+    <message>
+        <source>Tree foreground</source>
+        <translation>Boom voorgrond</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>Accent</translation>
+    </message>
+    <message>
+        <source>Accent hover</source>
+        <translation>Accent zweef</translation>
+    </message>
+    <message>
+        <source>Text on accent</source>
+        <translation>Tekst op accent</translation>
+    </message>
+    <message>
+        <source>Hyperlink</source>
+        <translation>Hyperlink</translation>
+    </message>
+    <message>
+        <source>Dropdown arrow</source>
+        <translation>Dropdown pijl</translation>
+    </message>
+    <message>
+        <source>Borders</source>
+        <translation>Randen</translation>
+    </message>
+    <message>
+        <source>Border</source>
+        <translation>Rand</translation>
+    </message>
+    <message>
+        <source>Border (dim)</source>
+        <translation>Rand (dim)</translation>
+    </message>
+    <message>
+        <source>Border (faint)</source>
+        <translation>Rand</translation>
+    </message>
+    <message>
+        <source>Buttons — Red</source>
+        <translation>Knoppen rood</translation>
+    </message>
+    <message>
+        <source>Danger</source>
+        <translation>Gevaar</translation>
+    </message>
+    <message>
+        <source>Danger hover</source>
+        <translation>Gevaar zweef</translation>
+    </message>
+    <message>
+        <source>Danger (alt)</source>
+        <translation>Gevaar (alt)</translation>
+    </message>
+    <message>
+        <source>Danger alt hover</source>
+        <translation>Gevaar alt zweven</translation>
+    </message>
+    <message>
+        <source>Danger (deep)</source>
+        <translation>Gevaar (diep)</translation>
+    </message>
+    <message>
+        <source>Danger deep hover</source>
+        <translation>Gevaar diepe zweef</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+    <message>
+        <source>Cancel hover</source>
+        <translation>Hover annuleren</translation>
+    </message>
+    <message>
+        <source>Red (legacy)</source>
+        <translation>Rood</translation>
+    </message>
+    <message>
+        <source>Red hover (legacy)</source>
+        <translation>Rood zweefvliegtuig (legacy)</translation>
+    </message>
+    <message>
+        <source>Buttons — Green</source>
+        <translation>Knoppen Groen</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>Succes</translation>
+    </message>
+    <message>
+        <source>Success hover</source>
+        <translation>Succes zweven</translation>
+    </message>
+    <message>
+        <source>Success (alt)</source>
+        <translation>Succes (alt)</translation>
+    </message>
+    <message>
+        <source>Success alt hover</source>
+        <translation>Succes al hover</translation>
+    </message>
+    <message>
+        <source>Success (deep)</source>
+        <translation>Succes (diep)</translation>
+    </message>
+    <message>
+        <source>Success deep hover</source>
+        <translation>Succes diep zweven</translation>
+    </message>
+    <message>
+        <source>Buttons — Orange</source>
+        <translation>Knoppen Oranje</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Waarschuwing</translation>
+    </message>
+    <message>
+        <source>Warning hover</source>
+        <translation>Waarschuwings zweef</translation>
+    </message>
+    <message>
+        <source>Warning (deep)</source>
+        <translation>Waarschuwing (diep)</translation>
+    </message>
+    <message>
+        <source>Warning deep hover</source>
+        <translation>Waarschuwing diepe zweef</translation>
+    </message>
+    <message>
+        <source>Warning (brown)</source>
+        <translation>Waarschuwing (bruin)</translation>
+    </message>
+    <message>
+        <source>Warning brown hover</source>
+        <translation>Waarschuwing bruine zweef</translation>
+    </message>
+    <message>
+        <source>Warning (orange)</source>
+        <translation>Waarschuwing (oranje)</translation>
+    </message>
+    <message>
+        <source>Warning orange hover</source>
+        <translation>Waarschuwing oranje zweef</translation>
+    </message>
+    <message>
+        <source>Buttons — Blue</source>
+        <translation>Knoppen blauw</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>Informatie</translation>
+    </message>
+    <message>
+        <source>Info hover</source>
+        <translation>Info zweef</translation>
+    </message>
+    <message>
+        <source>Info (deep)</source>
+        <translation>Info (diep)</translation>
+    </message>
+    <message>
+        <source>Info deep hover</source>
+        <translation>Info diepe zweef</translation>
+    </message>
+    <message>
+        <source>Neutral</source>
+        <translation>Neutraal</translation>
+    </message>
+    <message>
+        <source>Neutral hover</source>
+        <translation>Neutrale zweef</translation>
+    </message>
+    <message>
+        <source>Buttons — Grey</source>
+        <translation>Knoppen</translation>
+    </message>
+    <message>
+        <source>Grey</source>
+        <translation>Grijs</translation>
+    </message>
+    <message>
+        <source>Grey hover</source>
+        <translation>Grijze zweef</translation>
+    </message>
+    <message>
+        <source>Grey (alt)</source>
+        <translation>Grijs (alt)</translation>
+    </message>
+    <message>
+        <source>Grey alt hover</source>
+        <translation>Grijze alt zweef</translation>
+    </message>
+    <message>
+        <source>Buttons — Purple</source>
+        <translation>Knoppen Paars</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Paars</translation>
+    </message>
+    <message>
+        <source>Purple hover</source>
+        <translation>Paarse zweef</translation>
+    </message>
+    <message>
+        <source>Tree tags</source>
+        <translation>Boomtags</translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation>Map</translation>
+    </message>
+    <message>
+        <source>BSA archive</source>
+        <translation>BSA-archief</translation>
+    </message>
+    <message>
+        <source>BSA archive (alt)</source>
+        <translation>BSA-archief (alt)</translation>
+    </message>
+    <message>
+        <source>INI profile</source>
+        <translation>INI-profiel</translation>
+    </message>
+    <message>
+        <source>Bundled (text)</source>
+        <translation>Gebundeld (tekst)</translation>
+    </message>
+    <message>
+        <source>Bundled (background)</source>
+        <translation>Gebundeld (achtergrond)</translation>
+    </message>
+    <message>
+        <source>Installed (background)</source>
+        <translation>Geïnstalleerd (achtergrond)</translation>
+    </message>
+    <message>
+        <source>Unordered (text)</source>
+        <translation>Ongeordend (tekst)</translation>
+    </message>
+    <message>
+        <source>Tones</source>
+        <translation>Tonen</translation>
+    </message>
+    <message>
+        <source>Green tone</source>
+        <translation>Groene toon</translation>
+    </message>
+    <message>
+        <source>Red tone</source>
+        <translation>Rode toon</translation>
+    </message>
+    <message>
+        <source>Blue tone</source>
+        <translation>Blauwe toon</translation>
+    </message>
+    <message>
+        <source>Cyan tone</source>
+        <translation>Cyaantoon</translation>
+    </message>
+    <message>
+        <source>Soft blue tone</source>
+        <translation>Zachte blauwe toon</translation>
+    </message>
+    <message>
+        <source>Flag tone</source>
+        <translation>Vlagtoon</translation>
+    </message>
+    <message>
+        <source>Scrollbars</source>
+        <translation>Schuifbalken</translation>
+    </message>
+    <message>
+        <source>Scrollbar background</source>
+        <translation>Achtergrond schuifbalk</translation>
+    </message>
+    <message>
+        <source>Scrollbar trough</source>
+        <translation>Scrollbar-trog</translation>
+    </message>
+    <message>
+        <source>Scrollbar thumb (active)</source>
+        <translation>Schuifbalkduim (actief)</translation>
+    </message>
+    <message>
+        <source>Overlays &amp; tinted rows</source>
+        <translation>Overlays &amp; getinte rijen</translation>
+    </message>
+    <message>
+        <source>Error overlay</source>
+        <translation>Fout bij overlay</translation>
+    </message>
+    <message>
+        <source>Deep overlay</source>
+        <translation>Diepe overlay</translation>
+    </message>
+    <message>
+        <source>Card</source>
+        <translation>Kaart</translation>
+    </message>
+    <message>
+        <source>Card (alt)</source>
+        <translation>Kaart (alt)</translation>
+    </message>
+    <message>
+        <source>Green row</source>
+        <translation>Groene rij</translation>
+    </message>
+    <message>
+        <source>Green (deep)</source>
+        <translation>Groen (diep)</translation>
+    </message>
+    <message>
+        <source>Red (deep)</source>
+        <translation>Rood (diep)</translation>
+    </message>
+    <message>
+        <source>Orange (deep)</source>
+        <translation>Oranje (diep)</translation>
+    </message>
+    <message>
+        <source>Blue (deep)</source>
+        <translation>Blauwe (diep)</translation>
+    </message>
+    <message>
+        <source>Green tint text</source>
+        <translation>Groene tinttekst</translation>
+    </message>
+    <message>
+        <source>Red tint text</source>
+        <translation>Rode tinttekst</translation>
+    </message>
+    <message>
+        <source>Orange tint text</source>
+        <translation>Oranje tinttekst</translation>
+    </message>
+    <message>
+        <source>Blue tint text</source>
+        <translation>Blauwe tint tekst</translation>
+    </message>
+    <message>
+        <source>Dark blue</source>
+        <translation>Donkerblauw</translation>
+    </message>
+    <message>
+        <source>Dark green</source>
+        <translation>Donker groen</translation>
+    </message>
+    <message>
+        <source>Save button</source>
+        <translation>Opslaan knop</translation>
+    </message>
+    <message>
+        <source>Selection bar</source>
+        <translation>Selectiebalk</translation>
+    </message>
+    <message>
+        <source>Required mod</source>
+        <translation>Vereiste mod</translation>
+    </message>
+    <message>
+        <source>Optional mod</source>
+        <translation>Optionele mod</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <source>Error (bright)</source>
+        <translation>Fout (helder)</translation>
+    </message>
+    <message>
+        <source>Badge red</source>
+        <translation>Badge rood</translation>
+    </message>
+    <message>
+        <source>Badge green</source>
+        <translation>Badge groen</translation>
+    </message>
+    <message>
+        <source>Success (solid)</source>
+        <translation>Succes (vast)</translation>
+    </message>
+    <message>
+        <source>Queued</source>
+        <translation>Wachtwoord</translation>
+    </message>
+    <message>
+        <source>Download green</source>
+        <translation>Groene downloaden</translation>
+    </message>
+    <message>
+        <source>Plugin cycle &amp; files</source>
+        <translation>Plugin-cyclusbestanden</translation>
+    </message>
+    <message>
+        <source>Cycle error row (bg)</source>
+        <translation>Cyclusfoutrij (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle error row (text)</source>
+        <translation>Cyclusfoutrij (tekst)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (bg)</source>
+        <translation>Cyclus ok rij (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (text)</source>
+        <translation>Cyclus ok rij (tekst)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (bg)</source>
+        <translation>Cycluswaarschuwingsrij (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (text)</source>
+        <translation>Cyclus-waarschuwingsrij (tekst)</translation>
+    </message>
+    <message>
+        <source>Cycle anchor</source>
+        <translation>Fietsanker</translation>
+    </message>
+    <message>
+        <source>Cycle link</source>
+        <translation>Cycluskoppeling</translation>
+    </message>
+    <message>
+        <source>File winning</source>
+        <translation>Bestand winnen</translation>
+    </message>
+    <message>
+        <source>File overridden</source>
+        <translation>Bestand overschreven</translation>
+    </message>
+    <message>
+        <source>File dim</source>
+        <translation>Bestandsdim</translation>
+    </message>
+    <message>
+        <source>File anchor</source>
+        <translation>Bestandsanker</translation>
+    </message>
+    <message>
+        <source>Drag selection outline</source>
+        <translation>Sleep selectie overzicht</translation>
+    </message>
+    <message>
+        <source>Conflict highlights</source>
+        <translation>Conflict hoogtepunten</translation>
+    </message>
+    <message>
+        <source>Conflict row — winning</source>
+        <translation>Conflict rij winnen</translation>
+    </message>
+    <message>
+        <source>Conflict row — overridden</source>
+        <translation>Conflictrij Overschreven</translation>
+    </message>
+    <message>
+        <source>Conflict row — anchor</source>
+        <translation>Conflict-rij: anker</translation>
+    </message>
+    <message>
+        <source>Framework detection</source>
+        <translation>Kaderdetectie</translation>
+    </message>
+    <message>
+        <source>Installed (bg)</source>
+        <translation>Geïnstalleerd (bg)</translation>
+    </message>
+    <message>
+        <source>Installed (text)</source>
+        <translation>Geïnstalleerd (tekst)</translation>
+    </message>
+    <message>
+        <source>Staged (bg)</source>
+        <translation>Stadium (bg)</translation>
+    </message>
+    <message>
+        <source>Staged (text)</source>
+        <translation>Geplaatst (tekst)</translation>
+    </message>
+    <message>
+        <source>Disabled (bg)</source>
+        <translation>Uitgeschakeld (bg)</translation>
+    </message>
+    <message>
+        <source>Disabled (text)</source>
+        <translation>Uitgeschakeld (tekst)</translation>
+    </message>
+    <message>
+        <source>Missing (bg)</source>
+        <translation>Ontbrekend (bg)</translation>
+    </message>
+    <message>
+        <source>Missing (text)</source>
+        <translation>Ontbrekend (tekst)</translation>
+    </message>
+    <message>
+        <source>Separator bands</source>
+        <translation>Scheidingsbanden</translation>
+    </message>
+    <message>
+        <source>Overwrite band (bg)</source>
+        <translation>Band overschrijven (bg)</translation>
+    </message>
+    <message>
+        <source>Overwrite band (text)</source>
+        <translation>Band overschrijven (tekst)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (bg)</source>
+        <translation>Hoofdmapband (bg)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (text)</source>
+        <translation>Hoofdmapgroep (tekst)</translation>
+    </message>
+    <message>
+        <source>Checkboxes</source>
+        <translation>Checkboxen</translation>
+    </message>
+    <message>
+        <source>Checkbox fill (checked)</source>
+        <translation>Vulvakje (aangevinkt)</translation>
+    </message>
+    <message>
+        <source>Window, panels, list rows and input fields — the app's surfaces.</source>
+        <translation>Venster, panelen, lijst van rijen en invoervelden De oppervlakken van de app.</translation>
+    </message>
+    <message>
+        <source>Label and list text throughout the app, plus success/warning/error text.</source>
+        <translation>Label en lijst tekst in de app, plus succes/waarschuwing/fout tekst.</translation>
+    </message>
+    <message>
+        <source>The highlight colour: links, dropdown arrows and accented controls.</source>
+        <translation>De highlight kleur: links, dropdown pijlen en geaccentueerde bedieningen.</translation>
+    </message>
+    <message>
+        <source>Lines and frames around panels, lists and inputs.</source>
+        <translation>Lijnen en frames rond panelen, lijsten en ingangen.</translation>
+    </message>
+    <message>
+        <source>Danger / cancel / remove buttons (delete, remove profile, ✕ close).</source>
+        <translation>Gevaar / annuleren / verwijderen van knoppen (verwijderen, profiel verwijderen, sluiten).</translation>
+    </message>
+    <message>
+        <source>Success / confirm buttons (Install, Done, Play).</source>
+        <translation>Succes/bevestigingsknoppen (Installeren, Gereed, Afspelen).</translation>
+    </message>
+    <message>
+        <source>Warning buttons (Reinstall, download / update actions).</source>
+        <translation>Waarschuwingsknoppen (Installeer, download / update acties).</translation>
+    </message>
+    <message>
+        <source>Info / neutral action buttons (Select, Groups, Plugin Rules).</source>
+        <translation>Info / neutrale actieknoppen (Selecteer, Groepen, Plugin regels).</translation>
+    </message>
+    <message>
+        <source>Secondary / neutral buttons (View, minor actions).</source>
+        <translation>Secundaire / neutrale knoppen (Bekijk, kleine acties).</translation>
+    </message>
+    <message>
+        <source>Accent buttons like Ko-Fi.</source>
+        <translation>Accent knoppen zoals Ko-Fi.</translation>
+    </message>
+    <message>
+        <source>Coloured labels in file trees (folders, BSA archives, bundled/installed).</source>
+        <translation>Gekleurde etiketten in bestandsbomen (mappen, BSA-archieven, gebundeld/geïnstalleerd).</translation>
+    </message>
+    <message>
+        <source>Shared accent tones reused by flags, icons and small highlights.</source>
+        <translation>Gedeelde accenttonen hergebruikt door vlaggen, pictogrammen en kleine hoogtepunten.</translation>
+    </message>
+    <message>
+        <source>The scrollbar track and thumb.</source>
+        <translation>De scrollbar spoor en duim.</translation>
+    </message>
+    <message>
+        <source>Popup/overlay backgrounds and coloured info rows (required/optional mods, cards).</source>
+        <translation>Popup/overlay achtergronden en gekleurde info rijen (verplichte/optionele mods, kaarten).</translation>
+    </message>
+    <message>
+        <source>Small status pills and badges (queued, download progress, error/success).</source>
+        <translation>Kleine status pillen en badges (in wachtrij, download vooruitgang, fout/succes).</translation>
+    </message>
+    <message>
+        <source>Plugin-cycle rows and file-conflict colours in the Data / Mod Files views.</source>
+        <translation>Plugin-cyclus rijen en file-conflict kleuren in de Data / Mod Files weergaven.</translation>
+    </message>
+    <message>
+        <source>Row tints when a conflicting mod is selected (winning / overridden / anchor).</source>
+        <translation>Rijtinten wanneer een conflicterende mod is geselecteerd (winnen / overrijden / anker).</translation>
+    </message>
+    <message>
+        <source>The framework-status banner above the Plugins list (installed / staged / disabled / missing).</source>
+        <translation>De framework-status banner boven de Plugins lijst (geïnstalleerd / geënsceneerd / uitgeschakeld / ontbreken).</translation>
+    </message>
+    <message>
+        <source>The pinned Overwrite and Root Folder bands at the top of the modlist.</source>
+        <translation>De gepinde Overwrite en Root Map bands bovenaan de modlist.</translation>
+    </message>
+    <message>
+        <source>The fill colour of a ticked checkbox (the tick stays auto-contrasted).</source>
+        <translation>De vulkleur van een aangevinkt selectievakje (de vink blijft automatisch gecontrast).</translation>
+    </message>
     <message>
         <source>Theme Editor</source>
         <translation>Thema-editor</translation>

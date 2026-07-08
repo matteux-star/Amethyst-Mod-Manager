@@ -3346,10 +3346,6 @@ Remove the appended-collection entry?</source>
         <translation>管理前缀</translation>
     </message>
     <message>
-        <source>Install queued — {0} will install after the current install finishes.</source>
-        <translation>安装已加入队列 — {0} 将在当前安装完成后进行安装。</translation>
-    </message>
-    <message>
         <source>No active profile.</source>
         <translation>没有活跃的个人资料。</translation>
     </message>
@@ -3364,18 +3360,6 @@ Remove the appended-collection entry?</source>
     <message>
         <source>Cyber Engine Tweaks requires Hardlink mode</source>
         <translation>“Cyber Engine Tweaks” 需要启用硬链接模式</translation>
-    </message>
-    <message>
-        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
-
-CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
-
-Deploy anyway?</source>
-        <translation>已启用 Cyber Engine Tweaks，但部署模式设置为“符号链接”。
-
-CET 无法从符号链接的 cyber_engine_tweaks.asi 文件加载——请将部署模式切换为“硬链接”，以便 CET 正常工作。
-
-是否仍要部署？</translation>
     </message>
     <message>
         <source>Deploy anyway</source>
@@ -3508,6 +3492,34 @@ CET 无法从符号链接的 cyber_engine_tweaks.asi 文件加载——请将部
     <message>
         <source>No active profile — cannot configure groups.</source>
         <translation>没有有效的配置文件——无法配置组。</translation>
+    </message>
+    <message>
+        <source>install</source>
+        <translation>安装</translation>
+    </message>
+    <message>
+        <source>deploy</source>
+        <translation>部署</translation>
+    </message>
+    <message>
+        <source>Install queued — {0} will install after the current {1} finishes.</source>
+        <translation>已安装队列——{0}将在当前{1}完成后安装.</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but cyber_engine_tweaks.asi will be symlinked.
+
+CET will not load from a symlinked asi. This happens when the deploy mode is Symlink, or when it is Hardlink but the game folder and mod staging folder are on different drives (hardlinks fall back to symlinks across drives).
+
+Use Hardlink mode with both folders on the same drive for CET to work.
+
+Deploy anyway?</source>
+        <translation>网络引擎Tweaks启用,但网络 engine tweaks.asi将会被连通.
+
+CET 将不会从一个连在一起的同位素加载 。 当部署模式是Symlink时,或者当它是Hardlink时,但游戏文件夹和mod中转文件夹在不同的驱动器上(hardlinks倒回到跨越驱动器的同位链接上)会发生这种情况.
+
+在同一驱动器上使用两个文件夹的硬链接模式供CET工作.
+
+无论如何,部署?</translation>
     </message>
     <message>
         <source>LOOT Groups</source>
@@ -4827,6 +4839,10 @@ Re-scan to verify.</source>
         <translation>国旗</translation>
     </message>
     <message>
+        <source>P</source>
+        <translation>页:1</translation>
+    </message>
+    <message>
         <source>Index</source>
         <translation>目录</translation>
     </message>
@@ -4860,6 +4876,13 @@ Right-click a plugin and choose 'Plugin Rules'.</source>
 Drag a plugin from the left pane to add a rule.</source>
         <translation>目前尚无规则。
 从左侧窗格中拖动一个插件即可添加规则。</translation>
+    </message>
+</context>
+<context>
+    <name>PluginView</name>
+    <message>
+        <source>Show / hide columns</source>
+        <translation>显示/隐藏列</translation>
     </message>
 </context>
 <context>
@@ -5735,14 +5758,6 @@ Please restart the wizard and install Script Merger first.</source>
         <translation>提取操作受可用内存的限制；实际数量可能低于设定值。</translation>
     </message>
     <message>
-        <source>Check downloads locations</source>
-        <translation>检查下载位置</translation>
-    </message>
-    <message>
-        <source>Scan the system Downloads folder (and any custom locations) for an archive before downloading it again.</source>
-        <translation>在重新下载之前，请先检查系统的“下载”文件夹（以及任何自定义位置）中是否已有该压缩包。</translation>
-    </message>
-    <message>
         <source>Caches</source>
         <translation>缓存</translation>
     </message>
@@ -6287,6 +6302,734 @@ Output is written directly into your mod list as the '{0}' mod.</source>
 </context>
 <context>
     <name>ThemeEditorView</name>
+    <message>
+        <source>Backgrounds</source>
+        <translation>背景情况</translation>
+    </message>
+    <message>
+        <source>App background (deepest)</source>
+        <translation>App 背景( 最深处)</translation>
+    </message>
+    <message>
+        <source>Panel / card surface</source>
+        <translation>面板/卡片表面</translation>
+    </message>
+    <message>
+        <source>Header / toolbar</source>
+        <translation>页眉/ 工具栏</translation>
+    </message>
+    <message>
+        <source>List row</source>
+        <translation>列表行</translation>
+    </message>
+    <message>
+        <source>List row (alt stripe)</source>
+        <translation>列表行( 备选条纹)</translation>
+    </message>
+    <message>
+        <source>List row hover</source>
+        <translation>列表行徘徊</translation>
+    </message>
+    <message>
+        <source>Tree / list surface</source>
+        <translation>树 / 列表表面</translation>
+    </message>
+    <message>
+        <source>Separator fill</source>
+        <translation>分隔符填充</translation>
+    </message>
+    <message>
+        <source>Hover highlight</source>
+        <translation>高调</translation>
+    </message>
+    <message>
+        <source>Selection highlight</source>
+        <translation>选择突出显示</translation>
+    </message>
+    <message>
+        <source>Text input field</source>
+        <translation>文本输入字段</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>文本</translation>
+    </message>
+    <message>
+        <source>Primary text</source>
+        <translation>主要案文</translation>
+    </message>
+    <message>
+        <source>Dimmed text</source>
+        <translation>阴暗文本</translation>
+    </message>
+    <message>
+        <source>Muted text</source>
+        <translation>静音文本</translation>
+    </message>
+    <message>
+        <source>Faint text</source>
+        <translation>淡出文本</translation>
+    </message>
+    <message>
+        <source>Separator text</source>
+        <translation>分隔文本</translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation>白色</translation>
+    </message>
+    <message>
+        <source>Black</source>
+        <translation>黑色</translation>
+    </message>
+    <message>
+        <source>Success text</source>
+        <translation>成功文本</translation>
+    </message>
+    <message>
+        <source>Error text</source>
+        <translation>错误文本</translation>
+    </message>
+    <message>
+        <source>Warning text</source>
+        <translation>警告文本</translation>
+    </message>
+    <message>
+        <source>Success text (bright)</source>
+        <translation>成功文本( 淡出)</translation>
+    </message>
+    <message>
+        <source>Error text (bright)</source>
+        <translation>出错文本 (Bright)</translation>
+    </message>
+    <message>
+        <source>Warning text (bright)</source>
+        <translation>警告文本 (直线)</translation>
+    </message>
+    <message>
+        <source>Card text</source>
+        <translation>纸牌文本</translation>
+    </message>
+    <message>
+        <source>Card text (dim)</source>
+        <translation>纸牌文本( dim)</translation>
+    </message>
+    <message>
+        <source>Card text (medium)</source>
+        <translation>卡片文本( 中等)</translation>
+    </message>
+    <message>
+        <source>Tree foreground</source>
+        <translation>树前缘</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>百分点</translation>
+    </message>
+    <message>
+        <source>Accent hover</source>
+        <translation>气温徘徊</translation>
+    </message>
+    <message>
+        <source>Text on accent</source>
+        <translation>重音文字</translation>
+    </message>
+    <message>
+        <source>Hyperlink</source>
+        <translation>超链接</translation>
+    </message>
+    <message>
+        <source>Dropdown arrow</source>
+        <translation>放下箭头</translation>
+    </message>
+    <message>
+        <source>Borders</source>
+        <translation>边框</translation>
+    </message>
+    <message>
+        <source>Border</source>
+        <translation>边框</translation>
+    </message>
+    <message>
+        <source>Border (dim)</source>
+        <translation>边框( dim)</translation>
+    </message>
+    <message>
+        <source>Border (faint)</source>
+        <translation>边框( Faint)</translation>
+    </message>
+    <message>
+        <source>Buttons — Red</source>
+        <translation>按钮——红色</translation>
+    </message>
+    <message>
+        <source>Danger</source>
+        <translation>危险</translation>
+    </message>
+    <message>
+        <source>Danger hover</source>
+        <translation>危险徘徊</translation>
+    </message>
+    <message>
+        <source>Danger (alt)</source>
+        <translation>危险(备选案文)</translation>
+    </message>
+    <message>
+        <source>Danger alt hover</source>
+        <translation>危险高地徘徊</translation>
+    </message>
+    <message>
+        <source>Danger (deep)</source>
+        <translation>危险(深度)</translation>
+    </message>
+    <message>
+        <source>Danger deep hover</source>
+        <translation>危险深层徘徊</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Cancel hover</source>
+        <translation>取消悬浮</translation>
+    </message>
+    <message>
+        <source>Red (legacy)</source>
+        <translation>红色( 遗留)</translation>
+    </message>
+    <message>
+        <source>Red hover (legacy)</source>
+        <translation>红色悬浮( 遗留)</translation>
+    </message>
+    <message>
+        <source>Buttons — Green</source>
+        <translation>按钮——绿色</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>成绩</translation>
+    </message>
+    <message>
+        <source>Success hover</source>
+        <translation>成功悬浮</translation>
+    </message>
+    <message>
+        <source>Success (alt)</source>
+        <translation>成功( 备选案文)</translation>
+    </message>
+    <message>
+        <source>Success alt hover</source>
+        <translation>成功悬浮</translation>
+    </message>
+    <message>
+        <source>Success (deep)</source>
+        <translation>成功(深入)</translation>
+    </message>
+    <message>
+        <source>Success deep hover</source>
+        <translation>成功悬浮</translation>
+    </message>
+    <message>
+        <source>Buttons — Orange</source>
+        <translation>按钮-橙色</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>3⁄4 ̄ ̧漯B</translation>
+    </message>
+    <message>
+        <source>Warning hover</source>
+        <translation>警告悬停</translation>
+    </message>
+    <message>
+        <source>Warning (deep)</source>
+        <translation>警告( 深度)</translation>
+    </message>
+    <message>
+        <source>Warning deep hover</source>
+        <translation>警告深处徘徊</translation>
+    </message>
+    <message>
+        <source>Warning (brown)</source>
+        <translation>警告( 棕色)</translation>
+    </message>
+    <message>
+        <source>Warning brown hover</source>
+        <translation>警告棕色悬浮</translation>
+    </message>
+    <message>
+        <source>Warning (orange)</source>
+        <translation>警告( 橙色)</translation>
+    </message>
+    <message>
+        <source>Warning orange hover</source>
+        <translation>警告橙色悬浮</translation>
+    </message>
+    <message>
+        <source>Buttons — Blue</source>
+        <translation>按钮 — 蓝色</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>资讯</translation>
+    </message>
+    <message>
+        <source>Info hover</source>
+        <translation>信息盘旋</translation>
+    </message>
+    <message>
+        <source>Info (deep)</source>
+        <translation>信息 (深处)</translation>
+    </message>
+    <message>
+        <source>Info deep hover</source>
+        <translation>信息深悬浮</translation>
+    </message>
+    <message>
+        <source>Neutral</source>
+        <translation>中立</translation>
+    </message>
+    <message>
+        <source>Neutral hover</source>
+        <translation>中立地徘徊</translation>
+    </message>
+    <message>
+        <source>Buttons — Grey</source>
+        <translation>按钮 — Grey</translation>
+    </message>
+    <message>
+        <source>Grey</source>
+        <translation>灰色</translation>
+    </message>
+    <message>
+        <source>Grey hover</source>
+        <translation>灰色悬浮</translation>
+    </message>
+    <message>
+        <source>Grey (alt)</source>
+        <translation>灰 (备选案文)</translation>
+    </message>
+    <message>
+        <source>Grey alt hover</source>
+        <translation>灰外观徘徊</translation>
+    </message>
+    <message>
+        <source>Buttons — Purple</source>
+        <translation>按钮-紫色</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>紫色</translation>
+    </message>
+    <message>
+        <source>Purple hover</source>
+        <translation>紫色悬浮</translation>
+    </message>
+    <message>
+        <source>Tree tags</source>
+        <translation>树标签</translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation>文件夹</translation>
+    </message>
+    <message>
+        <source>BSA archive</source>
+        <translation>BSA 存档</translation>
+    </message>
+    <message>
+        <source>BSA archive (alt)</source>
+        <translation>BSA 存档( 备选案文)</translation>
+    </message>
+    <message>
+        <source>INI profile</source>
+        <translation>INI 简介</translation>
+    </message>
+    <message>
+        <source>Bundled (text)</source>
+        <translation>捆绑 (文本)</translation>
+    </message>
+    <message>
+        <source>Bundled (background)</source>
+        <translation>捆绑 (背景)</translation>
+    </message>
+    <message>
+        <source>Installed (background)</source>
+        <translation>安装( 背景)</translation>
+    </message>
+    <message>
+        <source>Unordered (text)</source>
+        <translation>未排序( 文本)</translation>
+    </message>
+    <message>
+        <source>Tones</source>
+        <translation>音调</translation>
+    </message>
+    <message>
+        <source>Green tone</source>
+        <translation>绿调</translation>
+    </message>
+    <message>
+        <source>Red tone</source>
+        <translation>红色音调</translation>
+    </message>
+    <message>
+        <source>Blue tone</source>
+        <translation>蓝调</translation>
+    </message>
+    <message>
+        <source>Cyan tone</source>
+        <translation>青色调</translation>
+    </message>
+    <message>
+        <source>Soft blue tone</source>
+        <translation>软蓝调</translation>
+    </message>
+    <message>
+        <source>Flag tone</source>
+        <translation>旗帜色调</translation>
+    </message>
+    <message>
+        <source>Scrollbars</source>
+        <translation>滚动栏</translation>
+    </message>
+    <message>
+        <source>Scrollbar background</source>
+        <translation>滚动栏背景</translation>
+    </message>
+    <message>
+        <source>Scrollbar trough</source>
+        <translation>卷条槽</translation>
+    </message>
+    <message>
+        <source>Scrollbar thumb (active)</source>
+        <translation>缩略图( 活动)</translation>
+    </message>
+    <message>
+        <source>Overlays &amp; tinted rows</source>
+        <translation>重叠和有锡行</translation>
+    </message>
+    <message>
+        <source>Error overlay</source>
+        <translation>重叠错误</translation>
+    </message>
+    <message>
+        <source>Deep overlay</source>
+        <translation>深层覆盖</translation>
+    </message>
+    <message>
+        <source>Card</source>
+        <translation>纸牌</translation>
+    </message>
+    <message>
+        <source>Card (alt)</source>
+        <translation>卡片( 备选案文)</translation>
+    </message>
+    <message>
+        <source>Green row</source>
+        <translation>绿色行</translation>
+    </message>
+    <message>
+        <source>Green (deep)</source>
+        <translation>绿色( 深)</translation>
+    </message>
+    <message>
+        <source>Red (deep)</source>
+        <translation>红色 (深)</translation>
+    </message>
+    <message>
+        <source>Orange (deep)</source>
+        <translation>橙(深处)</translation>
+    </message>
+    <message>
+        <source>Blue (deep)</source>
+        <translation>蓝色 (深)</translation>
+    </message>
+    <message>
+        <source>Green tint text</source>
+        <translation>绿色文本</translation>
+    </message>
+    <message>
+        <source>Red tint text</source>
+        <translation>红色文本</translation>
+    </message>
+    <message>
+        <source>Orange tint text</source>
+        <translation>橙色文本</translation>
+    </message>
+    <message>
+        <source>Blue tint text</source>
+        <translation>蓝色文本</translation>
+    </message>
+    <message>
+        <source>Dark blue</source>
+        <translation>暗蓝色</translation>
+    </message>
+    <message>
+        <source>Dark green</source>
+        <translation>暗绿色</translation>
+    </message>
+    <message>
+        <source>Save button</source>
+        <translation>保存按钮</translation>
+    </message>
+    <message>
+        <source>Selection bar</source>
+        <translation>选择栏</translation>
+    </message>
+    <message>
+        <source>Required mod</source>
+        <translation>所需模式</translation>
+    </message>
+    <message>
+        <source>Optional mod</source>
+        <translation>可选模式</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>状态</translation>
+    </message>
+    <message>
+        <source>Error (bright)</source>
+        <translation>错误( 错误)</translation>
+    </message>
+    <message>
+        <source>Badge red</source>
+        <translation>徽章红色</translation>
+    </message>
+    <message>
+        <source>Badge green</source>
+        <translation>标志绿色</translation>
+    </message>
+    <message>
+        <source>Success (solid)</source>
+        <translation>成功( 巩固)</translation>
+    </message>
+    <message>
+        <source>Queued</source>
+        <translation>队列</translation>
+    </message>
+    <message>
+        <source>Download green</source>
+        <translation>下载绿色</translation>
+    </message>
+    <message>
+        <source>Plugin cycle &amp; files</source>
+        <translation>插件循环文件( F)</translation>
+    </message>
+    <message>
+        <source>Cycle error row (bg)</source>
+        <translation>循环出错行 (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle error row (text)</source>
+        <translation>循环出错行( 文本)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (bg)</source>
+        <translation>循环好行( bg)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (text)</source>
+        <translation>循环好行( 文本)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (bg)</source>
+        <translation>周期警告行( bg)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (text)</source>
+        <translation>周期警告行( 文本)</translation>
+    </message>
+    <message>
+        <source>Cycle anchor</source>
+        <translation>循环锁定</translation>
+    </message>
+    <message>
+        <source>Cycle link</source>
+        <translation>循环链接</translation>
+    </message>
+    <message>
+        <source>File winning</source>
+        <translation>文件中选</translation>
+    </message>
+    <message>
+        <source>File overridden</source>
+        <translation>文件覆盖</translation>
+    </message>
+    <message>
+        <source>File dim</source>
+        <translation>文件淡化</translation>
+    </message>
+    <message>
+        <source>File anchor</source>
+        <translation>文件锁定</translation>
+    </message>
+    <message>
+        <source>Drag selection outline</source>
+        <translation>拖动选择大纲</translation>
+    </message>
+    <message>
+        <source>Conflict highlights</source>
+        <translation>冲突要点</translation>
+    </message>
+    <message>
+        <source>Conflict row — winning</source>
+        <translation>冲突行——取胜</translation>
+    </message>
+    <message>
+        <source>Conflict row — overridden</source>
+        <translation>冲突一行——被推翻</translation>
+    </message>
+    <message>
+        <source>Conflict row — anchor</source>
+        <translation>冲突行-锚</translation>
+    </message>
+    <message>
+        <source>Framework detection</source>
+        <translation>框架检测</translation>
+    </message>
+    <message>
+        <source>Installed (bg)</source>
+        <translation>已安装 (bg)</translation>
+    </message>
+    <message>
+        <source>Installed (text)</source>
+        <translation>已安装( 文本)</translation>
+    </message>
+    <message>
+        <source>Staged (bg)</source>
+        <translation>分阶段(bg)</translation>
+    </message>
+    <message>
+        <source>Staged (text)</source>
+        <translation>分阶段(文本)</translation>
+    </message>
+    <message>
+        <source>Disabled (bg)</source>
+        <translation>已禁用( bg)</translation>
+    </message>
+    <message>
+        <source>Disabled (text)</source>
+        <translation>已禁用( 文本)</translation>
+    </message>
+    <message>
+        <source>Missing (bg)</source>
+        <translation>失踪(bg)</translation>
+    </message>
+    <message>
+        <source>Missing (text)</source>
+        <translation>缺少( 文本)</translation>
+    </message>
+    <message>
+        <source>Separator bands</source>
+        <translation>分隔带</translation>
+    </message>
+    <message>
+        <source>Overwrite band (bg)</source>
+        <translation>覆盖带 (bg)</translation>
+    </message>
+    <message>
+        <source>Overwrite band (text)</source>
+        <translation>覆盖带 (文本)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (bg)</source>
+        <translation>根文件夹带 (bg)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (text)</source>
+        <translation>根文件夹带( 文本)</translation>
+    </message>
+    <message>
+        <source>Checkboxes</source>
+        <translation>复选框</translation>
+    </message>
+    <message>
+        <source>Checkbox fill (checked)</source>
+        <translation>复选框填充( 已选中)</translation>
+    </message>
+    <message>
+        <source>Window, panels, list rows and input fields — the app's surfaces.</source>
+        <translation>窗口,面板,列表行和输入字段——应用程序的表面.</translation>
+    </message>
+    <message>
+        <source>Label and list text throughout the app, plus success/warning/error text.</source>
+        <translation>标签和整个应用程序列表文本,加上成功/警告/错误文本.</translation>
+    </message>
+    <message>
+        <source>The highlight colour: links, dropdown arrows and accented controls.</source>
+        <translation>突出显示颜色:链接,下放箭头和重音控件.</translation>
+    </message>
+    <message>
+        <source>Lines and frames around panels, lists and inputs.</source>
+        <translation>围绕面板,列表和输入的行和框架.</translation>
+    </message>
+    <message>
+        <source>Danger / cancel / remove buttons (delete, remove profile, ✕ close).</source>
+        <translation>危险 / 取消/ 删除按钮( 删除, 删除配置文件, QQ 关闭) .</translation>
+    </message>
+    <message>
+        <source>Success / confirm buttons (Install, Done, Play).</source>
+        <translation>成功 / 确认按钮( Install, Done, Play) .</translation>
+    </message>
+    <message>
+        <source>Warning buttons (Reinstall, download / update actions).</source>
+        <translation>警告按钮(Reinstall,下载/更新动作).</translation>
+    </message>
+    <message>
+        <source>Info / neutral action buttons (Select, Groups, Plugin Rules).</source>
+        <translation>信息/ 中性动作按钮( 选择、 组、 插件规则) .</translation>
+    </message>
+    <message>
+        <source>Secondary / neutral buttons (View, minor actions).</source>
+        <translation>二级/中性按钮(视频,小动作).</translation>
+    </message>
+    <message>
+        <source>Accent buttons like Ko-Fi.</source>
+        <translation>ACCENT按键如克菲.</translation>
+    </message>
+    <message>
+        <source>Coloured labels in file trees (folders, BSA archives, bundled/installed).</source>
+        <translation>文件树上的有色标签(文件夹,BSA档案,捆绑/安装).</translation>
+    </message>
+    <message>
+        <source>Shared accent tones reused by flags, icons and small highlights.</source>
+        <translation>共享重音调被旗帜,图标和小亮点所再用.</translation>
+    </message>
+    <message>
+        <source>The scrollbar track and thumb.</source>
+        <translation>卷轴栏跑道和拇指.</translation>
+    </message>
+    <message>
+        <source>Popup/overlay backgrounds and coloured info rows (required/optional mods, cards).</source>
+        <translation>弹出/覆盖背景和彩色信息行(需要/可选模式,卡片).</translation>
+    </message>
+    <message>
+        <source>Small status pills and badges (queued, download progress, error/success).</source>
+        <translation>小状态丸和徽章(排行,下载进度,出错/成功).</translation>
+    </message>
+    <message>
+        <source>Plugin-cycle rows and file-conflict colours in the Data / Mod Files views.</source>
+        <translation>数据/ Mod 文件视图中的插件循环行和文件冲突颜色.</translation>
+    </message>
+    <message>
+        <source>Row tints when a conflicting mod is selected (winning / overridden / anchor).</source>
+        <translation>当选择了相冲突的模式时( 胜出 / 覆出 / 锚) , 将行编号 .</translation>
+    </message>
+    <message>
+        <source>The framework-status banner above the Plugins list (installed / staged / disabled / missing).</source>
+        <translation>插件列表上方的框架状态横幅( 安装 / 阶段 / 禁用 / 缺失) .</translation>
+    </message>
+    <message>
+        <source>The pinned Overwrite and Root Folder bands at the top of the modlist.</source>
+        <translation>被绑定的覆盖和根文件夹带位于调制列表的顶端.</translation>
+    </message>
+    <message>
+        <source>The fill colour of a ticked checkbox (the tick stays auto-contrasted).</source>
+        <translation>已勾选的复选框的填充颜色( 勾选会保持自动接合) .</translation>
+    </message>
     <message>
         <source>Theme Editor</source>
         <translation>主题编辑器</translation>

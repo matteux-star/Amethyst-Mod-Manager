@@ -3346,10 +3346,6 @@ Remove the appended-collection entry?</source>
         <translation>プレフィックスの管理</translation>
     </message>
     <message>
-        <source>Install queued — {0} will install after the current install finishes.</source>
-        <translation>インストールがキューに入れられました — {0} は、現在のインストールが完了した後にインストールされます。</translation>
-    </message>
-    <message>
         <source>No active profile.</source>
         <translation>有効なプロフィールがありません。</translation>
     </message>
@@ -3364,18 +3360,6 @@ Remove the appended-collection entry?</source>
     <message>
         <source>Cyber Engine Tweaks requires Hardlink mode</source>
         <translation>「Cyber Engine Tweaks」にはハードリンクモードが必要です</translation>
-    </message>
-    <message>
-        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
-
-CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
-
-Deploy anyway?</source>
-        <translation>「Cyber Engine Tweaks」は有効になっていますが、デプロイモードは「Symlink」に設定されています。
-
-CETは、シンボリックリンクされた「cyber_engine_tweaks.asi」からは読み込まれません。CETを動作させるには、デプロイモードを「Hardlink」に切り替えてください。
-
-それでもデプロイしますか？</translation>
     </message>
     <message>
         <source>Deploy anyway</source>
@@ -3508,6 +3492,34 @@ CETは、シンボリックリンクされた「cyber_engine_tweaks.asi」から
     <message>
         <source>No active profile — cannot configure groups.</source>
         <translation>有効なプロフィールがありません — グループを設定できません。</translation>
+    </message>
+    <message>
+        <source>install</source>
+        <translation>インストール</translation>
+    </message>
+    <message>
+        <source>deploy</source>
+        <translation>リソース</translation>
+    </message>
+    <message>
+        <source>Install queued — {0} will install after the current {1} finishes.</source>
+        <translation>キュードをインストール — {0} は、現在の {1} が終了した後にインストールされます.</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but cyber_engine_tweaks.asi will be symlinked.
+
+CET will not load from a symlinked asi. This happens when the deploy mode is Symlink, or when it is Hardlink but the game folder and mod staging folder are on different drives (hardlinks fall back to symlinks across drives).
+
+Use Hardlink mode with both folders on the same drive for CET to work.
+
+Deploy anyway?</source>
+        <translation>サイバーエンジンのTweaksが有効になっていますが、Cyber engine tweaks.asiは連携します。
+
+CETは、symlinked asiから読み込まれません。 これは、展開モードがSymlinkであるとき、またはそれがHardlinkであるときが、ゲームフォルダとMODのステージングフォルダは、異なるドライブ上にあります(ハードリンクは、ドライブを渡るリンクに落ちます)。
+
+同じドライブ上の両方のフォルダで Hardlink モードを使用して、CET を動作させます。
+
+とにかくデプロイ?</translation>
     </message>
     <message>
         <source>LOOT Groups</source>
@@ -4827,6 +4839,10 @@ Re-scan to verify.</source>
         <translation>国旗</translation>
     </message>
     <message>
+        <source>P</source>
+        <translation>ツイート</translation>
+    </message>
+    <message>
         <source>Index</source>
         <translation>目次</translation>
     </message>
@@ -4860,6 +4876,13 @@ Right-click a plugin and choose 'Plugin Rules'.</source>
 Drag a plugin from the left pane to add a rule.</source>
         <translation>まだルールはありません。
 左側のペインからプラグインをドラッグして、ルールを追加してください。</translation>
+    </message>
+</context>
+<context>
+    <name>PluginView</name>
+    <message>
+        <source>Show / hide columns</source>
+        <translation>列の表示／非表示</translation>
     </message>
 </context>
 <context>
@@ -5735,14 +5758,6 @@ Please restart the wizard and install Script Merger first.</source>
         <translation>抽出処理は利用可能なメモリによって制限されるため、実際の抽出数は設定値よりも少なくなる場合があります。</translation>
     </message>
     <message>
-        <source>Check downloads locations</source>
-        <translation>ダウンロード先の確認</translation>
-    </message>
-    <message>
-        <source>Scan the system Downloads folder (and any custom locations) for an archive before downloading it again.</source>
-        <translation>再度ダウンロードする前に、システムの「ダウンロード」フォルダ（およびその他の任意の保存先）を調べて、アーカイブファイルがないか確認してください。</translation>
-    </message>
-    <message>
         <source>Caches</source>
         <translation>キャッシュ</translation>
     </message>
@@ -6287,6 +6302,734 @@ Output is written directly into your mod list as the '{0}' mod.</source>
 </context>
 <context>
     <name>ThemeEditorView</name>
+    <message>
+        <source>Backgrounds</source>
+        <translation>コンテンツ</translation>
+    </message>
+    <message>
+        <source>App background (deepest)</source>
+        <translation>アプリの背景(最も深い)</translation>
+    </message>
+    <message>
+        <source>Panel / card surface</source>
+        <translation>パネル/カード表面</translation>
+    </message>
+    <message>
+        <source>Header / toolbar</source>
+        <translation>ヘッダー/ツールバー</translation>
+    </message>
+    <message>
+        <source>List row</source>
+        <translation>リスト行</translation>
+    </message>
+    <message>
+        <source>List row (alt stripe)</source>
+        <translation>リスト行(alt stripe)</translation>
+    </message>
+    <message>
+        <source>List row hover</source>
+        <translation>リスト行ホバー</translation>
+    </message>
+    <message>
+        <source>Tree / list surface</source>
+        <translation>木/リストの表面</translation>
+    </message>
+    <message>
+        <source>Separator fill</source>
+        <translation>分離器の盛り土</translation>
+    </message>
+    <message>
+        <source>Hover highlight</source>
+        <translation>ホバーのハイライト</translation>
+    </message>
+    <message>
+        <source>Selection highlight</source>
+        <translation>選択ハイライト</translation>
+    </message>
+    <message>
+        <source>Text input field</source>
+        <translation>テキスト入力フィールド</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>テキスト</translation>
+    </message>
+    <message>
+        <source>Primary text</source>
+        <translation>プライマリテキスト</translation>
+    </message>
+    <message>
+        <source>Dimmed text</source>
+        <translation>調光テキスト</translation>
+    </message>
+    <message>
+        <source>Muted text</source>
+        <translation>ミュートテキスト</translation>
+    </message>
+    <message>
+        <source>Faint text</source>
+        <translation>テキストの書き方</translation>
+    </message>
+    <message>
+        <source>Separator text</source>
+        <translation>分離器テキスト</translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation>ホワイト</translation>
+    </message>
+    <message>
+        <source>Black</source>
+        <translation>ブラック</translation>
+    </message>
+    <message>
+        <source>Success text</source>
+        <translation>成功テキスト</translation>
+    </message>
+    <message>
+        <source>Error text</source>
+        <translation>エラーテキスト</translation>
+    </message>
+    <message>
+        <source>Warning text</source>
+        <translation>警告テキスト</translation>
+    </message>
+    <message>
+        <source>Success text (bright)</source>
+        <translation>成功テキスト(右)</translation>
+    </message>
+    <message>
+        <source>Error text (bright)</source>
+        <translation>エラーテキスト(右)</translation>
+    </message>
+    <message>
+        <source>Warning text (bright)</source>
+        <translation>警告テキスト(右)</translation>
+    </message>
+    <message>
+        <source>Card text</source>
+        <translation>カードテキスト</translation>
+    </message>
+    <message>
+        <source>Card text (dim)</source>
+        <translation>カードテキスト(dim)</translation>
+    </message>
+    <message>
+        <source>Card text (medium)</source>
+        <translation>カードテキスト(中)</translation>
+    </message>
+    <message>
+        <source>Tree foreground</source>
+        <translation>ツリー・フォアグラウンド</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>アセント</translation>
+    </message>
+    <message>
+        <source>Accent hover</source>
+        <translation>アクセントホバー</translation>
+    </message>
+    <message>
+        <source>Text on accent</source>
+        <translation>アクセントのテキスト</translation>
+    </message>
+    <message>
+        <source>Hyperlink</source>
+        <translation>ハイパーリンク</translation>
+    </message>
+    <message>
+        <source>Dropdown arrow</source>
+        <translation>ドロップダウン矢印</translation>
+    </message>
+    <message>
+        <source>Borders</source>
+        <translation>ボーダーズ</translation>
+    </message>
+    <message>
+        <source>Border</source>
+        <translation>ボーダー</translation>
+    </message>
+    <message>
+        <source>Border (dim)</source>
+        <translation>ボーダー (dim)</translation>
+    </message>
+    <message>
+        <source>Border (faint)</source>
+        <translation>ボーダー(フェイント)</translation>
+    </message>
+    <message>
+        <source>Buttons — Red</source>
+        <translation>ボタン — 赤</translation>
+    </message>
+    <message>
+        <source>Danger</source>
+        <translation>危険性</translation>
+    </message>
+    <message>
+        <source>Danger hover</source>
+        <translation>危険ホバー</translation>
+    </message>
+    <message>
+        <source>Danger (alt)</source>
+        <translation>危険(alt)</translation>
+    </message>
+    <message>
+        <source>Danger alt hover</source>
+        <translation>危険 アルトホバー</translation>
+    </message>
+    <message>
+        <source>Danger (deep)</source>
+        <translation>危険(ディープ)</translation>
+    </message>
+    <message>
+        <source>Danger deep hover</source>
+        <translation>危険深いホバー</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
+        <source>Cancel hover</source>
+        <translation>キャンセルホバー</translation>
+    </message>
+    <message>
+        <source>Red (legacy)</source>
+        <translation>赤 (レガシー)</translation>
+    </message>
+    <message>
+        <source>Red hover (legacy)</source>
+        <translation>レッドホバー(レガシー)</translation>
+    </message>
+    <message>
+        <source>Buttons — Green</source>
+        <translation>ボタン — グリーン</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>成功事例</translation>
+    </message>
+    <message>
+        <source>Success hover</source>
+        <translation>成功ホバー</translation>
+    </message>
+    <message>
+        <source>Success (alt)</source>
+        <translation>成功(alt)</translation>
+    </message>
+    <message>
+        <source>Success alt hover</source>
+        <translation>成功 アルトホバー</translation>
+    </message>
+    <message>
+        <source>Success (deep)</source>
+        <translation>成功(深い)</translation>
+    </message>
+    <message>
+        <source>Success deep hover</source>
+        <translation>成功深いホバー</translation>
+    </message>
+    <message>
+        <source>Buttons — Orange</source>
+        <translation>ボタン — オレンジ</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>インフォメーション</translation>
+    </message>
+    <message>
+        <source>Warning hover</source>
+        <translation>警告ホバー</translation>
+    </message>
+    <message>
+        <source>Warning (deep)</source>
+        <translation>警告(深い)</translation>
+    </message>
+    <message>
+        <source>Warning deep hover</source>
+        <translation>警告深いホバー</translation>
+    </message>
+    <message>
+        <source>Warning (brown)</source>
+        <translation>警告(茶色)</translation>
+    </message>
+    <message>
+        <source>Warning brown hover</source>
+        <translation>警告茶色のホバー</translation>
+    </message>
+    <message>
+        <source>Warning (orange)</source>
+        <translation>警告(オレンジ)</translation>
+    </message>
+    <message>
+        <source>Warning orange hover</source>
+        <translation>警告オレンジホバー</translation>
+    </message>
+    <message>
+        <source>Buttons — Blue</source>
+        <translation>ボタン — ブルー</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>インフォメーション</translation>
+    </message>
+    <message>
+        <source>Info hover</source>
+        <translation>情報ホバー</translation>
+    </message>
+    <message>
+        <source>Info (deep)</source>
+        <translation>インフォメーション(ディープ)</translation>
+    </message>
+    <message>
+        <source>Info deep hover</source>
+        <translation>ディープホバー情報</translation>
+    </message>
+    <message>
+        <source>Neutral</source>
+        <translation>ニュートラル</translation>
+    </message>
+    <message>
+        <source>Neutral hover</source>
+        <translation>ニュートラルホバー</translation>
+    </message>
+    <message>
+        <source>Buttons — Grey</source>
+        <translation>ボタン — グレー</translation>
+    </message>
+    <message>
+        <source>Grey</source>
+        <translation>グレー</translation>
+    </message>
+    <message>
+        <source>Grey hover</source>
+        <translation>グレーホバー</translation>
+    </message>
+    <message>
+        <source>Grey (alt)</source>
+        <translation>グレー (alt)</translation>
+    </message>
+    <message>
+        <source>Grey alt hover</source>
+        <translation>グレーaltホバー</translation>
+    </message>
+    <message>
+        <source>Buttons — Purple</source>
+        <translation>ボタン — パープル</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>パープル</translation>
+    </message>
+    <message>
+        <source>Purple hover</source>
+        <translation>パープルホバー</translation>
+    </message>
+    <message>
+        <source>Tree tags</source>
+        <translation>ツリータグ</translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation>フォルダ</translation>
+    </message>
+    <message>
+        <source>BSA archive</source>
+        <translation>BSAアーカイブ</translation>
+    </message>
+    <message>
+        <source>BSA archive (alt)</source>
+        <translation>BSAアーカイブ(alt)</translation>
+    </message>
+    <message>
+        <source>INI profile</source>
+        <translation>INIプロフィール</translation>
+    </message>
+    <message>
+        <source>Bundled (text)</source>
+        <translation>バンドル(テキスト)</translation>
+    </message>
+    <message>
+        <source>Bundled (background)</source>
+        <translation>バンドル(背景)</translation>
+    </message>
+    <message>
+        <source>Installed (background)</source>
+        <translation>インストール済み(背景)</translation>
+    </message>
+    <message>
+        <source>Unordered (text)</source>
+        <translation>未注文(テキスト)</translation>
+    </message>
+    <message>
+        <source>Tones</source>
+        <translation>トーン</translation>
+    </message>
+    <message>
+        <source>Green tone</source>
+        <translation>グリーントーン</translation>
+    </message>
+    <message>
+        <source>Red tone</source>
+        <translation>レッドトーン</translation>
+    </message>
+    <message>
+        <source>Blue tone</source>
+        <translation>ブルートーン</translation>
+    </message>
+    <message>
+        <source>Cyan tone</source>
+        <translation>シアントーン</translation>
+    </message>
+    <message>
+        <source>Soft blue tone</source>
+        <translation>ソフトブルートーン</translation>
+    </message>
+    <message>
+        <source>Flag tone</source>
+        <translation>フラッグトーン</translation>
+    </message>
+    <message>
+        <source>Scrollbars</source>
+        <translation>スクロールバー</translation>
+    </message>
+    <message>
+        <source>Scrollbar background</source>
+        <translation>スクロールバーの背景</translation>
+    </message>
+    <message>
+        <source>Scrollbar trough</source>
+        <translation>スクロールバーのたらい</translation>
+    </message>
+    <message>
+        <source>Scrollbar thumb (active)</source>
+        <translation>スクロールバーの親指(アクティブ)</translation>
+    </message>
+    <message>
+        <source>Overlays &amp; tinted rows</source>
+        <translation>オーバーレイと小さな行</translation>
+    </message>
+    <message>
+        <source>Error overlay</source>
+        <translation>エラーオーバーレイ</translation>
+    </message>
+    <message>
+        <source>Deep overlay</source>
+        <translation>ディープオーバーレイ</translation>
+    </message>
+    <message>
+        <source>Card</source>
+        <translation>カード</translation>
+    </message>
+    <message>
+        <source>Card (alt)</source>
+        <translation>カード(alt)</translation>
+    </message>
+    <message>
+        <source>Green row</source>
+        <translation>緑の行</translation>
+    </message>
+    <message>
+        <source>Green (deep)</source>
+        <translation>グリーン(ディープ)</translation>
+    </message>
+    <message>
+        <source>Red (deep)</source>
+        <translation>赤 (深い)</translation>
+    </message>
+    <message>
+        <source>Orange (deep)</source>
+        <translation>オレンジ(ディープ)</translation>
+    </message>
+    <message>
+        <source>Blue (deep)</source>
+        <translation>ブルー(ディープ)</translation>
+    </message>
+    <message>
+        <source>Green tint text</source>
+        <translation>緑の小さなテキスト</translation>
+    </message>
+    <message>
+        <source>Red tint text</source>
+        <translation>赤い色合いのテキスト</translation>
+    </message>
+    <message>
+        <source>Orange tint text</source>
+        <translation>オレンジ色の色合いのテキスト</translation>
+    </message>
+    <message>
+        <source>Blue tint text</source>
+        <translation>青い色合いのテキスト</translation>
+    </message>
+    <message>
+        <source>Dark blue</source>
+        <translation>ダークブルー</translation>
+    </message>
+    <message>
+        <source>Dark green</source>
+        <translation>ダークグリーン</translation>
+    </message>
+    <message>
+        <source>Save button</source>
+        <translation>保存ボタン</translation>
+    </message>
+    <message>
+        <source>Selection bar</source>
+        <translation>セレクションバー</translation>
+    </message>
+    <message>
+        <source>Required mod</source>
+        <translation>必須項目</translation>
+    </message>
+    <message>
+        <source>Optional mod</source>
+        <translation>オプション mod</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>ステータス</translation>
+    </message>
+    <message>
+        <source>Error (bright)</source>
+        <translation>エラー(右)</translation>
+    </message>
+    <message>
+        <source>Badge red</source>
+        <translation>バッジ赤</translation>
+    </message>
+    <message>
+        <source>Badge green</source>
+        <translation>バッジグリーン</translation>
+    </message>
+    <message>
+        <source>Success (solid)</source>
+        <translation>成功(固体)</translation>
+    </message>
+    <message>
+        <source>Queued</source>
+        <translation>キューイング</translation>
+    </message>
+    <message>
+        <source>Download green</source>
+        <translation>緑のダウンロード</translation>
+    </message>
+    <message>
+        <source>Plugin cycle &amp; files</source>
+        <translation>プラグインサイクル &amp; ファイル</translation>
+    </message>
+    <message>
+        <source>Cycle error row (bg)</source>
+        <translation>サイクルエラー行 (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle error row (text)</source>
+        <translation>サイクルエラー行 (テキスト)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (bg)</source>
+        <translation>サイクルOK列(bg)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (text)</source>
+        <translation>サイクルOK行(テキスト)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (bg)</source>
+        <translation>サイクル警告行(bg)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (text)</source>
+        <translation>サイクル警告行(テキスト)</translation>
+    </message>
+    <message>
+        <source>Cycle anchor</source>
+        <translation>サイクルアンカー</translation>
+    </message>
+    <message>
+        <source>Cycle link</source>
+        <translation>サイクルリンク</translation>
+    </message>
+    <message>
+        <source>File winning</source>
+        <translation>ファイル 勝ち</translation>
+    </message>
+    <message>
+        <source>File overridden</source>
+        <translation>ファイルオーバーライドデン</translation>
+    </message>
+    <message>
+        <source>File dim</source>
+        <translation>ファイルダイム</translation>
+    </message>
+    <message>
+        <source>File anchor</source>
+        <translation>ファイルアンカー</translation>
+    </message>
+    <message>
+        <source>Drag selection outline</source>
+        <translation>選択の輪郭をドラッグして下さい</translation>
+    </message>
+    <message>
+        <source>Conflict highlights</source>
+        <translation>紛争ハイライト</translation>
+    </message>
+    <message>
+        <source>Conflict row — winning</source>
+        <translation>紛争行 — 勝ち</translation>
+    </message>
+    <message>
+        <source>Conflict row — overridden</source>
+        <translation>紛争行 — オーバーライドデン</translation>
+    </message>
+    <message>
+        <source>Conflict row — anchor</source>
+        <translation>秘密の行 — アンカー</translation>
+    </message>
+    <message>
+        <source>Framework detection</source>
+        <translation>フレームワークの検出</translation>
+    </message>
+    <message>
+        <source>Installed (bg)</source>
+        <translation>インストール(bg)</translation>
+    </message>
+    <message>
+        <source>Installed (text)</source>
+        <translation>インストール(テキスト)</translation>
+    </message>
+    <message>
+        <source>Staged (bg)</source>
+        <translation>ステージド(bg)</translation>
+    </message>
+    <message>
+        <source>Staged (text)</source>
+        <translation>ステージド(テキスト)</translation>
+    </message>
+    <message>
+        <source>Disabled (bg)</source>
+        <translation>障害者(bg)</translation>
+    </message>
+    <message>
+        <source>Disabled (text)</source>
+        <translation>無効 (テキスト)</translation>
+    </message>
+    <message>
+        <source>Missing (bg)</source>
+        <translation>ミス (bg)</translation>
+    </message>
+    <message>
+        <source>Missing (text)</source>
+        <translation>ミス(テキスト)</translation>
+    </message>
+    <message>
+        <source>Separator bands</source>
+        <translation>分離器バンド</translation>
+    </message>
+    <message>
+        <source>Overwrite band (bg)</source>
+        <translation>オーバーライトバンド(bg)</translation>
+    </message>
+    <message>
+        <source>Overwrite band (text)</source>
+        <translation>オーバーライトバンド(テキスト)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (bg)</source>
+        <translation>ルートフォルダバンド(bg)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (text)</source>
+        <translation>ルートフォルダバンド(テキスト)</translation>
+    </message>
+    <message>
+        <source>Checkboxes</source>
+        <translation>チェックボックス</translation>
+    </message>
+    <message>
+        <source>Checkbox fill (checked)</source>
+        <translation>チェックボックス充填(チェック)</translation>
+    </message>
+    <message>
+        <source>Window, panels, list rows and input fields — the app's surfaces.</source>
+        <translation>ウィンドウ、パネル、リスト行、入力フィールド — アプリの表面.</translation>
+    </message>
+    <message>
+        <source>Label and list text throughout the app, plus success/warning/error text.</source>
+        <translation>アプリ全体でテキストのラベルとリスト、成功/警告/エラーテキスト.</translation>
+    </message>
+    <message>
+        <source>The highlight colour: links, dropdown arrows and accented controls.</source>
+        <translation>ハイライトカラー:リンク、ドロップダウン矢印、アクセント付きコントロール.</translation>
+    </message>
+    <message>
+        <source>Lines and frames around panels, lists and inputs.</source>
+        <translation>パネル、リストおよび入力のまわりのラインそしてフレーム.</translation>
+    </message>
+    <message>
+        <source>Danger / cancel / remove buttons (delete, remove profile, ✕ close).</source>
+        <translation>危険/キャンセル/削除ボタン(削除、プロファイル削除、✕閉じる)を削除します.</translation>
+    </message>
+    <message>
+        <source>Success / confirm buttons (Install, Done, Play).</source>
+        <translation>成功/確認ボタン(インストール、完了、再生).</translation>
+    </message>
+    <message>
+        <source>Warning buttons (Reinstall, download / update actions).</source>
+        <translation>警告ボタン(再インストール、ダウンロード/更新アクション).</translation>
+    </message>
+    <message>
+        <source>Info / neutral action buttons (Select, Groups, Plugin Rules).</source>
+        <translation>インフォ/ニュートラルアクションボタン(選択、グループ、プラグインルール).</translation>
+    </message>
+    <message>
+        <source>Secondary / neutral buttons (View, minor actions).</source>
+        <translation>二次/中立ボタン(ビュー、マイナーアクション).</translation>
+    </message>
+    <message>
+        <source>Accent buttons like Ko-Fi.</source>
+        <translation>Ko-Fiのようなアクセントボタン.</translation>
+    </message>
+    <message>
+        <source>Coloured labels in file trees (folders, BSA archives, bundled/installed).</source>
+        <translation>ファイルツリーのラベル(フォルダ、BSAアーカイブ、バンドル/インストール).</translation>
+    </message>
+    <message>
+        <source>Shared accent tones reused by flags, icons and small highlights.</source>
+        <translation>フラグ、アイコン、小さなハイライトによって再利用されたアクセントのトーンを共有しました.</translation>
+    </message>
+    <message>
+        <source>The scrollbar track and thumb.</source>
+        <translation>スクロールバーのトラックと親指.</translation>
+    </message>
+    <message>
+        <source>Popup/overlay backgrounds and coloured info rows (required/optional mods, cards).</source>
+        <translation>ポップアップ/オーバーレイの背景とカラー情報行(必須/オプションのMOD、カード).</translation>
+    </message>
+    <message>
+        <source>Small status pills and badges (queued, download progress, error/success).</source>
+        <translation>小さなステータスの丸薬とバッジ(キューイング、ダウンロードの進捗、エラー/成功).</translation>
+    </message>
+    <message>
+        <source>Plugin-cycle rows and file-conflict colours in the Data / Mod Files views.</source>
+        <translation>プラグイン サイクル 行とデータ/ Mod ファイル ビューのファイル コンバーターの色.</translation>
+    </message>
+    <message>
+        <source>Row tints when a conflicting mod is selected (winning / overridden / anchor).</source>
+        <translation>競合するモッドが選択されると、行のチンツ(勝ち/オーバーライド/アンカー).</translation>
+    </message>
+    <message>
+        <source>The framework-status banner above the Plugins list (installed / staged / disabled / missing).</source>
+        <translation>プラグインリスト上にあるフレームワーク・スタタス・バナー(インストール/ステージ/無効/欠落).</translation>
+    </message>
+    <message>
+        <source>The pinned Overwrite and Root Folder bands at the top of the modlist.</source>
+        <translation>ピン留めされたオーバーライトとルートフォルダバンドは、modlistの上部にあります.</translation>
+    </message>
+    <message>
+        <source>The fill colour of a ticked checkbox (the tick stays auto-contrasted).</source>
+        <translation>刻まれたチェックボックスの塗りつぶしの色(ティックは自動コントラストを保ちます).</translation>
+    </message>
     <message>
         <source>Theme Editor</source>
         <translation>テーマエディタ</translation>

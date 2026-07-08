@@ -192,11 +192,11 @@ Führe „Deploy“ aus, um die neue Ladereihenfolge im Spiel zu übernehmen.</t
 <context>
     <name>BethiniView</name>
     <message>
-        <source>'{0}' was not found.</source>
+        <source>&apos;{0}&apos; was not found.</source>
         <translation>„{0}“ wurde nicht gefunden.</translation>
     </message>
     <message>
-        <source>Preparing BethINI Pie's Wine prefix…</source>
+        <source>Preparing BethINI Pie&apos;s Wine prefix…</source>
         <translation>Vorbereitung des „Wine“-Präfixes für BethINI Pie…</translation>
     </message>
 </context>
@@ -254,7 +254,7 @@ Stelle zunächst deine Modliste bereit und öffne diesen Assistenten anschließe
         <translation>Lose Dateien nach dem Verpacken löschen</translation>
     </message>
     <message>
-        <source>Files that get packed will be removed from the mod folder. Files outside the packable filter (plugins, readmes, .bik videos) and files you've disabled in the Mod Files tab are left alone.</source>
+        <source>Files that get packed will be removed from the mod folder. Files outside the packable filter (plugins, readmes, .bik videos) and files you&apos;ve disabled in the Mod Files tab are left alone.</source>
         <translation>Dateien, die gepackt werden, werden aus dem Mod-Ordner entfernt. Dateien, die nicht unter den Filter für packbare Dateien fallen (Plugins, Readme-Dateien, .bik-Videos), sowie Dateien, die Sie auf der Registerkarte „Mod-Dateien“ deaktiviert haben, bleiben unberührt.</translation>
     </message>
     <message>
@@ -300,7 +300,7 @@ Stelle zunächst deine Modliste bereit und öffne diesen Assistenten anschließe
         <translation>In diesem Mod-Ordner befinden sich keine Archivdateien.</translation>
     </message>
     <message>
-        <source>Unpacking extracts every archive under the selected plugin into this mod's folder, deletes those archives, removes the plugin if it was a generated stub, and re-enables the unpacked files in the Mod Files tab.</source>
+        <source>Unpacking extracts every archive under the selected plugin into this mod&apos;s folder, deletes those archives, removes the plugin if it was a generated stub, and re-enables the unpacked files in the Mod Files tab.</source>
         <translation>Beim Entpacken werden alle Archive unter dem ausgewählten Plugin in den Ordner dieses Mods entpackt, diese Archive gelöscht, das Plugin entfernt, falls es sich um einen generierten Platzhalter handelte, und die entpackten Dateien auf der Registerkarte „Mod-Dateien“ wieder aktiviert.</translation>
     </message>
     <message>
@@ -882,9 +882,9 @@ Der MD5-Cache bleibt erhalten. Archive werden bei Bedarf erneut heruntergeladen.
         <translation>Gemeinsame Einstellungen verwenden?</translation>
     </message>
     <message>
-        <source>Remove this profile's own paths and options so it follows the shared (default profile) settings again?
+        <source>Remove this profile&apos;s own paths and options so it follows the shared (default profile) settings again?
 
-The default profile's settings are not affected.</source>
+The default profile&apos;s settings are not affected.</source>
         <translation>Sollen die eigenen Pfade und Optionen dieses Profils entfernt werden, damit es wieder den gemeinsamen (Standardprofil-)Einstellungen folgt?
 
 Die Einstellungen des Standardprofils bleiben davon unberührt.</translation>
@@ -981,7 +981,7 @@ Die Einstellungen des Standardprofils bleiben davon unberührt.</translation>
         <translation>Weiter mit der Installation der Sammlung</translation>
     </message>
     <message>
-        <source>This collection is already installed in profile '{0}'.</source>
+        <source>This collection is already installed in profile &apos;{0}&apos;.</source>
         <translation>Diese Sammlung ist bereits im Profil „{0}“ installiert.</translation>
     </message>
     <message>
@@ -1085,7 +1085,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Stamm</translation>
     </message>
     <message>
-        <source>Mods deploy directly to the game's root folder. Same as The Witcher 3 and Cyberpunk 2077.</source>
+        <source>Mods deploy directly to the game&apos;s root folder. Same as The Witcher 3 and Cyberpunk 2077.</source>
         <translation>Mods werden direkt im Stammordner des Spiels installiert. Genau wie bei „The Witcher 3“ und „Cyberpunk 2077“.</translation>
     </message>
     <message>
@@ -1125,7 +1125,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Präfix voranstellen</translation>
     </message>
     <message>
-        <source>Path segment prepended to every installed file. e.g. 'mods' so files land at mods/&lt;ModName&gt;/…</source>
+        <source>Path segment prepended to every installed file. e.g. &apos;mods&apos; so files land at mods/&lt;ModName&gt;/…</source>
         <translation>Pfadsegment, das jeder installierten Datei vorangestellt wird, z. B. „mods“, sodass die Dateien unter mods/&lt;ModName&gt;/… abgelegt werden.</translation>
     </message>
     <message>
@@ -1181,7 +1181,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Vor der Bereitstellung wiederherstellen</translation>
     </message>
     <message>
-        <source>When enabled (default), the manager runs Restore before every Deploy to clean the game state first. Disable only if the game's deploy cycle handles its own cleanup internally.</source>
+        <source>When enabled (default), the manager runs Restore before every Deploy to clean the game state first. Disable only if the game&apos;s deploy cycle handles its own cleanup internally.</source>
         <translation>Wenn diese Option aktiviert ist (Standardeinstellung), führt der Manager vor jedem Deploy den Befehl „Restore“ aus, um zunächst den Spielzustand zu bereinigen. Deaktivieren Sie diese Option nur, wenn der Deploy-Zyklus des Spiels die Bereinigung intern selbst übernimmt.</translation>
     </message>
     <message>
@@ -1217,7 +1217,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Name der ausführbaren Datei</translation>
     </message>
     <message>
-        <source>The .exe location from the game's root folder. e.g. bin/bg3.exe for BG3 or SkyrimSELauncher.exe for Skyrim SE</source>
+        <source>The .exe location from the game&apos;s root folder. e.g. bin/bg3.exe for BG3 or SkyrimSELauncher.exe for Skyrim SE</source>
         <translation>Der Speicherort der .exe-Datei im Stammverzeichnis des Spiels. Z. B. „bin/bg3.exe“ für BG3 oder „SkyrimSELauncher.exe“ für Skyrim SE</translation>
     </message>
     <message>
@@ -1249,7 +1249,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Nexus Mods-Domain  (optional)</translation>
     </message>
     <message>
-        <source>The game's slug on nexusmods.com. e.g. 'skyrimspecialedition'.</source>
+        <source>The game&apos;s slug on nexusmods.com. e.g. &apos;skyrimspecialedition&apos;.</source>
         <translation>Der Name des Spiels auf nexusmods.com, z. B. „skyrimspecialedition“.</translation>
     </message>
     <message>
@@ -1353,7 +1353,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>z. B. OblivionRemastered</translation>
     </message>
     <message>
-        <source>Path relative to the game root where mod files are installed. e.g. 'Data' for Bethesda games, 'BepInEx/plugins' for BepInEx. Leave empty to target the game root directly.</source>
+        <source>Path relative to the game root where mod files are installed. e.g. &apos;Data&apos; for Bethesda games, &apos;BepInEx/plugins&apos; for BepInEx. Leave empty to target the game root directly.</source>
         <translation>Pfad relativ zum Spielstammverzeichnis, in dem die Mod-Dateien installiert sind. Z. B. „Data“ für Bethesda-Spiele, „BepInEx/plugins“ für BepInEx. Lassen Sie das Feld leer, um direkt auf das Spielstammverzeichnis zu verweisen.</translation>
     </message>
     <message>
@@ -1485,7 +1485,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Es sind keine DLL-Überschreibungen konfiguriert.</translation>
     </message>
     <message>
-        <source>Remove '{0}'</source>
+        <source>Remove &apos;{0}&apos;</source>
         <translation>„{0}“ entfernen</translation>
     </message>
     <message>
@@ -1493,7 +1493,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Ungültiger DLL-Name.</translation>
     </message>
     <message>
-        <source>'{0}' is already in the list.</source>
+        <source>&apos;{0}&apos; is already in the list.</source>
         <translation>„{0}“ steht bereits auf der Liste.</translation>
     </message>
     <message>
@@ -1524,7 +1524,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Auf der Registerkarte „Downloads“ werden Ordner nach Mod-Archiven durchsucht.</translation>
     </message>
     <message>
-        <source>Scan this game's download cache</source>
+        <source>Scan this game&apos;s download cache</source>
         <translation>Den Download-Cache dieses Spiels scannen</translation>
     </message>
     <message>
@@ -1624,7 +1624,7 @@ oder wählen Sie die Datei manuell über „Durchsuchen“ aus.</translation>
     </message>
     <message>
         <source>Before deploying, please delete any output from a previous
-{0} run (the '{1}' mod in your mod list).
+{0} run (the &apos;{1}&apos; mod in your mod list).
 
 Once you have done this, click Deploy.</source>
         <translation>Bitte löschen Sie vor der Veröffentlichung alle Ergebnisse eines früheren Durchlaufs von „
@@ -1709,7 +1709,7 @@ Schließen Sie es, wenn Sie fertig sind, und klicken Sie anschließend auf „Fe
     </message>
     <message>
         <source>ESLifier will be downloaded from GitHub and installed into this
-game's Applications folder.
+game&apos;s Applications folder.
 
 Click Install to begin.</source>
         <translation>ESLifier wird von GitHub heruntergeladen und im
@@ -1730,7 +1730,7 @@ Klicken Sie auf „Installieren“, um zu beginnen.</translation>
 the mod staging folder, so no deploy is required.
 
 When ESLifier finishes, it writes its output as the
-'{0}' mod, which will appear in your mod list.</source>
+&apos;{0}&apos; mod, which will appear in your mod list.</source>
         <translation>ESLifier läuft im MO2-Modus und liest Ihre Ladereihenfolge direkt aus
 dem Mod-Staging-Ordner aus, sodass kein Deploy erforderlich ist.
 
@@ -1753,7 +1753,7 @@ Mod „{0}“, der in Ihrer Mod-Liste erscheint.</translation>
 <context>
     <name>EngineFixesView</name>
     <message>
-        <source>Editing values from {0}. Save writes the managed mod '{1}'.</source>
+        <source>Editing values from {0}. Save writes the managed mod &apos;{1}&apos;.</source>
         <translation>Werte aus „{0}“ bearbeiten. Beim Speichern wird das verwaltete Mod „{1}“ geschrieben.</translation>
     </message>
     <message>
@@ -2250,7 +2250,7 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
         <translation>Regeln für den Installationsnamen</translation>
     </message>
     <message>
-        <source>Rules are applied in order to a downloaded archive's filename (without extension) to work out the mod name. The built-in rules for the known Nexus / mod.io download formats are shown below and can be edited or reset to their defaults; add your own to adapt to a new format without waiting for an update. Each rule runs a regular-expression search/replace; use \1, \2 … to keep captured groups.</source>
+        <source>Rules are applied in order to a downloaded archive&apos;s filename (without extension) to work out the mod name. The built-in rules for the known Nexus / mod.io download formats are shown below and can be edited or reset to their defaults; add your own to adapt to a new format without waiting for an update. Each rule runs a regular-expression search/replace; use \1, \2 … to keep captured groups.</source>
         <translation>Die Regeln werden der Reihe nach auf den Dateinamen (ohne Erweiterung) eines heruntergeladenen Archivs angewendet, um den Mod-Namen zu ermitteln. Die integrierten Regeln für die bekannten Download-Formate von Nexus und mod.io sind unten aufgeführt und können bearbeitet oder auf ihre Standardwerte zurückgesetzt werden; füge eigene Regeln hinzu, um dich an ein neues Format anzupassen, ohne auf ein Update warten zu müssen. Jede Regel führt eine Suche und Ersetzung mit regulären Ausdrücken durch; verwenden Sie \1, \2 …, um erfasste Gruppen beizubehalten.</translation>
     </message>
     <message>
@@ -2490,7 +2490,7 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
         <translation>Inhalt suchen</translation>
     </message>
     <message>
-        <source>Content: "{0}"</source>
+        <source>Content: &quot;{0}&quot;</source>
         <translation>Inhalt: „{0}“</translation>
     </message>
     <message>
@@ -2746,11 +2746,11 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
         <translation>Heruntergeladen – kein Spiel ausgewählt; siehe Registerkarte „Downloads“.</translation>
     </message>
     <message>
-        <source>No configured game for Nexus domain '{0}'.</source>
+        <source>No configured game for Nexus domain &apos;{0}&apos;.</source>
         <translation>Für die Nexus-Domäne „{0}“ ist kein Spiel konfiguriert.</translation>
     </message>
     <message>
-        <source>Collections aren't supported for '{0}'.</source>
+        <source>Collections aren&apos;t supported for &apos;{0}&apos;.</source>
         <translation>„{0}“ unterstützt keine Sammlungen.</translation>
     </message>
     <message>
@@ -2758,7 +2758,7 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
         <translation>Es wurde kein konfiguriertes Spiel ausgewählt.</translation>
     </message>
     <message>
-        <source>'{0}' has no Nexus Mods page.</source>
+        <source>&apos;{0}&apos; has no Nexus Mods page.</source>
         <translation>„{0}“ hat keine Nexus-Mods-Seite.</translation>
     </message>
     <message>
@@ -2770,7 +2770,7 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
         <translation>Eine Collection-Installation wird gerade ausgeführt – versuche es erneut, sobald sie abgeschlossen ist.</translation>
     </message>
     <message>
-        <source>Remove '{0}' and its {1} mod(s) from this profile?
+        <source>Remove &apos;{0}&apos; and its {1} mod(s) from this profile?
 
 Their files are deleted from the staging folder — this cannot be undone.</source>
         <translation>Sollen „{0}“ und die dazugehörigen Mods unter {1} aus diesem Profil entfernt werden?
@@ -2778,7 +2778,7 @@ Their files are deleted from the staging folder — this cannot be undone.</sour
 Die entsprechenden Dateien werden aus dem Staging-Ordner gelöscht – dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
-        <source>No installed mods from '{0}' were found in this profile.
+        <source>No installed mods from &apos;{0}&apos; were found in this profile.
 
 Remove the appended-collection entry?</source>
         <translation>In diesem Profil wurden keine installierten Mods von „{0}“ gefunden.
@@ -2794,19 +2794,19 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <source>Removed appended collection '{0}'.</source>
+        <source>Removed appended collection &apos;{0}&apos;.</source>
         <translation>Die angehängte Sammlung „{0}“ wurde entfernt.</translation>
     </message>
     <message>
-        <source>Could not remove '{0}' — see the log.</source>
+        <source>Could not remove &apos;{0}&apos; — see the log.</source>
         <translation>„{0}“ konnte nicht entfernt werden – siehe Protokoll.</translation>
     </message>
     <message>
-        <source>The active profile isn't a collection profile.</source>
+        <source>The active profile isn&apos;t a collection profile.</source>
         <translation>Das aktive Profil ist kein Sammelprofil.</translation>
     </message>
     <message>
-        <source>Couldn't read the collection from this profile.</source>
+        <source>Couldn&apos;t read the collection from this profile.</source>
         <translation>Die Sammlung konnte aus diesem Profil nicht gelesen werden.</translation>
     </message>
     <message>
@@ -2838,7 +2838,7 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Das installierte Sammlungsprofil konnte nicht gefunden werden.</translation>
     </message>
     <message>
-        <source>Switch to profile '{0}' first, then Update.</source>
+        <source>Switch to profile &apos;{0}&apos; first, then Update.</source>
         <translation>Wechseln Sie zunächst zum Profil „{0}“ und führen Sie dann die Aktualisierung durch.</translation>
     </message>
     <message>
@@ -2858,7 +2858,7 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Profil konnte nicht erstellt werden: {0}</translation>
     </message>
     <message>
-        <source>Profile '{0}' not found.</source>
+        <source>Profile &apos;{0}&apos; not found.</source>
         <translation>Das Profil „{0}“ wurde nicht gefunden.</translation>
     </message>
     <message>
@@ -2898,11 +2898,11 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Browser wird geöffnet, um sich bei Nexus Mods anzumelden…</translation>
     </message>
     <message>
-        <source>Start 'Login via SSO' first, then paste the code.</source>
+        <source>Start &apos;Login via SSO&apos; first, then paste the code.</source>
         <translation>Starten Sie zunächst „Anmeldung über SSO“ und fügen Sie dann den Code ein.</translation>
     </message>
     <message>
-        <source>The login session has ended — start 'Login via SSO' again.</source>
+        <source>The login session has ended — start &apos;Login via SSO&apos; again.</source>
         <translation>Die Anmeldesitzung ist abgelaufen – starten Sie „Anmeldung über SSO“ erneut.</translation>
     </message>
     <message>
@@ -3010,7 +3010,7 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Es wurde kein Profil ausgewählt.</translation>
     </message>
     <message>
-        <source>'{0}' isn't a Nexus mod.</source>
+        <source>&apos;{0}&apos; isn&apos;t a Nexus mod.</source>
         <translation>„{0}“ ist kein Nexus-Mod.</translation>
     </message>
     <message>
@@ -3018,7 +3018,7 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Version ändern</translation>
     </message>
     <message>
-        <source>'{0}' has no bundle configuration.</source>
+        <source>&apos;{0}&apos; has no bundle configuration.</source>
         <translation>„{0}“ verfügt über keine Bundle-Konfiguration.</translation>
     </message>
     <message>
@@ -3094,19 +3094,19 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Kopieren</translation>
     </message>
     <message>
-        <source>Moving {0} mod(s) to '{1}'…</source>
+        <source>Moving {0} mod(s) to &apos;{1}&apos;…</source>
         <translation>{0}-Mod(s) werden nach „{1}“ verschoben…</translation>
     </message>
     <message>
-        <source>Copying {0} mod(s) to '{1}'…</source>
+        <source>Copying {0} mod(s) to &apos;{1}&apos;…</source>
         <translation>{0}-Mod(s) werden nach „{1}“ kopiert…</translation>
     </message>
     <message>
-        <source>Moved {0}/{1} mod(s) to '{2}'.</source>
+        <source>Moved {0}/{1} mod(s) to &apos;{2}&apos;.</source>
         <translation>Die Mods „{0}“ und „{1}“ wurden in den Ordner „{2}“ verschoben.</translation>
     </message>
     <message>
-        <source>Copied {0}/{1} mod(s) to '{2}'.</source>
+        <source>Copied {0}/{1} mod(s) to &apos;{2}&apos;.</source>
         <translation>Die Mod(s) „{0}“ und „{1}“ wurden in den Ordner „{2}“ kopiert.</translation>
     </message>
     <message>
@@ -3158,11 +3158,11 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Das Manifest konnte nicht gelesen werden: {0}</translation>
     </message>
     <message>
-        <source>That file doesn't look like an Amethyst manifest.</source>
+        <source>That file doesn&apos;t look like an Amethyst manifest.</source>
         <translation>Diese Datei sieht nicht nach einem Amethyst-Manifest aus.</translation>
     </message>
     <message>
-        <source>This profile targets '{0}', but the selected game is '{1}'. Switch games first, then import.</source>
+        <source>This profile targets &apos;{0}&apos;, but the selected game is &apos;{1}&apos;. Switch games first, then import.</source>
         <translation>Dieses Profil ist für „{0}“ vorgesehen, das ausgewählte Spiel ist jedoch „{1}“. Wechseln Sie zunächst das Spiel und führen Sie dann den Import durch.</translation>
     </message>
     <message>
@@ -3190,11 +3190,11 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Profileinstellungen</translation>
     </message>
     <message>
-        <source>Profile '{0}' already exists.</source>
+        <source>Profile &apos;{0}&apos; already exists.</source>
         <translation>Das Profil „{0}“ existiert bereits.</translation>
     </message>
     <message>
-        <source>Profile '{0}' created</source>
+        <source>Profile &apos;{0}&apos; created</source>
         <translation>Profil „{0}“ erstellt</translation>
     </message>
     <message>
@@ -3214,7 +3214,7 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Konfigurieren: {0}</translation>
     </message>
     <message>
-        <source>'{0}' does not support deployment.</source>
+        <source>&apos;{0}&apos; does not support deployment.</source>
         <translation>„{0}“ unterstützt keine Bereitstellung.</translation>
     </message>
     <message>
@@ -3346,10 +3346,6 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Präfixe verwalten</translation>
     </message>
     <message>
-        <source>Install queued — {0} will install after the current install finishes.</source>
-        <translation>Installation in der Warteschlange — „{0}“ wird installiert, sobald die aktuelle Installation abgeschlossen ist.</translation>
-    </message>
-    <message>
         <source>No active profile.</source>
         <translation>Kein aktives Profil.</translation>
     </message>
@@ -3364,18 +3360,6 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
     <message>
         <source>Cyber Engine Tweaks requires Hardlink mode</source>
         <translation>Für „Cyber Engine Tweaks“ ist der Hardlink-Modus erforderlich</translation>
-    </message>
-    <message>
-        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
-
-CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
-
-Deploy anyway?</source>
-        <translation>„Cyber Engine Tweaks“ ist aktiviert, der Bereitstellungsmodus ist jedoch auf „Symlink“ eingestellt.
-
-CET wird nicht aus einer mit einem Symlink verknüpften „cyber_engine_tweaks.asi“-Datei geladen – stelle den Bereitstellungsmodus auf „Hardlink“ um, damit CET funktioniert.
-
-Trotzdem bereitstellen?</translation>
     </message>
     <message>
         <source>Deploy anyway</source>
@@ -3398,7 +3382,7 @@ Trotzdem bereitstellen?</translation>
         <translation>Umbenennung fehlgeschlagen: {0}</translation>
     </message>
     <message>
-        <source>Renamed to '{0}'.</source>
+        <source>Renamed to &apos;{0}&apos;.</source>
         <translation>In „{0}“ umbenannt.</translation>
     </message>
     <message>
@@ -3510,6 +3494,34 @@ Trotzdem bereitstellen?</translation>
         <translation>Kein aktives Profil – Gruppen können nicht konfiguriert werden.</translation>
     </message>
     <message>
+        <source>install</source>
+        <translation>einbau</translation>
+    </message>
+    <message>
+        <source>deploy</source>
+        <translation>einsatz</translation>
+    </message>
+    <message>
+        <source>Install queued — {0} will install after the current {1} finishes.</source>
+        <translation>Installieren Sie in der Warteschlange - {0} wird installiert, nachdem das aktuelle {1} abgeschlossen ist.</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but cyber_engine_tweaks.asi will be symlinked.
+
+CET will not load from a symlinked asi. This happens when the deploy mode is Symlink, or when it is Hardlink but the game folder and mod staging folder are on different drives (hardlinks fall back to symlinks across drives).
+
+Use Hardlink mode with both folders on the same drive for CET to work.
+
+Deploy anyway?</source>
+        <translation>Cyber Engine Tweaks ist aktiviert, aber cyber engine tweaks.asi wird symlinked.
+
+CET wird nicht von einem symlinked asi geladen. Dies geschieht, wenn der Bereitstellungsmodus Symlink ist, oder wenn es Hardlink ist, aber der Spielordner und der Mod-Staging-Ordner sich auf verschiedenen Laufwerken befinden (Hardlinks fallen auf Symlinks zwischen Laufwerken zurück).
+
+Verwenden Sie den Hardlink-Modus mit beiden Ordnern auf demselben Laufwerk, damit CET funktioniert.
+
+Wie auch immer?</translation>
+    </message>
+    <message>
         <source>LOOT Groups</source>
         <translation>LOOT-Gruppen</translation>
     </message>
@@ -3534,11 +3546,11 @@ Trotzdem bereitstellen?</translation>
         <translation>userlist.yaml nicht gefunden – Regel kann nicht umgedreht werden.</translation>
     </message>
     <message>
-        <source>Rule {0} '{1}' {2} not found in userlist.yaml.</source>
+        <source>Rule {0} &apos;{1}&apos; {2} not found in userlist.yaml.</source>
         <translation>Regel {0} „{1}“ {2} wurde in der Datei „userlist.yaml“ nicht gefunden.</translation>
     </message>
     <message>
-        <source>Flipped: {0} now '{1}' {2}</source>
+        <source>Flipped: {0} now &apos;{1}&apos; {2}</source>
         <translation>Umgedreht: „{0}“ heißt jetzt „{1}“ {2}</translation>
     </message>
     <message>
@@ -3558,7 +3570,7 @@ Trotzdem bereitstellen?</translation>
         <translation>LOOT-Bibliothek nicht verfügbar – Sortieren nicht möglich.</translation>
     </message>
     <message>
-        <source>LOOT sorting isn't supported for this game.</source>
+        <source>LOOT sorting isn&apos;t supported for this game.</source>
         <translation>Die LOOT-Sortierung wird für dieses Spiel nicht unterstützt.</translation>
     </message>
     <message>
@@ -3680,11 +3692,11 @@ Trotzdem bereitstellen?</translation>
         <translation>Vielen Dank für Ihre Unterstützung!</translation>
     </message>
     <message>
-        <source>You've already endorsed — thank you!</source>
+        <source>You&apos;ve already endorsed — thank you!</source>
         <translation>Du hast bereits deine Unterstützung bekundet – vielen Dank!</translation>
     </message>
     <message>
-        <source>Nexus only lets you endorse the app after you've downloaded it at least once. Opening the AMM page — please download it there first, then endorse.</source>
+        <source>Nexus only lets you endorse the app after you&apos;ve downloaded it at least once. Opening the AMM page — please download it there first, then endorse.</source>
         <translation>Bei Nexus kannst du die App erst empfehlen, nachdem du sie mindestens einmal heruntergeladen hast. Öffne die AMM-Seite – bitte lade sie dort zuerst herunter und empfehle sie dann.</translation>
     </message>
     <message>
@@ -4080,7 +4092,7 @@ Trotzdem bereitstellen?</translation>
     </message>
     <message>
         <source>Paste your mod.io read-only API key to enable update checks
-for Baldur's Gate 3 mods installed manually from mod.io.
+for Baldur&apos;s Gate 3 mods installed manually from mod.io.
 
 The key is read-only and stored securely (system keyring,
 or an encrypted file when no keyring is available).</source>
@@ -4223,7 +4235,7 @@ oder in einer verschlüsselten Datei, falls kein Schlüsselbund verfügbar ist).
 <context>
     <name>NexusFileChooser</name>
     <message>
-        <source>'{0}' has multiple main files.</source>
+        <source>&apos;{0}&apos; has multiple main files.</source>
         <translation>„{0}“ enthält mehrere Hauptdateien.</translation>
     </message>
     <message>
@@ -4446,7 +4458,7 @@ Jedes Spiel erhält einen eigenen Unterordner.</translation>
     </message>
     <message>
         <source>Before deploying, please delete any output from a previous
-PGPatcher run (the 'PGPatcher_output' mod in your mod list / staging folder).
+PGPatcher run (the &apos;PGPatcher_output&apos; mod in your mod list / staging folder).
 
 Once you have done this, click Deploy.</source>
         <translation>Bitte löschen Sie vor der Bereitstellung alle Ausgabe-Dateien eines früheren
@@ -4509,7 +4521,7 @@ pro Mod in Konflikt stehen, genau wie bei einer echten MO2-Konfiguration. Experi
     </message>
     <message>
         <source>Before deploying, please delete any output from a previous
-Pandora run (the 'Pandora_output' mod in your mod list).
+Pandora run (the &apos;Pandora_output&apos; mod in your mod list).
 
 Once you have done this, click Deploy.</source>
         <translation>Bitte lösche vor der Bereitstellung alle Ergebnisse eines früheren
@@ -4542,7 +4554,7 @@ Klicke anschließend auf „Bereitstellen“.</translation>
         <translation>Schritt 2: Proton-Version auswählen</translation>
     </message>
     <message>
-        <source>'{0}' was not found in your mod staging folder.
+        <source>&apos;{0}&apos; was not found in your mod staging folder.
 
 Install Pandora Behaviour Engine+ as a mod, then reopen this wizard.</source>
         <translation>„{0}“ wurde in Ihrem Mod-Staging-Ordner nicht gefunden.
@@ -4827,6 +4839,10 @@ Zur Überprüfung erneut scannen.</translation>
         <translation>Flaggen</translation>
     </message>
     <message>
+        <source>P</source>
+        <translation>P</translation>
+    </message>
+    <message>
         <source>Index</source>
         <translation>Inhaltsverzeichnis</translation>
     </message>
@@ -4851,7 +4867,7 @@ Zur Überprüfung erneut scannen.</translation>
     </message>
     <message>
         <source>No plugin selected.
-Right-click a plugin and choose 'Plugin Rules'.</source>
+Right-click a plugin and choose &apos;Plugin Rules&apos;.</source>
         <translation>Es wurde kein Plugin ausgewählt.
 Klicken Sie mit der rechten Maustaste auf ein Plugin und wählen Sie „Plugin-Regeln“.</translation>
     </message>
@@ -4863,13 +4879,20 @@ Ziehe ein Plugin aus dem linken Bereich, um eine Regel hinzuzufügen.</translati
     </message>
 </context>
 <context>
+    <name>PluginView</name>
+    <message>
+        <source>Show / hide columns</source>
+        <translation>Spalten ein-/ausblenden</translation>
+    </message>
+</context>
+<context>
     <name>PrefixManagerView</name>
     <message>
         <source>Manage Prefixes</source>
         <translation>Präfixe verwalten</translation>
     </message>
     <message>
-        <source>Wizard tools each run in their own Wine prefix (created next to the tool's exe or in the app config folder). Deleting one only reclaims disk space — it is recreated automatically the next time the tool runs.</source>
+        <source>Wizard tools each run in their own Wine prefix (created next to the tool&apos;s exe or in the app config folder). Deleting one only reclaims disk space — it is recreated automatically the next time the tool runs.</source>
         <translation>Die Wizard-Tools werden jeweils in einem eigenen Wine-Präfix ausgeführt (das neben der EXE-Datei des Tools oder im Konfigurationsordner der Anwendung angelegt wird). Durch das Löschen eines Präfixes wird lediglich Speicherplatz freigegeben – es wird beim nächsten Start des Tools automatisch neu erstellt.</translation>
     </message>
     <message>
@@ -4952,7 +4975,7 @@ Ziehe ein Plugin aus dem linken Bereich, um eine Regel hinzuzufügen.</translati
         <translation>Entfernen</translation>
     </message>
     <message>
-        <source>Rename '{0}' to:</source>
+        <source>Rename &apos;{0}&apos; to:</source>
         <translation>Benenne „{0}“ um in:</translation>
     </message>
     <message>
@@ -4968,7 +4991,7 @@ Ziehe ein Plugin aus dem linken Bereich, um eine Regel hinzuzufügen.</translati
         <translation>Der Deployment-Vorgang läuft gerade – bitte versuchen Sie es in Kürze erneut.</translation>
     </message>
     <message>
-        <source>Profile '{0}' removed</source>
+        <source>Profile &apos;{0}&apos; removed</source>
         <translation>Profil „{0}“ wurde gelöscht</translation>
     </message>
 </context>
@@ -5010,7 +5033,7 @@ Installiere eine Proton-Version in Steam und öffne diesen Assistenten anschlie�
         <translation>Spielpräfix verwenden</translation>
     </message>
     <message>
-        <source>Run inside the game's own prefix. No new prefix is created and the Proton version follows the game's Steam setting.</source>
+        <source>Run inside the game&apos;s own prefix. No new prefix is created and the Proton version follows the game&apos;s Steam setting.</source>
         <translation>Wird innerhalb des spielseigenen Präfixes ausgeführt. Es wird kein neues Präfix erstellt, und die Proton-Version richtet sich nach der Steam-Einstellung des Spiels.</translation>
     </message>
     <message>
@@ -5034,7 +5057,7 @@ Installiere eine Proton-Version in Steam und öffne diesen Assistenten anschlie�
         <translation>Weiter</translation>
     </message>
     <message>
-        <source>Using the game's existing prefix — Proton version follows the game's Steam setting and no new prefix is created.</source>
+        <source>Using the game&apos;s existing prefix — Proton version follows the game&apos;s Steam setting and no new prefix is created.</source>
         <translation>Verwendung des bestehenden Präfixes des Spiels – Die Proton-Version orientiert sich an der Steam-Einstellung des Spiels, und es wird kein neues Präfix erstellt.</translation>
     </message>
     <message>
@@ -5048,7 +5071,7 @@ zu Problemen kommt – es wird im nächsten Schritt automatisch neu erstellt.</t
         <translation>Löschen bestätigen</translation>
     </message>
     <message>
-        <source>Click again to delete '{0}'.</source>
+        <source>Click again to delete &apos;{0}&apos;.</source>
         <translation>Klicken Sie erneut, um „{0}“ zu löschen.</translation>
     </message>
     <message>
@@ -5056,7 +5079,7 @@ zu Problemen kommt – es wird im nächsten Schritt automatisch neu erstellt.</t
         <translation>Wird gelöscht…</translation>
     </message>
     <message>
-        <source>Deleting '{0}'…</source>
+        <source>Deleting &apos;{0}&apos;…</source>
         <translation>„{0}“ wird gelöscht…</translation>
     </message>
     <message>
@@ -5083,7 +5106,7 @@ zu Problemen kommt – es wird im nächsten Schritt automatisch neu erstellt.</t
         <translation>Der Spielpfad ist nicht festgelegt oder ungültig.</translation>
     </message>
     <message>
-        <source>If the game won't load (black screen) after removing mods, the PAK archives may still have invalidated entries. This restores the original PAK data from the failsafe manifest in the game root.</source>
+        <source>If the game won&apos;t load (black screen) after removing mods, the PAK archives may still have invalidated entries. This restores the original PAK data from the failsafe manifest in the game root.</source>
         <translation>Wenn das Spiel nach dem Entfernen der Mods nicht geladen wird (schwarzer Bildschirm), enthalten die PAK-Archive möglicherweise weiterhin ungültige Einträge. Dadurch werden die ursprünglichen PAK-Daten aus dem Failsafe-Manifest im Spielverzeichnis wiederhergestellt.</translation>
     </message>
     <message>
@@ -5142,7 +5165,7 @@ Falls das Spiel weiterhin nicht funktioniert, überprüfe die Spieledateien übe
         <translation>Schritt 1: Rendering-API und Architektur</translation>
     </message>
     <message>
-        <source>Choose the graphics API this game uses and its executable architecture. If you're not sure, dxgi.dll / 64-bit works for most modern games.</source>
+        <source>Choose the graphics API this game uses and its executable architecture. If you&apos;re not sure, dxgi.dll / 64-bit works for most modern games.</source>
         <translation>Wählen Sie die von diesem Spiel verwendete Grafik-API und die Architektur der ausführbaren Datei aus. Wenn Sie sich nicht sicher sind: „dxgi.dll / 64-Bit“ funktioniert bei den meisten modernen Spielen.</translation>
     </message>
     <message>
@@ -5326,9 +5349,9 @@ Proton-Präfix: {2}</translation>
         <translation>Vorherige Version entfernen?</translation>
     </message>
     <message>
-        <source>'{0}' was installed as a new mod (different folder name) because it did not replace '{1}'.
+        <source>&apos;{0}&apos; was installed as a new mod (different folder name) because it did not replace &apos;{1}&apos;.
 
-Remove the previous version '{2}'? The new mod will take its position in the modlist.
+Remove the previous version &apos;{2}&apos;? The new mod will take its position in the modlist.
 
 Choose Keep if this is an optional/alternative variant rather than a replacement.</source>
         <translation>„{0}“ wurde als neuer Mod (mit anderem Ordnernamen) installiert, da es „{1}“ nicht ersetzt hat.
@@ -5349,7 +5372,7 @@ Wähle „Behalten“, wenn es sich um eine optionale/alternative Variante und n
 <context>
     <name>SDTView</name>
     <message>
-        <source>Editing values from {0}. Save writes the managed mod '{1}'.</source>
+        <source>Editing values from {0}. Save writes the managed mod &apos;{1}&apos;.</source>
         <translation>Werte aus „{0}“ bearbeiten. Beim Speichern wird das verwaltete Mod „{1}“ geschrieben.</translation>
     </message>
     <message>
@@ -5497,7 +5520,7 @@ Brechen Sie den Vorgang ab und aktivieren Sie die aufgeführten Mods erneut, um 
         <translation>Zusammenführungen löschen</translation>
     </message>
     <message>
-        <source>Launch cancelled — re-enable the merges' source mods, then reopen this wizard.</source>
+        <source>Launch cancelled — re-enable the merges&apos; source mods, then reopen this wizard.</source>
         <translation>Start abgebrochen – Aktivieren Sie die Quellmods der Zusammenführungen erneut und öffnen Sie diesen Assistenten dann erneut.</translation>
     </message>
     <message>
@@ -5565,7 +5588,7 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>Löschen</translation>
     </message>
     <message>
-        <source>Deploy this separator's mods here instead of the game directory.</source>
+        <source>Deploy this separator&apos;s mods here instead of the game directory.</source>
         <translation>Installiere die Mods dieses Separators hier statt im Spielverzeichnis.</translation>
     </message>
     <message>
@@ -5695,7 +5718,7 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>Tooltips zur Mod-Beschreibung anzeigen</translation>
     </message>
     <message>
-        <source>Show a mod's Nexus description as a tooltip when you hover over its name in the mod list.</source>
+        <source>Show a mod&apos;s Nexus description as a tooltip when you hover over its name in the mod list.</source>
         <translation>Die Nexus-Beschreibung eines Mods als Tooltip anzeigen, wenn man mit der Maus über dessen Namen in der Mod-Liste fährt.</translation>
     </message>
     <message>
@@ -5711,7 +5734,7 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>Archiv nach der Installation löschen</translation>
     </message>
     <message>
-        <source>Delete a mod's downloaded archive after it is extracted.</source>
+        <source>Delete a mod&apos;s downloaded archive after it is extracted.</source>
         <translation>Das heruntergeladene Archiv eines Mods nach dem Entpacken löschen.</translation>
     </message>
     <message>
@@ -5719,7 +5742,7 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>FOMOD-Archive aufbewahren</translation>
     </message>
     <message>
-        <source>Mods installed via a FOMOD installer keep their archive even when 'Clear archive after install' is on.</source>
+        <source>Mods installed via a FOMOD installer keep their archive even when &apos;Clear archive after install&apos; is on.</source>
         <translation>Mods, die über einen FOMOD-Installer installiert wurden, behalten ihr Archiv auch dann bei, wenn die Option „Archiv nach der Installation löschen“ aktiviert ist.</translation>
     </message>
     <message>
@@ -5733,14 +5756,6 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
     <message>
         <source>Extractions are gated by available memory; the effective number may be lower than set.</source>
         <translation>Die Extraktionen werden durch den verfügbaren Speicher begrenzt; die tatsächliche Anzahl kann geringer sein als die eingestellte.</translation>
-    </message>
-    <message>
-        <source>Check downloads locations</source>
-        <translation>Download-Speicherorte überprüfen</translation>
-    </message>
-    <message>
-        <source>Scan the system Downloads folder (and any custom locations) for an archive before downloading it again.</source>
-        <translation>Durchsuchen Sie den Ordner „Downloads“ des Systems (sowie etwaige benutzerdefinierte Speicherorte) nach einem Archiv, bevor Sie es erneut herunterladen.</translation>
     </message>
     <message>
         <source>Caches</source>
@@ -5819,7 +5834,7 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>Speicherort der Heroic-Konfiguration</translation>
     </message>
     <message>
-        <source>Folder containing Heroic's config.json. Blank = auto-detect (Flatpak and native locations).</source>
+        <source>Folder containing Heroic&apos;s config.json. Blank = auto-detect (Flatpak and native locations).</source>
         <translation>Ordner, der die Datei „config.json“ von Heroic enthält. Leer = automatische Erkennung (Flatpak- und native Speicherorte).</translation>
     </message>
     <message>
@@ -5865,7 +5880,7 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>Code importieren</translation>
     </message>
     <message>
-        <source>Paste a share code below to build a new profile from someone else's load order.</source>
+        <source>Paste a share code below to build a new profile from someone else&apos;s load order.</source>
         <translation>Füge unten einen Freigabecode ein, um anhand der Ladefolge einer anderen Person ein neues Profil zu erstellen.</translation>
     </message>
     <message>
@@ -6119,7 +6134,7 @@ Wählen Sie eine Proton-Version aus, mit der dieses Präfix erstellt werden soll
     </message>
     <message>
         <source>The native Linux TTW installer will be downloaded from GitHub
-and placed in this game's Applications folder.
+and placed in this game&apos;s Applications folder.
 
 Click Install to begin.</source>
         <translation>Das native Linux-TTW-Installationsprogramm wird von GitHub heruntergeladen
@@ -6148,7 +6163,7 @@ Klicken Sie auf „Installieren“, um zu beginnen.</translation>
         <translation>„Tale of Two Wastelands“ ist bereits installiert</translation>
     </message>
     <message>
-        <source>The '{0}' mod is already in your mod list, so the ~18 GB build can be skipped.
+        <source>The &apos;{0}&apos; mod is already in your mod list, so the ~18 GB build can be skipped.
 
 • Re-apply setup only — re-runs the profile INI + FalloutCustom.ini setup without rebuilding (fast).
 
@@ -6218,7 +6233,7 @@ Lade die neueste TTW-.mpi-Datei von mod.pub herunter (kostenloses Konto erforder
     <message>
         <source>The game is first restored to a vanilla state, then the installer
 merges Fallout 3 and Fallout New Vegas assets. This produces ~18 GB of output and can take a long while — please leave it running.
-Output is written directly into your mod list as the '{0}' mod.</source>
+Output is written directly into your mod list as the &apos;{0}&apos; mod.</source>
         <translation>Das Spiel wird zunächst in den Originalzustand zurückversetzt, anschließend führt das Installationsprogramm
 die Assets von „Fallout 3“ und „Fallout: New Vegas“ zusammen. Dabei entstehen etwa 18 GB an Daten, was eine ganze Weile dauern kann – bitte lassen Sie den Vorgang laufen.
 Das Ergebnis wird direkt in Ihre Mod-Liste als Mod „{0}“ eingetragen.</translation>
@@ -6288,6 +6303,734 @@ Das Ergebnis wird direkt in Ihre Mod-Liste als Mod „{0}“ eingetragen.</trans
 <context>
     <name>ThemeEditorView</name>
     <message>
+        <source>Backgrounds</source>
+        <translation>Hintergrund</translation>
+    </message>
+    <message>
+        <source>App background (deepest)</source>
+        <translation>App-Hintergrund (tiefste)</translation>
+    </message>
+    <message>
+        <source>Panel / card surface</source>
+        <translation>Panel/Kartenoberfläche</translation>
+    </message>
+    <message>
+        <source>Header / toolbar</source>
+        <translation>Header / Toolbar</translation>
+    </message>
+    <message>
+        <source>List row</source>
+        <translation>Listenreihe</translation>
+    </message>
+    <message>
+        <source>List row (alt stripe)</source>
+        <translation>Listenzeile (alt stripe)</translation>
+    </message>
+    <message>
+        <source>List row hover</source>
+        <translation>Liste Reihe Hover</translation>
+    </message>
+    <message>
+        <source>Tree / list surface</source>
+        <translation>Baum-/Listenoberfläche</translation>
+    </message>
+    <message>
+        <source>Separator fill</source>
+        <translation>Füllung des Separators</translation>
+    </message>
+    <message>
+        <source>Hover highlight</source>
+        <translation>Hover Highlight</translation>
+    </message>
+    <message>
+        <source>Selection highlight</source>
+        <translation>Highlight Auswahl</translation>
+    </message>
+    <message>
+        <source>Text input field</source>
+        <translation>Texteingabefeld</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Text</translation>
+    </message>
+    <message>
+        <source>Primary text</source>
+        <translation>Primärtext</translation>
+    </message>
+    <message>
+        <source>Dimmed text</source>
+        <translation>Verdunkelter Text</translation>
+    </message>
+    <message>
+        <source>Muted text</source>
+        <translation>Mutierter Text</translation>
+    </message>
+    <message>
+        <source>Faint text</source>
+        <translation>Schwacher Text</translation>
+    </message>
+    <message>
+        <source>Separator text</source>
+        <translation>Separatortext</translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation>Weiß</translation>
+    </message>
+    <message>
+        <source>Black</source>
+        <translation>Schwarz</translation>
+    </message>
+    <message>
+        <source>Success text</source>
+        <translation>Erfolgsmeldung</translation>
+    </message>
+    <message>
+        <source>Error text</source>
+        <translation>Fehlertext</translation>
+    </message>
+    <message>
+        <source>Warning text</source>
+        <translation>Warnhinweis</translation>
+    </message>
+    <message>
+        <source>Success text (bright)</source>
+        <translation>Erfolgstext (hell)</translation>
+    </message>
+    <message>
+        <source>Error text (bright)</source>
+        <translation>Fehlertext (hell)</translation>
+    </message>
+    <message>
+        <source>Warning text (bright)</source>
+        <translation>Warnhinweis (hell)</translation>
+    </message>
+    <message>
+        <source>Card text</source>
+        <translation>Kartentext</translation>
+    </message>
+    <message>
+        <source>Card text (dim)</source>
+        <translation>Kartentext (dim)</translation>
+    </message>
+    <message>
+        <source>Card text (medium)</source>
+        <translation>Kartentext (Medium)</translation>
+    </message>
+    <message>
+        <source>Tree foreground</source>
+        <translation>Baumvordergrund</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>Accent</translation>
+    </message>
+    <message>
+        <source>Accent hover</source>
+        <translation>Accent Hover</translation>
+    </message>
+    <message>
+        <source>Text on accent</source>
+        <translation>Text auf Akzent</translation>
+    </message>
+    <message>
+        <source>Hyperlink</source>
+        <translation>Hyperlink</translation>
+    </message>
+    <message>
+        <source>Dropdown arrow</source>
+        <translation>Drop-Pfeil</translation>
+    </message>
+    <message>
+        <source>Borders</source>
+        <translation>Grenzen</translation>
+    </message>
+    <message>
+        <source>Border</source>
+        <translation>Grenze</translation>
+    </message>
+    <message>
+        <source>Border (dim)</source>
+        <translation>Grenze (dim)</translation>
+    </message>
+    <message>
+        <source>Border (faint)</source>
+        <translation>Grenze (schwach)</translation>
+    </message>
+    <message>
+        <source>Buttons — Red</source>
+        <translation>Knöpfe — rot</translation>
+    </message>
+    <message>
+        <source>Danger</source>
+        <translation>Gefahr</translation>
+    </message>
+    <message>
+        <source>Danger hover</source>
+        <translation>Gefahrenschwebe</translation>
+    </message>
+    <message>
+        <source>Danger (alt)</source>
+        <translation>Gefahr (alt)</translation>
+    </message>
+    <message>
+        <source>Danger alt hover</source>
+        <translation>Gefahr alt hover</translation>
+    </message>
+    <message>
+        <source>Danger (deep)</source>
+        <translation>Gefahr (tief)</translation>
+    </message>
+    <message>
+        <source>Danger deep hover</source>
+        <translation>Gefährlicher Tiefschwebe</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Cancel hover</source>
+        <translation>Schwebeflug abbrechen</translation>
+    </message>
+    <message>
+        <source>Red (legacy)</source>
+        <translation>Rot (Legacy)</translation>
+    </message>
+    <message>
+        <source>Red hover (legacy)</source>
+        <translation>Roter Schwebebelag</translation>
+    </message>
+    <message>
+        <source>Buttons — Green</source>
+        <translation>Knöpfe — Grün</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>Erfolgreich</translation>
+    </message>
+    <message>
+        <source>Success hover</source>
+        <translation>Erfolgsschwebe</translation>
+    </message>
+    <message>
+        <source>Success (alt)</source>
+        <translation>Erfolg (alt)</translation>
+    </message>
+    <message>
+        <source>Success alt hover</source>
+        <translation>Erfolg alt hover</translation>
+    </message>
+    <message>
+        <source>Success (deep)</source>
+        <translation>Erfolg (tief)</translation>
+    </message>
+    <message>
+        <source>Success deep hover</source>
+        <translation>Erfolgreicher Deep Hover</translation>
+    </message>
+    <message>
+        <source>Buttons — Orange</source>
+        <translation>Knöpfe — Orange</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Warnung</translation>
+    </message>
+    <message>
+        <source>Warning hover</source>
+        <translation>Warnschwebe</translation>
+    </message>
+    <message>
+        <source>Warning (deep)</source>
+        <translation>Warnung (tief)</translation>
+    </message>
+    <message>
+        <source>Warning deep hover</source>
+        <translation>Warnung Deep Hover</translation>
+    </message>
+    <message>
+        <source>Warning (brown)</source>
+        <translation>Warnung (braun)</translation>
+    </message>
+    <message>
+        <source>Warning brown hover</source>
+        <translation>Warnung brauner Schwebekörper</translation>
+    </message>
+    <message>
+        <source>Warning (orange)</source>
+        <translation>Warnung (orange)</translation>
+    </message>
+    <message>
+        <source>Warning orange hover</source>
+        <translation>Warnung orange Hover</translation>
+    </message>
+    <message>
+        <source>Buttons — Blue</source>
+        <translation>Knöpfe — Blau</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>Infos</translation>
+    </message>
+    <message>
+        <source>Info hover</source>
+        <translation>Info Hover</translation>
+    </message>
+    <message>
+        <source>Info (deep)</source>
+        <translation>Info (tief)</translation>
+    </message>
+    <message>
+        <source>Info deep hover</source>
+        <translation>Info Deep Hover</translation>
+    </message>
+    <message>
+        <source>Neutral</source>
+        <translation>Neutral</translation>
+    </message>
+    <message>
+        <source>Neutral hover</source>
+        <translation>Neutralschwebe</translation>
+    </message>
+    <message>
+        <source>Buttons — Grey</source>
+        <translation>Knöpfe — Grau</translation>
+    </message>
+    <message>
+        <source>Grey</source>
+        <translation>Grau</translation>
+    </message>
+    <message>
+        <source>Grey hover</source>
+        <translation>Grauer Schweif</translation>
+    </message>
+    <message>
+        <source>Grey (alt)</source>
+        <translation>Grau (alt)</translation>
+    </message>
+    <message>
+        <source>Grey alt hover</source>
+        <translation>Grey Alt Hover</translation>
+    </message>
+    <message>
+        <source>Buttons — Purple</source>
+        <translation>Knöpfe — Purpur</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Purpur</translation>
+    </message>
+    <message>
+        <source>Purple hover</source>
+        <translation>Purpurschwebe</translation>
+    </message>
+    <message>
+        <source>Tree tags</source>
+        <translation>Baummarken</translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation>Ordner</translation>
+    </message>
+    <message>
+        <source>BSA archive</source>
+        <translation>BSA Archiv</translation>
+    </message>
+    <message>
+        <source>BSA archive (alt)</source>
+        <translation>BSA-Archiv (alt)</translation>
+    </message>
+    <message>
+        <source>INI profile</source>
+        <translation>INI-Profil</translation>
+    </message>
+    <message>
+        <source>Bundled (text)</source>
+        <translation>Gebunden (Text)</translation>
+    </message>
+    <message>
+        <source>Bundled (background)</source>
+        <translation>Gebunden (Hintergrund)</translation>
+    </message>
+    <message>
+        <source>Installed (background)</source>
+        <translation>Installiert (Hintergrund)</translation>
+    </message>
+    <message>
+        <source>Unordered (text)</source>
+        <translation>Ungeordnet (Text)</translation>
+    </message>
+    <message>
+        <source>Tones</source>
+        <translation>Ton</translation>
+    </message>
+    <message>
+        <source>Green tone</source>
+        <translation>Grünton</translation>
+    </message>
+    <message>
+        <source>Red tone</source>
+        <translation>Roter Ton</translation>
+    </message>
+    <message>
+        <source>Blue tone</source>
+        <translation>Blauton</translation>
+    </message>
+    <message>
+        <source>Cyan tone</source>
+        <translation>Cyanton</translation>
+    </message>
+    <message>
+        <source>Soft blue tone</source>
+        <translation>Weichblauton</translation>
+    </message>
+    <message>
+        <source>Flag tone</source>
+        <translation>Flaggenton</translation>
+    </message>
+    <message>
+        <source>Scrollbars</source>
+        <translation>Überrollbügel</translation>
+    </message>
+    <message>
+        <source>Scrollbar background</source>
+        <translation>Hintergrund der Rollleiste</translation>
+    </message>
+    <message>
+        <source>Scrollbar trough</source>
+        <translation>Überrolltrog</translation>
+    </message>
+    <message>
+        <source>Scrollbar thumb (active)</source>
+        <translation>Scrollbar Daumen (aktiv)</translation>
+    </message>
+    <message>
+        <source>Overlays &amp; tinted rows</source>
+        <translation>Overlays und getönte Reihen</translation>
+    </message>
+    <message>
+        <source>Error overlay</source>
+        <translation>Fehlerüberlagerung</translation>
+    </message>
+    <message>
+        <source>Deep overlay</source>
+        <translation>Tiefe Überlagerung</translation>
+    </message>
+    <message>
+        <source>Card</source>
+        <translation>Karte</translation>
+    </message>
+    <message>
+        <source>Card (alt)</source>
+        <translation>Karte (alt)</translation>
+    </message>
+    <message>
+        <source>Green row</source>
+        <translation>Grüne Reihe</translation>
+    </message>
+    <message>
+        <source>Green (deep)</source>
+        <translation>Grün (tief)</translation>
+    </message>
+    <message>
+        <source>Red (deep)</source>
+        <translation>Rot (tief)</translation>
+    </message>
+    <message>
+        <source>Orange (deep)</source>
+        <translation>Orange (tief)</translation>
+    </message>
+    <message>
+        <source>Blue (deep)</source>
+        <translation>Blau (tief)</translation>
+    </message>
+    <message>
+        <source>Green tint text</source>
+        <translation>Grüner Tönungstext</translation>
+    </message>
+    <message>
+        <source>Red tint text</source>
+        <translation>Roter Farbton</translation>
+    </message>
+    <message>
+        <source>Orange tint text</source>
+        <translation>Orangefarbener Farbton</translation>
+    </message>
+    <message>
+        <source>Blue tint text</source>
+        <translation>Blauer Farbton</translation>
+    </message>
+    <message>
+        <source>Dark blue</source>
+        <translation>Dunkelblau</translation>
+    </message>
+    <message>
+        <source>Dark green</source>
+        <translation>Dunkelgrün</translation>
+    </message>
+    <message>
+        <source>Save button</source>
+        <translation>Save Button</translation>
+    </message>
+    <message>
+        <source>Selection bar</source>
+        <translation>Auswahlleiste</translation>
+    </message>
+    <message>
+        <source>Required mod</source>
+        <translation>Erforderlicher Mod</translation>
+    </message>
+    <message>
+        <source>Optional mod</source>
+        <translation>Fakultative Mod</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <source>Error (bright)</source>
+        <translation>Fehler (hell)</translation>
+    </message>
+    <message>
+        <source>Badge red</source>
+        <translation>Abzeichen rot</translation>
+    </message>
+    <message>
+        <source>Badge green</source>
+        <translation>Badge Green</translation>
+    </message>
+    <message>
+        <source>Success (solid)</source>
+        <translation>Erfolg (solid)</translation>
+    </message>
+    <message>
+        <source>Queued</source>
+        <translation>Schlange</translation>
+    </message>
+    <message>
+        <source>Download green</source>
+        <translation>Download Grün</translation>
+    </message>
+    <message>
+        <source>Plugin cycle &amp; files</source>
+        <translation>Plugin Zyklus &amp; Dateien</translation>
+    </message>
+    <message>
+        <source>Cycle error row (bg)</source>
+        <translation>Zyklusfehlerzeile (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle error row (text)</source>
+        <translation>Zyklusfehlerzeile (Text)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (bg)</source>
+        <translation>Zyklus ok Zeile (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (text)</source>
+        <translation>Zeile Zyklus ok (Text)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (bg)</source>
+        <translation>Zyklus Warnreihe (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (text)</source>
+        <translation>Zyklus Warnreihe (Text)</translation>
+    </message>
+    <message>
+        <source>Cycle anchor</source>
+        <translation>Fahrradanker</translation>
+    </message>
+    <message>
+        <source>Cycle link</source>
+        <translation>Fahrradverbindung</translation>
+    </message>
+    <message>
+        <source>File winning</source>
+        <translation>Datei gewinnt</translation>
+    </message>
+    <message>
+        <source>File overridden</source>
+        <translation>Datei außer Kraft gesetzt</translation>
+    </message>
+    <message>
+        <source>File dim</source>
+        <translation>File Dim</translation>
+    </message>
+    <message>
+        <source>File anchor</source>
+        <translation>Dateianker</translation>
+    </message>
+    <message>
+        <source>Drag selection outline</source>
+        <translation>Zugauswahl</translation>
+    </message>
+    <message>
+        <source>Conflict highlights</source>
+        <translation>Konflikt-Highlights</translation>
+    </message>
+    <message>
+        <source>Conflict row — winning</source>
+        <translation>Konfliktreihe — gewinnend</translation>
+    </message>
+    <message>
+        <source>Conflict row — overridden</source>
+        <translation>Konfliktzeile — außer Kraft gesetzt</translation>
+    </message>
+    <message>
+        <source>Conflict row — anchor</source>
+        <translation>Konfliktzeile — Anker</translation>
+    </message>
+    <message>
+        <source>Framework detection</source>
+        <translation>Rahmenerkennung</translation>
+    </message>
+    <message>
+        <source>Installed (bg)</source>
+        <translation>Installiert (bg)</translation>
+    </message>
+    <message>
+        <source>Installed (text)</source>
+        <translation>Installiert (Text)</translation>
+    </message>
+    <message>
+        <source>Staged (bg)</source>
+        <translation>Stufenweise (bg)</translation>
+    </message>
+    <message>
+        <source>Staged (text)</source>
+        <translation>Inszeniert (Text)</translation>
+    </message>
+    <message>
+        <source>Disabled (bg)</source>
+        <translation>Behinderte (bg)</translation>
+    </message>
+    <message>
+        <source>Disabled (text)</source>
+        <translation>Behinderte (Text)</translation>
+    </message>
+    <message>
+        <source>Missing (bg)</source>
+        <translation>Fehlend (bg)</translation>
+    </message>
+    <message>
+        <source>Missing (text)</source>
+        <translation>Fehlend (Text)</translation>
+    </message>
+    <message>
+        <source>Separator bands</source>
+        <translation>Trennbänder</translation>
+    </message>
+    <message>
+        <source>Overwrite band (bg)</source>
+        <translation>Überschreibband (bg)</translation>
+    </message>
+    <message>
+        <source>Overwrite band (text)</source>
+        <translation>Überschreibband (Text)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (bg)</source>
+        <translation>Wurzelordnerband (bg)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (text)</source>
+        <translation>Root Folder Band (Text)</translation>
+    </message>
+    <message>
+        <source>Checkboxes</source>
+        <translation>Kontrollkästchen</translation>
+    </message>
+    <message>
+        <source>Checkbox fill (checked)</source>
+        <translation>Checkbox füllen (überprüft)</translation>
+    </message>
+    <message>
+        <source>Window, panels, list rows and input fields — the app&apos;s surfaces.</source>
+        <translation>Fenster, Panels, Listenzeilen und Eingabefelder - die Oberflächen der App.</translation>
+    </message>
+    <message>
+        <source>Label and list text throughout the app, plus success/warning/error text.</source>
+        <translation>Beschriften und listen Sie Text in der gesamten App sowie Erfolgs- / Warn- / Fehlertext.</translation>
+    </message>
+    <message>
+        <source>The highlight colour: links, dropdown arrows and accented controls.</source>
+        <translation>Die Highlight-Farbe: Links, Dropdown-Pfeile und akzentuierte Bedienelemente.</translation>
+    </message>
+    <message>
+        <source>Lines and frames around panels, lists and inputs.</source>
+        <translation>Linien und Rahmen um Panels, Listen und Eingaben.</translation>
+    </message>
+    <message>
+        <source>Danger / cancel / remove buttons (delete, remove profile, ✕ close).</source>
+        <translation>Schaltflächen Gefahr / Löschen / Entfernen (Löschen, Profil entfernen, schließen).</translation>
+    </message>
+    <message>
+        <source>Success / confirm buttons (Install, Done, Play).</source>
+        <translation>Erfolgs-/Bestätigungs-Buttons (Installieren, Fertig, Abspielen).</translation>
+    </message>
+    <message>
+        <source>Warning buttons (Reinstall, download / update actions).</source>
+        <translation>Warntasten (Neuinstallation, Download / Update-Aktionen).</translation>
+    </message>
+    <message>
+        <source>Info / neutral action buttons (Select, Groups, Plugin Rules).</source>
+        <translation>Info / neutrale Aktionsschaltflächen (Select, Groups, Plugin Rules).</translation>
+    </message>
+    <message>
+        <source>Secondary / neutral buttons (View, minor actions).</source>
+        <translation>Sekundäre / neutrale Buttons (Ansicht, kleinere Aktionen).</translation>
+    </message>
+    <message>
+        <source>Accent buttons like Ko-Fi.</source>
+        <translation>Accent Buttons wie Ko-Fi.</translation>
+    </message>
+    <message>
+        <source>Coloured labels in file trees (folders, BSA archives, bundled/installed).</source>
+        <translation>Farbige Etiketten in Dateibäumen (Ordner, BSA-Archive, gebündelt/installiert).</translation>
+    </message>
+    <message>
+        <source>Shared accent tones reused by flags, icons and small highlights.</source>
+        <translation>Gemeinsame Akzenttöne, die von Flaggen, Icons und kleinen Highlights wiederverwendet werden.</translation>
+    </message>
+    <message>
+        <source>The scrollbar track and thumb.</source>
+        <translation>Scrollbar Track und Daumen.</translation>
+    </message>
+    <message>
+        <source>Popup/overlay backgrounds and coloured info rows (required/optional mods, cards).</source>
+        <translation>Popup/Overlay-Hintergründe und farbige Infozeilen (erforderliche/optionale Mods, Karten).</translation>
+    </message>
+    <message>
+        <source>Small status pills and badges (queued, download progress, error/success).</source>
+        <translation>Kleine Statuspillen und Abzeichen (Warteschlange, Download-Fortschritt, Fehler / Erfolg).</translation>
+    </message>
+    <message>
+        <source>Plugin-cycle rows and file-conflict colours in the Data / Mod Files views.</source>
+        <translation>Plugin-Zyklus-Zeilen und Datei-Konflikt-Farben in den Daten / Mod-Dateien Ansichten.</translation>
+    </message>
+    <message>
+        <source>Row tints when a conflicting mod is selected (winning / overridden / anchor).</source>
+        <translation>Zeilentönungen, wenn ein widersprüchlicher Mod ausgewählt wird (Gewinn / Overridden / Anker).</translation>
+    </message>
+    <message>
+        <source>The framework-status banner above the Plugins list (installed / staged / disabled / missing).</source>
+        <translation>Das Framework-Status-Banner oberhalb der Plugins-Liste (installiert / inszeniert / deaktiviert / fehlt).</translation>
+    </message>
+    <message>
+        <source>The pinned Overwrite and Root Folder bands at the top of the modlist.</source>
+        <translation>Die angehefteten Overwrite- und Root-Ordnerbänder oben auf der Modlist.</translation>
+    </message>
+    <message>
+        <source>The fill colour of a ticked checkbox (the tick stays auto-contrasted).</source>
+        <translation>Die Füllfarbe eines angekreuzten Kontrollkästchens (das Häkchen bleibt autokontrastiert).</translation>
+    </message>
+    <message>
         <source>Theme Editor</source>
         <translation>Theme-Editor</translation>
     </message>
@@ -6324,7 +7067,7 @@ Das Ergebnis wird direkt in Ihre Mod-Liste als Mod „{0}“ eingetragen.</trans
         <translation>Als neue Datei speichern…</translation>
     </message>
     <message>
-        <source>Editing a base colour adjusts its hover/variants automatically. Tick Advanced to edit every colour individually. Use "Restart to apply" to save your theme and see it across the whole app.</source>
+        <source>Editing a base colour adjusts its hover/variants automatically. Tick Advanced to edit every colour individually. Use &quot;Restart to apply&quot; to save your theme and see it across the whole app.</source>
         <translation>Wenn Sie eine Grundfarbe bearbeiten, werden die Hover-Farben und Varianten automatisch angepasst. Aktivieren Sie das Kontrollkästchen „Erweitert“, um jede Farbe einzeln zu bearbeiten. Klicken Sie auf „Neustart, um Änderungen zu übernehmen“, um Ihr Design zu speichern und es in der gesamten App anzuzeigen.</translation>
     </message>
     <message>
@@ -6352,7 +7095,7 @@ Das Ergebnis wird direkt in Ihre Mod-Liste als Mod „{0}“ eingetragen.</trans
         <translation>Theme löschen?</translation>
     </message>
     <message>
-        <source>Delete the custom theme "{0}"? This cannot be undone.</source>
+        <source>Delete the custom theme &quot;{0}&quot;? This cannot be undone.</source>
         <translation>Das benutzerdefinierte Design „{0}“ löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     </message>
 </context>
@@ -6371,7 +7114,7 @@ Das Ergebnis wird direkt in Ihre Mod-Liste als Mod „{0}“ eingetragen.</trans
         <translation>?</translation>
     </message>
     <message>
-        <source>Profile '{0}' — {1} → {2}</source>
+        <source>Profile &apos;{0}&apos; — {1} → {2}</source>
         <translation>Profil „{0}“ — {1} → {2}</translation>
     </message>
     <message>
@@ -6441,7 +7184,7 @@ Aktualisiere über deinen AUR-Helper, z. B.
         <translation>Stall</translation>
     </message>
     <message>
-        <source>You're running a pre-release. Switch to the latest {0} build?
+        <source>You&apos;re running a pre-release. Switch to the latest {0} build?
 
 Current:     {1}
 {2}: {3}
@@ -6568,7 +7311,7 @@ Neueste Version:  {1}</translation>
         <translation>Schritt 1: Wrye Bash herunterladen</translation>
     </message>
     <message>
-        <source>'{0}' was not found.</source>
+        <source>&apos;{0}&apos; was not found.</source>
         <translation>„{0}“ wurde nicht gefunden.</translation>
     </message>
     <message>
@@ -6615,7 +7358,7 @@ Laden Sie das Archiv manuell herunter (verwenden Sie NICHT die Download-Schaltfl
 
 To get it:
   1. Find and join the xEdit Discord server (search for it yourself — we do not link it here as the invite can change).
-  2. Download the latest xEdit archive (e.g. "xEdit 4.1.5q.7z") from the #xedit-builds channel.
+  2. Download the latest xEdit archive (e.g. &quot;xEdit 4.1.5q.7z&quot;) from the #xedit-builds channel.
   3. Leave the archive in your Downloads folder and click Next.
 
 It contains xFOEdit (Fallout), xSFEdit (Starfield) and xTESEdit (Elder Scrolls); the wizard runs the one for this game automatically.</source>
@@ -6761,7 +7504,7 @@ Schließen Sie es, wenn Sie fertig sind, und klicken Sie anschließend auf „Fe
 <context>
     <name>_LockBox</name>
     <message>
-        <source>Locked profiles can't be removed</source>
+        <source>Locked profiles can&apos;t be removed</source>
         <translation>Gesperrte Profile können nicht entfernt werden</translation>
     </message>
 </context>

@@ -3346,10 +3346,6 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
         <translation>Zarządzaj prefiksami</translation>
     </message>
     <message>
-        <source>Install queued — {0} will install after the current install finishes.</source>
-        <translation>Instalacja w kolejce — program „{0}” zostanie zainstalowany po zakończeniu bieżącej instalacji.</translation>
-    </message>
-    <message>
         <source>No active profile.</source>
         <translation>Brak aktywnego profilu.</translation>
     </message>
@@ -3364,18 +3360,6 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
     <message>
         <source>Cyber Engine Tweaks requires Hardlink mode</source>
         <translation>Aplikacja „Cyber Engine Tweaks” wymaga trybu Hardlink</translation>
-    </message>
-    <message>
-        <source>Cyber Engine Tweaks is enabled, but the deploy mode is set to Symlink.
-
-CET will not load from a symlinked cyber_engine_tweaks.asi — switch the deploy mode to Hardlink for CET to work.
-
-Deploy anyway?</source>
-        <translation>Funkcja „Cyber Engine Tweaks” jest włączona, ale tryb wdrażania jest ustawiony na „Symlink”.
-
-CET nie załaduje się z pliku cyber_engine_tweaks.asi, do którego utworzono dowiązanie symboliczne — aby CET działało, należy zmienić tryb wdrażania na „Hardlink”.
-
-Czy mimo to wdrożyć?</translation>
     </message>
     <message>
         <source>Deploy anyway</source>
@@ -3508,6 +3492,34 @@ Czy mimo to wdrożyć?</translation>
     <message>
         <source>No active profile — cannot configure groups.</source>
         <translation>Brak aktywnego profilu — nie można skonfigurować grup.</translation>
+    </message>
+    <message>
+        <source>install</source>
+        <translation>install</translation>
+    </message>
+    <message>
+        <source>deploy</source>
+        <translation>rozmieszczenie</translation>
+    </message>
+    <message>
+        <source>Install queued — {0} will install after the current {1} finishes.</source>
+        <translation>Zainstaluj kolejkę - {0} zostanie zainstalowany po zakończeniu bieżącego {1}.</translation>
+    </message>
+    <message>
+        <source>Cyber Engine Tweaks is enabled, but cyber_engine_tweaks.asi will be symlinked.
+
+CET will not load from a symlinked asi. This happens when the deploy mode is Symlink, or when it is Hardlink but the game folder and mod staging folder are on different drives (hardlinks fall back to symlinks across drives).
+
+Use Hardlink mode with both folders on the same drive for CET to work.
+
+Deploy anyway?</source>
+        <translation>Cyber Engine Tweaks jest włączona, ale cyber _ engine _ tweaks.asi zostanie połączona.
+
+CET nie załaduje się z symulowanego asi. Dzieje się tak, gdy tryb wdrożenia jest Symlink, lub gdy jest Hardlink, ale folder gry i folder mod jest na różnych dyskach (linki twarde wracają do symlinków na dyskach).
+
+Użyj trybu Hardlink z obiema folderami na tym samym dysku, aby CET działał.
+
+Tak czy owak?</translation>
     </message>
     <message>
         <source>LOOT Groups</source>
@@ -4827,6 +4839,10 @@ Przeprowadź ponowne skanowanie w celu weryfikacji.</translation>
         <translation>Flagi</translation>
     </message>
     <message>
+        <source>P</source>
+        <translation>P</translation>
+    </message>
+    <message>
         <source>Index</source>
         <translation>Spis treści</translation>
     </message>
@@ -4860,6 +4876,13 @@ Kliknij prawym przyciskiem myszy na wtyczkę i wybierz opcję „Reguły wtyczki
 Drag a plugin from the left pane to add a rule.</source>
         <translation>Nie ma jeszcze żadnych reguł.
 Przeciągnij wtyczkę z lewego panelu, aby dodać regułę.</translation>
+    </message>
+</context>
+<context>
+    <name>PluginView</name>
+    <message>
+        <source>Show / hide columns</source>
+        <translation>Pokaż / ukryj kolumny</translation>
     </message>
 </context>
 <context>
@@ -5735,14 +5758,6 @@ Uruchom ponownie kreatora i zainstaluj najpierw program Script Merger.</translat
         <translation>Liczba wyodrębnianych elementów zależy od ilości dostępnej pamięci; rzeczywista liczba może być mniejsza od ustawionej.</translation>
     </message>
     <message>
-        <source>Check downloads locations</source>
-        <translation>Sprawdź lokalizacje plików do pobrania</translation>
-    </message>
-    <message>
-        <source>Scan the system Downloads folder (and any custom locations) for an archive before downloading it again.</source>
-        <translation>Przed ponownym pobraniem pliku sprawdź, czy nie znajduje się on już w folderze „Pobrane” systemu (oraz w ewentualnych innych lokalizacjach).</translation>
-    </message>
-    <message>
         <source>Caches</source>
         <translation>Pamięci podręczne</translation>
     </message>
@@ -6287,6 +6302,734 @@ Wynik jest zapisywany bezpośrednio na liście modów jako mod „{0}”.</trans
 </context>
 <context>
     <name>ThemeEditorView</name>
+    <message>
+        <source>Backgrounds</source>
+        <translation>Podstawy</translation>
+    </message>
+    <message>
+        <source>App background (deepest)</source>
+        <translation>Tło aplikacji (najgłębsze)</translation>
+    </message>
+    <message>
+        <source>Panel / card surface</source>
+        <translation>Powierzchnia panelu / karty</translation>
+    </message>
+    <message>
+        <source>Header / toolbar</source>
+        <translation>Pasek nagłówka / narzędzia</translation>
+    </message>
+    <message>
+        <source>List row</source>
+        <translation>Wiersz listy</translation>
+    </message>
+    <message>
+        <source>List row (alt stripe)</source>
+        <translation>Wiersz listy (alt paski)</translation>
+    </message>
+    <message>
+        <source>List row hover</source>
+        <translation>Lista wierszy</translation>
+    </message>
+    <message>
+        <source>Tree / list surface</source>
+        <translation>Powierzchnia drzewa / wykazu</translation>
+    </message>
+    <message>
+        <source>Separator fill</source>
+        <translation>Wypełnienie separatora</translation>
+    </message>
+    <message>
+        <source>Hover highlight</source>
+        <translation>Podświetlenie</translation>
+    </message>
+    <message>
+        <source>Selection highlight</source>
+        <translation>Podświetlenie wyboru</translation>
+    </message>
+    <message>
+        <source>Text input field</source>
+        <translation>Pole wprowadzania tekstu</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Tekst</translation>
+    </message>
+    <message>
+        <source>Primary text</source>
+        <translation>Tekst pierwotny</translation>
+    </message>
+    <message>
+        <source>Dimmed text</source>
+        <translation>Skrócony tekst</translation>
+    </message>
+    <message>
+        <source>Muted text</source>
+        <translation>Tekst wytłoczony</translation>
+    </message>
+    <message>
+        <source>Faint text</source>
+        <translation>Nieprawidłowy tekst</translation>
+    </message>
+    <message>
+        <source>Separator text</source>
+        <translation>Tekst separatora</translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation>Biały</translation>
+    </message>
+    <message>
+        <source>Black</source>
+        <translation>Czarny</translation>
+    </message>
+    <message>
+        <source>Success text</source>
+        <translation>Tekst sukcesu</translation>
+    </message>
+    <message>
+        <source>Error text</source>
+        <translation>Tekst błędu</translation>
+    </message>
+    <message>
+        <source>Warning text</source>
+        <translation>Tekst ostrzegawczy</translation>
+    </message>
+    <message>
+        <source>Success text (bright)</source>
+        <translation>Tekst sukcesu (jasny)</translation>
+    </message>
+    <message>
+        <source>Error text (bright)</source>
+        <translation>Tekst błędu (jasny)</translation>
+    </message>
+    <message>
+        <source>Warning text (bright)</source>
+        <translation>Tekst ostrzegawczy (jasny)</translation>
+    </message>
+    <message>
+        <source>Card text</source>
+        <translation>Tekst karty</translation>
+    </message>
+    <message>
+        <source>Card text (dim)</source>
+        <translation>Tekst karty (dim)</translation>
+    </message>
+    <message>
+        <source>Card text (medium)</source>
+        <translation>Tekst karty (medium)</translation>
+    </message>
+    <message>
+        <source>Tree foreground</source>
+        <translation>Pierwszeństwo drzew</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>Akcent</translation>
+    </message>
+    <message>
+        <source>Accent hover</source>
+        <translation>Akumulator</translation>
+    </message>
+    <message>
+        <source>Text on accent</source>
+        <translation>Tekst o akcencie</translation>
+    </message>
+    <message>
+        <source>Hyperlink</source>
+        <translation>Hyperlink</translation>
+    </message>
+    <message>
+        <source>Dropdown arrow</source>
+        <translation>Strzałka w dół</translation>
+    </message>
+    <message>
+        <source>Borders</source>
+        <translation>Granice</translation>
+    </message>
+    <message>
+        <source>Border</source>
+        <translation>Granica</translation>
+    </message>
+    <message>
+        <source>Border (dim)</source>
+        <translation>Granica (dim)</translation>
+    </message>
+    <message>
+        <source>Border (faint)</source>
+        <translation>Granica (słaby)</translation>
+    </message>
+    <message>
+        <source>Buttons — Red</source>
+        <translation>Przyciski - czerwony</translation>
+    </message>
+    <message>
+        <source>Danger</source>
+        <translation>Niebezpieczeństwo</translation>
+    </message>
+    <message>
+        <source>Danger hover</source>
+        <translation>Niebezpieczeństwo</translation>
+    </message>
+    <message>
+        <source>Danger (alt)</source>
+        <translation>Niebezpieczeństwo (alt)</translation>
+    </message>
+    <message>
+        <source>Danger alt hover</source>
+        <translation>Niebezpieczeństwo alt hover</translation>
+    </message>
+    <message>
+        <source>Danger (deep)</source>
+        <translation>Niebezpieczeństwo (głębokie)</translation>
+    </message>
+    <message>
+        <source>Danger deep hover</source>
+        <translation>Niebezpieczeństwo głębokiego wznoszenia</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+    <message>
+        <source>Cancel hover</source>
+        <translation>Anuluj hover</translation>
+    </message>
+    <message>
+        <source>Red (legacy)</source>
+        <translation>Czerwony (dziedzictwo)</translation>
+    </message>
+    <message>
+        <source>Red hover (legacy)</source>
+        <translation>Czerwony hover (spuścizna)</translation>
+    </message>
+    <message>
+        <source>Buttons — Green</source>
+        <translation>Przyciski - zielony</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>Sukces</translation>
+    </message>
+    <message>
+        <source>Success hover</source>
+        <translation>Sukces</translation>
+    </message>
+    <message>
+        <source>Success (alt)</source>
+        <translation>Sukces (alt)</translation>
+    </message>
+    <message>
+        <source>Success alt hover</source>
+        <translation>Sukces alt hover</translation>
+    </message>
+    <message>
+        <source>Success (deep)</source>
+        <translation>Sukces (głęboki)</translation>
+    </message>
+    <message>
+        <source>Success deep hover</source>
+        <translation>Sukces głębokiego huku</translation>
+    </message>
+    <message>
+        <source>Buttons — Orange</source>
+        <translation>Przyciski - pomarańczowe</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Ostrzeżenie</translation>
+    </message>
+    <message>
+        <source>Warning hover</source>
+        <translation>Uchwyt ostrzegawczy</translation>
+    </message>
+    <message>
+        <source>Warning (deep)</source>
+        <translation>Ostrzeżenie (głębokie)</translation>
+    </message>
+    <message>
+        <source>Warning deep hover</source>
+        <translation>Deep hover description</translation>
+    </message>
+    <message>
+        <source>Warning (brown)</source>
+        <translation>Ostrzeżenie (brązowe)</translation>
+    </message>
+    <message>
+        <source>Warning brown hover</source>
+        <translation>Description brown hover</translation>
+    </message>
+    <message>
+        <source>Warning (orange)</source>
+        <translation>Ostrzeżenie (pomarańczowe)</translation>
+    </message>
+    <message>
+        <source>Warning orange hover</source>
+        <translation>Description orange hover</translation>
+    </message>
+    <message>
+        <source>Buttons — Blue</source>
+        <translation>Przyciski - niebieski</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>Informacja</translation>
+    </message>
+    <message>
+        <source>Info hover</source>
+        <translation>Informacje</translation>
+    </message>
+    <message>
+        <source>Info (deep)</source>
+        <translation>Informacja (głęboka)</translation>
+    </message>
+    <message>
+        <source>Info deep hover</source>
+        <translation>Info deep hover</translation>
+    </message>
+    <message>
+        <source>Neutral</source>
+        <translation>Neutralny</translation>
+    </message>
+    <message>
+        <source>Neutral hover</source>
+        <translation>Uchwyt neutralny</translation>
+    </message>
+    <message>
+        <source>Buttons — Grey</source>
+        <translation>Guziki - Szary</translation>
+    </message>
+    <message>
+        <source>Grey</source>
+        <translation>Szary</translation>
+    </message>
+    <message>
+        <source>Grey hover</source>
+        <translation>Szary wieszak</translation>
+    </message>
+    <message>
+        <source>Grey (alt)</source>
+        <translation>Szary (alt)</translation>
+    </message>
+    <message>
+        <source>Grey alt hover</source>
+        <translation>Szary łuk altowy</translation>
+    </message>
+    <message>
+        <source>Buttons — Purple</source>
+        <translation>Przyciski - fioletowy</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Fioletowy</translation>
+    </message>
+    <message>
+        <source>Purple hover</source>
+        <translation>Fioletowy łuk</translation>
+    </message>
+    <message>
+        <source>Tree tags</source>
+        <translation>Znaczniki drzew</translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation>Katalog</translation>
+    </message>
+    <message>
+        <source>BSA archive</source>
+        <translation>Archiwum BSA</translation>
+    </message>
+    <message>
+        <source>BSA archive (alt)</source>
+        <translation>Archiwum BSA (alt)</translation>
+    </message>
+    <message>
+        <source>INI profile</source>
+        <translation>Profil INI</translation>
+    </message>
+    <message>
+        <source>Bundled (text)</source>
+        <translation>Związane (tekst)</translation>
+    </message>
+    <message>
+        <source>Bundled (background)</source>
+        <translation>Związane (tło)</translation>
+    </message>
+    <message>
+        <source>Installed (background)</source>
+        <translation>Instalowane (tło)</translation>
+    </message>
+    <message>
+        <source>Unordered (text)</source>
+        <translation>Niezamówiony (tekst)</translation>
+    </message>
+    <message>
+        <source>Tones</source>
+        <translation>Tony</translation>
+    </message>
+    <message>
+        <source>Green tone</source>
+        <translation>Zielony ton</translation>
+    </message>
+    <message>
+        <source>Red tone</source>
+        <translation>Czerwony ton</translation>
+    </message>
+    <message>
+        <source>Blue tone</source>
+        <translation>Niebieski ton</translation>
+    </message>
+    <message>
+        <source>Cyan tone</source>
+        <translation>Cyanowy ton</translation>
+    </message>
+    <message>
+        <source>Soft blue tone</source>
+        <translation>Miękki niebieski ton</translation>
+    </message>
+    <message>
+        <source>Flag tone</source>
+        <translation>Ton flagi</translation>
+    </message>
+    <message>
+        <source>Scrollbars</source>
+        <translation>Paski przewijania</translation>
+    </message>
+    <message>
+        <source>Scrollbar background</source>
+        <translation>Tło paska przewijania</translation>
+    </message>
+    <message>
+        <source>Scrollbar trough</source>
+        <translation>Pasek przewijania</translation>
+    </message>
+    <message>
+        <source>Scrollbar thumb (active)</source>
+        <translation>Kciuk przewijany (aktywny)</translation>
+    </message>
+    <message>
+        <source>Overlays &amp; tinted rows</source>
+        <translation>Nakładki i przyciemniane wiersze</translation>
+    </message>
+    <message>
+        <source>Error overlay</source>
+        <translation>Błąd nakładania</translation>
+    </message>
+    <message>
+        <source>Deep overlay</source>
+        <translation>Głębokie nakładanie</translation>
+    </message>
+    <message>
+        <source>Card</source>
+        <translation>Karta</translation>
+    </message>
+    <message>
+        <source>Card (alt)</source>
+        <translation>Karta (alt)</translation>
+    </message>
+    <message>
+        <source>Green row</source>
+        <translation>Wiersz zielony</translation>
+    </message>
+    <message>
+        <source>Green (deep)</source>
+        <translation>Zielony (głęboki)</translation>
+    </message>
+    <message>
+        <source>Red (deep)</source>
+        <translation>Czerwony (głęboki)</translation>
+    </message>
+    <message>
+        <source>Orange (deep)</source>
+        <translation>Pomarańczowy (głęboki)</translation>
+    </message>
+    <message>
+        <source>Blue (deep)</source>
+        <translation>Niebieski (głęboki)</translation>
+    </message>
+    <message>
+        <source>Green tint text</source>
+        <translation>Tekst zielony odcień</translation>
+    </message>
+    <message>
+        <source>Red tint text</source>
+        <translation>Tekst czerwony odcień</translation>
+    </message>
+    <message>
+        <source>Orange tint text</source>
+        <translation>Pomarańczowy odcień</translation>
+    </message>
+    <message>
+        <source>Blue tint text</source>
+        <translation>Tekst niebieski odcień</translation>
+    </message>
+    <message>
+        <source>Dark blue</source>
+        <translation>Ciemnoniebieski</translation>
+    </message>
+    <message>
+        <source>Dark green</source>
+        <translation>Ciemny zielony</translation>
+    </message>
+    <message>
+        <source>Save button</source>
+        <translation>Zapisz przycisk</translation>
+    </message>
+    <message>
+        <source>Selection bar</source>
+        <translation>Pasek wyboru</translation>
+    </message>
+    <message>
+        <source>Required mod</source>
+        <translation>Wymagany mod</translation>
+    </message>
+    <message>
+        <source>Optional mod</source>
+        <translation>Opcjonalny mod</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Stan</translation>
+    </message>
+    <message>
+        <source>Error (bright)</source>
+        <translation>Błąd (jasny)</translation>
+    </message>
+    <message>
+        <source>Badge red</source>
+        <translation>Odznaka czerwona</translation>
+    </message>
+    <message>
+        <source>Badge green</source>
+        <translation>Odznaka zielona</translation>
+    </message>
+    <message>
+        <source>Success (solid)</source>
+        <translation>Sukces (stały)</translation>
+    </message>
+    <message>
+        <source>Queued</source>
+        <translation>W kolejce</translation>
+    </message>
+    <message>
+        <source>Download green</source>
+        <translation>Pobierz zielony</translation>
+    </message>
+    <message>
+        <source>Plugin cycle &amp; files</source>
+        <translation>Cykl wtyczek i pliki</translation>
+    </message>
+    <message>
+        <source>Cycle error row (bg)</source>
+        <translation>Wiersz błędu cyklu (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle error row (text)</source>
+        <translation>Wiersz błędu cyklu (tekst)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (bg)</source>
+        <translation>Cykl ok wiersz (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (text)</source>
+        <translation>Cykl ok wiersz (tekst)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (bg)</source>
+        <translation>Wiersz ostrzegawczy cyklu (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (text)</source>
+        <translation>Wiersz ostrzeżeń o cyklu (tekst)</translation>
+    </message>
+    <message>
+        <source>Cycle anchor</source>
+        <translation>Kotwica rowerowa</translation>
+    </message>
+    <message>
+        <source>Cycle link</source>
+        <translation>Powiązanie z cyklem</translation>
+    </message>
+    <message>
+        <source>File winning</source>
+        <translation>Wygrywający plik</translation>
+    </message>
+    <message>
+        <source>File overridden</source>
+        <translation>Plik przekroczony</translation>
+    </message>
+    <message>
+        <source>File dim</source>
+        <translation>Plik dim</translation>
+    </message>
+    <message>
+        <source>File anchor</source>
+        <translation>Kotwica pliku</translation>
+    </message>
+    <message>
+        <source>Drag selection outline</source>
+        <translation>Zarys wyboru przeciągów</translation>
+    </message>
+    <message>
+        <source>Conflict highlights</source>
+        <translation>Konflikty</translation>
+    </message>
+    <message>
+        <source>Conflict row — winning</source>
+        <translation>Wiersz konfliktu - wygrana</translation>
+    </message>
+    <message>
+        <source>Conflict row — overridden</source>
+        <translation>Wiersz konfliktu - przekroczony</translation>
+    </message>
+    <message>
+        <source>Conflict row — anchor</source>
+        <translation>Wiersz konfliktu - kotwica</translation>
+    </message>
+    <message>
+        <source>Framework detection</source>
+        <translation>Wykrywanie ramowe</translation>
+    </message>
+    <message>
+        <source>Installed (bg)</source>
+        <translation>Instalowane (bg)</translation>
+    </message>
+    <message>
+        <source>Installed (text)</source>
+        <translation>Instalowane (tekst)</translation>
+    </message>
+    <message>
+        <source>Staged (bg)</source>
+        <translation>Umieszczone (bg)</translation>
+    </message>
+    <message>
+        <source>Staged (text)</source>
+        <translation>Umieszczone (tekst)</translation>
+    </message>
+    <message>
+        <source>Disabled (bg)</source>
+        <translation>Wyłączone (bg)</translation>
+    </message>
+    <message>
+        <source>Disabled (text)</source>
+        <translation>Wyłączone (tekst)</translation>
+    </message>
+    <message>
+        <source>Missing (bg)</source>
+        <translation>Brak (bg)</translation>
+    </message>
+    <message>
+        <source>Missing (text)</source>
+        <translation>Brak (tekst)</translation>
+    </message>
+    <message>
+        <source>Separator bands</source>
+        <translation>Taśmy rozdzielające</translation>
+    </message>
+    <message>
+        <source>Overwrite band (bg)</source>
+        <translation>Zespół nadpisów (bg)</translation>
+    </message>
+    <message>
+        <source>Overwrite band (text)</source>
+        <translation>Nadpisany pasek (tekst)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (bg)</source>
+        <translation>Zespół folderów korzeniowych (bg)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (text)</source>
+        <translation>Pasek folderów korzeniowych (tekst)</translation>
+    </message>
+    <message>
+        <source>Checkboxes</source>
+        <translation>Szafki</translation>
+    </message>
+    <message>
+        <source>Checkbox fill (checked)</source>
+        <translation>Wypełnij pole wyboru (zaznaczone)</translation>
+    </message>
+    <message>
+        <source>Window, panels, list rows and input fields — the app's surfaces.</source>
+        <translation>Okno, panele, wiersze listy i pola wejściowe - powierzchnie aplikacji.</translation>
+    </message>
+    <message>
+        <source>Label and list text throughout the app, plus success/warning/error text.</source>
+        <translation>Etykieta i tekst listy w całej aplikacji, plus tekst sukcesu / ostrzeżenia / błędu.</translation>
+    </message>
+    <message>
+        <source>The highlight colour: links, dropdown arrows and accented controls.</source>
+        <translation>Kolor wyróżniający: linki, strzałki w dół i akcentowane sterowniki.</translation>
+    </message>
+    <message>
+        <source>Lines and frames around panels, lists and inputs.</source>
+        <translation>Linie i ramki wokół paneli, list i wejść.</translation>
+    </message>
+    <message>
+        <source>Danger / cancel / remove buttons (delete, remove profile, ✕ close).</source>
+        <translation>Niebezpieczeństwo / anulowanie / usunięcie przycisków (usunięcie, usunięcie profilu, zamknięcie).</translation>
+    </message>
+    <message>
+        <source>Success / confirm buttons (Install, Done, Play).</source>
+        <translation>Przyciski sukcesu / potwierdzenia (Instaluj, Gotowe, Graj).</translation>
+    </message>
+    <message>
+        <source>Warning buttons (Reinstall, download / update actions).</source>
+        <translation>Przyciski ostrzegawcze (ponownie zainstalować, pobrać / zaktualizować działania).</translation>
+    </message>
+    <message>
+        <source>Info / neutral action buttons (Select, Groups, Plugin Rules).</source>
+        <translation>Przyciski akcji Info / neutralne (Wybierz, Grupy, Zasady wtyczki).</translation>
+    </message>
+    <message>
+        <source>Secondary / neutral buttons (View, minor actions).</source>
+        <translation>Przyciski drugorzędne / neutralne (Widok, drobne działania).</translation>
+    </message>
+    <message>
+        <source>Accent buttons like Ko-Fi.</source>
+        <translation>Przyciski Accent jak Ko- Fi.</translation>
+    </message>
+    <message>
+        <source>Coloured labels in file trees (folders, BSA archives, bundled/installed).</source>
+        <translation>Kolorowe etykiety w drzewach plików (foldery, archiwa BSA, połączone / zainstalowane).</translation>
+    </message>
+    <message>
+        <source>Shared accent tones reused by flags, icons and small highlights.</source>
+        <translation>Współdzielone tony akcentu ponownie używane przez flagi, ikony i małe wyróżnienia.</translation>
+    </message>
+    <message>
+        <source>The scrollbar track and thumb.</source>
+        <translation>Ścieżka scrollbar i kciuk.</translation>
+    </message>
+    <message>
+        <source>Popup/overlay backgrounds and coloured info rows (required/optional mods, cards).</source>
+        <translation>Popup / nakładki tła i kolorowe wiersze informacyjne (wymagane / opcjonalne mody, karty).</translation>
+    </message>
+    <message>
+        <source>Small status pills and badges (queued, download progress, error/success).</source>
+        <translation>Małe pigułki statusu i odznaki (w kolejce, postęp pobierania, błąd / sukces).</translation>
+    </message>
+    <message>
+        <source>Plugin-cycle rows and file-conflict colours in the Data / Mod Files views.</source>
+        <translation>Wiersze cyklu wtykowego i kolory konfliktu plików w widoku plików Data / Mod.</translation>
+    </message>
+    <message>
+        <source>Row tints when a conflicting mod is selected (winning / overridden / anchor).</source>
+        <translation>Odcienie wiersza, gdy wybrano sprzeczny mod (wygrywający / przepełniony / kotwica).</translation>
+    </message>
+    <message>
+        <source>The framework-status banner above the Plugins list (installed / staged / disabled / missing).</source>
+        <translation>Baner statusu framework- powyżej listy Wtyczki (zainstalowany / ustawiony / wyłączony / brakujący).</translation>
+    </message>
+    <message>
+        <source>The pinned Overwrite and Root Folder bands at the top of the modlist.</source>
+        <translation>Przypięte zespoły Overwrite i Root Folder na szczycie modlisty.</translation>
+    </message>
+    <message>
+        <source>The fill colour of a ticked checkbox (the tick stays auto-contrasted).</source>
+        <translation>Kolor wypełnienia zaznaczonego pola wyboru (kleszcz pozostaje autokontrastowany).</translation>
+    </message>
     <message>
         <source>Theme Editor</source>
         <translation>Edytor motywów</translation>
