@@ -8987,6 +8987,15 @@ class MainWindow(QMainWindow):
                     # actually SEES filemap warnings (enabled-mod-not-indexed,
                     # symlink skips, name mismatches). _append_log is thread-safe
                     # (marshals to the UI thread) and classifies WARN severity.
+                    # Escape surrogate bytes from on-disk names FIRST — printing
+                    # them raw raises UnicodeEncodeError on strict-UTF-8 stdout,
+                    # which aborted the index rescan this log_fn serves.
+                    m = str(m)
+                    try:
+                        m.encode("utf-8")
+                    except UnicodeEncodeError:
+                        m = m.encode("utf-8", "backslashreplace").decode(
+                            "utf-8", "replace")
                     print(f"[filemap] {m}", flush=True)
                     self._append_log(f"[filemap] {m}")
                 with span(f"build_conflicts(rescan={do_rescan})"):
@@ -9017,6 +9026,32 @@ class MainWindow(QMainWindow):
                 return
             index_path = staging.parent / "modindex.bin"
             index = read_mod_index(index_path) or {}
+            # Surface the RESOLVED index path + any RIVAL modindex.bin at the
+            # OTHER convention (shared <profile_root>/ vs profile-specific
+            # <profile_dir>/). Two files means the staging-path resolution
+            # flip-flopped (stale _active_profile_dir) and reads/writes are
+            # hitting different indexes — the "two modindex.bin" bug.
+            self._append_log(
+                f"[rescan-diag] gen={gen}: index path = {index_path} "
+                f"(exists={index_path.is_file()})")
+            try:
+                pr = self._gs.game.get_profile_root() if self._gs.game else None
+                pd = self._gs.profile_dir()
+                rivals = []
+                for base in (pr, pd, staging.parent):
+                    if base is None:
+                        continue
+                    cand = base / "modindex.bin"
+                    if cand != index_path and cand.is_file() and cand not in rivals:
+                        rivals.append(cand)
+                if rivals:
+                    self._append_log(
+                        f"[rescan-diag] gen={gen}: WARNING — RIVAL modindex.bin "
+                        f"also exists at {', '.join(str(r) for r in rivals)} — "
+                        f"staging-path resolution split (stale profile dir); the "
+                        f"build may be reading a different index than it writes.")
+            except Exception:
+                pass
             enabled = [e.name for e in read_modlist(ml)
                        if e.enabled and not e.is_separator
                        and e.name not in (OVERWRITE_NAME, ROOT_FOLDER_NAME)]
@@ -9585,14 +9620,23 @@ class MainWindow(QMainWindow):
 
         Lines are also retained (with their severity) in ``_log_lines`` so the
         Error/Warning toggles can re-render a filtered view."""
+        # Escape surrogate bytes from on-disk file names before the message
+        # touches Qt / the log file — a lone surrogate can raise on encode in
+        # any sink, and log calls must never be able to crash their caller.
+        message = str(message)
+        try:
+            message.encode("utf-8")
+        except UnicodeEncodeError:
+            message = message.encode("utf-8", "backslashreplace").decode(
+                "utf-8", "replace")
         try:
             from PySide6.QtCore import QThread
             if QThread.currentThread() is not self.thread():
-                self._op_log.emit(str(message))
+                self._op_log.emit(message)
                 return
         except Exception:
             pass
-        line = str(message).rstrip("\n")
+        line = message.rstrip("\n")
         severity = self._classify_log_line(line)
         from datetime import datetime
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

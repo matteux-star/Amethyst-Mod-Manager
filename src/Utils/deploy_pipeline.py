@@ -277,6 +277,38 @@ def _build_filemap_for_game(game, profile, *, log_fn: LogFn,
             rf_mods = collect_root_flagged_mods(modlist_path, staging, log_fn=log_fn)
 
         if rescan_index:
+            # Sweep stray Tk-era per-profile indexes. The old Tk install path
+            # wrote modindex.bin/bsa_index.bin into the PROFILE folder
+            # (profiles/<name>/) even for shared-mods profiles, whose real
+            # index lives next to the shared mods/ folder (staging parent) and
+            # is valid for every profile sharing it. Those strays are never
+            # updated by this codebase, so they only mislead users debugging
+            # index staleness ("I have two modindex.bin files"). Only applies
+            # when the profile dir is NOT the index home — for
+            # profile-specific-mods profiles the two coincide and nothing is
+            # ever removed.
+            try:
+                _prof_dir = modlist_path.parent.resolve()
+                if _prof_dir != filemap_out.parent.resolve():
+                    for _stray_name in ("modindex.bin", "bsa_index.bin"):
+                        _stray = modlist_path.parent / _stray_name
+                        if _stray.is_file():
+                            _stray.unlink()
+                            log_fn(f"Removed stray legacy {_stray_name} from "
+                                   f"profile folder ({_stray}) — the real index "
+                                   f"lives next to the shared mods folder.")
+            except OSError as _sw_err:
+                log_fn(f"Stray index sweep warning: {_sw_err}")
+            # Heal mods already on disk that carry a non-UTF-8 (legacy Windows
+            # code page) file name — rebuild_mod_index would otherwise SKIP the
+            # whole mod (no index → no filemap → no conflicts/plugins/deploy).
+            # New installs are repaired at extract time; this covers mods
+            # installed before that existed, on the user's next Refresh.
+            try:
+                from Utils.filemap import repair_nonutf8_names
+                repair_nonutf8_names(staging, log_fn=log_fn)
+            except Exception as _rp_err:
+                log_fn(f"Non-UTF-8 name repair warning: {_rp_err}")
             # Full rescan of every mod folder → rewrite modindex.bin from disk
             # (Refresh button). Uses the same game-derived params build_filemap
             # would, so the cached index stays consistent.

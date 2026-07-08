@@ -828,10 +828,14 @@ def _try_incremental(
             if m in utf8_bad:
                 if log_fn is not None and entry:
                     bad = [rs for rs in entry[0].values() if not _is_utf8_safe(rs)]
-                    log_fn(
-                        f"WARN: Mod \"{m}\" skipped — contains file(s) with "
-                        f"non-UTF-8 name(s): {', '.join(bad[:5])}"
-                    )
+                    try:  # escaped + guarded (see rebuild_mod_index)
+                        log_fn(
+                            f"WARN: Mod \"{_safe_log_str(m)}\" skipped — contains "
+                            f"file(s) with non-UTF-8 name(s): "
+                            f"{', '.join(_safe_log_str(n) for n in bad[:5])}"
+                        )
+                    except Exception:
+                        pass
                 continue
             if not entry or not entry[0]:
                 # Newly-enabled mod with no index entry / zero files → it will
@@ -1297,6 +1301,76 @@ def _is_utf8_safe(s: str) -> bool:
         return True
     except UnicodeEncodeError:
         return False
+
+
+def repair_nonutf8_names(root: "Path | str", log_fn=None) -> int:
+    """Rename any file/dir under *root* whose name is not valid UTF-8.
+
+    Mirrors mod_install._fix_nonutf8_names_extracted_tree but works on a live
+    staging tree, so a Refresh can HEAL mods already on disk (installed before
+    the extract-time repair existed). A non-UTF-8 name (legacy Windows code
+    page byte written verbatim by the extractor) makes rebuild_mod_index skip
+    the WHOLE mod — this restores it. Decodes the raw bytes as CP1252 then
+    CP437 (else backslashreplace) to a valid UTF-8 name. Deepest-first; skips
+    when the target name already exists. Returns entries renamed. Cheap when all
+    names are already UTF-8 (the common case: one rglob, no renames).
+    """
+    root = Path(root)
+    try:
+        offenders = [p for p in root.rglob("*") if not _is_utf8_safe(p.name)]
+    except OSError:
+        return 0
+    if not offenders:
+        return 0
+    renamed = 0
+    for entry in sorted(offenders, key=lambda p: len(p.parts), reverse=True):
+        try:
+            raw = entry.name.encode("utf-8", "surrogateescape")
+        except Exception:
+            continue
+        fixed = None
+        for enc in ("cp1252", "cp437"):
+            try:
+                cand = raw.decode(enc)
+                cand.encode("utf-8")
+                fixed = cand
+                break
+            except (UnicodeDecodeError, UnicodeEncodeError):
+                continue
+        if fixed is None:
+            fixed = raw.decode("utf-8", "backslashreplace")
+        if fixed == entry.name:
+            continue
+        target = entry.parent / fixed
+        try:
+            if target.exists():
+                continue
+            os.rename(os.fsencode(str(entry)), os.fsencode(str(target)))
+            renamed += 1
+        except OSError:
+            continue
+    if renamed and log_fn is not None:
+        log_fn(f"Repaired {renamed} non-UTF-8 file name(s) on disk (legacy "
+               f"Windows code page) so affected mod(s) can be indexed.")
+    return renamed
+
+
+def _safe_log_str(s: str) -> str:
+    """Make *s* safe to hand to any log sink (print/UTF-8 stdout, Qt widget).
+
+    File names read from disk can contain surrogate-escaped non-UTF-8 bytes
+    (e.g. Windows-1252 curly quotes in a mod's music files). Embedding those
+    RAW in a log message makes the log call itself raise UnicodeEncodeError
+    on a strict-UTF-8 stdout — which aborted rebuild_mod_index mid-rescan and
+    left modindex.bin permanently stale ("Index rescan warning: 'utf-8' codec
+    can't encode character '\\udc94' …"). Escape them instead (b"\\x94"-style)
+    so warnings about bad names can never crash the operation reporting them.
+    """
+    try:
+        s.encode("utf-8")
+        return s
+    except UnicodeEncodeError:
+        return s.encode("utf-8", "backslashreplace").decode("utf-8", "replace")
 
 
 # (path, mtime) → mods with non-UTF-8 file names. See mod_index_utf8_unsafe.
@@ -1864,10 +1938,17 @@ def rebuild_mod_index(
         name, normal, root, invalid_names = fut.result()
         if invalid_names:
             if log_fn is not None:
-                log_fn(
-                    f"WARN: Mod \"{name}\" skipped — contains file(s) with "
-                    f"non-UTF-8 name(s): {', '.join(invalid_names)}"
-                )
+                # The names are KNOWN non-UTF-8 — escape them, and never let a
+                # log-sink failure abort the rescan (an unguarded print of the
+                # raw names crashed here and left the index permanently stale).
+                try:
+                    log_fn(
+                        f"WARN: Mod \"{_safe_log_str(name)}\" skipped — contains "
+                        f"file(s) with non-UTF-8 name(s): "
+                        f"{', '.join(_safe_log_str(n) for n in invalid_names)}"
+                    )
+                except Exception:
+                    pass
             continue  # skip the entire mod
         index[name] = (normal, root)
 
@@ -1941,10 +2022,14 @@ def rescan_mods_in_index(
         name, normal, root, invalid_names = fut.result()
         if invalid_names:
             if log_fn is not None:
-                log_fn(
-                    f"WARN: Mod \"{name}\" skipped — contains file(s) with "
-                    f"non-UTF-8 name(s): {', '.join(invalid_names)}"
-                )
+                try:  # escaped names + guarded: logging must never abort the write
+                    log_fn(
+                        f"WARN: Mod \"{_safe_log_str(name)}\" skipped — contains "
+                        f"file(s) with non-UTF-8 name(s): "
+                        f"{', '.join(_safe_log_str(n) for n in invalid_names)}"
+                    )
+                except Exception:
+                    pass
             continue
         index[name] = (normal, root)
 
@@ -2393,10 +2478,14 @@ def build_filemap(
         if name in _utf8_bad:
             bad_names = [rs for rs in normal.values() if not _is_utf8_safe(rs)]
             if log_fn is not None:
-                log_fn(
-                    f"WARN: Mod \"{name}\" skipped — contains file(s) with "
-                    f"non-UTF-8 name(s): {', '.join(bad_names[:5])}"
-                )
+                try:  # escaped + guarded (see rebuild_mod_index)
+                    log_fn(
+                        f"WARN: Mod \"{_safe_log_str(name)}\" skipped — contains "
+                        f"file(s) with non-UTF-8 name(s): "
+                        f"{', '.join(_safe_log_str(n) for n in bad_names[:5])}"
+                    )
+                except Exception:
+                    pass
             continue
         exc = _excluded.get(name)
         had_file = False

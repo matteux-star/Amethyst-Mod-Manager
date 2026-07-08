@@ -511,7 +511,7 @@ def deploy_filemap(
 
     _prebuild_mod_indexes(
         _tab_lines, overwrite_dir, staging_root, mod_index_cache,
-        profile_dir=filemap_path.parent,
+        index_dir=filemap_path.parent,
         strip_prefixes=strip_prefixes,
         per_mod_strip_prefixes=per_mod_strip_prefixes,
     )

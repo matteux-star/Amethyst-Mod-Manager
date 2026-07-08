@@ -1106,19 +1106,30 @@ def _prebuild_mod_indexes(
     staging_root: Path,
     mod_index_cache: dict,
     *,
-    profile_dir: "Path | None" = None,
+    index_dir: "Path | None" = None,
     strip_prefixes: "set[str] | None" = None,
     per_mod_strip_prefixes: "dict[str, list[str]] | None" = None,
 ) -> None:
     """Pre-build per-mod file indexes for all mods referenced in the filemap.
 
-    Fast path: synthesize on-disk paths from Profiles/<game>/modindex.bin
+    Fast path: synthesize on-disk paths from ``<index_dir>/modindex.bin``
     (already built by filemap.py) — no filesystem walk.  The index stores
     *stripped* rel paths, so when strip prefixes are in play the actual file
     may sit behind a wrapper folder (e.g. Data/); those wrapper chains are
     rediscovered with a couple of scandir calls per mod and each entry is
     mapped back to its physical location by checking its first path segment
     against the cached directory listings.
+
+    index_dir — the directory holding filemap.txt + modindex.bin, i.e. the
+    STAGING PARENT (callers pass ``filemap_path.parent``). For shared-mods
+    profiles that is ``Profiles/<game>/`` — NEVER the per-profile folder
+    (``profiles/<name>/``): all shared profiles use the one shared mods/
+    folder, so a single modindex.bin next to it is valid for every profile.
+    (Only profile-specific-mods profiles keep their filemap + index inside
+    the profile dir, and there staging parent == profile dir anyway.) The
+    parameter was previously named ``profile_dir``, which wrongly suggested
+    the per-profile folder — the Tk-era install path wrote a stray
+    ``profiles/<name>/modindex.bin`` because of exactly that confusion.
 
     Slow path: os.walk each mod folder (index missing/stale, or per-mod
     *path*-style strip prefixes whose semantics we don't mirror here).
@@ -1132,10 +1143,10 @@ def _prebuild_mod_indexes(
             mod_names.add(ln[tab_pos + 1:])
 
     index_from_disk: dict | None = None
-    if profile_dir is not None:
+    if index_dir is not None:
         try:
             from Utils.filemap import read_mod_index
-            index_from_disk = read_mod_index(profile_dir / "modindex.bin")
+            index_from_disk = read_mod_index(index_dir / "modindex.bin")
         except Exception:
             index_from_disk = None
 

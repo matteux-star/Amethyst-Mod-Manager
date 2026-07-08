@@ -612,6 +612,30 @@ def _debackslash_extracted_tree(extract_dir: str, log_fn: LogFn) -> int:
     return moved
 
 
+def _fix_nonutf8_names_extracted_tree(extract_dir: str, log_fn: LogFn) -> int:
+    """Repair extracted file/dir names that are not valid UTF-8.
+
+    Archives packed on Windows without the UTF-8 name flag store member names in
+    a legacy code page (CP437/CP1252). Extractors write those bytes verbatim, so
+    a file meant to be ``himinbjörg.mp3`` lands on disk as the raw byte
+    ``0x94`` — not valid UTF-8. The OS surfaces such names surrogate-escaped
+    (``\\udc94``), which (a) crashed logging that embedded them and (b) makes
+    filemap.rebuild_mod_index SKIP THE WHOLE MOD (its _is_utf8_safe check), so
+    the mod silently contributes no files / plugins / conflicts.
+
+    This sweep renames every non-UTF-8 entry to a valid UTF-8 name by decoding
+    the raw bytes with a legacy code page (CP1252 first — the dominant Windows
+    source; the resulting character may not be the visually-intended one, but
+    the file becomes addressable and the mod works). Deepest-first so a renamed
+    parent dir doesn't invalidate child paths. Returns entries renamed.
+    Idempotent; cheap when all names are already UTF-8 (the common case).
+    Thin wrapper over the neutral filemap.repair_nonutf8_names so the extract
+    path and the Refresh (heal-on-disk) path share one implementation.
+    """
+    from Utils.filemap import repair_nonutf8_names
+    return repair_nonutf8_names(extract_dir, log_fn=log_fn)
+
+
 def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn,
                      cancel=None, error_sink: "list[str] | None" = None) -> bool:
     """Extract *archive_path* into *dest_dir*. Native 7z → bsdtar → py7zr →
@@ -650,6 +674,9 @@ def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn,
         # backslash member names as literal flat filenames; repair them into a
         # real tree so staging can resolve the paths (fixes "nothing staged").
         _debackslash_extracted_tree(dest_dir, log_fn)
+        # Repair non-UTF-8 (legacy code page) names so the mod isn't skipped by
+        # the index (rebuild_mod_index drops any mod with a non-UTF-8 filename).
+        _fix_nonutf8_names_extracted_tree(dest_dir, log_fn)
         return True
 
     def _cancelled() -> bool:
