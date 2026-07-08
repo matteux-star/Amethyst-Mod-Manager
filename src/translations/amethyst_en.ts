@@ -2308,14 +2308,17 @@ The original exe is kept as {0}.</translation>
     </message>
 </context>
 <context>
+    <name>ImagePreview</name>
+    <message>
+        <source>Scroll to zoom · drag to pan · double-click to fit</source>
+        <translation>Scroll to zoom · drag to pan · double-click to fit</translation>
+    </message>
+</context>
+<context>
     <name>ImageView</name>
     <message>
-        <source>Click to toggle 100% / fit</source>
-        <translation>Click to toggle 100% / fit</translation>
-    </message>
-    <message>
-        <source>Image could not be loaded</source>
-        <translation>Image could not be loaded</translation>
+        <source>Scroll to zoom · drag to pan · double-click to fit</source>
+        <translation>Scroll to zoom · drag to pan · double-click to fit</translation>
     </message>
 </context>
 <context>
@@ -2499,10 +2502,6 @@ The original exe is kept as {0}.</translation>
     <message>
         <source>⊞ Expand all</source>
         <translation>⊞ Expand all</translation>
-    </message>
-    <message>
-        <source>Search files…</source>
-        <translation>Search files…</translation>
     </message>
     <message>
         <source>⊟ Collapse all</source>
@@ -2759,6 +2758,10 @@ The original exe is kept as {0}.</translation>
     <message>
         <source>Search mods… (try !update, !fomod, !.dds)</source>
         <translation>Search mods… (try !update, !fomod, !.dds)</translation>
+    </message>
+    <message>
+        <source>Search files… (try !.dds)</source>
+        <translation>Search files… (try !.dds)</translation>
     </message>
     <message>
         <source>Edit custom game…</source>

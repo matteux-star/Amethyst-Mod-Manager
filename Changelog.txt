@@ -5,6 +5,7 @@
 - Tabs can be right clicked and repinned to a different location
 - Added localisation support and several languages (Translated mostly via the deepl api)
 - Better theme support, Added a theme editor
+- Improved in app text editor and image viewer
 ### Additions
 - Added Pragmata support
 - Added a favourites menu for wizard tools
