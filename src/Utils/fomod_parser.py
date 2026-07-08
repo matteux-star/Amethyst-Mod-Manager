@@ -218,9 +218,15 @@ def _parse_files(files_el: ET.Element) -> list[FileInstall]:
             destination = child.get("destination")
             is_folder = (tag == "folder")
             # Empty/absent `destination` has DIFFERENT meaning per element type:
-            #   <file>   → preserve the source's relative path (so a
-            #              <file source="meshes/x.nif" destination=""/> lands at
-            #              meshes/x.nif, not flattened to the root).
+            #   <file>   → install the file to the destination ROOT under its
+            #              basename (so <file source="main file\X.esp"
+            #              destination=""/> lands at X.esp, NOT nested under
+            #              main file/). FOMOD authors who want a subpath give an
+            #              explicit destination; an empty one means "root". This
+            #              is what MO2's installerFomod does — earlier we wrongly
+            #              preserved the full source path, which buried CACO's
+            #              main .esp/.bsa under a "main file/" folder so the game
+            #              never saw the plugin.
             #   <folder> → copy the folder's *contents* to the destination root,
             #              stripping the source wrapper (so
             #              <folder source="Base" destination=""/> puts Base/SKSE/…
@@ -228,7 +234,7 @@ def _parse_files(files_el: ET.Element) -> list[FileInstall]:
             #              "no dst_rel → dest_root" path does the stripping.
             # MO2 treats absent and empty identically within each element type.
             if not is_folder and (destination is None or destination == ""):
-                destination = source
+                destination = os.path.basename(source.replace("\\", "/"))
             elif destination is None:
                 destination = ""
             result.append(FileInstall(

@@ -147,9 +147,14 @@ def _copy_file_list(file_list, src_root: str, dest_root: Path, log_fn) -> None:
     src_root_path = Path(src_root)
 
     for src_rel, dst_rel, is_folder in file_list:
-        if src_rel and src_rel == dst_rel:
-            src = src_root_path / src_rel.replace("\\", "/")
-        elif src_rel:
+        if src_rel:
+            # Always resolve the SOURCE case-insensitively. FOMOD XML paths are
+            # Windows-cased, but the extracted archive may be lower/other-cased
+            # on disk (e.g. CACO ships "Complete Alchemy & Cooking Overhaul.esp"
+            # in the XML but "complete alchemy...esp" on disk). A raw case-
+            # sensitive join here fails src.is_file() and silently drops the
+            # file — even when src_rel == dst_rel (the parser's rule for a
+            # <file destination="">), which is the common case for main files.
             src = _resolve_src_case(src_root_path, src_rel, _src_cache)
         else:
             src = src_root_path

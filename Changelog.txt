@@ -25,6 +25,7 @@
 - Added an option to add custom regex rules to strip data from archive names
 - Added a wizard for the Discord version of xedit
 - Added a profile export code option for quickly sharing mods in a profile.
+- Fixed an issue where files in a Fomod wouldn't install if the moduleconfig and files in the archive had mismatched casing
 
 - v1.3.13
 - Runtime generated files that appear in a games root folder are now rescued and sent to the profiles root folder (the root folder separator)
