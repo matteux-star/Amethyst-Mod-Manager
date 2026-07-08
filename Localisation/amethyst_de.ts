@@ -192,11 +192,11 @@ Führe „Deploy“ aus, um die neue Ladereihenfolge im Spiel zu übernehmen.</t
 <context>
     <name>BethiniView</name>
     <message>
-        <source>&apos;{0}&apos; was not found.</source>
+        <source>'{0}' was not found.</source>
         <translation>„{0}“ wurde nicht gefunden.</translation>
     </message>
     <message>
-        <source>Preparing BethINI Pie&apos;s Wine prefix…</source>
+        <source>Preparing BethINI Pie's Wine prefix…</source>
         <translation>Vorbereitung des „Wine“-Präfixes für BethINI Pie…</translation>
     </message>
 </context>
@@ -254,7 +254,7 @@ Stelle zunächst deine Modliste bereit und öffne diesen Assistenten anschließe
         <translation>Lose Dateien nach dem Verpacken löschen</translation>
     </message>
     <message>
-        <source>Files that get packed will be removed from the mod folder. Files outside the packable filter (plugins, readmes, .bik videos) and files you&apos;ve disabled in the Mod Files tab are left alone.</source>
+        <source>Files that get packed will be removed from the mod folder. Files outside the packable filter (plugins, readmes, .bik videos) and files you've disabled in the Mod Files tab are left alone.</source>
         <translation>Dateien, die gepackt werden, werden aus dem Mod-Ordner entfernt. Dateien, die nicht unter den Filter für packbare Dateien fallen (Plugins, Readme-Dateien, .bik-Videos), sowie Dateien, die Sie auf der Registerkarte „Mod-Dateien“ deaktiviert haben, bleiben unberührt.</translation>
     </message>
     <message>
@@ -300,7 +300,7 @@ Stelle zunächst deine Modliste bereit und öffne diesen Assistenten anschließe
         <translation>In diesem Mod-Ordner befinden sich keine Archivdateien.</translation>
     </message>
     <message>
-        <source>Unpacking extracts every archive under the selected plugin into this mod&apos;s folder, deletes those archives, removes the plugin if it was a generated stub, and re-enables the unpacked files in the Mod Files tab.</source>
+        <source>Unpacking extracts every archive under the selected plugin into this mod's folder, deletes those archives, removes the plugin if it was a generated stub, and re-enables the unpacked files in the Mod Files tab.</source>
         <translation>Beim Entpacken werden alle Archive unter dem ausgewählten Plugin in den Ordner dieses Mods entpackt, diese Archive gelöscht, das Plugin entfernt, falls es sich um einen generierten Platzhalter handelte, und die entpackten Dateien auf der Registerkarte „Mod-Dateien“ wieder aktiviert.</translation>
     </message>
     <message>
@@ -882,9 +882,9 @@ Der MD5-Cache bleibt erhalten. Archive werden bei Bedarf erneut heruntergeladen.
         <translation>Gemeinsame Einstellungen verwenden?</translation>
     </message>
     <message>
-        <source>Remove this profile&apos;s own paths and options so it follows the shared (default profile) settings again?
+        <source>Remove this profile's own paths and options so it follows the shared (default profile) settings again?
 
-The default profile&apos;s settings are not affected.</source>
+The default profile's settings are not affected.</source>
         <translation>Sollen die eigenen Pfade und Optionen dieses Profils entfernt werden, damit es wieder den gemeinsamen (Standardprofil-)Einstellungen folgt?
 
 Die Einstellungen des Standardprofils bleiben davon unberührt.</translation>
@@ -981,7 +981,7 @@ Die Einstellungen des Standardprofils bleiben davon unberührt.</translation>
         <translation>Weiter mit der Installation der Sammlung</translation>
     </message>
     <message>
-        <source>This collection is already installed in profile &apos;{0}&apos;.</source>
+        <source>This collection is already installed in profile '{0}'.</source>
         <translation>Diese Sammlung ist bereits im Profil „{0}“ installiert.</translation>
     </message>
     <message>
@@ -1085,7 +1085,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Stamm</translation>
     </message>
     <message>
-        <source>Mods deploy directly to the game&apos;s root folder. Same as The Witcher 3 and Cyberpunk 2077.</source>
+        <source>Mods deploy directly to the game's root folder. Same as The Witcher 3 and Cyberpunk 2077.</source>
         <translation>Mods werden direkt im Stammordner des Spiels installiert. Genau wie bei „The Witcher 3“ und „Cyberpunk 2077“.</translation>
     </message>
     <message>
@@ -1125,7 +1125,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Präfix voranstellen</translation>
     </message>
     <message>
-        <source>Path segment prepended to every installed file. e.g. &apos;mods&apos; so files land at mods/&lt;ModName&gt;/…</source>
+        <source>Path segment prepended to every installed file. e.g. 'mods' so files land at mods/&lt;ModName&gt;/…</source>
         <translation>Pfadsegment, das jeder installierten Datei vorangestellt wird, z. B. „mods“, sodass die Dateien unter mods/&lt;ModName&gt;/… abgelegt werden.</translation>
     </message>
     <message>
@@ -1181,7 +1181,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Vor der Bereitstellung wiederherstellen</translation>
     </message>
     <message>
-        <source>When enabled (default), the manager runs Restore before every Deploy to clean the game state first. Disable only if the game&apos;s deploy cycle handles its own cleanup internally.</source>
+        <source>When enabled (default), the manager runs Restore before every Deploy to clean the game state first. Disable only if the game's deploy cycle handles its own cleanup internally.</source>
         <translation>Wenn diese Option aktiviert ist (Standardeinstellung), führt der Manager vor jedem Deploy den Befehl „Restore“ aus, um zunächst den Spielzustand zu bereinigen. Deaktivieren Sie diese Option nur, wenn der Deploy-Zyklus des Spiels die Bereinigung intern selbst übernimmt.</translation>
     </message>
     <message>
@@ -1217,7 +1217,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Name der ausführbaren Datei</translation>
     </message>
     <message>
-        <source>The .exe location from the game&apos;s root folder. e.g. bin/bg3.exe for BG3 or SkyrimSELauncher.exe for Skyrim SE</source>
+        <source>The .exe location from the game's root folder. e.g. bin/bg3.exe for BG3 or SkyrimSELauncher.exe for Skyrim SE</source>
         <translation>Der Speicherort der .exe-Datei im Stammverzeichnis des Spiels. Z. B. „bin/bg3.exe“ für BG3 oder „SkyrimSELauncher.exe“ für Skyrim SE</translation>
     </message>
     <message>
@@ -1249,7 +1249,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Nexus Mods-Domain  (optional)</translation>
     </message>
     <message>
-        <source>The game&apos;s slug on nexusmods.com. e.g. &apos;skyrimspecialedition&apos;.</source>
+        <source>The game's slug on nexusmods.com. e.g. 'skyrimspecialedition'.</source>
         <translation>Der Name des Spiels auf nexusmods.com, z. B. „skyrimspecialedition“.</translation>
     </message>
     <message>
@@ -1317,6 +1317,18 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Datei/Ordner</translation>
     </message>
     <message>
+        <source>Restore Whitelist</source>
+        <translation>Whitelist wiederherstellen</translation>
+    </message>
+    <message>
+        <source>Protect runtime-generated files from being moved out of the game folder on restore. Each rule anchors at a path relative to the game root (empty = the game root) and matches folder names (protecting the folder's whole contents), filenames, or extensions directly at that path. Matching is case-insensitive and anchored — the same name at any other path needs its own rule. Folder and filename values accept wildcards (e.g. ego_dlc* or *.log).</source>
+        <translation>Schützen Sie laufzeitgenerierte Dateien davor, bei der Wiederherstellung aus dem Spielordner verschoben zu werden. Jede Regel verankert sich auf einem Pfad relativ zum Spielwurzel (leer = Spielwurzel) und passt Ordnernamen (Schutz des gesamten Inhalts des Ordners), Dateinamen oder Erweiterungen direkt an diesem Pfad. Matching ist fallunempfindlich und verankert - der gleiche name auf jedem anderen weg braucht seine eigene regel. Ordner und Dateinamen akzeptieren Platzhalter (z. B. ego dlc* oder *.log).</translation>
+    </message>
+    <message>
+        <source>Path in game root</source>
+        <translation>Pfad im Spiel root</translation>
+    </message>
+    <message>
         <source>Framework Detection</source>
         <translation>Rahmenerkennung</translation>
     </message>
@@ -1353,7 +1365,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>z. B. OblivionRemastered</translation>
     </message>
     <message>
-        <source>Path relative to the game root where mod files are installed. e.g. &apos;Data&apos; for Bethesda games, &apos;BepInEx/plugins&apos; for BepInEx. Leave empty to target the game root directly.</source>
+        <source>Path relative to the game root where mod files are installed. e.g. 'Data' for Bethesda games, 'BepInEx/plugins' for BepInEx. Leave empty to target the game root directly.</source>
         <translation>Pfad relativ zum Spielstammverzeichnis, in dem die Mod-Dateien installiert sind. Z. B. „Data“ für Bethesda-Spiele, „BepInEx/plugins“ für BepInEx. Lassen Sie das Feld leer, um direkt auf das Spielstammverzeichnis zu verweisen.</translation>
     </message>
     <message>
@@ -1403,6 +1415,10 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
     <message>
         <source>Remove rule</source>
         <translation>Regel entfernen</translation>
+    </message>
+    <message>
+        <source>e.g. output/extensions</source>
+        <translation>z. b. output/erweiterungen</translation>
     </message>
     <message>
         <source>e.g. Script Extender</source>
@@ -1485,7 +1501,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Es sind keine DLL-Überschreibungen konfiguriert.</translation>
     </message>
     <message>
-        <source>Remove &apos;{0}&apos;</source>
+        <source>Remove '{0}'</source>
         <translation>„{0}“ entfernen</translation>
     </message>
     <message>
@@ -1493,7 +1509,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Ungültiger DLL-Name.</translation>
     </message>
     <message>
-        <source>&apos;{0}&apos; is already in the list.</source>
+        <source>'{0}' is already in the list.</source>
         <translation>„{0}“ steht bereits auf der Liste.</translation>
     </message>
     <message>
@@ -1524,7 +1540,7 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
         <translation>Auf der Registerkarte „Downloads“ werden Ordner nach Mod-Archiven durchsucht.</translation>
     </message>
     <message>
-        <source>Scan this game&apos;s download cache</source>
+        <source>Scan this game's download cache</source>
         <translation>Den Download-Cache dieses Spiels scannen</translation>
     </message>
     <message>
@@ -1550,6 +1566,71 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
     <message>
         <source>Scan default Downloads folder ({0})</source>
         <translation>Standardordner „Downloads“ durchsuchen ({0})</translation>
+    </message>
+</context>
+<context>
+    <name>DtkitPatchView</name>
+    <message>
+        <source>Step 1: Deploy mods</source>
+        <translation>Schritt 1: Mods bereitstellen</translation>
+    </message>
+    <message>
+        <source>dtkit-patch.exe ships with the Darktide Mod Loader and runs under Proton, so it always matches your installed version.
+
+Your mods are deployed first so the patcher and the bundle database are present in the game folder.</source>
+        <translation>dtkit-patch.exe wird mit dem Darktide Mod Loader ausgeliefert und läuft unter Proton, so dass es immer zu Ihrer installierten Version passt.
+
+Ihre Mods werden zuerst bereitgestellt, so dass der Patcher und die Bundle-Datenbank im Spielordner vorhanden sind.</translation>
+    </message>
+    <message>
+        <source>Step 2: Toggle bundle patch</source>
+        <translation>Schritt 2: Bündel-Patch umschalten</translation>
+    </message>
+    <message>
+        <source>Patcher:
+{0}
+
+Game folder (cwd):
+{1}
+
+Toggle flips the patch on or off (same as the Mod Loader's toggle_darktide_mods.bat). Patch to enable mods; toggle again to disable. Re-run after every game update.</source>
+        <translation>Patcher:
+{0}
+
+Spielordner (cwd):
+{1}
+
+Toggle schaltet den Patch ein oder aus (das gleiche wie toggle darktide mods.bat des Mod Loaders). Patch zum Aktivieren von Mods; Umschalten erneut zum Deaktivieren. Re-Run nach jedem Spiel-Update.</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Fertig</translation>
+    </message>
+    <message>
+        <source>Toggle Patch</source>
+        <translation>Toggle Patch</translation>
+    </message>
+    <message>
+        <source>Deploy finished, but tools/dtkit-patch.exe was not found in the game folder.
+Make sure the Darktide Mod Loader mod is enabled.</source>
+        <translation>Bereitstellen beendet, aber tools/dtkit-patch.exe wurde nicht im Spielordner gefunden.
+Stellen Sie sicher, dass der Darktide Mod Loader Mod aktiviert ist.</translation>
+    </message>
+    <message>
+        <source>Running dtkit-patch — toggle…</source>
+        <translation>Running dtkit-patch — toggle..</translation>
+    </message>
+    <message>
+        <source>Done. The bundle patch state was toggled.
+Launch the game to verify mods load (toggle again to disable).</source>
+        <translation>Geschehen. Der Bundle Patch Zustand wurde umgeschaltet.
+Starten Sie das Spiel, um das Laden von Mods zu überprüfen (wieder umschalten, um es zu deaktivieren).</translation>
+    </message>
+    <message>
+        <source>dtkit-patch did not complete successfully.
+Check the output above and the log.</source>
+        <translation>dtkit-patch wurde nicht erfolgreich abgeschlossen.
+Überprüfen Sie die Ausgabe oben und das Protokoll.</translation>
     </message>
 </context>
 <context>
@@ -1624,7 +1705,7 @@ oder wählen Sie die Datei manuell über „Durchsuchen“ aus.</translation>
     </message>
     <message>
         <source>Before deploying, please delete any output from a previous
-{0} run (the &apos;{1}&apos; mod in your mod list).
+{0} run (the '{1}' mod in your mod list).
 
 Once you have done this, click Deploy.</source>
         <translation>Bitte löschen Sie vor der Veröffentlichung alle Ergebnisse eines früheren Durchlaufs von „
@@ -1709,7 +1790,7 @@ Schließen Sie es, wenn Sie fertig sind, und klicken Sie anschließend auf „Fe
     </message>
     <message>
         <source>ESLifier will be downloaded from GitHub and installed into this
-game&apos;s Applications folder.
+game's Applications folder.
 
 Click Install to begin.</source>
         <translation>ESLifier wird von GitHub heruntergeladen und im
@@ -1730,7 +1811,7 @@ Klicken Sie auf „Installieren“, um zu beginnen.</translation>
 the mod staging folder, so no deploy is required.
 
 When ESLifier finishes, it writes its output as the
-&apos;{0}&apos; mod, which will appear in your mod list.</source>
+'{0}' mod, which will appear in your mod list.</source>
         <translation>ESLifier läuft im MO2-Modus und liest Ihre Ladereihenfolge direkt aus
 dem Mod-Staging-Ordner aus, sodass kein Deploy erforderlich ist.
 
@@ -1753,7 +1834,7 @@ Mod „{0}“, der in Ihrer Mod-Liste erscheint.</translation>
 <context>
     <name>EngineFixesView</name>
     <message>
-        <source>Editing values from {0}. Save writes the managed mod &apos;{1}&apos;.</source>
+        <source>Editing values from {0}. Save writes the managed mod '{1}'.</source>
         <translation>Werte aus „{0}“ bearbeiten. Beim Speichern wird das verwaltete Mod „{1}“ geschrieben.</translation>
     </message>
     <message>
@@ -2233,14 +2314,17 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
     </message>
 </context>
 <context>
+    <name>ImagePreview</name>
+    <message>
+        <source>Scroll to zoom · drag to pan · double-click to fit</source>
+        <translation>Scrollen zum Zoom · Ziehen zum Schwenken · Doppelklicken zum Passen</translation>
+    </message>
+</context>
+<context>
     <name>ImageView</name>
     <message>
-        <source>Click to toggle 100% / fit</source>
-        <translation>Klicken Sie hier, um zwischen 100 % und „An Seite anpassen“ umzuschalten</translation>
-    </message>
-    <message>
-        <source>Image could not be loaded</source>
-        <translation>Das Bild konnte nicht geladen werden</translation>
+        <source>Scroll to zoom · drag to pan · double-click to fit</source>
+        <translation>Scrollen zum Zoom · Ziehen zum Schwenken · Doppelklicken zum Passen</translation>
     </message>
 </context>
 <context>
@@ -2250,7 +2334,7 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
         <translation>Regeln für den Installationsnamen</translation>
     </message>
     <message>
-        <source>Rules are applied in order to a downloaded archive&apos;s filename (without extension) to work out the mod name. The built-in rules for the known Nexus / mod.io download formats are shown below and can be edited or reset to their defaults; add your own to adapt to a new format without waiting for an update. Each rule runs a regular-expression search/replace; use \1, \2 … to keep captured groups.</source>
+        <source>Rules are applied in order to a downloaded archive's filename (without extension) to work out the mod name. The built-in rules for the known Nexus / mod.io download formats are shown below and can be edited or reset to their defaults; add your own to adapt to a new format without waiting for an update. Each rule runs a regular-expression search/replace; use \1, \2 … to keep captured groups.</source>
         <translation>Die Regeln werden der Reihe nach auf den Dateinamen (ohne Erweiterung) eines heruntergeladenen Archivs angewendet, um den Mod-Namen zu ermitteln. Die integrierten Regeln für die bekannten Download-Formate von Nexus und mod.io sind unten aufgeführt und können bearbeitet oder auf ihre Standardwerte zurückgesetzt werden; füge eigene Regeln hinzu, um dich an ein neues Format anzupassen, ohne auf ein Update warten zu müssen. Jede Regel führt eine Suche und Ersetzung mit regulären Ausdrücken durch; verwenden Sie \1, \2 …, um erfasste Gruppen beizubehalten.</translation>
     </message>
     <message>
@@ -2398,10 +2482,6 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
         <translation>Modliste aktualisieren</translation>
     </message>
     <message>
-        <source>Search mods…</source>
-        <translation>Mods suchen…</translation>
-    </message>
-    <message>
         <source>Sort Plugins</source>
         <translation>Plugins sortieren</translation>
     </message>
@@ -2428,10 +2508,6 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
     <message>
         <source>⊞ Expand all</source>
         <translation>⊞ Alle erweitern</translation>
-    </message>
-    <message>
-        <source>Search files…</source>
-        <translation>Dateien suchen…</translation>
     </message>
     <message>
         <source>⊟ Collapse all</source>
@@ -2490,7 +2566,7 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
         <translation>Inhalt suchen</translation>
     </message>
     <message>
-        <source>Content: &quot;{0}&quot;</source>
+        <source>Content: "{0}"</source>
         <translation>Inhalt: „{0}“</translation>
     </message>
     <message>
@@ -2686,6 +2762,14 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
         <translation>Theme-Editor</translation>
     </message>
     <message>
+        <source>Search mods… (try !update, !fomod, !.dds)</source>
+        <translation>Such-Mods... (versuchen Sie !update, !fomod, !.dds)</translation>
+    </message>
+    <message>
+        <source>Search files… (try !.dds)</source>
+        <translation>Suchdateien... (versuchen Sie !.dds)</translation>
+    </message>
+    <message>
         <source>Edit custom game…</source>
         <translation>Benutzerdefiniertes Spiel bearbeiten…</translation>
     </message>
@@ -2746,11 +2830,11 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
         <translation>Heruntergeladen – kein Spiel ausgewählt; siehe Registerkarte „Downloads“.</translation>
     </message>
     <message>
-        <source>No configured game for Nexus domain &apos;{0}&apos;.</source>
+        <source>No configured game for Nexus domain '{0}'.</source>
         <translation>Für die Nexus-Domäne „{0}“ ist kein Spiel konfiguriert.</translation>
     </message>
     <message>
-        <source>Collections aren&apos;t supported for &apos;{0}&apos;.</source>
+        <source>Collections aren't supported for '{0}'.</source>
         <translation>„{0}“ unterstützt keine Sammlungen.</translation>
     </message>
     <message>
@@ -2758,7 +2842,7 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
         <translation>Es wurde kein konfiguriertes Spiel ausgewählt.</translation>
     </message>
     <message>
-        <source>&apos;{0}&apos; has no Nexus Mods page.</source>
+        <source>'{0}' has no Nexus Mods page.</source>
         <translation>„{0}“ hat keine Nexus-Mods-Seite.</translation>
     </message>
     <message>
@@ -2770,7 +2854,7 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
         <translation>Eine Collection-Installation wird gerade ausgeführt – versuche es erneut, sobald sie abgeschlossen ist.</translation>
     </message>
     <message>
-        <source>Remove &apos;{0}&apos; and its {1} mod(s) from this profile?
+        <source>Remove '{0}' and its {1} mod(s) from this profile?
 
 Their files are deleted from the staging folder — this cannot be undone.</source>
         <translation>Sollen „{0}“ und die dazugehörigen Mods unter {1} aus diesem Profil entfernt werden?
@@ -2778,7 +2862,7 @@ Their files are deleted from the staging folder — this cannot be undone.</sour
 Die entsprechenden Dateien werden aus dem Staging-Ordner gelöscht – dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
-        <source>No installed mods from &apos;{0}&apos; were found in this profile.
+        <source>No installed mods from '{0}' were found in this profile.
 
 Remove the appended-collection entry?</source>
         <translation>In diesem Profil wurden keine installierten Mods von „{0}“ gefunden.
@@ -2794,19 +2878,19 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <source>Removed appended collection &apos;{0}&apos;.</source>
+        <source>Removed appended collection '{0}'.</source>
         <translation>Die angehängte Sammlung „{0}“ wurde entfernt.</translation>
     </message>
     <message>
-        <source>Could not remove &apos;{0}&apos; — see the log.</source>
+        <source>Could not remove '{0}' — see the log.</source>
         <translation>„{0}“ konnte nicht entfernt werden – siehe Protokoll.</translation>
     </message>
     <message>
-        <source>The active profile isn&apos;t a collection profile.</source>
+        <source>The active profile isn't a collection profile.</source>
         <translation>Das aktive Profil ist kein Sammelprofil.</translation>
     </message>
     <message>
-        <source>Couldn&apos;t read the collection from this profile.</source>
+        <source>Couldn't read the collection from this profile.</source>
         <translation>Die Sammlung konnte aus diesem Profil nicht gelesen werden.</translation>
     </message>
     <message>
@@ -2838,7 +2922,7 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Das installierte Sammlungsprofil konnte nicht gefunden werden.</translation>
     </message>
     <message>
-        <source>Switch to profile &apos;{0}&apos; first, then Update.</source>
+        <source>Switch to profile '{0}' first, then Update.</source>
         <translation>Wechseln Sie zunächst zum Profil „{0}“ und führen Sie dann die Aktualisierung durch.</translation>
     </message>
     <message>
@@ -2858,7 +2942,7 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Profil konnte nicht erstellt werden: {0}</translation>
     </message>
     <message>
-        <source>Profile &apos;{0}&apos; not found.</source>
+        <source>Profile '{0}' not found.</source>
         <translation>Das Profil „{0}“ wurde nicht gefunden.</translation>
     </message>
     <message>
@@ -2898,11 +2982,11 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Browser wird geöffnet, um sich bei Nexus Mods anzumelden…</translation>
     </message>
     <message>
-        <source>Start &apos;Login via SSO&apos; first, then paste the code.</source>
+        <source>Start 'Login via SSO' first, then paste the code.</source>
         <translation>Starten Sie zunächst „Anmeldung über SSO“ und fügen Sie dann den Code ein.</translation>
     </message>
     <message>
-        <source>The login session has ended — start &apos;Login via SSO&apos; again.</source>
+        <source>The login session has ended — start 'Login via SSO' again.</source>
         <translation>Die Anmeldesitzung ist abgelaufen – starten Sie „Anmeldung über SSO“ erneut.</translation>
     </message>
     <message>
@@ -3010,7 +3094,7 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Es wurde kein Profil ausgewählt.</translation>
     </message>
     <message>
-        <source>&apos;{0}&apos; isn&apos;t a Nexus mod.</source>
+        <source>'{0}' isn't a Nexus mod.</source>
         <translation>„{0}“ ist kein Nexus-Mod.</translation>
     </message>
     <message>
@@ -3018,7 +3102,7 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Version ändern</translation>
     </message>
     <message>
-        <source>&apos;{0}&apos; has no bundle configuration.</source>
+        <source>'{0}' has no bundle configuration.</source>
         <translation>„{0}“ verfügt über keine Bundle-Konfiguration.</translation>
     </message>
     <message>
@@ -3094,19 +3178,19 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Kopieren</translation>
     </message>
     <message>
-        <source>Moving {0} mod(s) to &apos;{1}&apos;…</source>
+        <source>Moving {0} mod(s) to '{1}'…</source>
         <translation>{0}-Mod(s) werden nach „{1}“ verschoben…</translation>
     </message>
     <message>
-        <source>Copying {0} mod(s) to &apos;{1}&apos;…</source>
+        <source>Copying {0} mod(s) to '{1}'…</source>
         <translation>{0}-Mod(s) werden nach „{1}“ kopiert…</translation>
     </message>
     <message>
-        <source>Moved {0}/{1} mod(s) to &apos;{2}&apos;.</source>
+        <source>Moved {0}/{1} mod(s) to '{2}'.</source>
         <translation>Die Mods „{0}“ und „{1}“ wurden in den Ordner „{2}“ verschoben.</translation>
     </message>
     <message>
-        <source>Copied {0}/{1} mod(s) to &apos;{2}&apos;.</source>
+        <source>Copied {0}/{1} mod(s) to '{2}'.</source>
         <translation>Die Mod(s) „{0}“ und „{1}“ wurden in den Ordner „{2}“ kopiert.</translation>
     </message>
     <message>
@@ -3158,11 +3242,11 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Das Manifest konnte nicht gelesen werden: {0}</translation>
     </message>
     <message>
-        <source>That file doesn&apos;t look like an Amethyst manifest.</source>
+        <source>That file doesn't look like an Amethyst manifest.</source>
         <translation>Diese Datei sieht nicht nach einem Amethyst-Manifest aus.</translation>
     </message>
     <message>
-        <source>This profile targets &apos;{0}&apos;, but the selected game is &apos;{1}&apos;. Switch games first, then import.</source>
+        <source>This profile targets '{0}', but the selected game is '{1}'. Switch games first, then import.</source>
         <translation>Dieses Profil ist für „{0}“ vorgesehen, das ausgewählte Spiel ist jedoch „{1}“. Wechseln Sie zunächst das Spiel und führen Sie dann den Import durch.</translation>
     </message>
     <message>
@@ -3190,11 +3274,11 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Profileinstellungen</translation>
     </message>
     <message>
-        <source>Profile &apos;{0}&apos; already exists.</source>
+        <source>Profile '{0}' already exists.</source>
         <translation>Das Profil „{0}“ existiert bereits.</translation>
     </message>
     <message>
-        <source>Profile &apos;{0}&apos; created</source>
+        <source>Profile '{0}' created</source>
         <translation>Profil „{0}“ erstellt</translation>
     </message>
     <message>
@@ -3214,7 +3298,7 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Konfigurieren: {0}</translation>
     </message>
     <message>
-        <source>&apos;{0}&apos; does not support deployment.</source>
+        <source>'{0}' does not support deployment.</source>
         <translation>„{0}“ unterstützt keine Bereitstellung.</translation>
     </message>
     <message>
@@ -3382,7 +3466,7 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Umbenennung fehlgeschlagen: {0}</translation>
     </message>
     <message>
-        <source>Renamed to &apos;{0}&apos;.</source>
+        <source>Renamed to '{0}'.</source>
         <translation>In „{0}“ umbenannt.</translation>
     </message>
     <message>
@@ -3470,6 +3554,70 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>Modliste aktualisiert</translation>
     </message>
     <message>
+        <source>Updates</source>
+        <translation>Aktualisierungen</translation>
+    </message>
+    <message>
+        <source>Winning conflicts</source>
+        <translation>Konflikte erfolgreich bewältigen</translation>
+    </message>
+    <message>
+        <source>Losing conflicts</source>
+        <translation>Verlorene Konflikte</translation>
+    </message>
+    <message>
+        <source>Winning &amp; losing</source>
+        <translation>Gewinnen &amp; Verlieren</translation>
+    </message>
+    <message>
+        <source>Fully conflicted</source>
+        <translation>Vollständiger Konflikt</translation>
+    </message>
+    <message>
+        <source>FOMOD installs</source>
+        <translation>FOMOD Installationen</translation>
+    </message>
+    <message>
+        <source>BAIN installs</source>
+        <translation>BAIN-Anlagen</translation>
+    </message>
+    <message>
+        <source>Missing requirements</source>
+        <translation>Fehlende Anforderungen</translation>
+    </message>
+    <message>
+        <source>Has notes</source>
+        <translation>Hat Notizen</translation>
+    </message>
+    <message>
+        <source>Has plugins</source>
+        <translation>Hat Plugins</translation>
+    </message>
+    <message>
+        <source>Has BSA/BA2 archives</source>
+        <translation>Hat BSA / BA2 Archive</translation>
+    </message>
+    <message>
+        <source>PGPatcher textures</source>
+        <translation>PGPatcher Texturen</translation>
+    </message>
+    <message>
+        <source>Enabled / disabled</source>
+        <translation>Aktiviert / deaktiviert</translation>
+    </message>
+    <message>
+        <source>By file type</source>
+        <translation>Nach Dateityp</translation>
+    </message>
+    <message>
+        <source>By category</source>
+        <translation>Nach Kategorie</translation>
+    </message>
+    <message>
+        <source>Filter the modlist with search tags (combine them, and with text):</source>
+        <translation>Filtern Sie die Modlist mit Such-Tags (kombinieren Sie sie und mit Text):</translation>
+    </message>
+    <message>
         <source>Mods with BA2 archives</source>
         <translation>Mods mit BA2-Archiven</translation>
     </message>
@@ -3546,11 +3694,11 @@ Wie auch immer?</translation>
         <translation>userlist.yaml nicht gefunden – Regel kann nicht umgedreht werden.</translation>
     </message>
     <message>
-        <source>Rule {0} &apos;{1}&apos; {2} not found in userlist.yaml.</source>
+        <source>Rule {0} '{1}' {2} not found in userlist.yaml.</source>
         <translation>Regel {0} „{1}“ {2} wurde in der Datei „userlist.yaml“ nicht gefunden.</translation>
     </message>
     <message>
-        <source>Flipped: {0} now &apos;{1}&apos; {2}</source>
+        <source>Flipped: {0} now '{1}' {2}</source>
         <translation>Umgedreht: „{0}“ heißt jetzt „{1}“ {2}</translation>
     </message>
     <message>
@@ -3570,7 +3718,7 @@ Wie auch immer?</translation>
         <translation>LOOT-Bibliothek nicht verfügbar – Sortieren nicht möglich.</translation>
     </message>
     <message>
-        <source>LOOT sorting isn&apos;t supported for this game.</source>
+        <source>LOOT sorting isn't supported for this game.</source>
         <translation>Die LOOT-Sortierung wird für dieses Spiel nicht unterstützt.</translation>
     </message>
     <message>
@@ -3692,11 +3840,11 @@ Wie auch immer?</translation>
         <translation>Vielen Dank für Ihre Unterstützung!</translation>
     </message>
     <message>
-        <source>You&apos;ve already endorsed — thank you!</source>
+        <source>You've already endorsed — thank you!</source>
         <translation>Du hast bereits deine Unterstützung bekundet – vielen Dank!</translation>
     </message>
     <message>
-        <source>Nexus only lets you endorse the app after you&apos;ve downloaded it at least once. Opening the AMM page — please download it there first, then endorse.</source>
+        <source>Nexus only lets you endorse the app after you've downloaded it at least once. Opening the AMM page — please download it there first, then endorse.</source>
         <translation>Bei Nexus kannst du die App erst empfehlen, nachdem du sie mindestens einmal heruntergeladen hast. Öffne die AMM-Seite – bitte lade sie dort zuerst herunter und empfehle sie dann.</translation>
     </message>
     <message>
@@ -4092,7 +4240,7 @@ Wie auch immer?</translation>
     </message>
     <message>
         <source>Paste your mod.io read-only API key to enable update checks
-for Baldur&apos;s Gate 3 mods installed manually from mod.io.
+for Baldur's Gate 3 mods installed manually from mod.io.
 
 The key is read-only and stored securely (system keyring,
 or an encrypted file when no keyring is available).</source>
@@ -4235,7 +4383,7 @@ oder in einer verschlüsselten Datei, falls kein Schlüsselbund verfügbar ist).
 <context>
     <name>NexusFileChooser</name>
     <message>
-        <source>&apos;{0}&apos; has multiple main files.</source>
+        <source>'{0}' has multiple main files.</source>
         <translation>„{0}“ enthält mehrere Hauptdateien.</translation>
     </message>
     <message>
@@ -4458,7 +4606,7 @@ Jedes Spiel erhält einen eigenen Unterordner.</translation>
     </message>
     <message>
         <source>Before deploying, please delete any output from a previous
-PGPatcher run (the &apos;PGPatcher_output&apos; mod in your mod list / staging folder).
+PGPatcher run (the 'PGPatcher_output' mod in your mod list / staging folder).
 
 Once you have done this, click Deploy.</source>
         <translation>Bitte löschen Sie vor der Bereitstellung alle Ausgabe-Dateien eines früheren
@@ -4521,7 +4669,7 @@ pro Mod in Konflikt stehen, genau wie bei einer echten MO2-Konfiguration. Experi
     </message>
     <message>
         <source>Before deploying, please delete any output from a previous
-Pandora run (the &apos;Pandora_output&apos; mod in your mod list).
+Pandora run (the 'Pandora_output' mod in your mod list).
 
 Once you have done this, click Deploy.</source>
         <translation>Bitte lösche vor der Bereitstellung alle Ergebnisse eines früheren
@@ -4554,7 +4702,7 @@ Klicke anschließend auf „Bereitstellen“.</translation>
         <translation>Schritt 2: Proton-Version auswählen</translation>
     </message>
     <message>
-        <source>&apos;{0}&apos; was not found in your mod staging folder.
+        <source>'{0}' was not found in your mod staging folder.
 
 Install Pandora Behaviour Engine+ as a mod, then reopen this wizard.</source>
         <translation>„{0}“ wurde in Ihrem Mod-Staging-Ordner nicht gefunden.
@@ -4867,7 +5015,7 @@ Zur Überprüfung erneut scannen.</translation>
     </message>
     <message>
         <source>No plugin selected.
-Right-click a plugin and choose &apos;Plugin Rules&apos;.</source>
+Right-click a plugin and choose 'Plugin Rules'.</source>
         <translation>Es wurde kein Plugin ausgewählt.
 Klicken Sie mit der rechten Maustaste auf ein Plugin und wählen Sie „Plugin-Regeln“.</translation>
     </message>
@@ -4892,7 +5040,7 @@ Ziehe ein Plugin aus dem linken Bereich, um eine Regel hinzuzufügen.</translati
         <translation>Präfixe verwalten</translation>
     </message>
     <message>
-        <source>Wizard tools each run in their own Wine prefix (created next to the tool&apos;s exe or in the app config folder). Deleting one only reclaims disk space — it is recreated automatically the next time the tool runs.</source>
+        <source>Wizard tools each run in their own Wine prefix (created next to the tool's exe or in the app config folder). Deleting one only reclaims disk space — it is recreated automatically the next time the tool runs.</source>
         <translation>Die Wizard-Tools werden jeweils in einem eigenen Wine-Präfix ausgeführt (das neben der EXE-Datei des Tools oder im Konfigurationsordner der Anwendung angelegt wird). Durch das Löschen eines Präfixes wird lediglich Speicherplatz freigegeben – es wird beim nächsten Start des Tools automatisch neu erstellt.</translation>
     </message>
     <message>
@@ -4975,7 +5123,7 @@ Ziehe ein Plugin aus dem linken Bereich, um eine Regel hinzuzufügen.</translati
         <translation>Entfernen</translation>
     </message>
     <message>
-        <source>Rename &apos;{0}&apos; to:</source>
+        <source>Rename '{0}' to:</source>
         <translation>Benenne „{0}“ um in:</translation>
     </message>
     <message>
@@ -4991,7 +5139,7 @@ Ziehe ein Plugin aus dem linken Bereich, um eine Regel hinzuzufügen.</translati
         <translation>Der Deployment-Vorgang läuft gerade – bitte versuchen Sie es in Kürze erneut.</translation>
     </message>
     <message>
-        <source>Profile &apos;{0}&apos; removed</source>
+        <source>Profile '{0}' removed</source>
         <translation>Profil „{0}“ wurde gelöscht</translation>
     </message>
 </context>
@@ -5033,7 +5181,7 @@ Installiere eine Proton-Version in Steam und öffne diesen Assistenten anschlie�
         <translation>Spielpräfix verwenden</translation>
     </message>
     <message>
-        <source>Run inside the game&apos;s own prefix. No new prefix is created and the Proton version follows the game&apos;s Steam setting.</source>
+        <source>Run inside the game's own prefix. No new prefix is created and the Proton version follows the game's Steam setting.</source>
         <translation>Wird innerhalb des spielseigenen Präfixes ausgeführt. Es wird kein neues Präfix erstellt, und die Proton-Version richtet sich nach der Steam-Einstellung des Spiels.</translation>
     </message>
     <message>
@@ -5057,7 +5205,7 @@ Installiere eine Proton-Version in Steam und öffne diesen Assistenten anschlie�
         <translation>Weiter</translation>
     </message>
     <message>
-        <source>Using the game&apos;s existing prefix — Proton version follows the game&apos;s Steam setting and no new prefix is created.</source>
+        <source>Using the game's existing prefix — Proton version follows the game's Steam setting and no new prefix is created.</source>
         <translation>Verwendung des bestehenden Präfixes des Spiels – Die Proton-Version orientiert sich an der Steam-Einstellung des Spiels, und es wird kein neues Präfix erstellt.</translation>
     </message>
     <message>
@@ -5071,7 +5219,7 @@ zu Problemen kommt – es wird im nächsten Schritt automatisch neu erstellt.</t
         <translation>Löschen bestätigen</translation>
     </message>
     <message>
-        <source>Click again to delete &apos;{0}&apos;.</source>
+        <source>Click again to delete '{0}'.</source>
         <translation>Klicken Sie erneut, um „{0}“ zu löschen.</translation>
     </message>
     <message>
@@ -5079,7 +5227,7 @@ zu Problemen kommt – es wird im nächsten Schritt automatisch neu erstellt.</t
         <translation>Wird gelöscht…</translation>
     </message>
     <message>
-        <source>Deleting &apos;{0}&apos;…</source>
+        <source>Deleting '{0}'…</source>
         <translation>„{0}“ wird gelöscht…</translation>
     </message>
     <message>
@@ -5106,7 +5254,7 @@ zu Problemen kommt – es wird im nächsten Schritt automatisch neu erstellt.</t
         <translation>Der Spielpfad ist nicht festgelegt oder ungültig.</translation>
     </message>
     <message>
-        <source>If the game won&apos;t load (black screen) after removing mods, the PAK archives may still have invalidated entries. This restores the original PAK data from the failsafe manifest in the game root.</source>
+        <source>If the game won't load (black screen) after removing mods, the PAK archives may still have invalidated entries. This restores the original PAK data from the failsafe manifest in the game root.</source>
         <translation>Wenn das Spiel nach dem Entfernen der Mods nicht geladen wird (schwarzer Bildschirm), enthalten die PAK-Archive möglicherweise weiterhin ungültige Einträge. Dadurch werden die ursprünglichen PAK-Daten aus dem Failsafe-Manifest im Spielverzeichnis wiederhergestellt.</translation>
     </message>
     <message>
@@ -5165,7 +5313,7 @@ Falls das Spiel weiterhin nicht funktioniert, überprüfe die Spieledateien übe
         <translation>Schritt 1: Rendering-API und Architektur</translation>
     </message>
     <message>
-        <source>Choose the graphics API this game uses and its executable architecture. If you&apos;re not sure, dxgi.dll / 64-bit works for most modern games.</source>
+        <source>Choose the graphics API this game uses and its executable architecture. If you're not sure, dxgi.dll / 64-bit works for most modern games.</source>
         <translation>Wählen Sie die von diesem Spiel verwendete Grafik-API und die Architektur der ausführbaren Datei aus. Wenn Sie sich nicht sicher sind: „dxgi.dll / 64-Bit“ funktioniert bei den meisten modernen Spielen.</translation>
     </message>
     <message>
@@ -5349,9 +5497,9 @@ Proton-Präfix: {2}</translation>
         <translation>Vorherige Version entfernen?</translation>
     </message>
     <message>
-        <source>&apos;{0}&apos; was installed as a new mod (different folder name) because it did not replace &apos;{1}&apos;.
+        <source>'{0}' was installed as a new mod (different folder name) because it did not replace '{1}'.
 
-Remove the previous version &apos;{2}&apos;? The new mod will take its position in the modlist.
+Remove the previous version '{2}'? The new mod will take its position in the modlist.
 
 Choose Keep if this is an optional/alternative variant rather than a replacement.</source>
         <translation>„{0}“ wurde als neuer Mod (mit anderem Ordnernamen) installiert, da es „{1}“ nicht ersetzt hat.
@@ -5372,7 +5520,7 @@ Wähle „Behalten“, wenn es sich um eine optionale/alternative Variante und n
 <context>
     <name>SDTView</name>
     <message>
-        <source>Editing values from {0}. Save writes the managed mod &apos;{1}&apos;.</source>
+        <source>Editing values from {0}. Save writes the managed mod '{1}'.</source>
         <translation>Werte aus „{0}“ bearbeiten. Beim Speichern wird das verwaltete Mod „{1}“ geschrieben.</translation>
     </message>
     <message>
@@ -5520,7 +5668,7 @@ Brechen Sie den Vorgang ab und aktivieren Sie die aufgeführten Mods erneut, um 
         <translation>Zusammenführungen löschen</translation>
     </message>
     <message>
-        <source>Launch cancelled — re-enable the merges&apos; source mods, then reopen this wizard.</source>
+        <source>Launch cancelled — re-enable the merges' source mods, then reopen this wizard.</source>
         <translation>Start abgebrochen – Aktivieren Sie die Quellmods der Zusammenführungen erneut und öffnen Sie diesen Assistenten dann erneut.</translation>
     </message>
     <message>
@@ -5588,7 +5736,7 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>Löschen</translation>
     </message>
     <message>
-        <source>Deploy this separator&apos;s mods here instead of the game directory.</source>
+        <source>Deploy this separator's mods here instead of the game directory.</source>
         <translation>Installiere die Mods dieses Separators hier statt im Spielverzeichnis.</translation>
     </message>
     <message>
@@ -5718,7 +5866,7 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>Tooltips zur Mod-Beschreibung anzeigen</translation>
     </message>
     <message>
-        <source>Show a mod&apos;s Nexus description as a tooltip when you hover over its name in the mod list.</source>
+        <source>Show a mod's Nexus description as a tooltip when you hover over its name in the mod list.</source>
         <translation>Die Nexus-Beschreibung eines Mods als Tooltip anzeigen, wenn man mit der Maus über dessen Namen in der Mod-Liste fährt.</translation>
     </message>
     <message>
@@ -5734,7 +5882,7 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>Archiv nach der Installation löschen</translation>
     </message>
     <message>
-        <source>Delete a mod&apos;s downloaded archive after it is extracted.</source>
+        <source>Delete a mod's downloaded archive after it is extracted.</source>
         <translation>Das heruntergeladene Archiv eines Mods nach dem Entpacken löschen.</translation>
     </message>
     <message>
@@ -5742,7 +5890,7 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>FOMOD-Archive aufbewahren</translation>
     </message>
     <message>
-        <source>Mods installed via a FOMOD installer keep their archive even when &apos;Clear archive after install&apos; is on.</source>
+        <source>Mods installed via a FOMOD installer keep their archive even when 'Clear archive after install' is on.</source>
         <translation>Mods, die über einen FOMOD-Installer installiert wurden, behalten ihr Archiv auch dann bei, wenn die Option „Archiv nach der Installation löschen“ aktiviert ist.</translation>
     </message>
     <message>
@@ -5834,7 +5982,7 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>Speicherort der Heroic-Konfiguration</translation>
     </message>
     <message>
-        <source>Folder containing Heroic&apos;s config.json. Blank = auto-detect (Flatpak and native locations).</source>
+        <source>Folder containing Heroic's config.json. Blank = auto-detect (Flatpak and native locations).</source>
         <translation>Ordner, der die Datei „config.json“ von Heroic enthält. Leer = automatische Erkennung (Flatpak- und native Speicherorte).</translation>
     </message>
     <message>
@@ -5880,7 +6028,7 @@ Bitte starten Sie den Assistenten neu und installieren Sie zunächst Script Merg
         <translation>Code importieren</translation>
     </message>
     <message>
-        <source>Paste a share code below to build a new profile from someone else&apos;s load order.</source>
+        <source>Paste a share code below to build a new profile from someone else's load order.</source>
         <translation>Füge unten einen Freigabecode ein, um anhand der Ladefolge einer anderen Person ein neues Profil zu erstellen.</translation>
     </message>
     <message>
@@ -6134,7 +6282,7 @@ Wählen Sie eine Proton-Version aus, mit der dieses Präfix erstellt werden soll
     </message>
     <message>
         <source>The native Linux TTW installer will be downloaded from GitHub
-and placed in this game&apos;s Applications folder.
+and placed in this game's Applications folder.
 
 Click Install to begin.</source>
         <translation>Das native Linux-TTW-Installationsprogramm wird von GitHub heruntergeladen
@@ -6163,7 +6311,7 @@ Klicken Sie auf „Installieren“, um zu beginnen.</translation>
         <translation>„Tale of Two Wastelands“ ist bereits installiert</translation>
     </message>
     <message>
-        <source>The &apos;{0}&apos; mod is already in your mod list, so the ~18 GB build can be skipped.
+        <source>The '{0}' mod is already in your mod list, so the ~18 GB build can be skipped.
 
 • Re-apply setup only — re-runs the profile INI + FalloutCustom.ini setup without rebuilding (fast).
 
@@ -6233,7 +6381,7 @@ Lade die neueste TTW-.mpi-Datei von mod.pub herunter (kostenloses Konto erforder
     <message>
         <source>The game is first restored to a vanilla state, then the installer
 merges Fallout 3 and Fallout New Vegas assets. This produces ~18 GB of output and can take a long while — please leave it running.
-Output is written directly into your mod list as the &apos;{0}&apos; mod.</source>
+Output is written directly into your mod list as the '{0}' mod.</source>
         <translation>Das Spiel wird zunächst in den Originalzustand zurückversetzt, anschließend führt das Installationsprogramm
 die Assets von „Fallout 3“ und „Fallout: New Vegas“ zusammen. Dabei entstehen etwa 18 GB an Daten, was eine ganze Weile dauern kann – bitte lassen Sie den Vorgang laufen.
 Das Ergebnis wird direkt in Ihre Mod-Liste als Mod „{0}“ eingetragen.</translation>
@@ -6951,7 +7099,7 @@ Das Ergebnis wird direkt in Ihre Mod-Liste als Mod „{0}“ eingetragen.</trans
         <translation>Checkbox füllen (überprüft)</translation>
     </message>
     <message>
-        <source>Window, panels, list rows and input fields — the app&apos;s surfaces.</source>
+        <source>Window, panels, list rows and input fields — the app's surfaces.</source>
         <translation>Fenster, Panels, Listenzeilen und Eingabefelder - die Oberflächen der App.</translation>
     </message>
     <message>
@@ -7067,7 +7215,7 @@ Das Ergebnis wird direkt in Ihre Mod-Liste als Mod „{0}“ eingetragen.</trans
         <translation>Als neue Datei speichern…</translation>
     </message>
     <message>
-        <source>Editing a base colour adjusts its hover/variants automatically. Tick Advanced to edit every colour individually. Use &quot;Restart to apply&quot; to save your theme and see it across the whole app.</source>
+        <source>Editing a base colour adjusts its hover/variants automatically. Tick Advanced to edit every colour individually. Use "Restart to apply" to save your theme and see it across the whole app.</source>
         <translation>Wenn Sie eine Grundfarbe bearbeiten, werden die Hover-Farben und Varianten automatisch angepasst. Aktivieren Sie das Kontrollkästchen „Erweitert“, um jede Farbe einzeln zu bearbeiten. Klicken Sie auf „Neustart, um Änderungen zu übernehmen“, um Ihr Design zu speichern und es in der gesamten App anzuzeigen.</translation>
     </message>
     <message>
@@ -7095,7 +7243,7 @@ Das Ergebnis wird direkt in Ihre Mod-Liste als Mod „{0}“ eingetragen.</trans
         <translation>Theme löschen?</translation>
     </message>
     <message>
-        <source>Delete the custom theme &quot;{0}&quot;? This cannot be undone.</source>
+        <source>Delete the custom theme "{0}"? This cannot be undone.</source>
         <translation>Das benutzerdefinierte Design „{0}“ löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     </message>
 </context>
@@ -7114,7 +7262,7 @@ Das Ergebnis wird direkt in Ihre Mod-Liste als Mod „{0}“ eingetragen.</trans
         <translation>?</translation>
     </message>
     <message>
-        <source>Profile &apos;{0}&apos; — {1} → {2}</source>
+        <source>Profile '{0}' — {1} → {2}</source>
         <translation>Profil „{0}“ — {1} → {2}</translation>
     </message>
     <message>
@@ -7184,7 +7332,7 @@ Aktualisiere über deinen AUR-Helper, z. B.
         <translation>Stall</translation>
     </message>
     <message>
-        <source>You&apos;re running a pre-release. Switch to the latest {0} build?
+        <source>You're running a pre-release. Switch to the latest {0} build?
 
 Current:     {1}
 {2}: {3}
@@ -7311,7 +7459,7 @@ Neueste Version:  {1}</translation>
         <translation>Schritt 1: Wrye Bash herunterladen</translation>
     </message>
     <message>
-        <source>&apos;{0}&apos; was not found.</source>
+        <source>'{0}' was not found.</source>
         <translation>„{0}“ wurde nicht gefunden.</translation>
     </message>
     <message>
@@ -7358,7 +7506,7 @@ Laden Sie das Archiv manuell herunter (verwenden Sie NICHT die Download-Schaltfl
 
 To get it:
   1. Find and join the xEdit Discord server (search for it yourself — we do not link it here as the invite can change).
-  2. Download the latest xEdit archive (e.g. &quot;xEdit 4.1.5q.7z&quot;) from the #xedit-builds channel.
+  2. Download the latest xEdit archive (e.g. "xEdit 4.1.5q.7z") from the #xedit-builds channel.
   3. Leave the archive in your Downloads folder and click Next.
 
 It contains xFOEdit (Fallout), xSFEdit (Starfield) and xTESEdit (Elder Scrolls); the wizard runs the one for this game automatically.</source>
@@ -7504,7 +7652,7 @@ Schließen Sie es, wenn Sie fertig sind, und klicken Sie anschließend auf „Fe
 <context>
     <name>_LockBox</name>
     <message>
-        <source>Locked profiles can&apos;t be removed</source>
+        <source>Locked profiles can't be removed</source>
         <translation>Gesperrte Profile können nicht entfernt werden</translation>
     </message>
 </context>

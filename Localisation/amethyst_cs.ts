@@ -1317,6 +1317,18 @@ Creation Kit se také může občas při spuštění pod Protonem zhroutit (zná
         <translation>Soubor/složka</translation>
     </message>
     <message>
+        <source>Restore Whitelist</source>
+        <translation>Obnovit Whitelist</translation>
+    </message>
+    <message>
+        <source>Protect runtime-generated files from being moved out of the game folder on restore. Each rule anchors at a path relative to the game root (empty = the game root) and matches folder names (protecting the folder's whole contents), filenames, or extensions directly at that path. Matching is case-insensitive and anchored — the same name at any other path needs its own rule. Folder and filename values accept wildcards (e.g. ego_dlc* or *.log).</source>
+        <translation>Chraňte runtime- generované soubory před přesunem ze složky hry při obnovení. Každé pravidlo ukotvuje na cestě vůči kořenu hry (prázdný = root hry) a odpovídá jménům složek (chrání celý obsah složky), jménům souborů nebo rozšíření přímo na této cestě. Odpovídání je případ - necitlivé a ukotvené - stejné jméno na jakékoli jiné cestě potřebuje své vlastní pravidlo. Hodnoty složky a názvu souboru akceptují divoké karty (např. ego _ dlc * nebo * .log).</translation>
+    </message>
+    <message>
+        <source>Path in game root</source>
+        <translation>Cesta v kořenu hry</translation>
+    </message>
+    <message>
         <source>Framework Detection</source>
         <translation>Detekce rámců</translation>
     </message>
@@ -1403,6 +1415,10 @@ Creation Kit se také může občas při spuštění pod Protonem zhroutit (zná
     <message>
         <source>Remove rule</source>
         <translation>Odstranit pravidlo</translation>
+    </message>
+    <message>
+        <source>e.g. output/extensions</source>
+        <translation>např. výstup / rozšíření</translation>
     </message>
     <message>
         <source>e.g. Script Extender</source>
@@ -1550,6 +1566,71 @@ Creation Kit se také může občas při spuštění pod Protonem zhroutit (zná
     <message>
         <source>Scan default Downloads folder ({0})</source>
         <translation>Prohledat výchozí složku „Downloads“ ({0})</translation>
+    </message>
+</context>
+<context>
+    <name>DtkitPatchView</name>
+    <message>
+        <source>Step 1: Deploy mods</source>
+        <translation>Krok 1: Rozmísťovací módy</translation>
+    </message>
+    <message>
+        <source>dtkit-patch.exe ships with the Darktide Mod Loader and runs under Proton, so it always matches your installed version.
+
+Your mods are deployed first so the patcher and the bundle database are present in the game folder.</source>
+        <translation>dtkit- patch.exe lodě s Darktide Mod Loader a běží pod Proton, takže to vždy odpovídá nainstalované verzi.
+
+Vaše módy jsou nasazeny jako první, takže patcher a databáze balíků jsou ve složce hry.</translation>
+    </message>
+    <message>
+        <source>Step 2: Toggle bundle patch</source>
+        <translation>Krok 2: Zapnout záplatu</translation>
+    </message>
+    <message>
+        <source>Patcher:
+{0}
+
+Game folder (cwd):
+{1}
+
+Toggle flips the patch on or off (same as the Mod Loader's toggle_darktide_mods.bat). Patch to enable mods; toggle again to disable. Re-run after every game update.</source>
+        <translation>Patcher:
+{0}
+
+Složka hry (cwd):
+{1}
+
+Přepnout přepne náplast na nebo off (stejně jako Mod Loader je přepnout _ darctide _ mods.bat). Záplata pro zapnutí mods; přepnout znovu vypnout. Znovu spustit po každé aktualizaci hry.</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Hotovo</translation>
+    </message>
+    <message>
+        <source>Toggle Patch</source>
+        <translation>Zapnout záplatu</translation>
+    </message>
+    <message>
+        <source>Deploy finished, but tools/dtkit-patch.exe was not found in the game folder.
+Make sure the Darktide Mod Loader mod is enabled.</source>
+        <translation>Rozmístění dokončeno, ale nástroje / dtkit- patch.exe nebyly nalezeny ve složce hry.
+Ujistěte se, že je zapnutý Darktide Mod Loader Mod.</translation>
+    </message>
+    <message>
+        <source>Running dtkit-patch — toggle…</source>
+        <translation>Běžící dtkit- patch - přepnout..</translation>
+    </message>
+    <message>
+        <source>Done. The bundle patch state was toggled.
+Launch the game to verify mods load (toggle again to disable).</source>
+        <translation>Hotovo. Stav svazku byl uchycen.
+Spusťte hru pro ověření zatížení modů (přepnout znovu vypnout).</translation>
+    </message>
+    <message>
+        <source>dtkit-patch did not complete successfully.
+Check the output above and the log.</source>
+        <translation>dtkit- patch nebyl úspěšně dokončen.
+Zkontrolujte výstup nahoře a záznam.</translation>
     </message>
 </context>
 <context>
@@ -2233,14 +2314,17 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
     </message>
 </context>
 <context>
+    <name>ImagePreview</name>
+    <message>
+        <source>Scroll to zoom · drag to pan · double-click to fit</source>
+        <translation>Posuňte na zoom · přetáhněte na pan · double- click pro uložení</translation>
+    </message>
+</context>
+<context>
     <name>ImageView</name>
     <message>
-        <source>Click to toggle 100% / fit</source>
-        <translation>Kliknutím přepnete mezi zobrazením na 100 % a přizpůsobením na obrazovku</translation>
-    </message>
-    <message>
-        <source>Image could not be loaded</source>
-        <translation>Obrázek se nepodařilo načíst</translation>
+        <source>Scroll to zoom · drag to pan · double-click to fit</source>
+        <translation>Posuňte na zoom · přetáhněte na pan · double- click pro uložení</translation>
     </message>
 </context>
 <context>
@@ -2398,10 +2482,6 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
         <translation>Obnovit seznam modů</translation>
     </message>
     <message>
-        <source>Search mods…</source>
-        <translation>Vyhledat mody…</translation>
-    </message>
-    <message>
         <source>Sort Plugins</source>
         <translation>Seřadit pluginy</translation>
     </message>
@@ -2428,10 +2508,6 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
     <message>
         <source>⊞ Expand all</source>
         <translation>⊞ Rozbalit vše</translation>
-    </message>
-    <message>
-        <source>Search files…</source>
-        <translation>Vyhledat soubory…</translation>
     </message>
     <message>
         <source>⊟ Collapse all</source>
@@ -2684,6 +2760,14 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
     <message>
         <source>Theme Editor</source>
         <translation>Editor témat</translation>
+    </message>
+    <message>
+        <source>Search mods… (try !update, !fomod, !.dds)</source>
+        <translation>Vyhledávání mods... (zkuste! update,! fomod,! .dds)</translation>
+    </message>
+    <message>
+        <source>Search files… (try !.dds)</source>
+        <translation>Vyhledávání souborů... (zkuste to</translation>
     </message>
     <message>
         <source>Edit custom game…</source>
@@ -3468,6 +3552,70 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     <message>
         <source>Modlist refreshed</source>
         <translation>Seznam modulů byl aktualizován</translation>
+    </message>
+    <message>
+        <source>Updates</source>
+        <translation>Aktualizace</translation>
+    </message>
+    <message>
+        <source>Winning conflicts</source>
+        <translation>Jak vyhrávat spory</translation>
+    </message>
+    <message>
+        <source>Losing conflicts</source>
+        <translation>Prohrané konflikty</translation>
+    </message>
+    <message>
+        <source>Winning &amp; losing</source>
+        <translation>Vítězství a prohra</translation>
+    </message>
+    <message>
+        <source>Fully conflicted</source>
+        <translation>Plně rozporuplné</translation>
+    </message>
+    <message>
+        <source>FOMOD installs</source>
+        <translation>Instalátory FOMOD</translation>
+    </message>
+    <message>
+        <source>BAIN installs</source>
+        <translation>Instalátory BAIN</translation>
+    </message>
+    <message>
+        <source>Missing requirements</source>
+        <translation>Chybějící požadavky</translation>
+    </message>
+    <message>
+        <source>Has notes</source>
+        <translation>Má poznámky</translation>
+    </message>
+    <message>
+        <source>Has plugins</source>
+        <translation>Má pluginy</translation>
+    </message>
+    <message>
+        <source>Has BSA/BA2 archives</source>
+        <translation>Má archivy BSA / BA2</translation>
+    </message>
+    <message>
+        <source>PGPatcher textures</source>
+        <translation>Textury PGPatcher</translation>
+    </message>
+    <message>
+        <source>Enabled / disabled</source>
+        <translation>Povoleno / zakázáno</translation>
+    </message>
+    <message>
+        <source>By file type</source>
+        <translation>Podle typu souboru</translation>
+    </message>
+    <message>
+        <source>By category</source>
+        <translation>Podle kategorie</translation>
+    </message>
+    <message>
+        <source>Filter the modlist with search tags (combine them, and with text):</source>
+        <translation>Filtrovat modlist pomocí vyhledávacích značek (kombinovat je a s textem):</translation>
     </message>
     <message>
         <source>Mods with BA2 archives</source>

@@ -1317,6 +1317,18 @@ O Creation Kit também pode, ocasionalmente, travar ao iniciar no Proton (um pro
         <translation>Arquivo/pasta</translation>
     </message>
     <message>
+        <source>Restore Whitelist</source>
+        <translation>Restaure a Lista Branca</translation>
+    </message>
+    <message>
+        <source>Protect runtime-generated files from being moved out of the game folder on restore. Each rule anchors at a path relative to the game root (empty = the game root) and matches folder names (protecting the folder's whole contents), filenames, or extensions directly at that path. Matching is case-insensitive and anchored — the same name at any other path needs its own rule. Folder and filename values accept wildcards (e.g. ego_dlc* or *.log).</source>
+        <translation>Proteger arquivos gerados em tempo de execução de serem removidos da pasta de jogo na restauração. Cada regra ancora em um caminho relativo à raiz do jogo (vazio = a raiz do jogo) e combina nomes de pastas (protegendo todo o conteúdo da pasta), nomes de arquivos ou extensões diretamente nesse caminho. A correspondência é insensível e ancorada. O mesmo nome em qualquer outro caminho precisa de sua própria regra. Os valores das pastas e nomes de arquivos aceitam caracteres especiais (por exemplo, ego dlc* ou *.log).</translation>
+    </message>
+    <message>
+        <source>Path in game root</source>
+        <translation>Caminho na raiz do jogo</translation>
+    </message>
+    <message>
         <source>Framework Detection</source>
         <translation>Detecção de estrutura</translation>
     </message>
@@ -1403,6 +1415,10 @@ O Creation Kit também pode, ocasionalmente, travar ao iniciar no Proton (um pro
     <message>
         <source>Remove rule</source>
         <translation>Remover regra</translation>
+    </message>
+    <message>
+        <source>e.g. output/extensions</source>
+        <translation>por exemplo, saída/extensão</translation>
     </message>
     <message>
         <source>e.g. Script Extender</source>
@@ -1550,6 +1566,71 @@ O Creation Kit também pode, ocasionalmente, travar ao iniciar no Proton (um pro
     <message>
         <source>Scan default Downloads folder ({0})</source>
         <translation>Verificar a pasta padrão de downloads ({0})</translation>
+    </message>
+</context>
+<context>
+    <name>DtkitPatchView</name>
+    <message>
+        <source>Step 1: Deploy mods</source>
+        <translation>Passo 1: Preparar mods</translation>
+    </message>
+    <message>
+        <source>dtkit-patch.exe ships with the Darktide Mod Loader and runs under Proton, so it always matches your installed version.
+
+Your mods are deployed first so the patcher and the bundle database are present in the game folder.</source>
+        <translation>dtkit-patch.exe ships com o Darktide Mod Loader e corre sob Proton, então sempre combina com sua versão instalada.
+
+Seus mods são implantados primeiro para que o packer e o banco de dados do pacote estejam presentes na pasta do jogo.</translation>
+    </message>
+    <message>
+        <source>Step 2: Toggle bundle patch</source>
+        <translation>Passo 2: Alterne o remendo do pacote</translation>
+    </message>
+    <message>
+        <source>Patcher:
+{0}
+
+Game folder (cwd):
+{1}
+
+Toggle flips the patch on or off (same as the Mod Loader's toggle_darktide_mods.bat). Patch to enable mods; toggle again to disable. Re-run after every game update.</source>
+        <translation>Patcher:
+{0}
+
+Pasta de jogos:
+{1}
+
+Alternar liga ou desliga o patch (mesmo que o Mod Loader's alterne darktide mods.bat). Patch para habilitar mods, alternar novamente para desabilitar. Repetir após cada atualização do jogo.</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Concluído</translation>
+    </message>
+    <message>
+        <source>Toggle Patch</source>
+        <translation>Alternar patch</translation>
+    </message>
+    <message>
+        <source>Deploy finished, but tools/dtkit-patch.exe was not found in the game folder.
+Make sure the Darktide Mod Loader mod is enabled.</source>
+        <translation>O lançamento terminou, mas ferramentas/dtkit-patch.exe não foram encontradas na pasta de jogos.
+Certifique-se que o mod Darktide Mod Loader esteja ativado.</translation>
+    </message>
+    <message>
+        <source>Running dtkit-patch — toggle…</source>
+        <translation>Correndo dtkit-patch - alternar..</translation>
+    </message>
+    <message>
+        <source>Done. The bundle patch state was toggled.
+Launch the game to verify mods load (toggle again to disable).</source>
+        <translation>Feito. O estado do pacote foi alterado.
+Inicie o jogo para verificar a carga de mods (alterar novamente para desativar).</translation>
+    </message>
+    <message>
+        <source>dtkit-patch did not complete successfully.
+Check the output above and the log.</source>
+        <translation>dtkit-patch não completou com sucesso.
+Verifique a saída acima e o registro.</translation>
     </message>
 </context>
 <context>
@@ -2233,14 +2314,17 @@ O arquivo exe original é mantido como {0}.</translation>
     </message>
 </context>
 <context>
+    <name>ImagePreview</name>
+    <message>
+        <source>Scroll to zoom · drag to pan · double-click to fit</source>
+        <translation>Role para zoom · arraste para pan · clique duplo para caber</translation>
+    </message>
+</context>
+<context>
     <name>ImageView</name>
     <message>
-        <source>Click to toggle 100% / fit</source>
-        <translation>Clique para alternar entre 100% e ajustar à tela</translation>
-    </message>
-    <message>
-        <source>Image could not be loaded</source>
-        <translation>Não foi possível carregar a imagem</translation>
+        <source>Scroll to zoom · drag to pan · double-click to fit</source>
+        <translation>Role para zoom · arraste para pan · clique duplo para caber</translation>
     </message>
 </context>
 <context>
@@ -2398,10 +2482,6 @@ O arquivo exe original é mantido como {0}.</translation>
         <translation>Atualizar lista de mods</translation>
     </message>
     <message>
-        <source>Search mods…</source>
-        <translation>Pesquisar mods…</translation>
-    </message>
-    <message>
         <source>Sort Plugins</source>
         <translation>Classificar plugins</translation>
     </message>
@@ -2428,10 +2508,6 @@ O arquivo exe original é mantido como {0}.</translation>
     <message>
         <source>⊞ Expand all</source>
         <translation>⊞ Expandir tudo</translation>
-    </message>
-    <message>
-        <source>Search files…</source>
-        <translation>Pesquisar arquivos…</translation>
     </message>
     <message>
         <source>⊟ Collapse all</source>
@@ -2684,6 +2760,14 @@ O arquivo exe original é mantido como {0}.</translation>
     <message>
         <source>Theme Editor</source>
         <translation>Editor de temas</translation>
+    </message>
+    <message>
+        <source>Search mods… (try !update, !fomod, !.dds)</source>
+        <translation>Procure mods..</translation>
+    </message>
+    <message>
+        <source>Search files… (try !.dds)</source>
+        <translation>Procurem arquivos..</translation>
     </message>
     <message>
         <source>Edit custom game…</source>
@@ -3468,6 +3552,70 @@ Deseja remover a entrada da coleção anexada?</translation>
     <message>
         <source>Modlist refreshed</source>
         <translation>Lista de mods atualizada</translation>
+    </message>
+    <message>
+        <source>Updates</source>
+        <translation>Atualizações</translation>
+    </message>
+    <message>
+        <source>Winning conflicts</source>
+        <translation>Superando conflitos</translation>
+    </message>
+    <message>
+        <source>Losing conflicts</source>
+        <translation>Conflitos perdidos</translation>
+    </message>
+    <message>
+        <source>Winning &amp; losing</source>
+        <translation>Ganhar e perder</translation>
+    </message>
+    <message>
+        <source>Fully conflicted</source>
+        <translation>Totalmente em conflito</translation>
+    </message>
+    <message>
+        <source>FOMOD installs</source>
+        <translation>FOMOD instala</translation>
+    </message>
+    <message>
+        <source>BAIN installs</source>
+        <translation>BAIN instala</translation>
+    </message>
+    <message>
+        <source>Missing requirements</source>
+        <translation>Requisitos ausentes</translation>
+    </message>
+    <message>
+        <source>Has notes</source>
+        <translation>Tem notas</translation>
+    </message>
+    <message>
+        <source>Has plugins</source>
+        <translation>Tem plugins</translation>
+    </message>
+    <message>
+        <source>Has BSA/BA2 archives</source>
+        <translation>Tem arquivos BSA/BA2</translation>
+    </message>
+    <message>
+        <source>PGPatcher textures</source>
+        <translation>Texturas PGPatcher</translation>
+    </message>
+    <message>
+        <source>Enabled / disabled</source>
+        <translation>Activado/ desactivado</translation>
+    </message>
+    <message>
+        <source>By file type</source>
+        <translation>Por tipo de arquivo</translation>
+    </message>
+    <message>
+        <source>By category</source>
+        <translation>Por categoria</translation>
+    </message>
+    <message>
+        <source>Filter the modlist with search tags (combine them, and with text):</source>
+        <translation>Filtrar o modlist com etiquetas de pesquisa (combiná-las, e com texto):</translation>
     </message>
     <message>
         <source>Mods with BA2 archives</source>

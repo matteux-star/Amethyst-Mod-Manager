@@ -1317,6 +1317,18 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
         <translation>文件/文件夹</translation>
     </message>
     <message>
+        <source>Restore Whitelist</source>
+        <translation>恢复白名单</translation>
+    </message>
+    <message>
+        <source>Protect runtime-generated files from being moved out of the game folder on restore. Each rule anchors at a path relative to the game root (empty = the game root) and matches folder names (protecting the folder's whole contents), filenames, or extensions directly at that path. Matching is case-insensitive and anchored — the same name at any other path needs its own rule. Folder and filename values accept wildcards (e.g. ego_dlc* or *.log).</source>
+        <translation>保护运行时间生成的文件在恢复时不被移出游戏文件夹. 每个规则锁定相对于游戏根(空取=游戏根)的路径并匹配文件夹名(保护文件夹的全部内容),文件名,或直接在该路径上扩展. 匹配是不注意大小写和锚定的——在任何其他路径上的同名需要自己的规则. 文件夹和文件名值接受通配符(如自负 dlc*或*.log).</translation>
+    </message>
+    <message>
+        <source>Path in game root</source>
+        <translation>游戏根中的路径</translation>
+    </message>
+    <message>
         <source>Framework Detection</source>
         <translation>帧检测</translation>
     </message>
@@ -1403,6 +1415,10 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
     <message>
         <source>Remove rule</source>
         <translation>删除规则</translation>
+    </message>
+    <message>
+        <source>e.g. output/extensions</source>
+        <translation>例如,产出/扩展</translation>
     </message>
     <message>
         <source>e.g. Script Extender</source>
@@ -1550,6 +1566,71 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
     <message>
         <source>Scan default Downloads folder ({0})</source>
         <translation>扫描默认的“下载”文件夹（{0}）</translation>
+    </message>
+</context>
+<context>
+    <name>DtkitPatchView</name>
+    <message>
+        <source>Step 1: Deploy mods</source>
+        <translation>步骤1:部署模式</translation>
+    </message>
+    <message>
+        <source>dtkit-patch.exe ships with the Darktide Mod Loader and runs under Proton, so it always matches your installed version.
+
+Your mods are deployed first so the patcher and the bundle database are present in the game folder.</source>
+        <translation>dtkit-patch.exe 飞船装有"暗红色摩德"(Darktide Mod Loader)并运行在质子下,所以它总是与所安装的版本相匹配.
+
+您的 Mods 首先被部署, 因此游戏文件夹中存在补丁和捆绑数据库 .</translation>
+    </message>
+    <message>
+        <source>Step 2: Toggle bundle patch</source>
+        <translation>步骤2:切换捆绑补丁</translation>
+    </message>
+    <message>
+        <source>Patcher:
+{0}
+
+Game folder (cwd):
+{1}
+
+Toggle flips the patch on or off (same as the Mod Loader's toggle_darktide_mods.bat). Patch to enable mods; toggle again to disable. Re-run after every game update.</source>
+        <translation>补丁 :
+第{0}号
+
+游戏文件夹 (cwd):
+第{1}号
+
+切换打开或关闭补丁( 和 Mod Loader's toggle  darktide  mods. bat 相同) 。 启用 Mods 的补丁; 再次切换到禁用 。 每次游戏更新后重新运行.</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>完成</translation>
+    </message>
+    <message>
+        <source>Toggle Patch</source>
+        <translation>切换补丁</translation>
+    </message>
+    <message>
+        <source>Deploy finished, but tools/dtkit-patch.exe was not found in the game folder.
+Make sure the Darktide Mod Loader mod is enabled.</source>
+        <translation>部署完成, 但游戏文件夹中没有工具/ dtkit- patch.exe 。
+确保启用了"暗光"(Darktide Mod Loader) Mod mod.</translation>
+    </message>
+    <message>
+        <source>Running dtkit-patch — toggle…</source>
+        <translation>运行dtkit-patch - 切换..</translation>
+    </message>
+    <message>
+        <source>Done. The bundle patch state was toggled.
+Launch the game to verify mods load (toggle again to disable).</source>
+        <translation>结束了。 捆绑补丁状态已切换 。
+启动游戏以验证 Mods 负载( 再次切换到禁用) .</translation>
+    </message>
+    <message>
+        <source>dtkit-patch did not complete successfully.
+Check the output above and the log.</source>
+        <translation>dtkit- patch 无法成功完成 。
+检查上面的输出和日志 .</translation>
     </message>
 </context>
 <context>
@@ -2233,14 +2314,17 @@ The original exe is kept as {0}.</source>
     </message>
 </context>
 <context>
+    <name>ImagePreview</name>
+    <message>
+        <source>Scroll to zoom · drag to pan · double-click to fit</source>
+        <translation>滚动到缩放 ^ 拖放到平板 ^ 双击以适应</translation>
+    </message>
+</context>
+<context>
     <name>ImageView</name>
     <message>
-        <source>Click to toggle 100% / fit</source>
-        <translation>点击切换 100% / 适应屏幕</translation>
-    </message>
-    <message>
-        <source>Image could not be loaded</source>
-        <translation>无法加载图片</translation>
+        <source>Scroll to zoom · drag to pan · double-click to fit</source>
+        <translation>滚动到缩放 ^ 拖放到平板 ^ 双击以适应</translation>
     </message>
 </context>
 <context>
@@ -2398,10 +2482,6 @@ The original exe is kept as {0}.</source>
         <translation>刷新模组列表</translation>
     </message>
     <message>
-        <source>Search mods…</source>
-        <translation>搜索模组……</translation>
-    </message>
-    <message>
         <source>Sort Plugins</source>
         <translation>按插件排序</translation>
     </message>
@@ -2428,10 +2508,6 @@ The original exe is kept as {0}.</source>
     <message>
         <source>⊞ Expand all</source>
         <translation>⊞ 展开全部</translation>
-    </message>
-    <message>
-        <source>Search files…</source>
-        <translation>搜索文件……</translation>
     </message>
     <message>
         <source>⊟ Collapse all</source>
@@ -2684,6 +2760,14 @@ The original exe is kept as {0}.</source>
     <message>
         <source>Theme Editor</source>
         <translation>主题编辑器</translation>
+    </message>
+    <message>
+        <source>Search mods… (try !update, !fomod, !.dds)</source>
+        <translation>搜索模式... (Try!update,!fomod,!.dds) 搜索模式..</translation>
+    </message>
+    <message>
+        <source>Search files… (try !.dds)</source>
+        <translation>搜索文件... (尝试!.dds)</translation>
     </message>
     <message>
         <source>Edit custom game…</source>
@@ -3468,6 +3552,70 @@ Remove the appended-collection entry?</source>
     <message>
         <source>Modlist refreshed</source>
         <translation>模组列表已更新</translation>
+    </message>
+    <message>
+        <source>Updates</source>
+        <translation>更新</translation>
+    </message>
+    <message>
+        <source>Winning conflicts</source>
+        <translation>化解冲突</translation>
+    </message>
+    <message>
+        <source>Losing conflicts</source>
+        <translation>冲突中的失败</translation>
+    </message>
+    <message>
+        <source>Winning &amp; losing</source>
+        <translation>输赢( L)</translation>
+    </message>
+    <message>
+        <source>Fully conflicted</source>
+        <translation>完全冲突</translation>
+    </message>
+    <message>
+        <source>FOMOD installs</source>
+        <translation>FOMOD 安装</translation>
+    </message>
+    <message>
+        <source>BAIN installs</source>
+        <translation>BAIN 安装</translation>
+    </message>
+    <message>
+        <source>Missing requirements</source>
+        <translation>缺失的要求</translation>
+    </message>
+    <message>
+        <source>Has notes</source>
+        <translation>有笔记</translation>
+    </message>
+    <message>
+        <source>Has plugins</source>
+        <translation>有插件</translation>
+    </message>
+    <message>
+        <source>Has BSA/BA2 archives</source>
+        <translation>有BSA/BA2档案</translation>
+    </message>
+    <message>
+        <source>PGPatcher textures</source>
+        <translation>PGPatcher 纹理</translation>
+    </message>
+    <message>
+        <source>Enabled / disabled</source>
+        <translation>已启用/ 已禁用</translation>
+    </message>
+    <message>
+        <source>By file type</source>
+        <translation>按文件类型</translation>
+    </message>
+    <message>
+        <source>By category</source>
+        <translation>按类别</translation>
+    </message>
+    <message>
+        <source>Filter the modlist with search tags (combine them, and with text):</source>
+        <translation>过滤带有搜索标记的调制解调器( 将其压缩, 并使用文本) :</translation>
     </message>
     <message>
         <source>Mods with BA2 archives</source>

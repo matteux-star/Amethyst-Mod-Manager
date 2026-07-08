@@ -1317,6 +1317,18 @@ Creation Kit также может иногда вылетать при запу
         <translation>Файл/папка</translation>
     </message>
     <message>
+        <source>Restore Whitelist</source>
+        <translation>Восстановить белый список</translation>
+    </message>
+    <message>
+        <source>Protect runtime-generated files from being moved out of the game folder on restore. Each rule anchors at a path relative to the game root (empty = the game root) and matches folder names (protecting the folder's whole contents), filenames, or extensions directly at that path. Matching is case-insensitive and anchored — the same name at any other path needs its own rule. Folder and filename values accept wildcards (e.g. ego_dlc* or *.log).</source>
+        <translation>Защитите файлы, генерируемые во время выполнения, от перемещения из папки игры при восстановлении. Каждое правило закрепляется на пути относительно корня игры (пустое = корень игры) и совпадает с именами папок (защита всего содержимого папки), именами файлов или расширениями непосредственно на этом пути. Совпадение нечувствительно к случаю и закреплено — то же самое имя на любом другом пути требует своего правила. Значения папок и имен файлов принимают wildcards (например, ego dlc* или *.log).</translation>
+    </message>
+    <message>
+        <source>Path in game root</source>
+        <translation>Путь в корне игры</translation>
+    </message>
+    <message>
         <source>Framework Detection</source>
         <translation>Обнаружение каркаса</translation>
     </message>
@@ -1403,6 +1415,10 @@ Creation Kit также может иногда вылетать при запу
     <message>
         <source>Remove rule</source>
         <translation>Удалить правило</translation>
+    </message>
+    <message>
+        <source>e.g. output/extensions</source>
+        <translation>например, выход/расширение</translation>
     </message>
     <message>
         <source>e.g. Script Extender</source>
@@ -1550,6 +1566,71 @@ Creation Kit также может иногда вылетать при запу
     <message>
         <source>Scan default Downloads folder ({0})</source>
         <translation>Сканировать папку «Загрузки» по умолчанию ({0})</translation>
+    </message>
+</context>
+<context>
+    <name>DtkitPatchView</name>
+    <message>
+        <source>Step 1: Deploy mods</source>
+        <translation>Шаг 1: Развернуть мод</translation>
+    </message>
+    <message>
+        <source>dtkit-patch.exe ships with the Darktide Mod Loader and runs under Proton, so it always matches your installed version.
+
+Your mods are deployed first so the patcher and the bundle database are present in the game folder.</source>
+        <translation>dtkit-patch.exe поставляется с Darktide Mod Loader и работает под управлением Proton, поэтому он всегда соответствует установленной версии.
+
+Сначала размещаются ваши моды, поэтому в папке игры присутствуют патчер и база данных пакетов.</translation>
+    </message>
+    <message>
+        <source>Step 2: Toggle bundle patch</source>
+        <translation>Шаг 2: Объединить патч</translation>
+    </message>
+    <message>
+        <source>Patcher:
+{0}
+
+Game folder (cwd):
+{1}
+
+Toggle flips the patch on or off (same as the Mod Loader's toggle_darktide_mods.bat). Patch to enable mods; toggle again to disable. Re-run after every game update.</source>
+        <translation>Патчер:
+{0}X
+
+Игровая папка (cwd):
+{1}X
+
+Toggle переворачивает патч на или выключает (так же, как и Toggle darktide mods.bat). Патч для включения модов; переключатель снова отключить. Перезапуск после каждого обновления игры.</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Готово</translation>
+    </message>
+    <message>
+        <source>Toggle Patch</source>
+        <translation>Объединить патч</translation>
+    </message>
+    <message>
+        <source>Deploy finished, but tools/dtkit-patch.exe was not found in the game folder.
+Make sure the Darktide Mod Loader mod is enabled.</source>
+        <translation>Развертывание завершено, но инструменты/dtkit-patch.exe не были найдены в папке игры.
+Убедитесь, что мод Darktide Mod Loader включен.</translation>
+    </message>
+    <message>
+        <source>Running dtkit-patch — toggle…</source>
+        <translation>Запуск dtkit-patch — переключатель..</translation>
+    </message>
+    <message>
+        <source>Done. The bundle patch state was toggled.
+Launch the game to verify mods load (toggle again to disable).</source>
+        <translation>Готово. Состояние связки было изменено.
+Запустите игру, чтобы проверить загрузку модов (переключитесь снова, чтобы отключить).</translation>
+    </message>
+    <message>
+        <source>dtkit-patch did not complete successfully.
+Check the output above and the log.</source>
+        <translation>dtkit-patch не был успешно завершен.
+Проверьте выход выше и журнал.</translation>
     </message>
 </context>
 <context>
@@ -2233,14 +2314,17 @@ The original exe is kept as {0}.</source>
     </message>
 </context>
 <context>
+    <name>ImagePreview</name>
+    <message>
+        <source>Scroll to zoom · drag to pan · double-click to fit</source>
+        <translation>Scroll to zoom · drag to pan · Double-click to fit</translation>
+    </message>
+</context>
+<context>
     <name>ImageView</name>
     <message>
-        <source>Click to toggle 100% / fit</source>
-        <translation>Нажмите, чтобы переключить между режимами «100%» и «По размеру»</translation>
-    </message>
-    <message>
-        <source>Image could not be loaded</source>
-        <translation>Не удалось загрузить изображение</translation>
+        <source>Scroll to zoom · drag to pan · double-click to fit</source>
+        <translation>Scroll to zoom · drag to pan · Double-click to fit</translation>
     </message>
 </context>
 <context>
@@ -2398,10 +2482,6 @@ The original exe is kept as {0}.</source>
         <translation>Обновить список модов</translation>
     </message>
     <message>
-        <source>Search mods…</source>
-        <translation>Поиск модов…</translation>
-    </message>
-    <message>
         <source>Sort Plugins</source>
         <translation>Сортировать плагины</translation>
     </message>
@@ -2428,10 +2508,6 @@ The original exe is kept as {0}.</source>
     <message>
         <source>⊞ Expand all</source>
         <translation>⊞ Развернуть всё</translation>
-    </message>
-    <message>
-        <source>Search files…</source>
-        <translation>Поиск файлов…</translation>
     </message>
     <message>
         <source>⊟ Collapse all</source>
@@ -2684,6 +2760,14 @@ The original exe is kept as {0}.</source>
     <message>
         <source>Theme Editor</source>
         <translation>Редактор тем</translation>
+    </message>
+    <message>
+        <source>Search mods… (try !update, !fomod, !.dds)</source>
+        <translation>Поиск модов... (попробуйте !update, !fomod, !.dds)</translation>
+    </message>
+    <message>
+        <source>Search files… (try !.dds)</source>
+        <translation>Поисковые файлы (попробуйте!.dds)</translation>
     </message>
     <message>
         <source>Edit custom game…</source>
@@ -3468,6 +3552,70 @@ Remove the appended-collection entry?</source>
     <message>
         <source>Modlist refreshed</source>
         <translation>Список модов обновлен</translation>
+    </message>
+    <message>
+        <source>Updates</source>
+        <translation>Обновления</translation>
+    </message>
+    <message>
+        <source>Winning conflicts</source>
+        <translation>Успешное разрешение конфликтов</translation>
+    </message>
+    <message>
+        <source>Losing conflicts</source>
+        <translation>Проигрышные конфликты</translation>
+    </message>
+    <message>
+        <source>Winning &amp; losing</source>
+        <translation>Победа и проигрыш</translation>
+    </message>
+    <message>
+        <source>Fully conflicted</source>
+        <translation>Полностью конфликтный</translation>
+    </message>
+    <message>
+        <source>FOMOD installs</source>
+        <translation>FOMOD устанавливает</translation>
+    </message>
+    <message>
+        <source>BAIN installs</source>
+        <translation>BAIN устанавливает</translation>
+    </message>
+    <message>
+        <source>Missing requirements</source>
+        <translation>Отсутствующие требования</translation>
+    </message>
+    <message>
+        <source>Has notes</source>
+        <translation>Заметки есть</translation>
+    </message>
+    <message>
+        <source>Has plugins</source>
+        <translation>Есть плагины</translation>
+    </message>
+    <message>
+        <source>Has BSA/BA2 archives</source>
+        <translation>Архивы BSA/BA2</translation>
+    </message>
+    <message>
+        <source>PGPatcher textures</source>
+        <translation>Текстуры PGPatcher</translation>
+    </message>
+    <message>
+        <source>Enabled / disabled</source>
+        <translation>Включено / отключено</translation>
+    </message>
+    <message>
+        <source>By file type</source>
+        <translation>По типу файла</translation>
+    </message>
+    <message>
+        <source>By category</source>
+        <translation>По категориям</translation>
+    </message>
+    <message>
+        <source>Filter the modlist with search tags (combine them, and with text):</source>
+        <translation>Отфильтровать модуль с помощью тегов поиска (собрать их и с текстом):</translation>
     </message>
     <message>
         <source>Mods with BA2 archives</source>
