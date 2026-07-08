@@ -5750,14 +5750,6 @@ Please restart the wizard and install Script Merger first.</translation>
         <translation>Extractions are gated by available memory; the effective number may be lower than set.</translation>
     </message>
     <message>
-        <source>Check downloads locations</source>
-        <translation>Check downloads locations</translation>
-    </message>
-    <message>
-        <source>Scan the system Downloads folder (and any custom locations) for an archive before downloading it again.</source>
-        <translation>Scan the system Downloads folder (and any custom locations) for an archive before downloading it again.</translation>
-    </message>
-    <message>
         <source>Caches</source>
         <translation>Caches</translation>
     </message>

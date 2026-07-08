@@ -508,11 +508,6 @@ class SettingsView(QWidget):
         self._add_help(
             g, self.tr("Extractions are gated by available memory; the effective number "
                "may be lower than set."))
-        self._checkbox(
-            g, self.tr("Check downloads locations"),
-            self._load_check_dl_locations, self._save_check_dl_locations,
-            help=self.tr("Scan the system Downloads folder (and any custom locations) "
-                 "for an archive before downloading it again."))
 
         # Manage Caches action.
         row = self._next_row(g)
@@ -600,12 +595,6 @@ class SettingsView(QWidget):
         self._cs["max_extract_workers"] = int(value)
         self._persist_collection()
 
-    def _load_check_dl_locations(self) -> bool:
-        return self._cs["check_download_locations"]
-
-    def _save_check_dl_locations(self, value: bool):
-        self._cs["check_download_locations"] = bool(value)
-        self._persist_collection()
 
     # ---- path browse / clear ----------------------------------------------
     def _browse_into(self, edit: QLineEdit, save_fn, title: str):
