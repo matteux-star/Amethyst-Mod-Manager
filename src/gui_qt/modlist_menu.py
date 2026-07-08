@@ -181,9 +181,9 @@ def _build_mod_menu(view, model, row, entry, sel_mods, multi, act, stub, divider
         divider()
         # Group: Nexus — each item shows only when it has valid targets (Tk).
         _endorse_multi = [nm for nm in _names
-                          if _has_nexus_id(view, nm) and _is_endorsed(view, nm)]
-        _abstain_multi = [nm for nm in _names
                           if _has_nexus_id(view, nm) and not _is_endorsed(view, nm)]
+        _abstain_multi = [nm for nm in _names
+                          if _has_nexus_id(view, nm) and _is_endorsed(view, nm)]
         _check_multi = [nm for nm in _names
                         if _has_nexus_id(view, nm) or bool(_modio_url(view, nm))]
         _nexus_multi = [nm for nm in _names if _has_nexus_page(view, nm)]
