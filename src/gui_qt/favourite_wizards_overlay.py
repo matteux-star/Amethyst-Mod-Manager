@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
     QPushButton, QFrame, QStyledItemDelegate, QStyle,
 )
 
-from gui_qt.theme_qt import active_palette, _c
+from gui_qt.theme_qt import active_palette, _c, contrast_text
 
 CHECK_BOX = 17        # same as the modlist checkbox
 
@@ -34,8 +34,9 @@ class _CheckDelegate(QStyledItemDelegate):
         p = active_palette()
         self.c_text = QColor(_c(p, "TEXT_MAIN"))
         self.c_on_sel = QColor(_c(p, "TEXT_ON_ACCENT"))
+        self.c_tick = QColor(contrast_text(_c(p, "CHECK_FILL")))   # tick reads on the checkbox fill
         self.c_border = QColor(_c(p, "BORDER_FAINT"))
-        self.c_check = QColor(_c(p, "ACCENT"))
+        self.c_check = QColor(_c(p, "CHECK_FILL"))
         self.c_check_off = QColor(_c(p, "BG_DEEP"))
         self.c_sel = QColor(_c(p, "BG_SELECT"))
         self.c_hover = QColor(_c(p, "BG_ROW_HOVER"))
@@ -59,7 +60,7 @@ class _CheckDelegate(QStyledItemDelegate):
         p.setBrush(QBrush(self.c_check if on else self.c_check_off))
         p.drawRoundedRect(box, 3, 3)
         if on:
-            p.setPen(QPen(QColor("white"), 2))
+            p.setPen(QPen(self.c_tick, 2))
             p.drawLine(box.left() + 4, box.center().y() + 1,
                        box.center().x() - 1, box.bottom() - 4)
             p.drawLine(box.center().x() - 1, box.bottom() - 4,

@@ -93,6 +93,9 @@ def build_qss(pal: dict | None = None) -> str:
     """Build the application QSS from a palette (default: active palette)."""
     p = pal or active_palette()
     c = lambda k: _c(p, k)
+    # Auto-contrast text for a coloured fill: label visibility beats palette
+    # choice, so button text is never editable — it's derived from the fill.
+    ct = lambda k: contrast_text(_c(p, k))
     return f"""
     QWidget {{
         color: {c('TEXT_MAIN')};
@@ -111,11 +114,11 @@ def build_qss(pal: dict | None = None) -> str:
         border-radius: 3px;
         background: {c('BG_DEEP')};
     }}
-    QCheckBox::indicator:hover {{ border: 1px solid {c('ACCENT')}; }}
+    QCheckBox::indicator:hover {{ border: 1px solid {c('CHECK_FILL')}; }}
     QCheckBox::indicator:checked {{
-        background: {c('ACCENT')};
-        border: 1px solid {c('ACCENT')};
-        image: url({_icon_url('check_white.png')});
+        background: {c('CHECK_FILL')};
+        border: 1px solid {c('CHECK_FILL')};
+        image: url({_tinted_icon_url('check_white.png', ct('CHECK_FILL'))});
     }}
     /* Radio: same look as the dropdown-menu exclusive indicator — hollow ring
        unchecked, a fully accent-filled circle when checked (border-radius = half
@@ -147,7 +150,7 @@ def build_qss(pal: dict | None = None) -> str:
         border-radius: 4px;
     }}
     QToolButton:hover {{ background: {c('BG_ROW_HOVER')}; }}
-    QToolButton:pressed {{ background: {c('ACCENT')}; color: {c('TEXT_ON_ACCENT')}; }}
+    QToolButton:pressed {{ background: {c('ACCENT')}; color: {ct('ACCENT')}; }}
     QToolButton::menu-button {{ width: 16px; border-left: 1px solid {c('BORDER')}; }}
     QToolButton::menu-arrow {{ width: 8px; height: 8px; }}
 
@@ -194,10 +197,10 @@ def build_qss(pal: dict | None = None) -> str:
         background: {c('BG_DEEP')};
     }}
     QMenu::indicator:non-exclusive:checked {{
-        border: 1px solid {c('ACCENT')};
+        border: 1px solid {c('CHECK_FILL')};
         border-radius: 3px;
-        background: {c('ACCENT')};
-        image: url({_icon_url('check_white.png')});
+        background: {c('CHECK_FILL')};
+        image: url({_tinted_icon_url('check_white.png', ct('CHECK_FILL'))});
     }}
     /* Submenu indicator — our own right-pointing arrow (matches the collapsed
        row indicator) in place of Qt's default triangle. */
@@ -302,7 +305,7 @@ def build_qss(pal: dict | None = None) -> str:
     /* Generic buttons / inputs */
     QPushButton {{
         background: {c('ACCENT')};
-        color: {c('TEXT_ON_ACCENT')};
+        color: {ct('ACCENT')};
         border: none;
         padding: 6px 12px;
         border-radius: 4px;
@@ -357,7 +360,7 @@ def build_qss(pal: dict | None = None) -> str:
 
     #StatusChip {{
         background: {c('ACCENT')};
-        color: {c('TEXT_ON_ACCENT')};
+        color: {ct('ACCENT')};
         border-radius: 3px;
         padding: 3px 8px;
     }}
@@ -375,12 +378,12 @@ def build_qss(pal: dict | None = None) -> str:
     #GameCard:hover {{ border: 1px solid {c('ACCENT')}; }}
     #GameCardName {{ color: {c('TEXT_MAIN')}; font-weight: 600; font-size: 12px; }}
     #GameSelectBtn {{
-        background: {c('BTN_SUCCESS')}; color: #fff; font-weight: 600;
+        background: {c('BTN_SUCCESS')}; color: {ct('BTN_SUCCESS')}; font-weight: 600;
         border: none; border-radius: 4px; padding: 5px 0;
     }}
     #GameSelectBtn:hover {{ background: {c('BTN_SUCCESS_HOV')}; }}
     #GameAddBtn {{
-        background: {c('ACCENT')}; color: {c('TEXT_ON_ACCENT')}; font-weight: 600;
+        background: {c('ACCENT')}; color: {ct('ACCENT')}; font-weight: 600;
         border: none; border-radius: 4px; padding: 5px 0;
     }}
     #GameAddBtn:hover {{ background: {c('ACCENT_HOV')}; }}
@@ -408,7 +411,7 @@ def build_qss(pal: dict | None = None) -> str:
     #ActionButton:hover {{ background: {c('BG_ROW_HOVER')}; }}
     /* Menu open (menuOpen property) OR pressed → whole button + arrow go blue. */
     #ActionButton:pressed, #ActionButton[menuOpen="true"] {{
-        background: {c('ACCENT')}; color: {c('TEXT_ON_ACCENT')};
+        background: {c('ACCENT')}; color: {ct('ACCENT')};
     }}
     /* Split-button arrow section (right of the divider), like the mockup. */
     #ActionButton::menu-button {{
@@ -469,16 +472,16 @@ def build_qss(pal: dict | None = None) -> str:
         font-size: 13px;
     }}
     #FormButton:hover {{ background: {c('BG_ROW_HOVER')}; }}
-    #FormButton:pressed {{ background: {c('ACCENT')}; color: {c('TEXT_ON_ACCENT')}; }}
+    #FormButton:pressed {{ background: {c('ACCENT')}; color: {ct('ACCENT')}; }}
     #PrimaryButton {{
-        background: {c('ACCENT')}; color: {c('TEXT_ON_ACCENT')}; font-weight: 600;
+        background: {c('ACCENT')}; color: {ct('ACCENT')}; font-weight: 600;
         border: none; border-radius: 4px; padding: 0 18px;
         min-height: 30px; font-size: 13px;
     }}
     #PrimaryButton:hover {{ background: {c('ACCENT_HOV')}; }}
     #PrimaryButton:disabled {{ background: {c('BG_ROW')}; color: {c('TEXT_DIM')}; }}
     #DangerButton {{
-        background: {c('RED_BTN')}; color: #fff; font-weight: 600;
+        background: {c('RED_BTN')}; color: {ct('RED_BTN')}; font-weight: 600;
         border: none; border-radius: 4px; padding: 0 16px;
         min-height: 30px; font-size: 13px;
     }}
@@ -492,17 +495,17 @@ def build_qss(pal: dict | None = None) -> str:
         font-size: 12px;
     }}
     #FooterButton:hover {{ background: {c('BG_ROW_HOVER')}; }}
-    #FooterButton:pressed {{ background: {c('ACCENT')}; color: {c('TEXT_ON_ACCENT')}; }}
+    #FooterButton:pressed {{ background: {c('ACCENT')}; color: {ct('ACCENT')}; }}
     /* Filters footer button lights up while any filter is active. */
     #FooterButton[active="true"] {{
         background: {c('ACCENT')};
-        color: {c('TEXT_ON_ACCENT')};
+        color: {ct('ACCENT')};
         border: 1px solid {c('ACCENT')};
     }}
     #FooterButton[active="true"]:hover {{ background: {c('ACCENT_HOV')}; }}
     #PlayButton {{
         background: {c('BTN_SUCCESS')};
-        color: #fff;
+        color: {ct('BTN_SUCCESS')};
         font-weight: 600;
         font-size: 14px;
         padding: 6px 18px;
@@ -654,12 +657,33 @@ def _lighten(hex_color: str, factor: float = 0.18) -> str:
     return f"#{r:02x}{g:02x}{b:02x}"
 
 
+def contrast_text(bg: str, dark: str = "#101010", light: str = "#ffffff") -> str:
+    """Return whichever of *dark* / *light* reads best on the *bg* fill.
+
+    Uses the WCAG relative-luminance threshold so a button label is always
+    visible regardless of how light or dark its background is (e.g. a yellow
+    or cyan fill gets dark text; a deep red fill gets light text). Falls back
+    to *light* when *bg* can't be parsed."""
+    h = bg.lstrip("#")
+    if len(h) != 6:
+        return light
+    try:
+        r, g, b = (int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    except ValueError:
+        return light
+    # Linearise then weight per Rec. 709 for perceived luminance.
+    def _lin(c):
+        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+    lum = 0.2126 * _lin(r) + 0.7152 * _lin(g) + 0.0722 * _lin(b)
+    return dark if lum > 0.4 else light
+
+
 # One fixed size for every in-view close button (see danger_close_button).
 CLOSE_BTN_SIZE = (90, 30)
 
 
 def button_qss(key: str, *, hover_key: str | None = None,
-               text_key: str = "TEXT_ON_ACCENT",
+               text_key: str | None = None,
                disabled_bg_key: str = "BTN_GREY",
                disabled_fg_key: str = "TEXT_DIM",
                pal: dict | None = None,
@@ -672,14 +696,16 @@ def button_qss(key: str, *, hover_key: str | None = None,
     is what lets a monotone / high-contrast theme actually take effect.
 
     *key* is the palette key for the base fill; the hover is *hover_key* when
-    given, otherwise the base blended toward white via :func:`_lighten`. Text,
-    disabled fill and disabled text are palette-driven too (no ``#fff`` /
-    ``#44484f`` literals)."""
+    given, otherwise the base blended toward white via :func:`_lighten`. The
+    label colour is **auto-contrasted** off the fill (:func:`contrast_text`) so
+    it stays visible on any theme — button text is deliberately not editable,
+    since visibility matters more than the exact colour. Pass *text_key* only
+    to force a specific palette key. Disabled fill/text are palette-driven."""
     if pal is None:
         pal = active_palette()
     bg = _c(pal, key)
     hover = _c(pal, hover_key) if hover_key else _lighten(bg)
-    fg = _c(pal, text_key)
+    fg = _c(pal, text_key) if text_key else contrast_text(bg)
     dis_bg = _c(pal, disabled_bg_key)
     dis_fg = _c(pal, disabled_fg_key)
     return (
@@ -714,7 +740,7 @@ def danger_close_button(text: str = "✕ Close", pal: dict | None = None):
         pal = active_palette()
     danger = _c(pal, "BTN_DANGER")
     hover = _lighten(danger)
-    fg = _c(pal, "TEXT_ON_ACCENT")
+    fg = contrast_text(danger)
     btn = QPushButton(text)
     btn.setFixedSize(*CLOSE_BTN_SIZE)
     btn.setCursor(Qt.PointingHandCursor)

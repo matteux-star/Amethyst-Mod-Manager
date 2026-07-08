@@ -9,7 +9,7 @@ from PySide6.QtCore import Qt, QRect, QEvent, QSize
 from PySide6.QtGui import QColor, QPen, QBrush, QFont
 from PySide6.QtWidgets import QStyledItemDelegate
 
-from gui_qt.theme_qt import active_palette, _c
+from gui_qt.theme_qt import active_palette, _c, contrast_text
 from gui_qt.downloads_model import (
     COL_CHECK, COL_NAME, COL_SIZE, COL_INSTALL, EntryRole, InstalledRole,
 )
@@ -32,15 +32,20 @@ class DownloadsDelegate(QStyledItemDelegate):
         self.c_text = QColor(_c(p, "TEXT_MAIN"))
         self.c_dim = QColor(_c(p, "TEXT_DIM"))
         self.c_border = QColor(_c(p, "BORDER_FAINT"))
-        self.c_check = QColor(_c(p, "ACCENT"))
+        self.c_check = QColor(_c(p, "CHECK_FILL"))
         self.c_check_off = QColor(_c(p, "BG_DEEP"))
+        self.c_check_tick = QColor(contrast_text(_c(p, "CHECK_FILL")))  # tick on the checkbox fill
         self.c_sel = QColor(_c(p, "BG_SELECT"))
         self.c_header_bg = QColor(_c(p, "BG_HEADER"))
         self.c_install = QColor(_c(p, "BTN_SUCCESS"))
         self.c_reinstall = QColor(_c(p, "BTN_WARN"))   # orange (already installed)
         self.c_blue = QColor(_c(p, "ACCENT"))          # Select-all button
-        self.c_btn_text = QColor(_c(p, "TEXT_WHITE"))          # text on green/orange
-        self.c_selall_text = QColor(_c(p, "TEXT_ON_ACCENT"))   # text on ACCENT button
+        # Button label colours are auto-contrasted off each button's own fill so
+        # they stay readable on any theme (e.g. a bright-yellow BTN_WARN needs
+        # dark text, not white). Text visibility beats palette choice.
+        self.c_install_text = QColor(contrast_text(_c(p, "BTN_SUCCESS")))
+        self.c_reinstall_text = QColor(contrast_text(_c(p, "BTN_WARN")))
+        self.c_selall_text = QColor(contrast_text(_c(p, "ACCENT")))
 
     # -- paint --------------------------------------------------------------
     def paint(self, p, opt, index):
@@ -99,7 +104,7 @@ class DownloadsDelegate(QStyledItemDelegate):
         p.setBrush(QBrush(self.c_check if on else self.c_check_off))
         p.drawRoundedRect(box, 3, 3)
         if on:
-            p.setPen(QPen(self.c_selall_text, 2))
+            p.setPen(QPen(self.c_check_tick, 2))
             p.drawLine(box.left() + 4, box.center().y() + 1,
                        box.center().x() - 1, box.bottom() - 4)
             p.drawLine(box.center().x() - 1, box.bottom() - 4,
@@ -116,7 +121,7 @@ class DownloadsDelegate(QStyledItemDelegate):
         p.setPen(Qt.NoPen)
         p.setBrush(self.c_reinstall if installed else self.c_install)
         p.drawRoundedRect(rect, 4, 4)
-        p.setPen(self.c_btn_text)
+        p.setPen(self.c_reinstall_text if installed else self.c_install_text)
         f = QFont(); f.setPixelSize(BTN_FONT_PX); f.setBold(True); p.setFont(f)
         p.drawText(rect, Qt.AlignCenter, "Reinstall" if installed else "Install")
         p.setRenderHint(p.RenderHint.Antialiasing, False)

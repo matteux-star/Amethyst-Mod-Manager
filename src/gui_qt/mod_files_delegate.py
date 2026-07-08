@@ -9,7 +9,7 @@ from PySide6.QtCore import Qt, QRect
 from PySide6.QtGui import QColor, QPen, QBrush, QFont
 from PySide6.QtWidgets import QStyledItemDelegate
 
-from gui_qt.theme_qt import active_palette, _c
+from gui_qt.theme_qt import active_palette, _c, contrast_text
 from gui_qt.icons import icon
 from gui_qt.mod_files_model import COL_NAME, COL_TOPLEVEL, COL_DISABLE
 
@@ -29,9 +29,9 @@ class ModFilesDelegate(QStyledItemDelegate):
         self.c_win = QColor(_c(p, "FILE_WIN"))
         self.c_lose = QColor(_c(p, "FILE_LOSE"))
         self.c_border = QColor(_c(p, "BORDER_FAINT"))
-        self.c_check = QColor(_c(p, "ACCENT"))
+        self.c_check = QColor(_c(p, "CHECK_FILL"))
         self.c_check_off = QColor(_c(p, "BG_DEEP"))
-        self.c_tick = QColor(_c(p, "TEXT_ON_ACCENT"))
+        self.c_tick = QColor(contrast_text(_c(p, "CHECK_FILL")))   # tick reads on the checkbox fill
         self.c_sel = QColor(_c(p, "BG_SELECT"))
         self.c_part = QColor(_c(p, "ACCENT"))
         self.c_arrow = _c(p, "DROPDOWN_ARROW")   # expand/collapse arrow tint

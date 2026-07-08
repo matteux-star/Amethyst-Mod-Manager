@@ -46,14 +46,16 @@ class TriStateCheckBox(QAbstractButton):
         # Resolve neutral colours from the active palette so the label + empty
         # box read in both light and dark modes (the module defaults are dark).
         try:
-            from gui_qt.theme_qt import active_palette, _c
+            from gui_qt.theme_qt import active_palette, _c, contrast_text
             pal = active_palette()
-            self._include = include_color or _c(pal, "ACCENT")
+            self._include = include_color or _c(pal, "CHECK_FILL")
             self._box_bg = _c(pal, "BG_ROW")
             self._box_border = _c(pal, "BORDER_FAINT")
             self._box_border_hover = _c(pal, "ACCENT")
             self._text_color = _c(pal, "TEXT_MAIN")
             self._text_disabled = _c(pal, "TEXT_DIM")
+            # Tick glyph auto-contrasted off the check fill so it's always visible.
+            self._glyph = contrast_text(self._include)
         except Exception:
             self._include = include_color or _INCLUDE
             self._box_bg = _BG
@@ -61,6 +63,7 @@ class TriStateCheckBox(QAbstractButton):
             self._box_border_hover = _BORDER_HOVER
             self._text_color = _TEXT
             self._text_disabled = _TEXT_DISABLED
+            self._glyph = "#ffffff"
         # two_state: cycle off <-> include only (no exclude). Used where a plain
         # on/off check is wanted but the row must look identical to the tri-state
         # filter rows (e.g. the Nexus categories panel).
@@ -147,7 +150,7 @@ class TriStateCheckBox(QAbstractButton):
         p.end()
 
     def _draw_check(self, p: QPainter, box: QRectF) -> None:
-        glyph = QColor("white")
+        glyph = QColor(self._glyph)
         if not self.isEnabled():
             glyph.setAlpha(150)
         pen = QPen(glyph, 2)

@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QMenu,
 )
 
-from gui_qt.theme_qt import active_palette, _c
+from gui_qt.theme_qt import active_palette, _c, contrast_text
 
 CARD_W = 300
 CARD_H = 392
@@ -380,7 +380,7 @@ class NexusModCard(QFrame):
             warn = _c(self._pal, "BTN_WARN")
             self._install_btn.setText(self.tr("Reinstall"))
             self._install_btn.setStyleSheet(
-                f"QPushButton{{background:{warn}; color:#fff; font-weight:600;"
+                f"QPushButton{{background:{warn}; color:{contrast_text(warn)}; font-weight:600;"
                 f" border:none; border-radius:4px; padding:5px 0;}}"
                 f"QPushButton:hover{{background:{warn};}}")
         else:

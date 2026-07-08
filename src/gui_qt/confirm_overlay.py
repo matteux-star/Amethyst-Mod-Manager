@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame,
 )
 
-from gui_qt.theme_qt import active_palette, _c
+from gui_qt.theme_qt import active_palette, _c, contrast_text
 
 
 class ConfirmOverlay(QWidget):
@@ -46,7 +46,7 @@ class ConfirmOverlay(QWidget):
         self._card.setStyleSheet(
             f"#ConfirmCard {{ background:{_c(p,'BG_PANEL')};"
             f" border:1px solid {_c(p,'BORDER')}; border-radius:8px; }}"
-            f" #DangerButton {{ background:{_c(p,'BTN_DANGER')}; color:{_c(p,'TEXT_ON_ACCENT')};"
+            f" #DangerButton {{ background:{_c(p,'BTN_DANGER')}; color:{contrast_text(_c(p,'BTN_DANGER'))};"
             f" border:none; border-radius:4px; padding:6px 14px;"
             f" font-weight:600; }}"
             f" #DangerButton:hover {{ background:{_c(p,'BTN_DANGER_HOV')}; }}")

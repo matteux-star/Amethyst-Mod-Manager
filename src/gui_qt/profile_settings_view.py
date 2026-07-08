@@ -22,7 +22,7 @@ from PySide6.QtWidgets import (
     QFrame, QScrollArea,
 )
 
-from gui_qt.theme_qt import active_palette, _c, danger_close_button
+from gui_qt.theme_qt import active_palette, _c, danger_close_button, contrast_text
 from gui_qt.icons import icon
 from gui_qt.safe_emit import safe_emit
 from Utils.profile_state import (
@@ -113,7 +113,7 @@ class ProfileSettingsView(QWidget):
         #ProfileRow {{ background: {c('BG_PANEL')}; }}
         #ProfileRow[alt="true"] {{ background: {c('BG_DEEP')}; }}
         #RenameBar {{ background: {c('BG_HEADER')}; }}
-        #DangerButton {{ background: {c('BTN_DANGER')}; color: {c('TEXT_ON_ACCENT')}; border: none;
+        #DangerButton {{ background: {c('BTN_DANGER')}; color: {contrast_text(c('BTN_DANGER'))}; border: none;
                          border-radius: 4px; padding: 4px 12px; font-size: 12px;
                          font-weight: 600; }}
         #DangerButton:hover {{ background: {c('BTN_DANGER_HOV')}; }}

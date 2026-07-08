@@ -60,7 +60,7 @@ class _DragPluginList(QListWidget):
         pm.fill(accent)
         painter = QPainter(pm)
         painter.setFont(f)
-        painter.setPen(QColor("white"))
+        painter.setPen(QColor(_c(p, "TEXT_ON_ACCENT")))
         painter.drawText(pm.rect(), Qt.AlignCenter, name)
         painter.end()
 

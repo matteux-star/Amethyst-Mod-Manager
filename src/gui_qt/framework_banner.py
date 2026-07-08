@@ -19,12 +19,14 @@ from Utils.framework_detect import (
 
 ROW_H = 22
 
-# state → (bg palette key, fg palette key). Same keys/colors the Tk banner uses.
+# state → (bg palette key, fg palette key). Dedicated FRAMEWORK_* keys (their own
+# "Framework detection" section in the theme editor); seeded from the same colours
+# the shared tinted rows used, but independently editable.
 _STATE_COLORS = {
-    STATE_INSTALLED:    ("BG_GREEN_DEEP",  "BG_GREEN_TEXT"),
-    STATE_NOT_DEPLOYED: ("BG_ORANGE_DEEP", "BG_ORANGE_TEXT"),
-    STATE_NOT_ENABLED:  ("BG_BLUE_DEEP",   "BG_BLUE_TEXT"),
-    STATE_MISSING:      ("BG_RED_DEEP",    "BG_RED_TEXT"),
+    STATE_INSTALLED:    ("FRAMEWORK_INSTALLED_BG", "FRAMEWORK_INSTALLED_FG"),
+    STATE_NOT_DEPLOYED: ("FRAMEWORK_STAGED_BG",    "FRAMEWORK_STAGED_FG"),
+    STATE_NOT_ENABLED:  ("FRAMEWORK_DISABLED_BG",  "FRAMEWORK_DISABLED_FG"),
+    STATE_MISSING:      ("FRAMEWORK_MISSING_BG",   "FRAMEWORK_MISSING_FG"),
 }
 
 

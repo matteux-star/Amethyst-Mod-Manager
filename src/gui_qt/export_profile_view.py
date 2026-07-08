@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
     QListWidgetItem, QAbstractItemView,
 )
 
-from gui_qt.theme_qt import active_palette, _c
+from gui_qt.theme_qt import active_palette, _c, contrast_text
 from Utils import profile_export
 
 
@@ -46,7 +46,7 @@ _SOURCE_COLORS = {
 
 def _source_button_qss(source: str) -> str:
     base, hover = _SOURCE_COLORS.get(source, _SOURCE_COLORS["nexus"])
-    return (f"QPushButton {{ background:{base}; color:#ffffff; border:none;"
+    return (f"QPushButton {{ background:{base}; color:{contrast_text(base)}; border:none;"
             f" border-radius:4px; padding:3px 12px; font-weight:600; }}"
             f"QPushButton:hover {{ background:{hover}; }}")
 

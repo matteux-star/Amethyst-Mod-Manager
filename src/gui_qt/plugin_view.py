@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QToolTip,
 )
 
-from gui_qt.theme_qt import active_palette, _c
+from gui_qt.theme_qt import active_palette, _c, contrast_text
 from gui_qt.icons import icon
 from gui_qt.modlist_header import TkStyleHeader
 from gui_qt.plugin_model import (
@@ -78,8 +78,9 @@ class PluginDelegate(QStyledItemDelegate):
         self.c_text = QColor(_c(p, "TEXT_MAIN"))
         self.c_text_dim = QColor(_c(p, "TEXT_DIM"))
         self.c_text_on_sel = QColor(_c(p, "TEXT_ON_ACCENT"))
+        self.c_tick = QColor(contrast_text(_c(p, "CHECK_FILL")))   # tick reads on the checkbox fill
         self.c_border = QColor(_c(p, "BORDER"))
-        self.c_check = QColor(_c(p, "ACCENT"))   # checkbox fill when enabled (blue)
+        self.c_check = QColor(_c(p, "CHECK_FILL"))   # checkbox fill when enabled
         self.c_check_off = QColor(_c(p, "BG_DEEP"))
         self.c_esl = QColor(_c(p, "TONE_BLUE_SOFT"))
         self.c_master = QColor(_c(p, "TEXT_WARN"))
@@ -170,7 +171,7 @@ class PluginDelegate(QStyledItemDelegate):
         p.setBrush(QBrush(fill))
         p.drawRoundedRect(box, 3, 3)
         if enabled:
-            p.setPen(QPen(self.c_text_dim if vanilla else QColor("white"), 2))
+            p.setPen(QPen(self.c_text_dim if vanilla else self.c_tick, 2))
             p.drawLine(box.left() + 4, box.center().y() + 1,
                        box.center().x() - 1, box.bottom() - 4)
             p.drawLine(box.center().x() - 1, box.bottom() - 4,

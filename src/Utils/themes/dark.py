@@ -197,4 +197,17 @@ PALETTE: dict[str, str | tuple] = {
     "CONFLICT_HL_WIN":    "#108d00",   # selection beats this mod (green)
     "CONFLICT_HL_LOSE":   "#9a0e0e",   # this mod beats selection (red)
     "CONFLICT_HL_ANCHOR": "#A45500",   # plugin-selected / anchor mod (orange)
+
+    # Framework-status banner rows (Plugins tab) — per install state
+    "FRAMEWORK_INSTALLED_BG": "#1b4d1b", "FRAMEWORK_INSTALLED_FG": "#c8ffc8",
+    "FRAMEWORK_STAGED_BG":    "#5c3a14", "FRAMEWORK_STAGED_FG":    "#ffe0b0",
+    "FRAMEWORK_DISABLED_BG":  "#1a3a5c", "FRAMEWORK_DISABLED_FG":  "#b0d8ff",
+    "FRAMEWORK_MISSING_BG":   "#4d1b1b", "FRAMEWORK_MISSING_FG":   "#ffc8c8",
+
+    # Modlist boundary separator bands (pinned Overwrite / Root Folder rows)
+    "OVERWRITE_SEP_BG": "#1e2a1e", "OVERWRITE_SEP_FG": "#6bc76b",
+    "ROOT_SEP_BG":      "#1e1e2e", "ROOT_SEP_FG":      "#7aa2f7",
+
+    # Checkbox fill when checked (tick auto-contrasts off this)
+    "CHECK_FILL": "#0078d4",
 }

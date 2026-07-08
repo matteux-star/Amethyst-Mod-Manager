@@ -21,7 +21,7 @@ see their choices before committing.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QT_TRANSLATE_NOOP
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea, QFrame,
@@ -36,6 +36,198 @@ from gui_qt import theme_editor_groups as teg
 from Utils.themes import load_palettes, load_display_names, get_ctk_appearance
 from Utils import custom_themes as ct
 from Utils import ui_config as uc
+
+
+# lupdate extraction anchors: the theme-editor section titles, swatch labels
+# and section descriptions all live as plain strings in theme_editor_groups
+# (a Qt-free data module). Marking the literals here puts them in the
+# ThemeEditorView context so the self.tr() calls in _rebuild_body() resolve
+# them at render time. Regenerate with tools/i18n_update.sh after editing
+# GROUPS / GROUP_DESCRIPTIONS.
+_TR_MARKERS = (
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Backgrounds"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "App background (deepest)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Panel / card surface"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Header / toolbar"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "List row"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "List row (alt stripe)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "List row hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Tree / list surface"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Separator fill"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Hover highlight"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Selection highlight"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Text input field"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Primary text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Dimmed text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Muted text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Faint text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Separator text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "White"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Black"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Success text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Error text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Warning text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Success text (bright)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Error text (bright)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Warning text (bright)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Card text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Card text (dim)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Card text (medium)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Tree foreground"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Accent"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Accent hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Text on accent"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Hyperlink"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Dropdown arrow"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Borders"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Border"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Border (dim)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Border (faint)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Buttons — Red"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Danger"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Danger hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Danger (alt)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Danger alt hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Danger (deep)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Danger deep hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Cancel"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Cancel hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Red (legacy)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Red hover (legacy)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Buttons — Green"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Success"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Success hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Success (alt)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Success alt hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Success (deep)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Success deep hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Buttons — Orange"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Warning"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Warning hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Warning (deep)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Warning deep hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Warning (brown)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Warning brown hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Warning (orange)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Warning orange hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Buttons — Blue"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Info"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Info hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Info (deep)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Info deep hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Neutral"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Neutral hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Buttons — Grey"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Grey"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Grey hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Grey (alt)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Grey alt hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Buttons — Purple"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Purple"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Purple hover"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Tree tags"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Folder"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "BSA archive"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "BSA archive (alt)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "INI profile"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Bundled (text)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Bundled (background)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Installed (background)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Unordered (text)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Tones"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Green tone"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Red tone"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Blue tone"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Cyan tone"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Soft blue tone"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Flag tone"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Scrollbars"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Scrollbar background"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Scrollbar trough"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Scrollbar thumb (active)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Overlays & tinted rows"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Error overlay"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Deep overlay"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Card"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Card (alt)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Green row"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Green (deep)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Red (deep)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Orange (deep)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Blue (deep)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Green tint text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Red tint text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Orange tint text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Blue tint text"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Dark blue"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Dark green"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Save button"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Selection bar"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Required mod"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Optional mod"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Status"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Error (bright)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Badge red"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Badge green"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Success (solid)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Queued"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Download green"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Plugin cycle & files"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Cycle error row (bg)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Cycle error row (text)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Cycle ok row (bg)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Cycle ok row (text)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Cycle warn row (bg)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Cycle warn row (text)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Cycle anchor"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Cycle link"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "File winning"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "File overridden"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "File dim"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "File anchor"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Drag selection outline"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Conflict highlights"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Conflict row — winning"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Conflict row — overridden"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Conflict row — anchor"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Framework detection"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Installed (bg)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Installed (text)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Staged (bg)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Staged (text)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Disabled (bg)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Disabled (text)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Missing (bg)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Missing (text)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Separator bands"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Overwrite band (bg)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Overwrite band (text)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Root Folder band (bg)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Root Folder band (text)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Checkboxes"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Checkbox fill (checked)"),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Window, panels, list rows and input fields — the app's surfaces."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Label and list text throughout the app, plus success/warning/error text."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "The highlight colour: links, dropdown arrows and accented controls."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Lines and frames around panels, lists and inputs."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Danger / cancel / remove buttons (delete, remove profile, ✕ close)."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Success / confirm buttons (Install, Done, Play)."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Warning buttons (Reinstall, download / update actions)."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Info / neutral action buttons (Select, Groups, Plugin Rules)."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Secondary / neutral buttons (View, minor actions)."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Accent buttons like Ko-Fi."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Coloured labels in file trees (folders, BSA archives, bundled/installed)."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Shared accent tones reused by flags, icons and small highlights."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "The scrollbar track and thumb."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Popup/overlay backgrounds and coloured info rows (required/optional mods, cards)."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Small status pills and badges (queued, download progress, error/success)."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Plugin-cycle rows and file-conflict colours in the Data / Mod Files views."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "Row tints when a conflicting mod is selected (winning / overridden / anchor)."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "The framework-status banner above the Plugins list (installed / staged / disabled / missing)."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "The pinned Overwrite and Root Folder bands at the top of the modlist."),
+    QT_TRANSLATE_NOOP("ThemeEditorView", "The fill colour of a ticked checkbox (the tick stays auto-contrasted)."),
+)
 
 
 class ThemeEditorView(QWidget):
@@ -165,8 +357,15 @@ class ThemeEditorView(QWidget):
     # ---- body -------------------------------------------------------------
     def _load_theme(self, theme_id: str):
         """Seed the working palette from *theme_id* and rebuild the swatch grid."""
+        # Start from the canonical full key set (dark) so a theme saved before a
+        # new palette key existed still exposes that key for editing — otherwise
+        # grouped_for_palette() filters out any group whose keys are absent from
+        # the loaded palette (e.g. the Framework detection section on an older
+        # custom theme). The selected theme's own values then override the seed.
+        full = dict(self._palettes.get("dark", {}))
         base = self._palettes.get(theme_id, {})
-        self._working = {k: v for k, v in base.items()}
+        full.update(base)
+        self._working = full
         self._editing_id = theme_id if ct.is_custom_theme(theme_id) else None
         # keep the combo in sync
         idx = self._start_combo.findData(theme_id)
@@ -198,14 +397,23 @@ class ThemeEditorView(QWidget):
                             if self._advanced or k not in teg.DERIVED_KEYS]
             if not visible_keys:
                 continue
-            box = QGroupBox(title)
+            box = QGroupBox(self.tr(title))
             grid = QGridLayout(box)
             grid.setContentsMargins(12, 8, 12, 12)
             grid.setHorizontalSpacing(12)
             grid.setVerticalSpacing(6)
-            for row, (key, label) in enumerate(visible_keys):
-                grid.addWidget(QLabel(label), row, 0)
+            row = 0
+            desc = teg.GROUP_DESCRIPTIONS.get(title)
+            if desc:
+                d = QLabel(self.tr(desc))
+                d.setWordWrap(True)
+                d.setStyleSheet(f"color:{_c(self._pal, 'TEXT_DIM')}; font-size:11px;")
+                grid.addWidget(d, row, 0, 1, 3)
+                row += 1
+            for key, label in visible_keys:
+                grid.addWidget(QLabel(self.tr(label)), row, 0)
                 grid.addWidget(self._make_swatch(key), row, 1, Qt.AlignLeft)
+                row += 1
             grid.setColumnStretch(2, 1)
             v.addWidget(box)
 

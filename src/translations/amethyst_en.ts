@@ -6289,6 +6289,734 @@ Output is written directly into your mod list as the '{0}' mod.</translation>
 <context>
     <name>ThemeEditorView</name>
     <message>
+        <source>Backgrounds</source>
+        <translation>Backgrounds</translation>
+    </message>
+    <message>
+        <source>App background (deepest)</source>
+        <translation>App background (deepest)</translation>
+    </message>
+    <message>
+        <source>Panel / card surface</source>
+        <translation>Panel / card surface</translation>
+    </message>
+    <message>
+        <source>Header / toolbar</source>
+        <translation>Header / toolbar</translation>
+    </message>
+    <message>
+        <source>List row</source>
+        <translation>List row</translation>
+    </message>
+    <message>
+        <source>List row (alt stripe)</source>
+        <translation>List row (alt stripe)</translation>
+    </message>
+    <message>
+        <source>List row hover</source>
+        <translation>List row hover</translation>
+    </message>
+    <message>
+        <source>Tree / list surface</source>
+        <translation>Tree / list surface</translation>
+    </message>
+    <message>
+        <source>Separator fill</source>
+        <translation>Separator fill</translation>
+    </message>
+    <message>
+        <source>Hover highlight</source>
+        <translation>Hover highlight</translation>
+    </message>
+    <message>
+        <source>Selection highlight</source>
+        <translation>Selection highlight</translation>
+    </message>
+    <message>
+        <source>Text input field</source>
+        <translation>Text input field</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Text</translation>
+    </message>
+    <message>
+        <source>Primary text</source>
+        <translation>Primary text</translation>
+    </message>
+    <message>
+        <source>Dimmed text</source>
+        <translation>Dimmed text</translation>
+    </message>
+    <message>
+        <source>Muted text</source>
+        <translation>Muted text</translation>
+    </message>
+    <message>
+        <source>Faint text</source>
+        <translation>Faint text</translation>
+    </message>
+    <message>
+        <source>Separator text</source>
+        <translation>Separator text</translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation>White</translation>
+    </message>
+    <message>
+        <source>Black</source>
+        <translation>Black</translation>
+    </message>
+    <message>
+        <source>Success text</source>
+        <translation>Success text</translation>
+    </message>
+    <message>
+        <source>Error text</source>
+        <translation>Error text</translation>
+    </message>
+    <message>
+        <source>Warning text</source>
+        <translation>Warning text</translation>
+    </message>
+    <message>
+        <source>Success text (bright)</source>
+        <translation>Success text (bright)</translation>
+    </message>
+    <message>
+        <source>Error text (bright)</source>
+        <translation>Error text (bright)</translation>
+    </message>
+    <message>
+        <source>Warning text (bright)</source>
+        <translation>Warning text (bright)</translation>
+    </message>
+    <message>
+        <source>Card text</source>
+        <translation>Card text</translation>
+    </message>
+    <message>
+        <source>Card text (dim)</source>
+        <translation>Card text (dim)</translation>
+    </message>
+    <message>
+        <source>Card text (medium)</source>
+        <translation>Card text (medium)</translation>
+    </message>
+    <message>
+        <source>Tree foreground</source>
+        <translation>Tree foreground</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation>Accent</translation>
+    </message>
+    <message>
+        <source>Accent hover</source>
+        <translation>Accent hover</translation>
+    </message>
+    <message>
+        <source>Text on accent</source>
+        <translation>Text on accent</translation>
+    </message>
+    <message>
+        <source>Hyperlink</source>
+        <translation>Hyperlink</translation>
+    </message>
+    <message>
+        <source>Dropdown arrow</source>
+        <translation>Dropdown arrow</translation>
+    </message>
+    <message>
+        <source>Borders</source>
+        <translation>Borders</translation>
+    </message>
+    <message>
+        <source>Border</source>
+        <translation>Border</translation>
+    </message>
+    <message>
+        <source>Border (dim)</source>
+        <translation>Border (dim)</translation>
+    </message>
+    <message>
+        <source>Border (faint)</source>
+        <translation>Border (faint)</translation>
+    </message>
+    <message>
+        <source>Buttons — Red</source>
+        <translation>Buttons — Red</translation>
+    </message>
+    <message>
+        <source>Danger</source>
+        <translation>Danger</translation>
+    </message>
+    <message>
+        <source>Danger hover</source>
+        <translation>Danger hover</translation>
+    </message>
+    <message>
+        <source>Danger (alt)</source>
+        <translation>Danger (alt)</translation>
+    </message>
+    <message>
+        <source>Danger alt hover</source>
+        <translation>Danger alt hover</translation>
+    </message>
+    <message>
+        <source>Danger (deep)</source>
+        <translation>Danger (deep)</translation>
+    </message>
+    <message>
+        <source>Danger deep hover</source>
+        <translation>Danger deep hover</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
+        <source>Cancel hover</source>
+        <translation>Cancel hover</translation>
+    </message>
+    <message>
+        <source>Red (legacy)</source>
+        <translation>Red (legacy)</translation>
+    </message>
+    <message>
+        <source>Red hover (legacy)</source>
+        <translation>Red hover (legacy)</translation>
+    </message>
+    <message>
+        <source>Buttons — Green</source>
+        <translation>Buttons — Green</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>Success</translation>
+    </message>
+    <message>
+        <source>Success hover</source>
+        <translation>Success hover</translation>
+    </message>
+    <message>
+        <source>Success (alt)</source>
+        <translation>Success (alt)</translation>
+    </message>
+    <message>
+        <source>Success alt hover</source>
+        <translation>Success alt hover</translation>
+    </message>
+    <message>
+        <source>Success (deep)</source>
+        <translation>Success (deep)</translation>
+    </message>
+    <message>
+        <source>Success deep hover</source>
+        <translation>Success deep hover</translation>
+    </message>
+    <message>
+        <source>Buttons — Orange</source>
+        <translation>Buttons — Orange</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Warning</translation>
+    </message>
+    <message>
+        <source>Warning hover</source>
+        <translation>Warning hover</translation>
+    </message>
+    <message>
+        <source>Warning (deep)</source>
+        <translation>Warning (deep)</translation>
+    </message>
+    <message>
+        <source>Warning deep hover</source>
+        <translation>Warning deep hover</translation>
+    </message>
+    <message>
+        <source>Warning (brown)</source>
+        <translation>Warning (brown)</translation>
+    </message>
+    <message>
+        <source>Warning brown hover</source>
+        <translation>Warning brown hover</translation>
+    </message>
+    <message>
+        <source>Warning (orange)</source>
+        <translation>Warning (orange)</translation>
+    </message>
+    <message>
+        <source>Warning orange hover</source>
+        <translation>Warning orange hover</translation>
+    </message>
+    <message>
+        <source>Buttons — Blue</source>
+        <translation>Buttons — Blue</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>Info</translation>
+    </message>
+    <message>
+        <source>Info hover</source>
+        <translation>Info hover</translation>
+    </message>
+    <message>
+        <source>Info (deep)</source>
+        <translation>Info (deep)</translation>
+    </message>
+    <message>
+        <source>Info deep hover</source>
+        <translation>Info deep hover</translation>
+    </message>
+    <message>
+        <source>Neutral</source>
+        <translation>Neutral</translation>
+    </message>
+    <message>
+        <source>Neutral hover</source>
+        <translation>Neutral hover</translation>
+    </message>
+    <message>
+        <source>Buttons — Grey</source>
+        <translation>Buttons — Grey</translation>
+    </message>
+    <message>
+        <source>Grey</source>
+        <translation>Grey</translation>
+    </message>
+    <message>
+        <source>Grey hover</source>
+        <translation>Grey hover</translation>
+    </message>
+    <message>
+        <source>Grey (alt)</source>
+        <translation>Grey (alt)</translation>
+    </message>
+    <message>
+        <source>Grey alt hover</source>
+        <translation>Grey alt hover</translation>
+    </message>
+    <message>
+        <source>Buttons — Purple</source>
+        <translation>Buttons — Purple</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Purple</translation>
+    </message>
+    <message>
+        <source>Purple hover</source>
+        <translation>Purple hover</translation>
+    </message>
+    <message>
+        <source>Tree tags</source>
+        <translation>Tree tags</translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation>Folder</translation>
+    </message>
+    <message>
+        <source>BSA archive</source>
+        <translation>BSA archive</translation>
+    </message>
+    <message>
+        <source>BSA archive (alt)</source>
+        <translation>BSA archive (alt)</translation>
+    </message>
+    <message>
+        <source>INI profile</source>
+        <translation>INI profile</translation>
+    </message>
+    <message>
+        <source>Bundled (text)</source>
+        <translation>Bundled (text)</translation>
+    </message>
+    <message>
+        <source>Bundled (background)</source>
+        <translation>Bundled (background)</translation>
+    </message>
+    <message>
+        <source>Installed (background)</source>
+        <translation>Installed (background)</translation>
+    </message>
+    <message>
+        <source>Unordered (text)</source>
+        <translation>Unordered (text)</translation>
+    </message>
+    <message>
+        <source>Tones</source>
+        <translation>Tones</translation>
+    </message>
+    <message>
+        <source>Green tone</source>
+        <translation>Green tone</translation>
+    </message>
+    <message>
+        <source>Red tone</source>
+        <translation>Red tone</translation>
+    </message>
+    <message>
+        <source>Blue tone</source>
+        <translation>Blue tone</translation>
+    </message>
+    <message>
+        <source>Cyan tone</source>
+        <translation>Cyan tone</translation>
+    </message>
+    <message>
+        <source>Soft blue tone</source>
+        <translation>Soft blue tone</translation>
+    </message>
+    <message>
+        <source>Flag tone</source>
+        <translation>Flag tone</translation>
+    </message>
+    <message>
+        <source>Scrollbars</source>
+        <translation>Scrollbars</translation>
+    </message>
+    <message>
+        <source>Scrollbar background</source>
+        <translation>Scrollbar background</translation>
+    </message>
+    <message>
+        <source>Scrollbar trough</source>
+        <translation>Scrollbar trough</translation>
+    </message>
+    <message>
+        <source>Scrollbar thumb (active)</source>
+        <translation>Scrollbar thumb (active)</translation>
+    </message>
+    <message>
+        <source>Overlays &amp; tinted rows</source>
+        <translation>Overlays &amp; tinted rows</translation>
+    </message>
+    <message>
+        <source>Error overlay</source>
+        <translation>Error overlay</translation>
+    </message>
+    <message>
+        <source>Deep overlay</source>
+        <translation>Deep overlay</translation>
+    </message>
+    <message>
+        <source>Card</source>
+        <translation>Card</translation>
+    </message>
+    <message>
+        <source>Card (alt)</source>
+        <translation>Card (alt)</translation>
+    </message>
+    <message>
+        <source>Green row</source>
+        <translation>Green row</translation>
+    </message>
+    <message>
+        <source>Green (deep)</source>
+        <translation>Green (deep)</translation>
+    </message>
+    <message>
+        <source>Red (deep)</source>
+        <translation>Red (deep)</translation>
+    </message>
+    <message>
+        <source>Orange (deep)</source>
+        <translation>Orange (deep)</translation>
+    </message>
+    <message>
+        <source>Blue (deep)</source>
+        <translation>Blue (deep)</translation>
+    </message>
+    <message>
+        <source>Green tint text</source>
+        <translation>Green tint text</translation>
+    </message>
+    <message>
+        <source>Red tint text</source>
+        <translation>Red tint text</translation>
+    </message>
+    <message>
+        <source>Orange tint text</source>
+        <translation>Orange tint text</translation>
+    </message>
+    <message>
+        <source>Blue tint text</source>
+        <translation>Blue tint text</translation>
+    </message>
+    <message>
+        <source>Dark blue</source>
+        <translation>Dark blue</translation>
+    </message>
+    <message>
+        <source>Dark green</source>
+        <translation>Dark green</translation>
+    </message>
+    <message>
+        <source>Save button</source>
+        <translation>Save button</translation>
+    </message>
+    <message>
+        <source>Selection bar</source>
+        <translation>Selection bar</translation>
+    </message>
+    <message>
+        <source>Required mod</source>
+        <translation>Required mod</translation>
+    </message>
+    <message>
+        <source>Optional mod</source>
+        <translation>Optional mod</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <source>Error (bright)</source>
+        <translation>Error (bright)</translation>
+    </message>
+    <message>
+        <source>Badge red</source>
+        <translation>Badge red</translation>
+    </message>
+    <message>
+        <source>Badge green</source>
+        <translation>Badge green</translation>
+    </message>
+    <message>
+        <source>Success (solid)</source>
+        <translation>Success (solid)</translation>
+    </message>
+    <message>
+        <source>Queued</source>
+        <translation>Queued</translation>
+    </message>
+    <message>
+        <source>Download green</source>
+        <translation>Download green</translation>
+    </message>
+    <message>
+        <source>Plugin cycle &amp; files</source>
+        <translation>Plugin cycle &amp; files</translation>
+    </message>
+    <message>
+        <source>Cycle error row (bg)</source>
+        <translation>Cycle error row (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle error row (text)</source>
+        <translation>Cycle error row (text)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (bg)</source>
+        <translation>Cycle ok row (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle ok row (text)</source>
+        <translation>Cycle ok row (text)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (bg)</source>
+        <translation>Cycle warn row (bg)</translation>
+    </message>
+    <message>
+        <source>Cycle warn row (text)</source>
+        <translation>Cycle warn row (text)</translation>
+    </message>
+    <message>
+        <source>Cycle anchor</source>
+        <translation>Cycle anchor</translation>
+    </message>
+    <message>
+        <source>Cycle link</source>
+        <translation>Cycle link</translation>
+    </message>
+    <message>
+        <source>File winning</source>
+        <translation>File winning</translation>
+    </message>
+    <message>
+        <source>File overridden</source>
+        <translation>File overridden</translation>
+    </message>
+    <message>
+        <source>File dim</source>
+        <translation>File dim</translation>
+    </message>
+    <message>
+        <source>File anchor</source>
+        <translation>File anchor</translation>
+    </message>
+    <message>
+        <source>Drag selection outline</source>
+        <translation>Drag selection outline</translation>
+    </message>
+    <message>
+        <source>Conflict highlights</source>
+        <translation>Conflict highlights</translation>
+    </message>
+    <message>
+        <source>Conflict row — winning</source>
+        <translation>Conflict row — winning</translation>
+    </message>
+    <message>
+        <source>Conflict row — overridden</source>
+        <translation>Conflict row — overridden</translation>
+    </message>
+    <message>
+        <source>Conflict row — anchor</source>
+        <translation>Conflict row — anchor</translation>
+    </message>
+    <message>
+        <source>Framework detection</source>
+        <translation>Framework detection</translation>
+    </message>
+    <message>
+        <source>Installed (bg)</source>
+        <translation>Installed (bg)</translation>
+    </message>
+    <message>
+        <source>Installed (text)</source>
+        <translation>Installed (text)</translation>
+    </message>
+    <message>
+        <source>Staged (bg)</source>
+        <translation>Staged (bg)</translation>
+    </message>
+    <message>
+        <source>Staged (text)</source>
+        <translation>Staged (text)</translation>
+    </message>
+    <message>
+        <source>Disabled (bg)</source>
+        <translation>Disabled (bg)</translation>
+    </message>
+    <message>
+        <source>Disabled (text)</source>
+        <translation>Disabled (text)</translation>
+    </message>
+    <message>
+        <source>Missing (bg)</source>
+        <translation>Missing (bg)</translation>
+    </message>
+    <message>
+        <source>Missing (text)</source>
+        <translation>Missing (text)</translation>
+    </message>
+    <message>
+        <source>Separator bands</source>
+        <translation>Separator bands</translation>
+    </message>
+    <message>
+        <source>Overwrite band (bg)</source>
+        <translation>Overwrite band (bg)</translation>
+    </message>
+    <message>
+        <source>Overwrite band (text)</source>
+        <translation>Overwrite band (text)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (bg)</source>
+        <translation>Root Folder band (bg)</translation>
+    </message>
+    <message>
+        <source>Root Folder band (text)</source>
+        <translation>Root Folder band (text)</translation>
+    </message>
+    <message>
+        <source>Checkboxes</source>
+        <translation>Checkboxes</translation>
+    </message>
+    <message>
+        <source>Checkbox fill (checked)</source>
+        <translation>Checkbox fill (checked)</translation>
+    </message>
+    <message>
+        <source>Window, panels, list rows and input fields — the app's surfaces.</source>
+        <translation>Window, panels, list rows and input fields — the app's surfaces.</translation>
+    </message>
+    <message>
+        <source>Label and list text throughout the app, plus success/warning/error text.</source>
+        <translation>Label and list text throughout the app, plus success/warning/error text.</translation>
+    </message>
+    <message>
+        <source>The highlight colour: links, dropdown arrows and accented controls.</source>
+        <translation>The highlight colour: links, dropdown arrows and accented controls.</translation>
+    </message>
+    <message>
+        <source>Lines and frames around panels, lists and inputs.</source>
+        <translation>Lines and frames around panels, lists and inputs.</translation>
+    </message>
+    <message>
+        <source>Danger / cancel / remove buttons (delete, remove profile, ✕ close).</source>
+        <translation>Danger / cancel / remove buttons (delete, remove profile, ✕ close).</translation>
+    </message>
+    <message>
+        <source>Success / confirm buttons (Install, Done, Play).</source>
+        <translation>Success / confirm buttons (Install, Done, Play).</translation>
+    </message>
+    <message>
+        <source>Warning buttons (Reinstall, download / update actions).</source>
+        <translation>Warning buttons (Reinstall, download / update actions).</translation>
+    </message>
+    <message>
+        <source>Info / neutral action buttons (Select, Groups, Plugin Rules).</source>
+        <translation>Info / neutral action buttons (Select, Groups, Plugin Rules).</translation>
+    </message>
+    <message>
+        <source>Secondary / neutral buttons (View, minor actions).</source>
+        <translation>Secondary / neutral buttons (View, minor actions).</translation>
+    </message>
+    <message>
+        <source>Accent buttons like Ko-Fi.</source>
+        <translation>Accent buttons like Ko-Fi.</translation>
+    </message>
+    <message>
+        <source>Coloured labels in file trees (folders, BSA archives, bundled/installed).</source>
+        <translation>Coloured labels in file trees (folders, BSA archives, bundled/installed).</translation>
+    </message>
+    <message>
+        <source>Shared accent tones reused by flags, icons and small highlights.</source>
+        <translation>Shared accent tones reused by flags, icons and small highlights.</translation>
+    </message>
+    <message>
+        <source>The scrollbar track and thumb.</source>
+        <translation>The scrollbar track and thumb.</translation>
+    </message>
+    <message>
+        <source>Popup/overlay backgrounds and coloured info rows (required/optional mods, cards).</source>
+        <translation>Popup/overlay backgrounds and coloured info rows (required/optional mods, cards).</translation>
+    </message>
+    <message>
+        <source>Small status pills and badges (queued, download progress, error/success).</source>
+        <translation>Small status pills and badges (queued, download progress, error/success).</translation>
+    </message>
+    <message>
+        <source>Plugin-cycle rows and file-conflict colours in the Data / Mod Files views.</source>
+        <translation>Plugin-cycle rows and file-conflict colours in the Data / Mod Files views.</translation>
+    </message>
+    <message>
+        <source>Row tints when a conflicting mod is selected (winning / overridden / anchor).</source>
+        <translation>Row tints when a conflicting mod is selected (winning / overridden / anchor).</translation>
+    </message>
+    <message>
+        <source>The framework-status banner above the Plugins list (installed / staged / disabled / missing).</source>
+        <translation>The framework-status banner above the Plugins list (installed / staged / disabled / missing).</translation>
+    </message>
+    <message>
+        <source>The pinned Overwrite and Root Folder bands at the top of the modlist.</source>
+        <translation>The pinned Overwrite and Root Folder bands at the top of the modlist.</translation>
+    </message>
+    <message>
+        <source>The fill colour of a ticked checkbox (the tick stays auto-contrasted).</source>
+        <translation>The fill colour of a ticked checkbox (the tick stays auto-contrasted).</translation>
+    </message>
+    <message>
         <source>Theme Editor</source>
         <translation>Theme Editor</translation>
     </message>

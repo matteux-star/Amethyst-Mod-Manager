@@ -271,7 +271,51 @@ GROUPS: list[tuple[str, list[tuple[str, str]]]] = [
         ("CONFLICT_HL_LOSE", "Conflict row — overridden"),
         ("CONFLICT_HL_ANCHOR", "Conflict row — anchor"),
     ]),
+    ("Framework detection", [
+        ("FRAMEWORK_INSTALLED_BG", "Installed (bg)"),
+        ("FRAMEWORK_INSTALLED_FG", "Installed (text)"),
+        ("FRAMEWORK_STAGED_BG", "Staged (bg)"),
+        ("FRAMEWORK_STAGED_FG", "Staged (text)"),
+        ("FRAMEWORK_DISABLED_BG", "Disabled (bg)"),
+        ("FRAMEWORK_DISABLED_FG", "Disabled (text)"),
+        ("FRAMEWORK_MISSING_BG", "Missing (bg)"),
+        ("FRAMEWORK_MISSING_FG", "Missing (text)"),
+    ]),
+    ("Separator bands", [
+        ("OVERWRITE_SEP_BG", "Overwrite band (bg)"),
+        ("OVERWRITE_SEP_FG", "Overwrite band (text)"),
+        ("ROOT_SEP_BG", "Root Folder band (bg)"),
+        ("ROOT_SEP_FG", "Root Folder band (text)"),
+    ]),
+    ("Checkboxes", [
+        ("CHECK_FILL", "Checkbox fill (checked)"),
+    ]),
 ]
+
+# One-line "where does this show up" hint per section, rendered under the group
+# title in the editor so it's obvious what each block of colours affects.
+GROUP_DESCRIPTIONS: dict[str, str] = {
+    "Backgrounds": "Window, panels, list rows and input fields — the app's surfaces.",
+    "Text": "Label and list text throughout the app, plus success/warning/error text.",
+    "Accent": "The highlight colour: links, dropdown arrows and accented controls.",
+    "Borders": "Lines and frames around panels, lists and inputs.",
+    "Buttons — Red": "Danger / cancel / remove buttons (delete, remove profile, ✕ close).",
+    "Buttons — Green": "Success / confirm buttons (Install, Done, Play).",
+    "Buttons — Orange": "Warning buttons (Reinstall, download / update actions).",
+    "Buttons — Blue": "Info / neutral action buttons (Select, Groups, Plugin Rules).",
+    "Buttons — Grey": "Secondary / neutral buttons (View, minor actions).",
+    "Buttons — Purple": "Accent buttons like Ko-Fi.",
+    "Tree tags": "Coloured labels in file trees (folders, BSA archives, bundled/installed).",
+    "Tones": "Shared accent tones reused by flags, icons and small highlights.",
+    "Scrollbars": "The scrollbar track and thumb.",
+    "Overlays & tinted rows": "Popup/overlay backgrounds and coloured info rows (required/optional mods, cards).",
+    "Status": "Small status pills and badges (queued, download progress, error/success).",
+    "Plugin cycle & files": "Plugin-cycle rows and file-conflict colours in the Data / Mod Files views.",
+    "Conflict highlights": "Row tints when a conflicting mod is selected (winning / overridden / anchor).",
+    "Framework detection": "The framework-status banner above the Plugins list (installed / staged / disabled / missing).",
+    "Separator bands": "The pinned Overwrite and Root Folder bands at the top of the modlist.",
+    "Checkboxes": "The fill colour of a ticked checkbox (the tick stays auto-contrasted).",
+}
 
 # Flattened set of every key that appears in an explicit group above.
 _KNOWN_KEYS: set[str] = {k for _, keys in GROUPS for k, _ in keys}

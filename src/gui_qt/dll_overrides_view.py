@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
     QComboBox, QFrame, QScrollArea,
 )
 
-from gui_qt.theme_qt import active_palette, _c, danger_close_button
+from gui_qt.theme_qt import active_palette, _c, danger_close_button, contrast_text
 from gui_qt.wheel_guard import no_wheel
 from Utils.wine_dll_config import (
     load_wine_dll_overrides, save_wine_dll_overrides,
@@ -84,7 +84,7 @@ class DllOverridesView(QWidget):
         #DllEmpty {{ color: {c('TEXT_DIM')}; font-style: italic; }}
         #DllHint {{ color: {c('TEXT_DIM')}; }}
         #DllName {{ color: {c('TEXT_MAIN')}; }}
-        #DangerButton {{ background: {c('BTN_DANGER')}; color: {c('TEXT_ON_ACCENT')}; border: none;
+        #DangerButton {{ background: {c('BTN_DANGER')}; color: {contrast_text(c('BTN_DANGER'))}; border: none;
                          border-radius: 4px; padding: 2px 10px; font-size: 13px;
                          font-weight: 600; }}
         #DangerButton:hover {{ background: {c('BTN_DANGER_HOV')}; }}

@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QFrame, QLineEdit, QPushButton, QMenu, QStackedWidget, QSizePolicy,
 )
 
-from gui_qt.theme_qt import apply_theme, active_palette, _c
+from gui_qt.theme_qt import apply_theme, active_palette, _c, contrast_text
 from gui_qt.icons import icon, hamburger_icon
 from gui_qt.modlist_model import ModListModel, COL_SIZE
 from gui_qt.modlist_view import ModListView
@@ -9261,10 +9261,11 @@ class MainWindow(QMainWindow):
         """Solid colored button (plugin tools, matching the Tk app)."""
         pad = "4px 10px" if compact else "6px 14px"
         fs = "12px" if compact else "14px"
+        fg = contrast_text(color)   # black or white — whichever reads on the fill
         b = QPushButton(text)
         b.setCursor(Qt.PointingHandCursor)
         b.setStyleSheet(
-            f"QPushButton{{background:{color}; color:#fff; border:none;"
+            f"QPushButton{{background:{color}; color:{fg}; border:none;"
             f" padding:{pad}; border-radius:4px; font-size:{fs};"
             f" font-weight:600;}}"
             f"QPushButton:hover{{background:{color};}}")
