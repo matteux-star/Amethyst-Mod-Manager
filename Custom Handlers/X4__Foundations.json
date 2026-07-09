@@ -22,7 +22,15 @@
   "filemap_casing": "upper",
   "wine_dll_overrides": {},
   "custom_routing_rules": [],
+  "restore_whitelist": [
+    {
+      "path": "extensions",
+      "folders": [
+        "ego_dlc*"
+      ]
+    }
+  ],
   "custom_frameworks": {},
-  "version": 2,
+  "version": 3,
   "editable": false
 }
