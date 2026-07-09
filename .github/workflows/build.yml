@@ -133,6 +133,57 @@ jobs:
 
       - uses: actions/checkout@v4
 
+      # anylinux-setup-action downloads three helper scripts from
+      # raw.githubusercontent.com using `wget --retry-connrefused`, which does
+      # NOT retry on HTTP errors — a transient 429 (Too Many Requests) from
+      # GitHub's raw host aborts the whole build. Pre-fetch the scripts here
+      # with a real 429-aware retry loop and point the action at the local
+      # copies (its URLs are overridable via env vars) so it never re-hits the
+      # network.
+      - name: Pre-fetch anylinux tools (429-resilient)
+        id: anylinux_tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Ensure a downloader exists before the setup action installs its own.
+          if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
+            pacman -Sy --noconfirm curl
+          fi
+          base="https://raw.githubusercontent.com/pkgforge-dev/Anylinux-AppImages/refs/heads/main/useful-tools"
+          dir="$RUNNER_TEMP/anylinux-tools"
+          mkdir -p "$dir"
+          # Prefer curl; fall back to wget. Neither's built-in --retry acts on
+          # HTTP 429 reliably, so drive the retry from the shell loop.
+          download() {
+            local url="$1" dest="$2"
+            if command -v curl >/dev/null 2>&1; then
+              curl -fsSL -o "$dest" "$url"
+            else
+              wget -q -O "$dest" "$url"
+            fi
+          }
+          fetch() {
+            local url="$1" dest="$2" attempt
+            for attempt in 1 2 3 4 5 6; do
+              if download "$url" "$dest"; then
+                echo "fetched $url"
+                return 0
+              fi
+              echo "attempt $attempt failed for $url; sleeping..."
+              sleep $((attempt * 15))
+            done
+            echo "ERROR: could not fetch $url after retries" >&2
+            return 1
+          }
+          fetch "$base/quick-sharun.sh"      "$dir/quick-sharun.sh"
+          fetch "$base/get-debloated-pkgs.sh" "$dir/get-debloated-pkgs.sh"
+          fetch "$base/make-aur-package.sh"   "$dir/make-aur-package.sh"
+          {
+            echo "QUICK_SHARUN=file://$dir/quick-sharun.sh"
+            echo "DEBLOATED_PACKAGES=file://$dir/get-debloated-pkgs.sh"
+            echo "MAKE_AUR_PACKAGE=file://$dir/make-aur-package.sh"
+          } >> "$GITHUB_ENV"
+
       - name: Prepare anylinux container
         uses: pkgforge-dev/anylinux-setup-action@v2
 
