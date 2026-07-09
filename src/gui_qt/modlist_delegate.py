@@ -88,6 +88,21 @@ _BSA_CONFLICT_ICONS = {
     2: "archive-conflict-mixed.png",
 }
 
+# Conflict code → hover tooltip (verbatim from the Tk modlist, ~5217). Loose-file
+# and BSA conflicts each get their own text; static so lupdate can extract them
+# (wrapped in self.tr() at show time — see _conflict_tip).
+_LOOSE_CONFLICT_TIPS = {
+    1:  "Loose file conflict - Winning",
+    -1: "Loose file conflict - Losing",
+    2:  "Loose file conflict - Partial",
+    3:  "Loose file conflict - Full",
+}
+_BSA_CONFLICT_TIPS = {
+    1:  "BSA conflict - Winning",
+    -1: "BSA conflict - Losing",
+    2:  "BSA conflict - Partial",
+}
+
 def _contrasting_text_color(hex_bg: str) -> str:
     """'#111111' or '#eeeeee' based on the luminance of *hex_bg* so separator
     text stays readable on a custom colour. Inlined from gui.theme (which pulls
@@ -471,6 +486,32 @@ class ModRowDelegate(QStyledItemDelegate):
             x += sz + gap
         return False
 
+    def _conflict_tip(self, pos, r, index):
+        """Tooltip for the hovered conflict icon (Tk parity — the loose-file icon
+        is drawn left, the BSA/BA2 icon right; each gets its own text). Returns
+        None when *pos* is not over a conflict icon."""
+        loose = index.data(ConflictRole) or 0
+        bsa = index.data(BsaConflictRole) or 0
+        # Rebuild the same left-to-right layout as _paint_icons, tagging each
+        # slot with the text it should show. Full strings kept static (not
+        # composed) so lupdate can extract them.
+        slots = []
+        if _CONFLICT_ICONS.get(loose):
+            slots.append(_LOOSE_CONFLICT_TIPS.get(loose))
+        if _BSA_CONFLICT_ICONS.get(bsa):
+            slots.append(_BSA_CONFLICT_TIPS.get(bsa))
+        if not slots:
+            return None
+        sz, gap = ICON_SZ, 3
+        total = len(slots) * sz + (len(slots) - 1) * gap
+        x = r.left() + max(6, (r.width() - total) // 2)
+        y = r.top() + (r.height() - sz) // 2
+        for tip in slots:
+            if tip and QRect(x, y, sz, sz).contains(pos):
+                return self.tr(tip)
+            x += sz + gap
+        return None
+
     def _flag_tip(self, hit, index):
         """Tooltip for the hovered flag *hit*. The Note flag shows the actual
         note text (Tk parity); everything else uses the static _FLAG_TIPS."""
@@ -489,19 +530,25 @@ class ModRowDelegate(QStyledItemDelegate):
         """Show the per-flag tooltip when hovering a flag icon (Tk parity —
         distinguishes e.g. collection bundled vs patched)."""
         try:
-            if (event.type() == QEvent.ToolTip
-                    and index.isValid() and index.column() == COL_FLAGS):
-                bits = index.data(FlagsRole) or 0
-                if bits:
-                    hit = self._hit_flag_bit(event.pos(), opt.rect, bits)
-                    tip = self._flag_tip(hit, index)
+            if event.type() == QEvent.ToolTip and index.isValid():
+                if index.column() == COL_FLAGS:
+                    bits = index.data(FlagsRole) or 0
+                    if bits:
+                        hit = self._hit_flag_bit(event.pos(), opt.rect, bits)
+                        tip = self._flag_tip(hit, index)
+                        if tip:
+                            # Pass the flags-cell rect so Qt hides the tooltip as
+                            # soon as the cursor leaves the cell (instead of
+                            # keeping it up for its full length-based timeout).
+                            QToolTip.showText(event.globalPos(), tip, view, opt.rect)
+                            return True
+                    QToolTip.hideText()
+                elif index.column() == COL_CONFLICTS:
+                    tip = self._conflict_tip(event.pos(), opt.rect, index)
                     if tip:
-                        # Pass the flags-cell rect so Qt hides the tooltip as soon
-                        # as the cursor leaves the cell (instead of keeping it up
-                        # for its full length-based timeout).
                         QToolTip.showText(event.globalPos(), tip, view, opt.rect)
                         return True
-                QToolTip.hideText()
+                    QToolTip.hideText()
         except Exception:
             pass
         return super().helpEvent(event, view, opt, index)
