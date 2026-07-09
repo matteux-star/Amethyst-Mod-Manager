@@ -52,7 +52,7 @@ class LoadingOverlay(QWidget):
                 Qt.KeepAspectRatio, Qt.SmoothTransformation))
         lay.addWidget(self._logo)
 
-        self._text = QLabel("Loading…")
+        self._text = QLabel(self.tr("Loading…"))
         self._text.setAlignment(Qt.AlignCenter)
         self._text.setStyleSheet("color: white; font-size: 15px; font-weight: 600;")
         lay.addWidget(self._text)

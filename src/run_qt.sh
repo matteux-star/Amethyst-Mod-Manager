@@ -55,4 +55,9 @@ fi
 _errlog="${XDG_CONFIG_HOME:-$HOME/.config}/AmethystModManager/run-qt-stderr.log"
 mkdir -p "$(dirname "$_errlog")"
 [ -f "$_errlog" ] && mv -f "$_errlog" "$_errlog.old"
+# Tell the app the launcher already tees stderr to a file, so the in-Python
+# capture (app_bootstrap → install_stderr_file) stands down and doesn't redirect
+# fd 2 out from under this tee. AppImage/flatpak don't run this script, so there
+# the Python capture takes over and writes the same log.
+export AMM_STDERR_TEED=1
 "$VENV/bin/python3" run_qt.py "$@" 2> >(tee "$_errlog" >&2)

@@ -85,6 +85,8 @@ class PluginDelegate(QStyledItemDelegate):
         self.c_text = qc(p, "TEXT_MAIN")
         self.c_text_dim = qc(p, "TEXT_DIM")
         self.c_text_on_sel = qc(p, "TEXT_ON_ACCENT")
+        # Plugins whose userlist rules form a broken cycle get red name text.
+        self.c_text_cycle = qc(p, "TEXT_ERR")
         self.c_tick = qc_contrast(p, "CHECK_FILL")   # tick reads on the checkbox fill
         self.c_border = qc(p, "BORDER")
         self.c_check = qc(p, "CHECK_FILL")   # checkbox fill when enabled
@@ -135,6 +137,11 @@ class PluginDelegate(QStyledItemDelegate):
         # Vanilla plugins are greyed (dim) regardless of enabled state.
         text_color = self.c_text_on_sel if (selected or highlighted) else (
             self.c_text_dim if (vanilla or not enabled) else self.c_text)
+        # A broken userlist cycle overrides the name colour with error-red, so
+        # the plugin reads as a problem even when not selected/highlighted.
+        if not (selected or highlighted) and (
+                (index.data(PFlagsRole) or 0) & PF_UL_CYCLE):
+            text_color = self.c_text_cycle
         col = index.column()
 
         if col == COL_NAME:
@@ -624,6 +631,19 @@ class PluginView(QTreeView):
         rows = {i for i in range(m.rowCount())
                 if (m.row(i).flags & PF_MISSING)}
         sb.set_persistent_rows(missing=rows)
+
+    def refresh_cycle_marker(self) -> None:
+        """Repaint the persistent red marker-strip ticks for every plugin whose
+        userlist rules form a broken cycle (PF_UL_CYCLE flag). Selection-
+        independent, mirrors refresh_missing_marker. Call after the model's rows
+        change (reload)."""
+        sb = getattr(self, "_marker_strip", None)
+        if sb is None:
+            return
+        m = self.model()
+        rows = {i for i in range(m.rowCount())
+                if (m.row(i).flags & PF_UL_CYCLE)}
+        sb.set_persistent_rows(cycle=rows)
 
     def set_master_highlight(self, master_names_lower: set) -> None:
         """Green-highlight the rows (and marker-strip ticks) whose plugin is a

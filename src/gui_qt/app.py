@@ -8620,6 +8620,9 @@ class MainWindow(QMainWindow):
         # Persistent red marker-strip ticks for plugins with missing masters
         # (Tk parity) — recomputed from the freshly-loaded PF_MISSING flags.
         self._plugin_view.refresh_missing_marker()
+        # Red marker-strip ticks for plugins whose userlist rules form a broken
+        # cycle — recomputed from the freshly-loaded PF_UL_CYCLE flags.
+        self._plugin_view.refresh_cycle_marker()
         # Resolved plugin paths (name.lower → on-disk path) power the master-
         # highlight on plugin selection; clear any stale master ticks.
         self._plugin_paths = paths
@@ -8948,8 +8951,13 @@ class MainWindow(QMainWindow):
 
         def sort():
             from LOOT.loot_sorter import sort_plugins
+            from Utils.app_log import app_log
+            # Route libloot's status lines (and, via run_in_worker's exception
+            # handler, cyclic-dependency / sort-failure messages) to the visible
+            # log panel — Tk did this with self._log; the Qt port had dropped it
+            # to a stdout print(), so users never saw why a sort failed.
             return sort_plugins(
-                log_fn=lambda m: print(f"[loot] {m}", flush=True), **kw)
+                log_fn=lambda m: app_log(f"[loot] {m}"), **kw)
 
         run_in_worker(sort, self._sort_plugins_ready, name="loot-sort")
 
@@ -9047,8 +9055,9 @@ class MainWindow(QMainWindow):
 
         def check():
             from LOOT.loot_sorter import find_overlapping_plugins
+            from Utils.app_log import app_log
             overlaps = find_overlapping_plugins(
-                log_fn=lambda m: print(f"[loot] {m}", flush=True), **kw)
+                log_fn=lambda m: app_log(f"[loot] {m}"), **kw)
             return (plugin_name, overlaps)
 
         # error_result carries the target name with a None payload so the apply

@@ -79,6 +79,12 @@ _TR_MARKERS = (
     QT_TRANSLATE_NOOP("FilterSidePanel", "Missing masters"),
     QT_TRANSLATE_NOOP("FilterSidePanel", "Dirty (needs cleaning)"),
     QT_TRANSLATE_NOOP("FilterSidePanel", "Managed by userlist"),
+    QT_TRANSLATE_NOOP("FilterSidePanel", "Bash-tagged"),
+    QT_TRANSLATE_NOOP("FilterSidePanel", "ESL-safe (eligible for ESL flag)"),
+    QT_TRANSLATE_NOOP("FilterSidePanel", "ESL-unsafe (too many records)"),
+    QT_TRANSLATE_NOOP("FilterSidePanel", "BOS/SP-patched"),
+    QT_TRANSLATE_NOOP("FilterSidePanel", "BOS-patched"),
+    QT_TRANSLATE_NOOP("FilterSidePanel", "SkyPatcher-patched"),
     # --- downloads / mod-files panels ---
     QT_TRANSLATE_NOOP("FilterSidePanel", "Show only installed"),
     QT_TRANSLATE_NOOP("FilterSidePanel", "Show only not installed"),

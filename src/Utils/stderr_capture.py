@@ -32,6 +32,121 @@ import traceback
 _installed = False
 _fault_installed = False
 _fault_file = None  # kept open for the process lifetime — faulthandler needs it
+_file_installed = False
+_stderr_file = None  # kept open for the process lifetime — fd 2 is dup'd onto it
+
+
+def install_stderr_file(log_dir=None) -> bool:
+    """Mirror the process's real stderr (fd 2) into a file on disk, so a startup
+    crash trace survives even when the app is launched from a desktop icon /
+    AppImage with no terminal attached.
+
+    This is the on-disk equivalent of ``run_qt.sh``'s ``2> >(tee …)`` shell
+    redirect — but done inside Python so it works identically for the AppImage
+    and flatpak builds (which never run ``run_qt.sh``). It must be installed as
+    early as possible (before Qt / MainWindow construction) so a crash during
+    startup is captured.
+
+    Mechanism: ``os.dup2`` redirects fd 2 itself onto the log file, which is the
+    only way to also capture output from C libraries (Qt, libloot, …), the
+    interpreter's own fatal-error messages, and ``faulthandler`` — none of which
+    go through ``sys.stderr``. The terminal (if any) still sees stderr because we
+    tee: the file gets fd 2, and ``sys.stderr`` is rebound to a Python-level tee
+    that also writes to the original terminal fd.
+
+    Written to ``<log_dir>/run-qt-stderr.log`` (defaults to
+    ``get_config_dir()``, matching the from-source path). The previous run's log
+    is rotated to ``.old`` so old tracebacks don't mix into current triage.
+
+    Idempotent and best-effort — any failure here must never block startup.
+    """
+    global _file_installed, _stderr_file
+    if _file_installed:
+        return True
+
+    import os
+    from pathlib import Path
+
+    # If the launcher already tees stderr to a file (run_qt.sh sets this), don't
+    # redirect fd 2 out from under it — that would break its live terminal echo
+    # and rotate its log mid-run. Source runs keep the shell behaviour; only the
+    # AppImage/flatpak launch (no run_qt.sh) falls through to the Python capture.
+    if os.environ.get("AMM_STDERR_TEED"):
+        _file_installed = True
+        return True
+
+    try:
+        if log_dir is None:
+            from Utils.config_paths import get_config_dir
+            log_dir = get_config_dir()
+        log_dir = Path(log_dir)
+        log_dir.mkdir(parents=True, exist_ok=True)
+        path = log_dir / "run-qt-stderr.log"
+        # One log per run — rotate the previous one so we don't append forever.
+        try:
+            if path.exists():
+                os.replace(path, str(path) + ".old")
+        except Exception:
+            pass
+        # Line-buffered so a partial trace reaches disk before a crash finishes.
+        log_file = open(path, "a", buffering=1, encoding="utf-8", errors="replace")
+    except Exception:
+        return False
+
+    # Preserve a handle to the original terminal stderr (if fd 2 is valid) so we
+    # can still echo there. In a windowless launch fd 2 may be closed/invalid.
+    orig_fd = None
+    try:
+        orig_fd = os.dup(2)
+    except Exception:
+        orig_fd = None
+
+    # Redirect fd 2 → the log file. From here, C-level stderr + faulthandler +
+    # interpreter fatal messages land in the file.
+    try:
+        os.dup2(log_file.fileno(), 2)
+    except Exception:
+        try:
+            log_file.close()
+        except Exception:
+            pass
+        return False
+
+    _stderr_file = log_file  # keep the fd open for the process lifetime
+
+    # Rebind sys.stderr to a tee: fd 2 (the file) AND the original terminal, so
+    # a from-source run still shows live output while the file captures it too.
+    try:
+        orig_term = None
+        if orig_fd is not None:
+            try:
+                orig_term = os.fdopen(orig_fd, "w", buffering=1,
+                                      encoding="utf-8", errors="replace")
+            except Exception:
+                orig_term = None
+        # New file object on fd 2 for Python writes (separate buffer from the
+        # dup2'd C-level fd, but same underlying file).
+        py_stderr = os.fdopen(os.dup(2), "w", buffering=1,
+                              encoding="utf-8", errors="replace")
+        sys.stderr = _Tee(py_stderr, lambda line: _echo(orig_term, line))
+    except Exception:
+        # dup2 already succeeded — the file still captures stderr even if the
+        # Python-level tee couldn't be wired. That's the important half.
+        pass
+
+    _file_installed = True
+    return True
+
+
+def _echo(stream, line: str) -> None:
+    """Best-effort mirror of a stderr line to the original terminal stream."""
+    if stream is None:
+        return
+    try:
+        stream.write(line + "\n")
+        stream.flush()
+    except Exception:
+        pass
 
 
 class _Tee:

@@ -39,3 +39,16 @@ def setup_environment() -> None:
         games_dir = src / "Games"
         if games_dir.is_dir():
             os.environ["MOD_MANAGER_GAMES"] = str(games_dir)
+
+    # Capture stderr to a file as early as possible — BEFORE any GUI/Qt import —
+    # so a crash during startup leaves a trace on disk even when launched from a
+    # desktop icon / AppImage with no terminal. This is the in-Python equivalent
+    # of run_qt.sh's `2> >(tee …)`, which the AppImage/flatpak builds never run.
+    # Native crashes (segfaults) write to fd 2 too, so this + faulthandler cover
+    # them. Best-effort; must never block startup.
+    try:
+        from Utils.stderr_capture import install_stderr_file, install_faulthandler
+        install_stderr_file()
+        install_faulthandler()
+    except Exception:
+        pass
