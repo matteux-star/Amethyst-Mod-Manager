@@ -7200,12 +7200,17 @@ class MainWindow(QMainWindow):
         self._modlist_model.save_failed.connect(
             lambda msg: self._notify(msg, "error"))
         self._modlist_view = ModListView(self._modlist_model)
-        # Column-sort rebuilds reorder rows in place (layoutChanged); the
-        # search/filter hidden sets are display-row-indexed and must be
-        # recomputed. Connected AFTER the view (its own layoutChanged hooks
-        # must clear the applied-hidden cache + spanning first).
-        self._modlist_model.layoutChanged.connect(
-            self._on_modlist_layout_changed)
+        # Search/filter hidden sets are row-indexed, so any structural change
+        # (reorder/insert/remove) leaves them misaligned and must be recomputed
+        # from the current entries — the view's own handler only re-applies the
+        # STALE indices, so search would skip/mis-show rows until a full reload.
+        # Connected AFTER the view so its cache-drop + re-span run first.
+        # modelReset is handled by _reload_modlist's explicit reapply.
+        for sig in (self._modlist_model.layoutChanged,
+                    self._modlist_model.rowsMoved,
+                    self._modlist_model.rowsInserted,
+                    self._modlist_model.rowsRemoved):
+            sig.connect(self._on_modlist_layout_changed)
         return self._modlist_view
 
     def _on_modlist_layout_changed(self, *_a):
@@ -10223,7 +10228,7 @@ def _apply_app_identity(app) -> None:
     if os.environ.get("FLATPAK_ID") == "io.github.Amethyst.ModManager":
         app.setDesktopFileName("io.github.Amethyst.ModManager")
     elif os.environ.get("APPDIR") or os.environ.get("APPIMAGE"):
-        app.setDesktopFileName("mod-manager")
+        app.setDesktopFileName("amethyst-mod-manager")
 
 
 def run() -> int:
