@@ -1447,6 +1447,10 @@ O Creation Kit também pode, ocasionalmente, travar ao iniciar no Proton (um pro
 <context>
     <name>DataView</name>
     <message>
+        <source>Loading…</source>
+        <translation>Carregando…</translation>
+    </message>
+    <message>
         <source>Deployed files</source>
         <translation>Arquivos implantados</translation>
     </message>
@@ -2169,6 +2173,30 @@ mod “{0}”, que aparecerá na sua lista de mods.</translation>
         <translation>Gerenciado pela lista de usuários</translation>
     </message>
     <message>
+        <source>Bash-tagged</source>
+        <translation>Bash-tagged</translation>
+    </message>
+    <message>
+        <source>ESL-safe (eligible for ESL flag)</source>
+        <translation>ESL-safe (elegível para bandeira ESL)</translation>
+    </message>
+    <message>
+        <source>ESL-unsafe (too many records)</source>
+        <translation>ESL-inseguro (muitos registros)</translation>
+    </message>
+    <message>
+        <source>BOS/SP-patched</source>
+        <translation>BOS/SP-patched</translation>
+    </message>
+    <message>
+        <source>BOS-patched</source>
+        <translation>BOS-patched</translation>
+    </message>
+    <message>
+        <source>SkyPatcher-patched</source>
+        <translation>SkyPatcher-patched</translation>
+    </message>
+    <message>
         <source>Show only installed</source>
         <translation>Mostrar apenas os instalados</translation>
     </message>
@@ -2418,6 +2446,13 @@ O arquivo exe original é mantido como {0}.</translation>
     <message>
         <source>Cancel</source>
         <translation>Cancelar</translation>
+    </message>
+</context>
+<context>
+    <name>LoadingOverlay</name>
+    <message>
+        <source>Loading…</source>
+        <translation>Carregando…</translation>
     </message>
 </context>
 <context>
@@ -2804,6 +2839,10 @@ O arquivo exe original é mantido como {0}.</translation>
     <message>
         <source>Language files updated — restart to apply.</source>
         <translation>Arquivos de idioma atualizados — reinicie para aplicar as alterações.</translation>
+    </message>
+    <message>
+        <source>Your Nexus session expired — please log in again (Nexus ▸ Login to Nexus).</source>
+        <translation>Sua sessão de Nexus expirou. Por favor, entre novamente.</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -3634,6 +3673,30 @@ Deseja remover a entrada da coleção anexada?</translation>
         <translation>{0} plug-ins ({1} ESL, {2} não-ESL)</translation>
     </message>
     <message>
+        <source>LOOT library not available — cannot check overlap.</source>
+        <translation>Biblioteca LOOT não disponível - não pode verificar sobreposição.</translation>
+    </message>
+    <message>
+        <source>An overlap check is already running.</source>
+        <translation>Uma verificação de sobreposição já está funcionando.</translation>
+    </message>
+    <message>
+        <source>Checking record overlap for {0}…</source>
+        <translation>Verificando sobreposição de registros para {0}..</translation>
+    </message>
+    <message>
+        <source>Overlap check failed — see log.</source>
+        <translation>O controle de sobrecarga falhou, veja log.</translation>
+    </message>
+    <message>
+        <source>{0}: no record overlap with other plugins.</source>
+        <translation>{0}: nenhum registro se sobrepõe a outros plugins.</translation>
+    </message>
+    <message>
+        <source>{0} overlaps {1} plugin(s) — highlighted in list</source>
+        <translation>{0} se sobrepõe aos plugins {1} — destacados na lista</translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>Plug-ins</translation>
     </message>
@@ -3966,6 +4029,10 @@ Adiantar mesmo assim?</translation>
     <message>
         <source>Copy to profile ({0})</source>
         <translation>Copiar para o perfil ({0})</translation>
+    </message>
+    <message>
+        <source>Create an empty mod below</source>
+        <translation>Crie um mod vazio abaixo</translation>
     </message>
     <message>
         <source>Create empty mod below</source>

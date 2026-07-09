@@ -1447,6 +1447,10 @@ Creation Kit se také může občas při spuštění pod Protonem zhroutit (zná
 <context>
     <name>DataView</name>
     <message>
+        <source>Loading…</source>
+        <translation>Načítání…</translation>
+    </message>
+    <message>
         <source>Deployed files</source>
         <translation>Nasazené soubory</translation>
     </message>
@@ -2169,6 +2173,30 @@ mod „{0}“, který se objeví ve vašem seznamu modů.</translation>
         <translation>Spravováno podle seznamu uživatelů</translation>
     </message>
     <message>
+        <source>Bash-tagged</source>
+        <translation>Bash- tagged</translation>
+    </message>
+    <message>
+        <source>ESL-safe (eligible for ESL flag)</source>
+        <translation>ESL- safe (způsobilé pro označení ESL)</translation>
+    </message>
+    <message>
+        <source>ESL-unsafe (too many records)</source>
+        <translation>ESL- nebezpečné (příliš mnoho záznamů)</translation>
+    </message>
+    <message>
+        <source>BOS/SP-patched</source>
+        <translation>BOS / SP-patch</translation>
+    </message>
+    <message>
+        <source>BOS-patched</source>
+        <translation>BOS-patched</translation>
+    </message>
+    <message>
+        <source>SkyPatcher-patched</source>
+        <translation>Name</translation>
+    </message>
+    <message>
         <source>Show only installed</source>
         <translation>Zobrazit pouze nainstalované</translation>
     </message>
@@ -2418,6 +2446,13 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
     <message>
         <source>Cancel</source>
         <translation>Zrušit</translation>
+    </message>
+</context>
+<context>
+    <name>LoadingOverlay</name>
+    <message>
+        <source>Loading…</source>
+        <translation>Načítání…</translation>
     </message>
 </context>
 <context>
@@ -2804,6 +2839,10 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
     <message>
         <source>Language files updated — restart to apply.</source>
         <translation>Jazykové soubory byly aktualizovány — pro uplatnění změn je třeba restartovat.</translation>
+    </message>
+    <message>
+        <source>Your Nexus session expired — please log in again (Nexus ▸ Login to Nexus).</source>
+        <translation>Vaše sezení Nexus vypršelo - přihlaste se znovu (Nexus Klient Nexus).</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -3634,6 +3673,30 @@ Chcete odstranit záznam z přidané sbírky?</translation>
         <translation>{0} pluginy ({1} ESL, {2} non-ESL)</translation>
     </message>
     <message>
+        <source>LOOT library not available — cannot check overlap.</source>
+        <translation>Knihovna LOOT není k dispozici - nelze zkontrolovat překrytí.</translation>
+    </message>
+    <message>
+        <source>An overlap check is already running.</source>
+        <translation>Překrývání už běží.</translation>
+    </message>
+    <message>
+        <source>Checking record overlap for {0}…</source>
+        <translation>Kontroluji překrytí {0}..</translation>
+    </message>
+    <message>
+        <source>Overlap check failed — see log.</source>
+        <translation>Kontrola překrývání selhala - viz záznam.</translation>
+    </message>
+    <message>
+        <source>{0}: no record overlap with other plugins.</source>
+        <translation>{0}: žádný záznam překrývání s jinými pluginy.</translation>
+    </message>
+    <message>
+        <source>{0} overlaps {1} plugin(s) — highlighted in list</source>
+        <translation>{0} překrývá modul (moduly) {1} - zvýrazněno v seznamu</translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>Pluginy</translation>
     </message>
@@ -3966,6 +4029,10 @@ Rozmístit?</translation>
     <message>
         <source>Copy to profile ({0})</source>
         <translation>Kopírovat do profilu ({0})</translation>
+    </message>
+    <message>
+        <source>Create an empty mod below</source>
+        <translation>Vytvořit prázdný mod níže</translation>
     </message>
     <message>
         <source>Create empty mod below</source>

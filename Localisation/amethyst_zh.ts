@@ -1447,6 +1447,10 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
 <context>
     <name>DataView</name>
     <message>
+        <source>Loading…</source>
+        <translation>正在加载……</translation>
+    </message>
+    <message>
         <source>Deployed files</source>
         <translation>已部署的文件</translation>
     </message>
@@ -2169,6 +2173,30 @@ When ESLifier finishes, it writes its output as the
         <translation>由用户列表管理</translation>
     </message>
     <message>
+        <source>Bash-tagged</source>
+        <translation>标有标签</translation>
+    </message>
+    <message>
+        <source>ESL-safe (eligible for ESL flag)</source>
+        <translation>ESL-安全(适合ESL旗)</translation>
+    </message>
+    <message>
+        <source>ESL-unsafe (too many records)</source>
+        <translation>ESL-不安全(过多的记录)</translation>
+    </message>
+    <message>
+        <source>BOS/SP-patched</source>
+        <translation>BOS/SP 标注</translation>
+    </message>
+    <message>
+        <source>BOS-patched</source>
+        <translation>喷嘴</translation>
+    </message>
+    <message>
+        <source>SkyPatcher-patched</source>
+        <translation>SkyPatcher 标注</translation>
+    </message>
+    <message>
         <source>Show only installed</source>
         <translation>仅显示已安装的</translation>
     </message>
@@ -2418,6 +2446,13 @@ The original exe is kept as {0}.</source>
     <message>
         <source>Cancel</source>
         <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>LoadingOverlay</name>
+    <message>
+        <source>Loading…</source>
+        <translation>正在加载……</translation>
     </message>
 </context>
 <context>
@@ -2804,6 +2839,10 @@ The original exe is kept as {0}.</source>
     <message>
         <source>Language files updated — restart to apply.</source>
         <translation>语言文件已更新——请重启以使更改生效。</translation>
+    </message>
+    <message>
+        <source>Your Nexus session expired — please log in again (Nexus ▸ Login to Nexus).</source>
+        <translation>您的 Nexus 会话已过期 —— 请再次登录( Nexus QQ 登录到 Nexus) .</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -3634,6 +3673,30 @@ Remove the appended-collection entry?</source>
         <translation>{0} 插件（{1} ESL，{2} 非ESL）</translation>
     </message>
     <message>
+        <source>LOOT library not available — cannot check overlap.</source>
+        <translation>LOOT 库不可用——无法检查重叠 .</translation>
+    </message>
+    <message>
+        <source>An overlap check is already running.</source>
+        <translation>重叠检查已经在运行中 .</translation>
+    </message>
+    <message>
+        <source>Checking record overlap for {0}…</source>
+        <translation>正在检查 {0} 的记录重叠..</translation>
+    </message>
+    <message>
+        <source>Overlap check failed — see log.</source>
+        <translation>重叠检查失败 —— 见日志 .</translation>
+    </message>
+    <message>
+        <source>{0}: no record overlap with other plugins.</source>
+        <translation>{0}:与其他插件没有记录重叠.</translation>
+    </message>
+    <message>
+        <source>{0} overlaps {1} plugin(s) — highlighted in list</source>
+        <translation>{0} 重叠 {1} 插件 — 在列表中突出显示</translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>插件</translation>
     </message>
@@ -3966,6 +4029,10 @@ CET 将不会从一个连在一起的同位素加载 。 当部署模式是Symli
     <message>
         <source>Copy to profile ({0})</source>
         <translation>复制到个人资料 ({0})</translation>
+    </message>
+    <message>
+        <source>Create an empty mod below</source>
+        <translation>在下面创建空模式</translation>
     </message>
     <message>
         <source>Create empty mod below</source>

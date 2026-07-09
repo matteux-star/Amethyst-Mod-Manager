@@ -1447,6 +1447,10 @@ Creation Kit также может иногда вылетать при запу
 <context>
     <name>DataView</name>
     <message>
+        <source>Loading…</source>
+        <translation>Загрузка…</translation>
+    </message>
+    <message>
         <source>Deployed files</source>
         <translation>Размещенные файлы</translation>
     </message>
@@ -2169,6 +2173,30 @@ When ESLifier finishes, it writes its output as the
         <translation>Управление списком пользователей</translation>
     </message>
     <message>
+        <source>Bash-tagged</source>
+        <translation>Баш-таг</translation>
+    </message>
+    <message>
+        <source>ESL-safe (eligible for ESL flag)</source>
+        <translation>ESL-безопасный (для флага ESL)</translation>
+    </message>
+    <message>
+        <source>ESL-unsafe (too many records)</source>
+        <translation>ESL-unsafe (слишком много записей)</translation>
+    </message>
+    <message>
+        <source>BOS/SP-patched</source>
+        <translation>BOS/SP-patched</translation>
+    </message>
+    <message>
+        <source>BOS-patched</source>
+        <translation>BOS-патч</translation>
+    </message>
+    <message>
+        <source>SkyPatcher-patched</source>
+        <translation>SkyPatcher-патч</translation>
+    </message>
+    <message>
         <source>Show only installed</source>
         <translation>Показывать только установленные</translation>
     </message>
@@ -2418,6 +2446,13 @@ The original exe is kept as {0}.</source>
     <message>
         <source>Cancel</source>
         <translation>Отменить</translation>
+    </message>
+</context>
+<context>
+    <name>LoadingOverlay</name>
+    <message>
+        <source>Loading…</source>
+        <translation>Загрузка…</translation>
     </message>
 </context>
 <context>
@@ -2804,6 +2839,10 @@ The original exe is kept as {0}.</source>
     <message>
         <source>Language files updated — restart to apply.</source>
         <translation>Языковые файлы обновлены — для применения изменений необходимо перезапустить программу.</translation>
+    </message>
+    <message>
+        <source>Your Nexus session expired — please log in again (Nexus ▸ Login to Nexus).</source>
+        <translation>Срок действия сеанса Nexus истек — пожалуйста, войдите снова (Nexus 😉 Логин в Nexus).</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -3634,6 +3673,30 @@ Remove the appended-collection entry?</source>
         <translation>{0} плагины ({1} — для ESL, {2} — не для ESL)</translation>
     </message>
     <message>
+        <source>LOOT library not available — cannot check overlap.</source>
+        <translation>Библиотека LOOT недоступна — не может проверить перекрытие.</translation>
+    </message>
+    <message>
+        <source>An overlap check is already running.</source>
+        <translation>Проверка перекрытия уже запущена.</translation>
+    </message>
+    <message>
+        <source>Checking record overlap for {0}…</source>
+        <translation>Проверка перекрытия записи для {0}</translation>
+    </message>
+    <message>
+        <source>Overlap check failed — see log.</source>
+        <translation>Проверка не удалась — см. журнал.</translation>
+    </message>
+    <message>
+        <source>{0}: no record overlap with other plugins.</source>
+        <translation>{0}: нет совпадений с другими плагинами.</translation>
+    </message>
+    <message>
+        <source>{0} overlaps {1} plugin(s) — highlighted in list</source>
+        <translation>{0} перекрывает плагин (плагины) {1} — выделен в списке</translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>Плагины</translation>
     </message>
@@ -3966,6 +4029,10 @@ CET не будет загружаться из symlinked asi. Это проис
     <message>
         <source>Copy to profile ({0})</source>
         <translation>Копировать в профиль ({0})</translation>
+    </message>
+    <message>
+        <source>Create an empty mod below</source>
+        <translation>Создайте пустой мод ниже</translation>
     </message>
     <message>
         <source>Create empty mod below</source>

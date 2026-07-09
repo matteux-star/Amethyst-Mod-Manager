@@ -1447,6 +1447,10 @@ Le Creation Kit peut également parfois planter au démarrage sous Proton (un pr
 <context>
     <name>DataView</name>
     <message>
+        <source>Loading…</source>
+        <translation>Chargement en cours…</translation>
+    </message>
+    <message>
         <source>Deployed files</source>
         <translation>Fichiers déployés</translation>
     </message>
@@ -2169,6 +2173,30 @@ mod « {0} », qui apparaîtra dans votre liste de mods.</translation>
         <translation>Géré par la liste des utilisateurs</translation>
     </message>
     <message>
+        <source>Bash-tagged</source>
+        <translation>Dénomination des marchandises</translation>
+    </message>
+    <message>
+        <source>ESL-safe (eligible for ESL flag)</source>
+        <translation>Sécurité ESL (éligible au drapeau ESL)</translation>
+    </message>
+    <message>
+        <source>ESL-unsafe (too many records)</source>
+        <translation>ESL-insafe (trop de dossiers)</translation>
+    </message>
+    <message>
+        <source>BOS/SP-patched</source>
+        <translation>BOS/SP-patché</translation>
+    </message>
+    <message>
+        <source>BOS-patched</source>
+        <translation>Tableau BOS</translation>
+    </message>
+    <message>
+        <source>SkyPatcher-patched</source>
+        <translation>Capteur SkyPatcher</translation>
+    </message>
+    <message>
         <source>Show only installed</source>
         <translation>Afficher uniquement les applications installées</translation>
     </message>
@@ -2418,6 +2446,13 @@ Le fichier exe d'origine est conservé sous le nom {0}.</translation>
     <message>
         <source>Cancel</source>
         <translation>Annuler</translation>
+    </message>
+</context>
+<context>
+    <name>LoadingOverlay</name>
+    <message>
+        <source>Loading…</source>
+        <translation>Chargement en cours…</translation>
     </message>
 </context>
 <context>
@@ -2804,6 +2839,10 @@ Le fichier exe d'origine est conservé sous le nom {0}.</translation>
     <message>
         <source>Language files updated — restart to apply.</source>
         <translation>Fichiers de langue mis à jour — redémarrez pour que les modifications prennent effet.</translation>
+    </message>
+    <message>
+        <source>Your Nexus session expired — please log in again (Nexus ▸ Login to Nexus).</source>
+        <translation>Votre session Nexus a expiré — s'il vous plaît vous connecter à nouveau (S'identifier à Nexus).</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -3634,6 +3673,30 @@ Souhaitez-vous supprimer l'entrée de la collection associée ?</translation>
         <translation>{0} plugins ({1} pour l'ESL, {2} pour les autres)</translation>
     </message>
     <message>
+        <source>LOOT library not available — cannot check overlap.</source>
+        <translation>Bibliothèque LOOT non disponible — ne peut pas vérifier le chevauchement.</translation>
+    </message>
+    <message>
+        <source>An overlap check is already running.</source>
+        <translation>Un contrôle de chevauchement est déjà en cours.</translation>
+    </message>
+    <message>
+        <source>Checking record overlap for {0}…</source>
+        <translation>Vérification du chevauchement des enregistrements pour {0}..</translation>
+    </message>
+    <message>
+        <source>Overlap check failed — see log.</source>
+        <translation>La vérification de chevauchement a échoué — voir journal.</translation>
+    </message>
+    <message>
+        <source>{0}: no record overlap with other plugins.</source>
+        <translation>{0}: aucun chevauchement d'enregistrement avec d'autres plugins.</translation>
+    </message>
+    <message>
+        <source>{0} overlaps {1} plugin(s) — highlighted in list</source>
+        <translation>{0} chevauche le(s) plugin(s) {1} — mis en évidence dans la liste</translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>Plug-ins</translation>
     </message>
@@ -3966,6 +4029,10 @@ De toute façon ?</translation>
     <message>
         <source>Copy to profile ({0})</source>
         <translation>Copier dans le profil ({0})</translation>
+    </message>
+    <message>
+        <source>Create an empty mod below</source>
+        <translation>Créer un mod vide ci-dessous</translation>
     </message>
     <message>
         <source>Create empty mod below</source>

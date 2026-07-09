@@ -1447,6 +1447,10 @@ Das Creation Kit kann unter Proton gelegentlich auch beim Start abstürzen (ein 
 <context>
     <name>DataView</name>
     <message>
+        <source>Loading…</source>
+        <translation>Wird geladen…</translation>
+    </message>
+    <message>
         <source>Deployed files</source>
         <translation>Bereitgestellte Dateien</translation>
     </message>
@@ -2169,6 +2173,30 @@ Mod „{0}“, der in Ihrer Mod-Liste erscheint.</translation>
         <translation>Verwaltet über die Benutzerliste</translation>
     </message>
     <message>
+        <source>Bash-tagged</source>
+        <translation>Bash-taggged</translation>
+    </message>
+    <message>
+        <source>ESL-safe (eligible for ESL flag)</source>
+        <translation>ESL-safe (für die ESL-Flagge berechtigt)</translation>
+    </message>
+    <message>
+        <source>ESL-unsafe (too many records)</source>
+        <translation>ESL-unsafe (zu viele Datensätze)</translation>
+    </message>
+    <message>
+        <source>BOS/SP-patched</source>
+        <translation>BOS/SP gepatcht</translation>
+    </message>
+    <message>
+        <source>BOS-patched</source>
+        <translation>BOS-gepatcht</translation>
+    </message>
+    <message>
+        <source>SkyPatcher-patched</source>
+        <translation>SkyPatcher-Patch</translation>
+    </message>
+    <message>
         <source>Show only installed</source>
         <translation>Nur installierte anzeigen</translation>
     </message>
@@ -2418,6 +2446,13 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
     <message>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
+    </message>
+</context>
+<context>
+    <name>LoadingOverlay</name>
+    <message>
+        <source>Loading…</source>
+        <translation>Wird geladen…</translation>
     </message>
 </context>
 <context>
@@ -2804,6 +2839,10 @@ Die ursprüngliche EXE-Datei wird als „{0}“ beibehalten.</translation>
     <message>
         <source>Language files updated — restart to apply.</source>
         <translation>Sprachdateien wurden aktualisiert – bitte starten Sie das Programm neu, damit die Änderungen wirksam werden.</translation>
+    </message>
+    <message>
+        <source>Your Nexus session expired — please log in again (Nexus ▸ Login to Nexus).</source>
+        <translation>Ihre Nexus-Sitzung ist abgelaufen - bitte melden Sie sich erneut an (Nexus ▸ Login bei Nexus).</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -3634,6 +3673,30 @@ Soll der Eintrag zur angehängten Sammlung entfernt werden?</translation>
         <translation>{0} Plugins ({1} ESL, {2} Nicht-ESL)</translation>
     </message>
     <message>
+        <source>LOOT library not available — cannot check overlap.</source>
+        <translation>LOOT-Bibliothek nicht verfügbar – Überlappung kann nicht überprüft werden.</translation>
+    </message>
+    <message>
+        <source>An overlap check is already running.</source>
+        <translation>Eine Überlappungsprüfung läuft bereits.</translation>
+    </message>
+    <message>
+        <source>Checking record overlap for {0}…</source>
+        <translation>Überprüfen Sie die Datenüberlappung für {0} ..</translation>
+    </message>
+    <message>
+        <source>Overlap check failed — see log.</source>
+        <translation>Überlappungskontrolle fehlgeschlagen — siehe Protokoll.</translation>
+    </message>
+    <message>
+        <source>{0}: no record overlap with other plugins.</source>
+        <translation>{0}: keine Aufzeichnung überschneidet sich mit anderen Plugins.</translation>
+    </message>
+    <message>
+        <source>{0} overlaps {1} plugin(s) — highlighted in list</source>
+        <translation>{0} überlappt {1}-Plugin(s) - in der Liste hervorgehoben</translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>Plugins</translation>
     </message>
@@ -3966,6 +4029,10 @@ Wie auch immer?</translation>
     <message>
         <source>Copy to profile ({0})</source>
         <translation>In das Profil kopieren ({0})</translation>
+    </message>
+    <message>
+        <source>Create an empty mod below</source>
+        <translation>Erstellen Sie einen leeren Mod unten</translation>
     </message>
     <message>
         <source>Create empty mod below</source>

@@ -1447,6 +1447,10 @@ De Creation Kit kan onder Proton soms ook crashen bij het opstarten (een bekend 
 <context>
     <name>DataView</name>
     <message>
+        <source>Loading…</source>
+        <translation>Bezig met laden…</translation>
+    </message>
+    <message>
         <source>Deployed files</source>
         <translation>Geïnstalleerde bestanden</translation>
     </message>
@@ -2169,6 +2173,30 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
         <translation>Beheerd via gebruikerslijst</translation>
     </message>
     <message>
+        <source>Bash-tagged</source>
+        <translation>Bash-tag</translation>
+    </message>
+    <message>
+        <source>ESL-safe (eligible for ESL flag)</source>
+        <translation>ESL-veilig (in aanmerking komende ESL-vlag)</translation>
+    </message>
+    <message>
+        <source>ESL-unsafe (too many records)</source>
+        <translation>ESL-onveilig (te veel records)</translation>
+    </message>
+    <message>
+        <source>BOS/SP-patched</source>
+        <translation>BOS/SP-patched</translation>
+    </message>
+    <message>
+        <source>BOS-patched</source>
+        <translation>BOS-patched</translation>
+    </message>
+    <message>
+        <source>SkyPatcher-patched</source>
+        <translation>SkyPatcher-patched</translation>
+    </message>
+    <message>
         <source>Show only installed</source>
         <translation>Alleen geïnstalleerde weergeven</translation>
     </message>
@@ -2418,6 +2446,13 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
     <message>
         <source>Cancel</source>
         <translation>Annuleren</translation>
+    </message>
+</context>
+<context>
+    <name>LoadingOverlay</name>
+    <message>
+        <source>Loading…</source>
+        <translation>Bezig met laden…</translation>
     </message>
 </context>
 <context>
@@ -2804,6 +2839,10 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
     <message>
         <source>Language files updated — restart to apply.</source>
         <translation>Taalbestanden bijgewerkt — start het programma opnieuw op om de wijzigingen door te voeren.</translation>
+    </message>
+    <message>
+        <source>Your Nexus session expired — please log in again (Nexus ▸ Login to Nexus).</source>
+        <translation>Uw Nexus-sessie is verlopen. .</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -3634,6 +3673,30 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
         <translation>{0} plug-ins ({1} ESL, {2} niet-ESL)</translation>
     </message>
     <message>
+        <source>LOOT library not available — cannot check overlap.</source>
+        <translation>LOOT-bibliotheek is niet beschikbaar.</translation>
+    </message>
+    <message>
+        <source>An overlap check is already running.</source>
+        <translation>Er is al een overlappingscontrole uitgevoerd.</translation>
+    </message>
+    <message>
+        <source>Checking record overlap for {0}…</source>
+        <translation>Controleren record-overlap voor {0}..</translation>
+    </message>
+    <message>
+        <source>Overlap check failed — see log.</source>
+        <translation>Overlapcontrole is mislukt, zie log.</translation>
+    </message>
+    <message>
+        <source>{0}: no record overlap with other plugins.</source>
+        <translation>{0}: geen record overlap met andere plugins.</translation>
+    </message>
+    <message>
+        <source>{0} overlaps {1} plugin(s) — highlighted in list</source>
+        <translation>{0} overlapt {1}-plugin(s)</translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>Plug-ins</translation>
     </message>
@@ -3966,6 +4029,10 @@ Toch inzetten?</translation>
     <message>
         <source>Copy to profile ({0})</source>
         <translation>Naar profiel kopiëren ({0})</translation>
+    </message>
+    <message>
+        <source>Create an empty mod below</source>
+        <translation>Een lege mod aanmaken</translation>
     </message>
     <message>
         <source>Create empty mod below</source>

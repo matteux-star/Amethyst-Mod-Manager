@@ -1447,6 +1447,10 @@ Creation Kit może również sporadycznie ulegać awarii podczas uruchamiania w 
 <context>
     <name>DataView</name>
     <message>
+        <source>Loading…</source>
+        <translation>Ładowanie…</translation>
+    </message>
+    <message>
         <source>Deployed files</source>
         <translation>Pliki wdrożone</translation>
     </message>
@@ -2169,6 +2173,30 @@ Po zakończeniu działania ESLifier zapisuje wynik jako mod
         <translation>Zarządzane przez listę użytkowników</translation>
     </message>
     <message>
+        <source>Bash-tagged</source>
+        <translation>Bash- tagged</translation>
+    </message>
+    <message>
+        <source>ESL-safe (eligible for ESL flag)</source>
+        <translation>Zabezpieczenie ESL (kwalifikujące się do oznaczenia ESL)</translation>
+    </message>
+    <message>
+        <source>ESL-unsafe (too many records)</source>
+        <translation>ESL - niebezpieczne (zbyt wiele rekordów)</translation>
+    </message>
+    <message>
+        <source>BOS/SP-patched</source>
+        <translation>BOS / SP- patched</translation>
+    </message>
+    <message>
+        <source>BOS-patched</source>
+        <translation>Ząbkowane</translation>
+    </message>
+    <message>
+        <source>SkyPatcher-patched</source>
+        <translation>Pałeczka</translation>
+    </message>
+    <message>
         <source>Show only installed</source>
         <translation>Pokaż tylko zainstalowane</translation>
     </message>
@@ -2418,6 +2446,13 @@ Oryginalny plik exe jest zachowywany pod nazwą {0}.</translation>
     <message>
         <source>Cancel</source>
         <translation>Anuluj</translation>
+    </message>
+</context>
+<context>
+    <name>LoadingOverlay</name>
+    <message>
+        <source>Loading…</source>
+        <translation>Ładowanie…</translation>
     </message>
 </context>
 <context>
@@ -2804,6 +2839,10 @@ Oryginalny plik exe jest zachowywany pod nazwą {0}.</translation>
     <message>
         <source>Language files updated — restart to apply.</source>
         <translation>Pliki językowe zostały zaktualizowane — należy ponownie uruchomić system, aby zmiany zaczęły obowiązywać.</translation>
+    </message>
+    <message>
+        <source>Your Nexus session expired — please log in again (Nexus ▸ Login to Nexus).</source>
+        <translation>Twoja sesja Nexus wygasła - zaloguj się ponownie (Nexus ΆLogin do Nexus).</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -3634,6 +3673,30 @@ Czy chcesz usunąć ten wpis z kolekcji?</translation>
         <translation>{0} wtyczki ({1} – ESL, {2} – nie-ESL)</translation>
     </message>
     <message>
+        <source>LOOT library not available — cannot check overlap.</source>
+        <translation>Biblioteka LOOT nie jest dostępna - nie można sprawdzić pokrywania.</translation>
+    </message>
+    <message>
+        <source>An overlap check is already running.</source>
+        <translation>Kontrola na siebie już się sprawdza.</translation>
+    </message>
+    <message>
+        <source>Checking record overlap for {0}…</source>
+        <translation>Sprawdzanie zapisów nakładających się dla {0}..</translation>
+    </message>
+    <message>
+        <source>Overlap check failed — see log.</source>
+        <translation>Nie powiodło się sprawdzenie nadświetlenia - patrz dziennik.</translation>
+    </message>
+    <message>
+        <source>{0}: no record overlap with other plugins.</source>
+        <translation>{0}: żaden rekord nie pokrywa się z innymi wtykami.</translation>
+    </message>
+    <message>
+        <source>{0} overlaps {1} plugin(s) — highlighted in list</source>
+        <translation>{0} nakłada się na wtyczki {1} - zaznaczone na liście</translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>Wtyczki</translation>
     </message>
@@ -3966,6 +4029,10 @@ Tak czy owak?</translation>
     <message>
         <source>Copy to profile ({0})</source>
         <translation>Kopiuj do profilu ({0})</translation>
+    </message>
+    <message>
+        <source>Create an empty mod below</source>
+        <translation>Utwórz pusty mod poniżej</translation>
     </message>
     <message>
         <source>Create empty mod below</source>

@@ -1447,6 +1447,10 @@ El Creation Kit también puede bloquearse ocasionalmente al iniciarse en Proton 
 <context>
     <name>DataView</name>
     <message>
+        <source>Loading…</source>
+        <translation>Cargando…</translation>
+    </message>
+    <message>
         <source>Deployed files</source>
         <translation>Archivos implementados</translation>
     </message>
@@ -2169,6 +2173,30 @@ mod «{0}», que aparecerá en tu lista de mods.</translation>
         <translation>Gestionado por userlist</translation>
     </message>
     <message>
+        <source>Bash-tagged</source>
+        <translation>Bash-tagged</translation>
+    </message>
+    <message>
+        <source>ESL-safe (eligible for ESL flag)</source>
+        <translation>ESL-safe (eligible for ESL flag)</translation>
+    </message>
+    <message>
+        <source>ESL-unsafe (too many records)</source>
+        <translation>ESL-unsafe (demasiados registros)</translation>
+    </message>
+    <message>
+        <source>BOS/SP-patched</source>
+        <translation>BOS/SP-patched</translation>
+    </message>
+    <message>
+        <source>BOS-patched</source>
+        <translation>BOS-patched</translation>
+    </message>
+    <message>
+        <source>SkyPatcher-patched</source>
+        <translation>SkyPatcher pareado</translation>
+    </message>
+    <message>
         <source>Show only installed</source>
         <translation>Mostrar solo los que están instalados</translation>
     </message>
@@ -2418,6 +2446,13 @@ El archivo exe original se conserva como «{0}».</translation>
     <message>
         <source>Cancel</source>
         <translation>Cancelar</translation>
+    </message>
+</context>
+<context>
+    <name>LoadingOverlay</name>
+    <message>
+        <source>Loading…</source>
+        <translation>Cargando…</translation>
     </message>
 </context>
 <context>
@@ -2804,6 +2839,10 @@ El archivo exe original se conserva como «{0}».</translation>
     <message>
         <source>Language files updated — restart to apply.</source>
         <translation>Se han actualizado los archivos de idioma; reinicia el sistema para que los cambios surtan efecto.</translation>
+    </message>
+    <message>
+        <source>Your Nexus session expired — please log in again (Nexus ▸ Login to Nexus).</source>
+        <translation>Su sesión de Nexus venció, por favor inicie sesión de nuevo (Nexus - Login to Nexus).</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -3634,6 +3673,30 @@ Remove the appended-collection entry?</source>
         <translation>{0} complementos ({1} ESL, {2} no ESL)</translation>
     </message>
     <message>
+        <source>LOOT library not available — cannot check overlap.</source>
+        <translation>La biblioteca LOOT no está disponible — no puede revisar la solapadura.</translation>
+    </message>
+    <message>
+        <source>An overlap check is already running.</source>
+        <translation>Un cheque de superposición ya está funcionando.</translation>
+    </message>
+    <message>
+        <source>Checking record overlap for {0}…</source>
+        <translation>Comprobando la superposición del registro para {0}..</translation>
+    </message>
+    <message>
+        <source>Overlap check failed — see log.</source>
+        <translation>Falló el cheque de solapamiento — ver el registro.</translation>
+    </message>
+    <message>
+        <source>{0}: no record overlap with other plugins.</source>
+        <translation>{0}: ningún registro superpone con otros plugins.</translation>
+    </message>
+    <message>
+        <source>{0} overlaps {1} plugin(s) — highlighted in list</source>
+        <translation>{0} superpone {1} plugin(s) — destacado en la lista</translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>Complementos</translation>
     </message>
@@ -3966,6 +4029,10 @@ Utilice el modo Hardlink con ambas carpetas en la misma unidad para que CET func
     <message>
         <source>Copy to profile ({0})</source>
         <translation>Copiar al perfil ({0})</translation>
+    </message>
+    <message>
+        <source>Create an empty mod below</source>
+        <translation>Crear un mod vacío debajo</translation>
     </message>
     <message>
         <source>Create empty mod below</source>
