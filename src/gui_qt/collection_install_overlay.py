@@ -26,7 +26,7 @@ from __future__ import annotations
 from PySide6.QtCore import Qt, QEvent
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame,
-    QProgressBar,
+    QProgressBar, QSizePolicy,
 )
 
 from gui_qt.theme_qt import active_palette, _c
@@ -37,6 +37,12 @@ _GREEN_TONE = "#5fb35f"
 
 # Fixed number of visible download rows (matches the Tk overlay's 8 slots).
 _DL_SLOTS = 8
+
+# Fixed width of each of the two side panels. Card is CARD_W (720) wide, with
+# 16px outer margins each side and 10px spacing between the panels, so each
+# panel gets (720 - 32 - 10) / 2 = 339px. Pinned so a long mod name can never
+# grow/shrink either panel.
+_PANEL_W = 339
 
 
 def _fmt_gb(n: int) -> str:
@@ -59,6 +65,10 @@ class _DownloadRow(QWidget):
         lay.setSpacing(2)
         self._name = QLabel("", self)
         self._name.setStyleSheet(f"color:{_c(p,'TEXT_MAIN')}; font-size:12px;")
+        # Never let a long mod name demand horizontal space (which would grow the
+        # fixed-width panel's minimum). Elide long names to a single line instead.
+        self._name.setMinimumWidth(0)
+        self._name.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         lay.addWidget(self._name)
         self._bar = QProgressBar(self)
         self._bar.setTextVisible(False)
@@ -69,7 +79,8 @@ class _DownloadRow(QWidget):
         self.hide()
 
     def assign(self, name: str):
-        self._name.setText(name)
+        fm = self._name.fontMetrics()
+        self._name.setText(fm.elidedText(name, Qt.ElideRight, _PANEL_W - 28))
         self._bar.setRange(0, 1000)
         self._bar.setValue(0)
         self.show()
@@ -129,6 +140,7 @@ class CollectionInstallOverlay(QWidget):
         adds its (pre-built, parented) content widgets."""
         frame = QFrame(self._card)
         frame.setObjectName("_SecFrame")
+        frame.setFixedWidth(_PANEL_W)
         frame.setStyleSheet(
             f"#_SecFrame {{ background:{self._c('BG_PANEL')};"
             f" border:1px solid {self._c('BORDER')}; border-radius:6px; }}")
