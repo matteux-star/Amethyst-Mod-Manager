@@ -254,8 +254,12 @@ class AddGameView(QWidget):
     def _scan_installed_games(self):
         """Runs in a worker thread. Detects installed games via Steam + Heroic.
 
-        Emits _installed_scanned with the set of matching game names. Never
-        touches Qt widgets directly (see project memory on worker threads)."""
+        Builds a one-pass InstalledIndex (Steam manifests + Heroic configs are
+        each read once), then matches every game against it in memory — the
+        old per-game finder calls re-enumerated the disk for each of the ~100
+        games, which took minutes on slow media. Emits _installed_scanned with
+        the set of matching game names. Never touches Qt widgets directly
+        (see project memory on worker threads)."""
         from gui_qt.safe_emit import safe_emit
 
         def _log(msg: str) -> None:
@@ -269,34 +273,23 @@ class AddGameView(QWidget):
         # Outer guard: no matter what fails below, we always emit the result so
         # the loading overlay is cleared and the user can still add games.
         try:
+            import time
+            t0 = time.monotonic()
             try:
-                from Utils.steam_finder import (
-                    find_steam_libraries, find_game_by_steam_id, find_game_in_libraries)
-                from Utils.heroic_finder import (
-                    find_heroic_game, find_heroic_game_info_by_exe)
+                from Utils.installed_scan import InstalledIndex
+                index = InstalledIndex(log=_log)
             except Exception as exc:
                 import traceback
-                _log(f"finder imports failed, skipping detection: {exc}\n"
+                _log(f"index build failed, skipping detection: {exc}\n"
                      f"{traceback.format_exc()}")
                 safe_emit(self._installed_scanned, set())
                 return
-
-            try:
-                libraries = find_steam_libraries()
-            except Exception as exc:
-                import traceback
-                _log(f"find_steam_libraries failed, continuing with none: {exc}\n"
-                     f"{traceback.format_exc()}")
-                libraries = []
 
             for name, game in self._games.items():
                 # Per-game guard: one malformed game definition (e.g. a synced
                 # custom handler missing exe_name) must not abort the whole scan.
                 try:
-                    found = self._detect_game_installed(
-                        game, libraries,
-                        find_game_by_steam_id, find_game_in_libraries,
-                        find_heroic_game, find_heroic_game_info_by_exe, _log)
+                    found = index.game_installed(game)
                 except Exception as exc:
                     import traceback
                     _log(f"detection failed for game '{name}', treating as "
@@ -304,55 +297,13 @@ class AddGameView(QWidget):
                     found = False
                 if found:
                     installed.add(name)
+            _log(f"scanned {len(self._games)} games in "
+                 f"{time.monotonic() - t0:.2f}s — {len(installed)} installed")
         except Exception as exc:
             import traceback
             _log(f"scan aborted unexpectedly: {exc}\n{traceback.format_exc()}")
 
         safe_emit(self._installed_scanned, installed)
-
-    def _detect_game_installed(self, game, libraries, find_game_by_steam_id,
-                               find_game_in_libraries, find_heroic_game,
-                               find_heroic_game_info_by_exe, _log) -> bool:
-        """Returns True if `game` appears installed. Each finder is guarded so a
-        failure in one path (corrupt Steam vdf, unreadable Heroic config,
-        unmounted drive) falls through to the next path instead of raising."""
-        exe_name = getattr(game, "exe_name", "") or ""
-        all_exe = [exe_name] + list(getattr(game, "exe_name_alts", []) or [])
-        all_exe = [e for e in all_exe if e]
-        steam_id = getattr(game, "steam_id", "")
-
-        if steam_id and libraries:
-            try:
-                if find_game_by_steam_id(libraries, steam_id, exe_name):
-                    return True
-            except Exception as exc:
-                _log(f"find_game_by_steam_id failed (steam_id={steam_id!r}): {exc}")
-
-        if libraries:
-            for exe in all_exe:
-                try:
-                    if find_game_in_libraries(libraries, exe):
-                        return True
-                except Exception as exc:
-                    _log(f"find_game_in_libraries failed (exe={exe!r}): {exc}")
-
-        heroic_names = getattr(game, "heroic_app_names", []) or []
-        if heroic_names:
-            try:
-                if find_heroic_game(heroic_names):
-                    return True
-            except Exception as exc:
-                _log(f"find_heroic_game failed (names={heroic_names!r}): {exc}")
-
-        for exe in all_exe:
-            bare_exe = exe.replace("\\", "/").rsplit("/", 1)[-1]
-            try:
-                if find_heroic_game_info_by_exe(bare_exe):
-                    return True
-            except Exception as exc:
-                _log(f"find_heroic_game_info_by_exe failed (exe={bare_exe!r}): {exc}")
-
-        return False
 
     def _on_installed_scanned(self, installed: set):
         self._installed_game_names = installed
