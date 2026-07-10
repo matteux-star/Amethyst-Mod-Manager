@@ -112,6 +112,9 @@ class MissingReqsView(QWidget):
         # mods: list of {"mod_name","mod_id","domain","missing_ids": set[int]}.
         self._mods = list(mods or ())
         self._ignored_set = set(ignored_set or ())
+        # True once an Ignore toggle changes the ignored set, so the window can
+        # skip the flag refresh on close when nothing actually changed.
+        self.ignored_changed = False
         self._save_ignored_fn = save_ignored_fn or (lambda s: None)
         self._on_close = on_close or (lambda: None)
         self._log = log_fn or (lambda _m: None)
@@ -186,11 +189,14 @@ class MissingReqsView(QWidget):
         return bool(names) and all(n in self._ignored_set for n in names)
 
     def _on_ignore_toggled(self, state):
+        before = set(self._ignored_set)
         for n in self._mod_names():
             if state:
                 self._ignored_set.add(n)
             else:
                 self._ignored_set.discard(n)
+        if self._ignored_set != before:
+            self.ignored_changed = True
         try:
             self._save_ignored_fn(self._ignored_set)
         except Exception as exc:

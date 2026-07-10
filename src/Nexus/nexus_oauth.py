@@ -205,6 +205,29 @@ class OAuthTokens:
     expires_at:    float   # Unix timestamp
 
 
+class OAuthRefreshError(RuntimeError):
+    """Raised when a refresh-token exchange fails.
+
+    ``token_revoked`` is True when Nexus rejected the refresh token itself
+    (HTTP 400 / ``invalid_grant``) — i.e. the saved refresh token is dead and
+    the user must log in again. It is False for transient failures (network,
+    TLS, timeout, 5xx) where the token is probably still good and a later
+    retry may succeed.
+    """
+
+    def __init__(self, message: str, *, token_revoked: bool = False):
+        super().__init__(message)
+        self.token_revoked = token_revoked
+
+
+# Serialises refresh-token exchanges across threads. Nexus rotates the refresh
+# token on every successful refresh (the old one is revoked server-side), so
+# two concurrent refreshes with the same token would race — the second POST
+# gets a 400 and, worse, could overwrite the freshly-saved good token with a
+# now-revoked one. The lock + reload-under-lock below makes refresh atomic.
+_refresh_lock = threading.Lock()
+
+
 # ---------------------------------------------------------------------------
 # Keyring persistence
 # ---------------------------------------------------------------------------
@@ -347,45 +370,72 @@ def refresh_if_needed(tokens: OAuthTokens, client_id: str = CLIENT_ID, client_se
     """
     Return tokens unchanged if still valid, or perform a refresh token exchange.
 
-    Raises RuntimeError on refresh failure.
+    Thread-safe: the exchange is serialised so concurrent callers can't race on
+    Nexus's rotating refresh token (see ``_refresh_lock``). Callers pass a
+    possibly-stale snapshot; once inside the lock we re-load from storage and
+    re-check expiry, so a caller that was blocked while another thread refreshed
+    picks up the freshly-rotated token instead of POSTing the dead one.
+
+    Raises OAuthRefreshError on refresh failure. ``token_revoked`` on the raised
+    error distinguishes a dead refresh token (re-login required) from a
+    transient network failure (retry may work).
     """
     if time.time() < tokens.expires_at - _REFRESH_MARGIN_SECS:
         return tokens
 
-    app_log("OAuth: access token expiring soon, refreshing...")
-    try:
-        resp = requests.post(
-            _TOKEN_URL,
-            data={
-                "grant_type":    "refresh_token",
-                "refresh_token": tokens.refresh_token,
-                "client_id":     client_id,
-                "client_secret": client_secret,
-                "redirect_uri":  _REDIRECT_URI,
-            },
-            timeout=20,
-            verify=resolve_ca_bundle() or True,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-    except requests.exceptions.RequestException as exc:
-        if isinstance(exc, (requests.exceptions.SSLError,
-                            requests.exceptions.ConnectionError,
-                            requests.exceptions.Timeout)):
+    with _refresh_lock:
+        # Re-load under the lock: another thread may have just rotated the token
+        # while we were blocked. Prefer the stored token if it's fresher.
+        stored = load_oauth_tokens()
+        if stored is not None and stored.expires_at > tokens.expires_at:
+            tokens = stored
+            if time.time() < tokens.expires_at - _REFRESH_MARGIN_SECS:
+                # Another thread already refreshed for us.
+                return tokens
+
+        app_log("OAuth: access token expiring soon, refreshing...")
+        try:
+            resp = requests.post(
+                _TOKEN_URL,
+                data={
+                    "grant_type":    "refresh_token",
+                    "refresh_token": tokens.refresh_token,
+                    "client_id":     client_id,
+                    "client_secret": client_secret,
+                    "redirect_uri":  _REDIRECT_URI,
+                },
+                timeout=20,
+                verify=resolve_ca_bundle() or True,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        except requests.exceptions.HTTPError as exc:
+            # A 4xx here means Nexus rejected the refresh token itself (rotated
+            # out, revoked, or client mismatch) — the saved token is dead and
+            # the user must re-authenticate. 5xx is transient; leave the token.
+            status = getattr(exc.response, "status_code", None)
+            revoked = status is not None and 400 <= status < 500
+            app_log(f"OAuth: token refresh rejected (HTTP {status}); "
+                    f"{'refresh token is dead — re-login required' if revoked else 'server error, will retry later'}")
+            raise OAuthRefreshError(
+                f"OAuth token refresh failed: {exc}", token_revoked=revoked
+            ) from exc
+        except requests.exceptions.RequestException as exc:
+            # Network / TLS / timeout — token is probably still valid.
             app_log(f"OAuth: token refresh hit a connection error ({exc!r}); running diagnostics")
             _log_connection_diagnostics()
-        raise RuntimeError(f"OAuth token refresh failed: {exc}") from exc
-    except Exception as exc:
-        raise RuntimeError(f"OAuth token refresh failed: {exc}") from exc
+            raise OAuthRefreshError(f"OAuth token refresh failed: {exc}") from exc
+        except Exception as exc:
+            raise OAuthRefreshError(f"OAuth token refresh failed: {exc}") from exc
 
-    new_tokens = OAuthTokens(
-        access_token=data["access_token"],
-        refresh_token=data.get("refresh_token", tokens.refresh_token),
-        expires_at=time.time() + data.get("expires_in", 3600),
-    )
-    save_oauth_tokens(new_tokens)
-    app_log("OAuth: token refreshed successfully")
-    return new_tokens
+        new_tokens = OAuthTokens(
+            access_token=data["access_token"],
+            refresh_token=data.get("refresh_token", tokens.refresh_token),
+            expires_at=time.time() + data.get("expires_in", 3600),
+        )
+        save_oauth_tokens(new_tokens)
+        app_log("OAuth: token refreshed successfully")
+        return new_tokens
 
 
 # ---------------------------------------------------------------------------

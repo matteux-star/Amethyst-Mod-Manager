@@ -1,3 +1,6 @@
+- v2.0.1
+- Fixed various issues with 2.0.0 that didn't appear during testing
+
 - v2.0.0
 ### UI Rework
 - Complete rework of the user interface from scratch in QT

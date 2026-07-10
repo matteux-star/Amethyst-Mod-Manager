@@ -252,6 +252,11 @@ PLUGIN_STATUS_FILTERS = [
     ("filter_dirty",          "Dirty (needs cleaning)"),
     ("filter_userlist",       "Managed by userlist"),
     ("filter_bash_tags",      "Bash-tagged"),
+    ("filter_esl_safe",       "ESL-safe (eligible for ESL flag)"),
+    ("filter_esl_unsafe",     "ESL-unsafe (too many records)"),
+    ("filter_bos_sp",         "BOS/SP-patched"),
+    ("filter_bos_only",       "BOS-patched"),
+    ("filter_sp_only",        "SkyPatcher-patched"),
 ]
 
 
@@ -268,7 +273,8 @@ def plugin_filter_hidden_rows(rows, state: dict, disabled_mf=None) -> set[int]:
     convention as compute_hidden_rows. No active keys → hide nothing.
     """
     from gui_qt.plugin_state import (
-        PF_ESL, PF_MISSING, PF_DIRTY, PF_TAGS, PF_USERLIST)
+        PF_ESL, PF_MISSING, PF_DIRTY, PF_TAGS, PF_USERLIST,
+        PF_ESL_SAFE, PF_ESL_UNSAFE)
 
     disabled_mf = disabled_mf or set()
 
@@ -299,13 +305,26 @@ def plugin_filter_hidden_rows(rows, state: dict, disabled_mf=None) -> set[int]:
                 return bool(r.flags & PF_USERLIST)
             if key == "filter_bash_tags":
                 return bool(r.flags & PF_TAGS)
+            if key == "filter_esl_safe":
+                return bool(r.flags & PF_ESL_SAFE)
+            if key == "filter_esl_unsafe":
+                return bool(r.flags & PF_ESL_UNSAFE)
+            if key == "filter_bos_sp":
+                return bool(getattr(r, "bos_sp", ""))
+            if key == "filter_bos_only":
+                return getattr(r, "bos_sp", "") in ("bos", "both")
+            if key == "filter_sp_only":
+                return getattr(r, "bos_sp", "") in ("sp", "both")
             return True
         return pred
 
-    includes = [k for k, _l in PLUGIN_STATUS_FILTERS if state.get(k) == 1]
-    excludes = [k for k, _l in PLUGIN_STATUS_FILTERS if state.get(k) == 2]
-    if not includes and not excludes:
-        return set()
+    # filter_bos_only + filter_sp_only get bespoke handling (a union when BOTH
+    # are INCLUDE-checked) mirroring Tk; every other key is a plain tri-state.
+    _BOS_SP_KEYS = {"filter_bos_only", "filter_sp_only"}
+    includes = [k for k, _l in PLUGIN_STATUS_FILTERS
+                if state.get(k) == 1 and k not in _BOS_SP_KEYS]
+    excludes = [k for k, _l in PLUGIN_STATUS_FILTERS
+                if state.get(k) == 2 and k not in _BOS_SP_KEYS]
 
     keep = list(range(len(rows)))
     for k in includes:
@@ -314,6 +333,30 @@ def plugin_filter_hidden_rows(rows, state: dict, disabled_mf=None) -> set[int]:
     for k in excludes:
         pred = _has(k)
         keep = [i for i in keep if not pred(rows[i])]
+
+    # BOS/SP union case: both INCLUDE-checked keeps any patched plugin;
+    # otherwise each acts as an independent tri-state (include/exclude).
+    bos_state = state.get("filter_bos_only") or 0
+    sp_state = state.get("filter_sp_only") or 0
+    if bos_state or sp_state:
+        bos_pred = _has("filter_bos_only")
+        sp_pred = _has("filter_sp_only")
+        if bos_state == 1 and sp_state == 1:
+            keep = [i for i in keep
+                    if bool(getattr(rows[i], "bos_sp", ""))]
+        else:
+            if bos_state == 1:
+                keep = [i for i in keep if bos_pred(rows[i])]
+            elif bos_state == 2:
+                keep = [i for i in keep if not bos_pred(rows[i])]
+            if sp_state == 1:
+                keep = [i for i in keep if sp_pred(rows[i])]
+            elif sp_state == 2:
+                keep = [i for i in keep if not sp_pred(rows[i])]
+
+    if not includes and not excludes and not bos_state and not sp_state:
+        return set()
+
     kept = set(keep)
     return {i for i in range(len(rows)) if i not in kept}
 

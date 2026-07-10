@@ -9,6 +9,7 @@ tree is only (re)built when the Data sub-tab is visible (mark_dirty defers it).
 
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QTimer, QModelIndex, Signal
@@ -19,15 +20,20 @@ from PySide6.QtWidgets import (
 import Utils.data_tab as dtlogic
 import Utils.mod_files as mflogic
 from gui_qt.data_model import DataModel, _DataNode, COL_NAME, COL_MOD
+from gui_qt.safe_emit import safe_emit
 
 
 class DataView(QWidget):
     """The Data tab. configure() once, then refresh()/mark_dirty() to (re)build."""
 
     filetypes_changed = Signal()
+    scan_status_changed = Signal(bool)         # True = build running
+    _data_ready = Signal(int, object, object)  # gen, entries, contested
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self._scan_gen = 0                  # bumped per build → drops stale
+        self._scanning = False
         self.game = None
         self.profile_dir: Path | None = None
         self.filemap_path: Path | None = None
@@ -45,6 +51,15 @@ class DataView(QWidget):
         # re-runs don't re-resolve the whole filemap (Tk _data_resolved_cache).
         self._resolved_cache: tuple | None = None
         self._build()
+        self._data_ready.connect(self._on_data_ready)
+        self.scan_status_changed.connect(self._on_scan_status)
+
+    def _on_scan_status(self, running: bool):
+        if running:
+            self._label.setText(self.tr("Loading…"))
+            self._loading_overlay.show_over()
+        else:
+            self._loading_overlay.hide_overlay()
 
     # -- context ------------------------------------------------------------
     def configure(self, game, profile_dir, filemap_path, index_path):
@@ -121,6 +136,9 @@ class DataView(QWidget):
         self._tree.viewport().installEventFilter(self)
         v.addWidget(self._tree, 1)
 
+        from gui_qt.loading_overlay import LoadingOverlay
+        self._loading_overlay = LoadingOverlay(self._tree)
+
     def eventFilter(self, obj, event):
         from PySide6.QtCore import QEvent
         if obj is self._tree.viewport() and event.type() == QEvent.Resize:
@@ -173,16 +191,40 @@ class DataView(QWidget):
         return entries
 
     def _repopulate(self):
+        """Resolve the filemap + conflict cache off the UI thread (the first
+        build on a large modlist is CPU-heavy), then build the tree back on the
+        UI thread in _on_data_ready. A generation counter drops stale results."""
+        self._scan_gen += 1
+        gen = self._scan_gen
+        self._scanning = True
+        self.scan_status_changed.emit(True)
+        index_path = self.index_path
+        profile_dir = self.profile_dir
+
+        def worker():
+            try:
+                entries = self._resolved_entries()
+                contested, _winner = mflogic.build_conflict_cache(
+                    index_path, profile_dir)
+            except Exception:
+                safe_emit(self._data_ready, gen, [], set())
+                return
+            safe_emit(self._data_ready, gen, entries, contested)
+
+        threading.Thread(target=worker, daemon=True,
+                         name="data-tab-build").start()
+
+    def _on_data_ready(self, gen: int, entries: list, contested: set):
+        if gen != self._scan_gen:
+            return
+        self._scanning = False
+        self.scan_status_changed.emit(False)
         # Preserve expand state by path across the model reset.
         expanded = self._expanded_paths()
-        entries = self._resolved_entries()
         # Ext counts (pre-filter) for the filter panel.
         self._ext_counts = dtlogic.filetype_counts(entries)
         self.filetypes_changed.emit()
         self._update_label(entries)
-
-        contested, _winner = mflogic.build_conflict_cache(
-            self.index_path, self.profile_dir)
 
         q = self._search
         exts = self._search_exts

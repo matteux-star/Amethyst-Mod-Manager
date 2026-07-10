@@ -6,6 +6,7 @@ My-Games scans are expensive). Clicking a file opens the scoped text editor.
 
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QTimer, Signal
@@ -14,6 +15,7 @@ from PySide6.QtWidgets import (
 )
 
 import Utils.text_files as tf
+from gui_qt.safe_emit import safe_emit
 from gui_qt.text_files_model import (
     TextFilesModel, _TextNode, COL_NAME, COL_SOURCE,
 )
@@ -24,6 +26,8 @@ class TextFilesView(QWidget):
 
     filetypes_changed = Signal()
     content_status_changed = Signal(object)   # current content keyword | None
+    scan_status_changed = Signal(bool)        # True = scan running
+    _scan_ready = Signal(int, object, object)  # gen, entries, content_matches
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -34,6 +38,8 @@ class TextFilesView(QWidget):
         self.on_open_file = None        # callback(full_path, rel_path)
         self._dirty = True
         self._is_visible = False
+        self._scan_gen = 0              # bumped per scan → drops stale results
+        self._scanning = False
         self._all_entries: list = []
         self._search = ""
         self._search_exts: frozenset = frozenset()
@@ -44,6 +50,14 @@ class TextFilesView(QWidget):
         self._content_matches = None    # set[(rel, mod)] | None
         self._content_keyword = None
         self._build()
+        self._scan_ready.connect(self._on_scan_ready)
+        self.scan_status_changed.connect(self._on_scan_status)
+
+    def _on_scan_status(self, running: bool):
+        if running:
+            self._loading_overlay.show_over()
+        else:
+            self._loading_overlay.hide_overlay()
 
     # -- context ------------------------------------------------------------
     def configure(self, game, profile_dir, filemap_path, staging_root):
@@ -104,6 +118,9 @@ class TextFilesView(QWidget):
         self._tree.viewport().installEventFilter(self)
         v.addWidget(self._tree, 1)
 
+        from gui_qt.loading_overlay import LoadingOverlay
+        self._loading_overlay = LoadingOverlay(self._tree)
+
     def eventFilter(self, obj, event):
         from PySide6.QtCore import QEvent
         if obj is self._tree.viewport() and event.type() == QEvent.Resize:
@@ -120,12 +137,45 @@ class TextFilesView(QWidget):
 
     # -- scan / filter ------------------------------------------------------
     def _rescan(self):
-        self._all_entries = tf.discover_text_files(
-            self.game, self.profile_dir, self.filemap_path, self.staging_root)
-        # A new scan invalidates the content-match set (paths may have changed).
-        if self._content_matches is not None and self._content_keyword:
-            self._content_matches = tf.content_search(
-                self._all_entries, self._content_keyword)
+        """Kick off the FS-heavy discovery on a daemon thread; the recursive
+        game / My-Games walks would otherwise freeze the UI on a large modlist.
+        Results are marshalled back to the UI thread via _scan_ready; a
+        generation counter drops results from a superseded scan."""
+        self._scan_gen += 1
+        gen = self._scan_gen
+        game = self.game
+        profile_dir = self.profile_dir
+        filemap_path = self.filemap_path
+        staging_root = self.staging_root
+        keyword = self._content_keyword if self._content_matches is not None else None
+        self._scanning = True
+        self.scan_status_changed.emit(True)
+
+        def worker():
+            try:
+                entries = tf.discover_text_files(
+                    game, profile_dir, filemap_path, staging_root)
+                # A new scan invalidates the content-match set (paths may have
+                # changed) — recompute it here, still off the UI thread.
+                matches = (tf.content_search(entries, keyword)
+                           if keyword else None)
+            except Exception:
+                safe_emit(self._scan_ready, gen, [], None)
+                return
+            safe_emit(self._scan_ready, gen, entries, matches)
+
+        threading.Thread(target=worker, daemon=True,
+                         name="textfiles-scan").start()
+
+    def _on_scan_ready(self, gen: int, entries: list, matches):
+        # Drop results from a scan that's already been superseded.
+        if gen != self._scan_gen:
+            return
+        self._scanning = False
+        self.scan_status_changed.emit(False)
+        self._all_entries = entries
+        if self._content_matches is not None:
+            self._content_matches = matches
         self.filetypes_changed.emit()
         self._apply()
 
@@ -289,10 +339,29 @@ class TextFilesView(QWidget):
         if not keyword:
             self.clear_content_search()
             return
+        # Reading every file's text is slow — run it off the UI thread and
+        # marshal the match set back via the same _scan_ready path (a scan
+        # generation guards against a profile/game switch mid-search).
         self._content_keyword = keyword
-        self._content_matches = tf.content_search(self._all_entries, keyword)
+        self._scan_gen += 1
+        gen = self._scan_gen
+        entries = self._all_entries
+        self._scanning = True
+        self.scan_status_changed.emit(True)
         self.content_status_changed.emit(keyword)
-        self._apply()
+
+        def worker():
+            try:
+                matches = tf.content_search(entries, keyword)
+            except Exception:
+                matches = set()
+            safe_emit(self._scan_ready, gen, entries, matches)
+
+        # A content search always yields a match set (never None) so
+        # _on_scan_ready assigns it even though _content_matches may be None now.
+        self._content_matches = set()
+        threading.Thread(target=worker, daemon=True,
+                         name="textfiles-content-search").start()
 
     def clear_content_search(self):
         self._content_keyword = None

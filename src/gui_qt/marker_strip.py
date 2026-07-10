@@ -25,6 +25,7 @@ class MarkerScrollBar(QScrollBar):
     _C_LOWER = QColor("#e05050")    # this row beats selection (red)
     _C_MISSING = QColor("#e05050")  # plugin has missing masters (red)
     _C_MASTER = QColor("#3ad13a")   # master of the selected plugin (green)
+    _C_CYCLE = QColor("#e05050")    # plugin's userlist rules form a cycle (red)
 
     def __init__(self, view, highlight_role: int):
         super().__init__(Qt.Vertical, view)
@@ -36,15 +37,18 @@ class MarkerScrollBar(QScrollBar):
         # cross-panel highlight, which beats master (green). See paintEvent.
         self._missing_rows: set[int] = set()   # plugins with missing masters
         self._master_rows: set[int] = set()    # masters of the selected plugin
+        self._cycle_rows: set[int] = set()     # plugins with a broken cycle
 
-    def set_persistent_rows(self, missing=None, master=None) -> None:
+    def set_persistent_rows(self, missing=None, master=None, cycle=None) -> None:
         """Set the persistent overlay row sets (missing masters / selected
-        plugin's masters) and repaint. Pass a set to replace, None to leave a
-        given overlay unchanged."""
+        plugin's masters / broken userlist cycle) and repaint. Pass a set to
+        replace, None to leave a given overlay unchanged."""
         if missing is not None:
             self._missing_rows = set(missing)
         if master is not None:
             self._master_rows = set(master)
+        if cycle is not None:
+            self._cycle_rows = set(cycle)
         self.update()
 
     def _row_offsets(self, model):
@@ -84,7 +88,8 @@ class MarkerScrollBar(QScrollBar):
                 code = model.data(model.index(r, 0), self._role) or 0
                 if code:
                     marks.append((r, code))
-        if n > 0 and (marks or self._missing_rows or self._master_rows):
+        if n > 0 and (marks or self._missing_rows or self._master_rows
+                      or self._cycle_rows):
             opt = QStyleOptionSlider()
             self.initStyleOption(opt)
             groove = self.style().subControlRect(
@@ -113,6 +118,8 @@ class MarkerScrollBar(QScrollBar):
                 for r, code in marks:
                     if code == wanted:
                         tick(r, col)
+            for r in self._cycle_rows:
+                tick(r, self._C_CYCLE)
             for r in self._missing_rows:
                 tick(r, self._C_MISSING)
             p.end()

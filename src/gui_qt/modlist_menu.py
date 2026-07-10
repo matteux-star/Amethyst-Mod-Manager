@@ -117,15 +117,25 @@ def build_context_menu(view, index):
         #   Log         — both (files swept in on restore; Root Folder gets its
         #                 own .mm_overwrite_log.txt written by _move_runtime_files)
         #   Show Conflicts — Overwrite only (Root Folder has no conflict data)
-        from Utils.filemap import OVERWRITE_NAME
+        from Utils.filemap import OVERWRITE_NAME, ROOT_FOLDER_NAME
         if multi_mods or multi_seps:
             return None
         has_game = getattr(view, "game", None) is not None
+        _staging_ok = getattr(view, "staging_dir", None) is not None
         act(_mt("Open folder"), lambda: _open_folder(view, model, row))
         act(_mt("Log"), lambda: _show_overwrite_log(view, entry.name),
             enabled=has_game)
         if entry.name == OVERWRITE_NAME and _has_conflict(model, row):
             act(_mt("Show Conflicts"), lambda: _show_conflicts(view, entry.name))
+        # Create an empty mod below — lives on the Overwrite row in normal mode
+        # and the Root Folder row in reverse-priority mode, so it stays usable
+        # even when the modlist has no mods to right-click.
+        reverse = model.reverse_mode_active
+        on_this_boundary = (entry.name == ROOT_FOLDER_NAME if reverse
+                            else entry.name == OVERWRITE_NAME)
+        if _staging_ok and on_this_boundary:
+            act(_mt("Create an empty mod below"),
+                lambda: _create_empty_mod_at_boundary(view, model, top=not reverse))
         return menu
 
     if entry.is_separator:
@@ -848,6 +858,21 @@ def _sort_selected_alphabetically(view, model, mod_rows):
 def _create_empty_mod(view, model, row):
     """Prompt for a name, create an empty staging folder + minimal meta.ini, and
     insert a new mod row just below *row*. Port of Tk _create_empty_mod."""
+    _create_empty_mod_prompt(view, model,
+                             lambda name: model.insert_mod(row, name, above=False))
+
+
+def _create_empty_mod_at_boundary(view, model, top):
+    """As _create_empty_mod, but insert at the top (below Overwrite) or bottom
+    (below Root Folder) of the body — used from the boundary rows so it works
+    even when the modlist is empty."""
+    _create_empty_mod_prompt(view, model,
+                             lambda name: model.insert_mod_at_body_edge(top, name))
+
+
+def _create_empty_mod_prompt(view, model, insert):
+    """Shared prompt + folder/meta.ini creation for the two create-empty-mod
+    entry points. *insert* places the new row once the folder exists."""
     staging = getattr(view, "staging_dir", None)
     if staging is None:
         return
@@ -879,7 +904,7 @@ def _create_empty_mod(view, model, row):
                 view, "Create empty mod",
                 f"Could not create the mod folder:\n{exc}")
             return
-        model.insert_mod(row, name, above=False)
+        insert(name)
 
     TextInputOverlay.show_over(view, "Create empty mod", "Mod name:", _named,
                                ok_label="Create")
@@ -1149,6 +1174,7 @@ _TR_MARKERS = (
     QT_TRANSLATE_NOOP("ModListMenu", "Check Updates ({0})"),
     QT_TRANSLATE_NOOP("ModListMenu", "Copy to profile"),
     QT_TRANSLATE_NOOP("ModListMenu", "Copy to profile ({0})"),
+    QT_TRANSLATE_NOOP("ModListMenu", "Create an empty mod below"),
     QT_TRANSLATE_NOOP("ModListMenu", "Create empty mod below"),
     QT_TRANSLATE_NOOP("ModListMenu", "Disable Root Folder install"),
     QT_TRANSLATE_NOOP("ModListMenu", "Disable Root Folder install ({0})"),

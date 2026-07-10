@@ -346,6 +346,18 @@ class ModListModel(QAbstractTableModel):
                                   [ConflictRole, BsaConflictRole, Qt.DisplayRole])
         self._resort_if_key("conflicts")
 
+    def set_bsa_conflicts(self, bsa_conflicts: dict[str, int]) -> None:
+        """Update ONLY the BSA conflict codes, leaving loose conflicts + flags
+        untouched. Used when a plugin toggle/reorder changes BSA load order —
+        the filemap/loose conflicts are unaffected, so only the BSA icons need
+        repainting (Tk parity: recompute_bsa_conflicts)."""
+        self._bsa_conflicts = bsa_conflicts or {}
+        if self._entries:
+            self.dataChanged.emit(self.index(0, COL_NAME),
+                                  self.index(len(self._entries) - 1, COL_CONFLICTS),
+                                  [BsaConflictRole, Qt.DisplayRole])
+        self._resort_if_key("conflicts")
+
     def loose_conflict_code(self, name: str) -> int:
         """Loose-file conflict code for *name* (0 when the mod has no loose
         conflict; BSA-only conflicts don't count)."""
@@ -903,6 +915,32 @@ class ModListModel(QAbstractTableModel):
         if ni < 0:
             return
         self._natural.insert(ni if above else ni + 1, entry)
+        self._rebuild_display()
+        self.save()
+
+    def insert_mod_at_body_edge(self, top: bool, name: str) -> None:
+        """Insert an (enabled) mod at the top or bottom of the natural body,
+        just inside the boundary separators. Used by the boundary rows' 'Create
+        an empty mod below' — normal mode drops it below Overwrite (top of the
+        body), reverse-priority mode below Root Folder (bottom of the body)."""
+        entry = ModEntry(name, True, False, False)
+        # Natural layout is normally [Overwrite] + body + [Root Folder]; drop the
+        # mod just inside whichever boundary the caller asked for. Anchor on the
+        # boundary's real position (not a fixed 0/-1) so it's correct even if a
+        # boundary is somehow absent.
+        if top:
+            at = next((i + 1 for i, e in enumerate(self._natural)
+                       if e.name == OVERWRITE_NAME), 0)
+        else:
+            at = next((i for i, e in enumerate(self._natural)
+                       if e.name == ROOT_FOLDER_NAME), len(self._natural))
+        if self._entries is self._natural:
+            self.beginInsertRows(QModelIndex(), at, at)
+            self._natural.insert(at, entry)
+            self.endInsertRows()
+            self.save()
+            return
+        self._natural.insert(at, entry)
         self._rebuild_display()
         self.save()
 

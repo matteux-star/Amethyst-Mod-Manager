@@ -84,6 +84,30 @@ def _unguarded(win, fn):
     return _handler
 
 
+class _ReturnOverride(QObject):
+    """Hands Return/Enter back to text inputs and overlays.
+
+    The window-level Return/Enter shortcuts (toggle selected mods) consume the
+    key during Qt's ShortcutOverride phase even when ``_guard`` would then
+    no-op — QLineEdit only claims printable/editing keys in that phase, so
+    ``returnPressed`` never fired anywhere in the main window (e.g. the Nexus
+    browser page box). Accepting the override whenever the guard would refuse
+    the shortcut delivers the key press to the focused widget instead."""
+
+    def __init__(self, win):
+        super().__init__(win)
+        self._win = win
+
+    def eventFilter(self, obj, event):
+        if (event.type() == QEvent.ShortcutOverride
+                and event.key() in (Qt.Key_Return, Qt.Key_Enter)
+                and (_focus_is_text_input(self._win)
+                     or _overlay_open(self._win))):
+            event.accept()
+            return True
+        return False
+
+
 # ---------------------------------------------------------------------------
 # Active-panel routing
 # ---------------------------------------------------------------------------
@@ -439,6 +463,10 @@ def register_shortcuts(win) -> None:
 
     tracker = _PanelTracker(win)
     win._panel_tracker = tracker
+
+    override = _ReturnOverride(win)
+    win._return_override = override
+    QApplication.instance().installEventFilter(override)
     for attr in ("_modlist_view", "_plugin_view"):
         view = getattr(win, attr, None)
         if view is not None:

@@ -50,6 +50,21 @@ PF_TAGS = 1 << 6       # bash tags
 PF_MASTER = 1 << 7     # master (.esm or master-flagged)
 PF_USERLIST = 1 << 8   # managed in userlist.yaml (white dot)
 PF_UL_CYCLE = 1 << 9   # userlist rules form a broken cycle (dot turns red)
+PF_ESL_SAFE = 1 << 10  # .esp/.esm eligible for the ESL flag (libloot verdict)
+PF_ESL_UNSAFE = 1 << 11  # .esp/.esm too many records for ESL (libloot verdict)
+
+# Bump when check_esl_eligible() changes its verdict criteria so cached
+# eligibility results are invalidated (mirrors Tk _ESL_ELIG_CACHE_VERSION).
+_ESL_ELIG_CACHE_VERSION = 2
+
+# Process-wide caches keyed by (path, mtime_ns, size[, game_type, version]) so
+# the expensive per-plugin record scan / flag read only runs when a plugin file
+# is actually rewritten — mirrors Tk _esl_flag_cache / _esl_eligible_cache.
+_ESL_FLAG_CACHE: dict = {}
+_ESL_ELIG_CACHE: dict = {}
+
+# BOS/SkyPatcher scan cache: (total_staging_mtime, staging_str) -> result dict.
+_BOS_SP_CACHE: dict = {}
 
 
 @dataclass
@@ -64,6 +79,8 @@ class PluginRow:
     late_masters: list[str] | None = None
     vmm_masters: list[str] | None = None
     loot_info: dict | None = None
+    # BOS/SkyPatcher patch kind: "" (none), "bos", "sp", or "both".
+    bos_sp: str = ""
 
 
 _EXT_ORDER = {".esm": 0, ".esp": 1, ".esl": 2}
@@ -418,6 +435,8 @@ def load_plugins(game, profile: str) -> list[PluginRow]:
     _apply_master_checks(rows, resolved, data_dir)
     _apply_loot_flags(rows, p.parent)
     _apply_userlist_flags(rows, p.parent)
+    _apply_esl_eligibility(rows, resolved, data_dir, game)
+    _apply_bos_sp(rows, staging)
     return rows
 
 
@@ -562,6 +581,167 @@ def _apply_userlist_flags(rows: list[PluginRow], profile_dir: Path) -> None:
             r.flags |= PF_USERLIST
             if low in state.cycle_plugins:
                 r.flags |= PF_UL_CYCLE
+
+
+def _apply_esl_eligibility(rows: list[PluginRow], resolved: dict[str, Path],
+                           data_dir: Path | None, game) -> None:
+    """Flag each .esp/.esm plugin as ESL-safe or ESL-unsafe (eligible / not
+    eligible for the ESL flag) using libloot, mirroring Tk
+    _refresh_esl_flagged_set.
+
+    Gated on the game's ``supports_esl_flag`` capability — no point scanning
+    games without an ESL flag (Fallout 3 / Oblivion / Morrowind). ``.esl``
+    files are always light by extension, so eligibility isn't computed for
+    them. Results are cached by (path, mtime_ns, size, game_type, version) so
+    the full-file record scan only runs when a plugin file is rewritten.
+    """
+    if not getattr(game, "supports_esl_flag", False):
+        return
+    game_type_attr = getattr(game, "loot_game_type", "") or ""
+    try:
+        from Utils.plugin_parser import check_esl_eligible
+    except Exception:
+        return
+    for r in rows:
+        low = r.name.lower()
+        # .esl files are always light by extension — not eligibility-scanned.
+        if low.endswith(".esl") or not low.endswith((".esp", ".esm")):
+            continue
+        path = resolved.get(low) or ((data_dir / r.name) if data_dir else None)
+        if path is None:
+            continue
+        try:
+            st = os.stat(str(path))
+        except OSError:
+            continue
+        elig_key = ((str(path), st.st_mtime_ns, st.st_size),
+                    game_type_attr, _ESL_ELIG_CACHE_VERSION)
+        cached = _ESL_ELIG_CACHE.get(elig_key)
+        if cached is None:
+            try:
+                cached = bool(check_esl_eligible(path, game_type_attr))
+            except Exception:
+                cached = False
+            _ESL_ELIG_CACHE[elig_key] = cached
+        r.flags |= PF_ESL_SAFE if cached else PF_ESL_UNSAFE
+
+
+def scan_bos_sp_patches(staging_root: Path | None) -> dict[str, str]:
+    """Scan staging mods for BOS (Base Object Swapper) / SkyPatcher patches.
+
+    Returns {plugin_name_lower: "bos" | "sp" | "both"} for every staged plugin
+    a patch targets. Ported 1:1 from Tk _do_scan_bos_sp:
+
+    * BOS: a mod ships ``<PluginStem>_SWAP.ini`` anywhere under it.
+    * SP:  a SkyPatcher/SkyPatcher2 INI has a ``filterByFormID = Plugin.esp|..``
+           line referencing the plugin. Patch mods target *other* mods' plugins,
+           so every mod is scanned, not just the plugin's owner.
+
+    Cached by (total staging dir mtime, staging path) so a repeat call with no
+    staging change is free. Safe to call off the UI thread (pure filesystem).
+    """
+    if staging_root is None:
+        return {}
+    staging_str = str(staging_root)
+    try:
+        total_mtime = sum(
+            d.stat().st_mtime
+            for d in staging_root.iterdir()
+            if d.is_dir()
+        )
+    except OSError:
+        total_mtime = 0.0
+    cache_key = (total_mtime, staging_str)
+    cached = _BOS_SP_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+
+    all_plugins: set[str] = set()   # all plugin basenames (lowercase) in staging
+    bos_stems: set[str] = set()     # plugin stems (lowercase) with a _SWAP.ini
+    sp_plugins: set[str] = set()    # plugin names (lowercase) in filterByFormID
+
+    try:
+        for mod_dir in staging_root.iterdir():
+            if not mod_dir.is_dir():
+                continue
+
+            search_roots = [mod_dir]
+            data_sub = mod_dir / "Data"
+            if data_sub.is_dir():
+                search_roots.append(data_sub)
+
+            # Collect plugin basenames
+            for root in search_roots:
+                try:
+                    for f in root.iterdir():
+                        if f.is_file() and f.suffix.lower() in {".esp", ".esm", ".esl"}:
+                            all_plugins.add(f.name.lower())
+                except OSError:
+                    pass
+
+            # BOS: any <stem>_SWAP.ini anywhere under the mod
+            for root in search_roots:
+                try:
+                    for f in root.rglob("*.ini"):
+                        if f.is_file() and f.name.lower().endswith("_swap.ini"):
+                            bos_stems.add(f.name.lower()[:-len("_swap.ini")])
+                except OSError:
+                    pass
+
+            # SP: parse filterByFormID lines in SkyPatcher/SkyPatcher2 INIs.
+            for sp_dir_name in ("SkyPatcher", "SkyPatcher2"):
+                sp_dir = mod_dir / "SKSE" / "Plugins" / sp_dir_name
+                if not sp_dir.is_dir():
+                    continue
+                try:
+                    for ini in sp_dir.rglob("*.ini"):
+                        if not ini.is_file():
+                            continue
+                        try:
+                            for line in ini.read_text(
+                                encoding="utf-8", errors="ignore"
+                            ).splitlines():
+                                s = line.strip()
+                                if not s or s.startswith(";"):
+                                    continue
+                                if s.lower().startswith("filterbyformid"):
+                                    eq = s.find("=")
+                                    if eq == -1:
+                                        continue
+                                    val = s[eq + 1:].strip()
+                                    if "|" in val:
+                                        ref = val.split("|")[0].strip().lower()
+                                        if ref.endswith((".esp", ".esm", ".esl")):
+                                            sp_plugins.add(ref)
+                        except (OSError, UnicodeDecodeError):
+                            pass
+                except OSError:
+                    pass
+    except OSError:
+        pass
+
+    result: dict[str, str] = {}
+    for pname in all_plugins:
+        is_bos = Path(pname).stem.lower() in bos_stems
+        is_sp = pname in sp_plugins
+        if is_bos and is_sp:
+            result[pname] = "both"
+        elif is_bos:
+            result[pname] = "bos"
+        elif is_sp:
+            result[pname] = "sp"
+
+    _BOS_SP_CACHE[cache_key] = result
+    return result
+
+
+def _apply_bos_sp(rows: list[PluginRow], staging_root: Path | None) -> None:
+    """Tag each row with its BOS/SP patch kind (see scan_bos_sp_patches)."""
+    kinds = scan_bos_sp_patches(staging_root)
+    if not kinds:
+        return
+    for r in rows:
+        r.bos_sp = kinds.get(r.name.lower(), "")
 
 
 _FILENAME_RE = re.compile(r'^Filename\(["\'](.+?)["\']\)$')

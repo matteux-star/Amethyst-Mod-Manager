@@ -62,8 +62,15 @@ def sort_key(entry: tuple[str, str, Path]) -> tuple:
 
 
 def resolve_file_path(rel_path: str, mod_name: str,
-                      staging_root: Path) -> Path | None:
-    """Resolve a filemap entry to a full path (case-insensitive fallback)."""
+                      staging_root: Path,
+                      dir_cache: dict | None = None) -> Path | None:
+    """Resolve a filemap entry to a full path (case-insensitive fallback).
+
+    *dir_cache* — optional {dir_path: {lower_name: real_name}} memo shared across
+    calls. Filemap entries under the same mod share parent directories, so caching
+    each directory's case-folded listing turns the fallback from O(entries × depth)
+    ``iterdir`` calls into one listing per directory. Pass an empty dict once per
+    scan; omit it (None) for a one-off resolve."""
     if staging_root is None:
         return None
     from Utils.filemap import OVERWRITE_NAME, ROOT_FOLDER_NAME
@@ -77,16 +84,30 @@ def resolve_file_path(rel_path: str, mod_name: str,
     exact = base / rel_path
     if exact.exists():
         return exact
+
+    def _listing(d: Path) -> dict | None:
+        """{lower_name: real_name} for directory *d*, or None if not a dir."""
+        if dir_cache is not None:
+            cached = dir_cache.get(d)
+            if cached is not None:
+                return cached if cached else None
+        try:
+            entries = {c.name.lower(): c.name for c in d.iterdir()}
+        except OSError:
+            entries = {}
+        if dir_cache is not None:
+            dir_cache[d] = entries
+        return entries or None
+
     current = base
     for segment in rel_path.split("/"):
-        if not current.is_dir():
+        listing = _listing(current)
+        if listing is None:
             return exact
-        seg_lower = segment.lower()
-        match = next((c for c in current.iterdir()
-                      if c.name.lower() == seg_lower), None)
-        if match is None:
+        real = listing.get(segment.lower())
+        if real is None:
             return exact
-        current = match
+        current = current / real
     return current
 
 
@@ -141,19 +162,35 @@ def _collect_mygames_files(game, exts: frozenset) -> list[tuple[str, Path]]:
         mygames = Path(mygames)
         if not mygames.is_dir():
             continue
-        try:
-            for fpath in mygames.rglob("*"):
-                if fpath.suffix.lower() not in exts:
-                    continue
-                if fpath.is_symlink() or not fpath.is_file():
-                    continue
-                rel = fpath.relative_to(mygames).as_posix()
-                if rel in seen:
-                    continue
-                seen.add(rel)
-                out.append((rel, fpath))
-        except OSError:
-            continue
+        stack = [str(mygames)]
+        while stack:
+            try:
+                scan = os.scandir(stack.pop())
+            except OSError:
+                continue
+            with scan:
+                for de in scan:
+                    try:
+                        if de.is_dir(follow_symlinks=False):
+                            stack.append(de.path)
+                            continue
+                    except OSError:
+                        continue
+                    name = de.name
+                    dot = name.rfind(".")
+                    if dot < 0 or name[dot:].lower() not in exts:
+                        continue
+                    try:
+                        if de.is_symlink() or not de.is_file():
+                            continue
+                    except OSError:
+                        continue
+                    fpath = Path(de.path)
+                    rel = fpath.relative_to(mygames).as_posix()
+                    if rel in seen:
+                        continue
+                    seen.add(rel)
+                    out.append((rel, fpath))
     return out
 
 
@@ -165,34 +202,55 @@ def discover_text_files(game, profile_dir: Path | None,
     path (recursive game + My Games scans)."""
     entries: list[tuple[str, str, Path]] = []
 
-    # 1. Mod-deployed text files (filemap).
+    # 1. Mod-deployed text files (filemap). Entries under the same mod share
+    #    parent dirs, so a listing cache makes the case-insensitive fallback
+    #    resolve each directory once instead of per-file.
     if filemap_path and Path(filemap_path).is_file() and staging_root is not None:
+        dir_cache: dict = {}
         for rel, mod in _parse_filemap(Path(filemap_path)):
-            if Path(rel).suffix.lower() not in TEXT_EXTENSIONS:
+            dot = rel.rfind(".")
+            slash = max(rel.rfind("/"), rel.rfind("\\"))
+            if dot <= slash or rel[dot:].lower() not in TEXT_EXTENSIONS:
                 continue
-            full = resolve_file_path(rel, mod, staging_root)
+            full = resolve_file_path(rel, mod, staging_root, dir_cache)
             if full is not None:
                 entries.append((rel, mod, full))
 
-    # 2. Vanilla game folder (skip symlinks/hardlinks = deployed files).
+    # 2. Vanilla game folder (skip symlinks/hardlinks = deployed files). Use
+    #    os.walk + scandir so the extension check (cheap) gates the stat (costly)
+    #    — most game files aren't text and never get stat'd.
     game_path = (game.get_game_path()
                  if game and hasattr(game, "get_game_path") else None)
     if game_path and Path(game_path).is_dir():
         root = Path(game_path)
-        try:
-            for fpath in root.rglob("*"):
-                if fpath.suffix.lower() not in TEXT_EXTENSIONS:
-                    continue
-                try:
-                    st = fpath.stat()
-                except OSError:
-                    continue
-                if fpath.is_symlink() or st.st_nlink > 1:
-                    continue
-                entries.append((fpath.relative_to(root).as_posix(),
-                                SRC_GAME, fpath))
-        except OSError:
-            pass
+        stack = [str(root)]
+        while stack:
+            try:
+                scan = os.scandir(stack.pop())
+            except OSError:
+                continue
+            with scan:
+                for de in scan:
+                    try:
+                        if de.is_dir(follow_symlinks=False):
+                            stack.append(de.path)
+                            continue
+                    except OSError:
+                        continue
+                    name = de.name
+                    dot = name.rfind(".")
+                    if dot < 0 or name[dot:].lower() not in TEXT_EXTENSIONS:
+                        continue
+                    try:
+                        if de.is_symlink() or not de.is_file():
+                            continue
+                        if de.stat(follow_symlinks=False).st_nlink > 1:
+                            continue
+                    except OSError:
+                        continue
+                    fpath = Path(de.path)
+                    entries.append((fpath.relative_to(root).as_posix(),
+                                    SRC_GAME, fpath))
 
     # 3. Profile folder.
     if profile_dir is not None:

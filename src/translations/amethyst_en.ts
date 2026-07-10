@@ -1441,6 +1441,10 @@ The Creation Kit can also occasionally crash on startup under Proton (a known Wi
 <context>
     <name>DataView</name>
     <message>
+        <source>Loading…</source>
+        <translation>Loading…</translation>
+    </message>
+    <message>
         <source>Deployed files</source>
         <translation>Deployed files</translation>
     </message>
@@ -2163,6 +2167,30 @@ When ESLifier finishes, it writes its output as the
         <translation>Managed by userlist</translation>
     </message>
     <message>
+        <source>Bash-tagged</source>
+        <translation>Bash-tagged</translation>
+    </message>
+    <message>
+        <source>ESL-safe (eligible for ESL flag)</source>
+        <translation>ESL-safe (eligible for ESL flag)</translation>
+    </message>
+    <message>
+        <source>ESL-unsafe (too many records)</source>
+        <translation>ESL-unsafe (too many records)</translation>
+    </message>
+    <message>
+        <source>BOS/SP-patched</source>
+        <translation>BOS/SP-patched</translation>
+    </message>
+    <message>
+        <source>BOS-patched</source>
+        <translation>BOS-patched</translation>
+    </message>
+    <message>
+        <source>SkyPatcher-patched</source>
+        <translation>SkyPatcher-patched</translation>
+    </message>
+    <message>
         <source>Show only installed</source>
         <translation>Show only installed</translation>
     </message>
@@ -2412,6 +2440,13 @@ The original exe is kept as {0}.</translation>
     <message>
         <source>Cancel</source>
         <translation>Cancel</translation>
+    </message>
+</context>
+<context>
+    <name>LoadingOverlay</name>
+    <message>
+        <source>Loading…</source>
+        <translation>Loading…</translation>
     </message>
 </context>
 <context>
@@ -2798,6 +2833,10 @@ The original exe is kept as {0}.</translation>
     <message>
         <source>Language files updated — restart to apply.</source>
         <translation>Language files updated — restart to apply.</translation>
+    </message>
+    <message>
+        <source>Your Nexus session expired — please log in again (Nexus ▸ Login to Nexus).</source>
+        <translation>Your Nexus session expired — please log in again (Nexus ▸ Login to Nexus).</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -3628,6 +3667,30 @@ Remove the appended-collection entry?</translation>
         <translation>{0} plugins ({1} ESL, {2} non-ESL)</translation>
     </message>
     <message>
+        <source>LOOT library not available — cannot check overlap.</source>
+        <translation>LOOT library not available — cannot check overlap.</translation>
+    </message>
+    <message>
+        <source>An overlap check is already running.</source>
+        <translation>An overlap check is already running.</translation>
+    </message>
+    <message>
+        <source>Checking record overlap for {0}…</source>
+        <translation>Checking record overlap for {0}…</translation>
+    </message>
+    <message>
+        <source>Overlap check failed — see log.</source>
+        <translation>Overlap check failed — see log.</translation>
+    </message>
+    <message>
+        <source>{0}: no record overlap with other plugins.</source>
+        <translation>{0}: no record overlap with other plugins.</translation>
+    </message>
+    <message>
+        <source>{0} overlaps {1} plugin(s) — highlighted in list</source>
+        <translation>{0} overlaps {1} plugin(s) — highlighted in list</translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>Plugins</translation>
     </message>
@@ -3960,6 +4023,10 @@ Deploy anyway?</translation>
     <message>
         <source>Copy to profile ({0})</source>
         <translation>Copy to profile ({0})</translation>
+    </message>
+    <message>
+        <source>Create an empty mod below</source>
+        <translation>Create an empty mod below</translation>
     </message>
     <message>
         <source>Create empty mod below</source>

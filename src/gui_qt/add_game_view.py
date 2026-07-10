@@ -257,43 +257,102 @@ class AddGameView(QWidget):
         Emits _installed_scanned with the set of matching game names. Never
         touches Qt widgets directly (see project memory on worker threads)."""
         from gui_qt.safe_emit import safe_emit
-        try:
-            from Utils.steam_finder import (
-                find_steam_libraries, find_game_by_steam_id, find_game_in_libraries)
-            from Utils.heroic_finder import (
-                find_heroic_game, find_heroic_game_info_by_exe)
-        except Exception:
-            safe_emit(self._installed_scanned, set())
-            return
 
-        libraries = find_steam_libraries()
+        def _log(msg: str) -> None:
+            try:
+                from Utils.app_log import app_log
+                app_log(f"add-game scan: {msg}")
+            except Exception:
+                pass
+
         installed: set[str] = set()
-        for name, game in self._games.items():
-            found = False
-            all_exe = [game.exe_name] + list(getattr(game, "exe_name_alts", []))
-            steam_id = getattr(game, "steam_id", "")
-            if steam_id and libraries:
-                if find_game_by_steam_id(libraries, steam_id, game.exe_name):
-                    found = True
-            if not found and libraries:
-                for exe in all_exe:
-                    if find_game_in_libraries(libraries, exe):
-                        found = True
-                        break
-            if not found:
-                heroic_names = getattr(game, "heroic_app_names", [])
-                if heroic_names and find_heroic_game(heroic_names):
-                    found = True
-            if not found:
-                for exe in all_exe:
-                    bare_exe = exe.replace("\\", "/").rsplit("/", 1)[-1]
-                    if find_heroic_game_info_by_exe(bare_exe):
-                        found = True
-                        break
-            if found:
-                installed.add(name)
-        from gui_qt.safe_emit import safe_emit
+        # Outer guard: no matter what fails below, we always emit the result so
+        # the loading overlay is cleared and the user can still add games.
+        try:
+            try:
+                from Utils.steam_finder import (
+                    find_steam_libraries, find_game_by_steam_id, find_game_in_libraries)
+                from Utils.heroic_finder import (
+                    find_heroic_game, find_heroic_game_info_by_exe)
+            except Exception as exc:
+                import traceback
+                _log(f"finder imports failed, skipping detection: {exc}\n"
+                     f"{traceback.format_exc()}")
+                safe_emit(self._installed_scanned, set())
+                return
+
+            try:
+                libraries = find_steam_libraries()
+            except Exception as exc:
+                import traceback
+                _log(f"find_steam_libraries failed, continuing with none: {exc}\n"
+                     f"{traceback.format_exc()}")
+                libraries = []
+
+            for name, game in self._games.items():
+                # Per-game guard: one malformed game definition (e.g. a synced
+                # custom handler missing exe_name) must not abort the whole scan.
+                try:
+                    found = self._detect_game_installed(
+                        game, libraries,
+                        find_game_by_steam_id, find_game_in_libraries,
+                        find_heroic_game, find_heroic_game_info_by_exe, _log)
+                except Exception as exc:
+                    import traceback
+                    _log(f"detection failed for game '{name}', treating as "
+                         f"not installed: {exc}\n{traceback.format_exc()}")
+                    found = False
+                if found:
+                    installed.add(name)
+        except Exception as exc:
+            import traceback
+            _log(f"scan aborted unexpectedly: {exc}\n{traceback.format_exc()}")
+
         safe_emit(self._installed_scanned, installed)
+
+    def _detect_game_installed(self, game, libraries, find_game_by_steam_id,
+                               find_game_in_libraries, find_heroic_game,
+                               find_heroic_game_info_by_exe, _log) -> bool:
+        """Returns True if `game` appears installed. Each finder is guarded so a
+        failure in one path (corrupt Steam vdf, unreadable Heroic config,
+        unmounted drive) falls through to the next path instead of raising."""
+        exe_name = getattr(game, "exe_name", "") or ""
+        all_exe = [exe_name] + list(getattr(game, "exe_name_alts", []) or [])
+        all_exe = [e for e in all_exe if e]
+        steam_id = getattr(game, "steam_id", "")
+
+        if steam_id and libraries:
+            try:
+                if find_game_by_steam_id(libraries, steam_id, exe_name):
+                    return True
+            except Exception as exc:
+                _log(f"find_game_by_steam_id failed (steam_id={steam_id!r}): {exc}")
+
+        if libraries:
+            for exe in all_exe:
+                try:
+                    if find_game_in_libraries(libraries, exe):
+                        return True
+                except Exception as exc:
+                    _log(f"find_game_in_libraries failed (exe={exe!r}): {exc}")
+
+        heroic_names = getattr(game, "heroic_app_names", []) or []
+        if heroic_names:
+            try:
+                if find_heroic_game(heroic_names):
+                    return True
+            except Exception as exc:
+                _log(f"find_heroic_game failed (names={heroic_names!r}): {exc}")
+
+        for exe in all_exe:
+            bare_exe = exe.replace("\\", "/").rsplit("/", 1)[-1]
+            try:
+                if find_heroic_game_info_by_exe(bare_exe):
+                    return True
+            except Exception as exc:
+                _log(f"find_heroic_game_info_by_exe failed (exe={bare_exe!r}): {exc}")
+
+        return False
 
     def _on_installed_scanned(self, installed: set):
         self._installed_game_names = installed

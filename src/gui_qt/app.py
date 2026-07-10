@@ -171,6 +171,9 @@ class MainWindow(QMainWindow):
     # Carries (generation, ConflictData) from a worker thread to the UI thread
     # (queued connection — thread-safe). See _rebuild_conflicts_async.
     _conflicts_ready = Signal(int, object)
+    # (generation, bsa_codes, bsa_overrides, bsa_overridden_by) — BSA-only
+    # recompute after a plugin toggle/reorder (no filemap rebuild).
+    _bsa_conflicts_ready = Signal(int, object, object, object)
     # (generation, list[FrameworkStatus]) from the framework-detect worker —
     # detect_frameworks reads filemap.txt + the mod index, too slow for the UI
     # thread on a big modlist. See _refresh_framework_banner.
@@ -288,6 +291,7 @@ class MainWindow(QMainWindow):
         self._gs = GameState()
         self._gs.load()
         self._conflicts_ready.connect(self._on_conflicts_ready)
+        self._bsa_conflicts_ready.connect(self._on_bsa_conflicts_ready)
         self._framework_statuses_ready.connect(self._on_framework_statuses)
         # Drops stale framework-detect results (game switched mid-compute).
         self._framework_gen = 0
@@ -2107,13 +2111,27 @@ class MainWindow(QMainWindow):
         captured rate limits the footer can read."""
         if getattr(self, "_nexus_api", None) is not None:
             return self._nexus_api
-        from Nexus.nexus_oauth import load_oauth_tokens
+        from Nexus.nexus_oauth import load_oauth_tokens, clear_oauth_tokens, OAuthRefreshError
         from Nexus.nexus_api import NexusAPI
         tokens = load_oauth_tokens()
         if tokens is None:
             return None
         try:
             self._nexus_api = NexusAPI.from_oauth(tokens)
+        except OAuthRefreshError as exc:
+            self._append_log(f"[nexus] api init failed: {exc}")
+            # A dead (rotated-out / revoked) refresh token wedges every future
+            # launch — clear it so the next attempt starts from a clean login.
+            # A transient network failure leaves the token in place to retry.
+            if exc.token_revoked:
+                clear_oauth_tokens()
+                self._append_log("[nexus] cleared expired login — please log in again")
+                self._notify(
+                    self.tr("Your Nexus session expired — please log in again "
+                            "(Nexus ▸ Login to Nexus)."),
+                    "warning",
+                )
+            return None
         except Exception as exc:
             self._append_log(f"[nexus] api init failed: {exc}")
             return None
@@ -4504,11 +4522,25 @@ class MainWindow(QMainWindow):
             key="missing_reqs")
 
     def _close_missing_reqs_tab(self):
-        """Close the Missing Requirements panel + refresh flags (an Ignore toggle
-        may have changed which mods are flagged)."""
+        """Close the Missing Requirements panel. Only refresh flags when an Ignore
+        toggle actually changed the ignored set (a plain open/close changes
+        nothing) — and via the light flag path, not a full modlist reload."""
+        view = getattr(self, "_missing_reqs_view", None)
+        changed = bool(getattr(view, "ignored_changed", False))
         if self._tabs.has_key("missing_reqs"):
             self._tabs.close_tab("missing_reqs")
-        self._reload_modlist()
+        if changed:
+            # Re-read the on-disk ignored set the panel just wrote, then let the
+            # light path recompute the ⚠ flag from it (no 500-file reload).
+            pdir = self._gs.profile_dir()
+            if pdir is not None:
+                try:
+                    from Utils.profile_state import read_ignored_missing_requirements
+                    self._ignored_missing_reqs = frozenset(
+                        read_ignored_missing_requirements(pdir))
+                except Exception:
+                    pass
+            self._refresh_modlist_flags()
 
     # ---- Show Conflicts (full detachable tab) ------------------------------
     def _open_show_conflicts_tab(self, mod_name: str):
@@ -7168,12 +7200,17 @@ class MainWindow(QMainWindow):
         self._modlist_model.save_failed.connect(
             lambda msg: self._notify(msg, "error"))
         self._modlist_view = ModListView(self._modlist_model)
-        # Column-sort rebuilds reorder rows in place (layoutChanged); the
-        # search/filter hidden sets are display-row-indexed and must be
-        # recomputed. Connected AFTER the view (its own layoutChanged hooks
-        # must clear the applied-hidden cache + spanning first).
-        self._modlist_model.layoutChanged.connect(
-            self._on_modlist_layout_changed)
+        # Search/filter hidden sets are row-indexed, so any structural change
+        # (reorder/insert/remove) leaves them misaligned and must be recomputed
+        # from the current entries — the view's own handler only re-applies the
+        # STALE indices, so search would skip/mis-show rows until a full reload.
+        # Connected AFTER the view so its cache-drop + re-span run first.
+        # modelReset is handled by _reload_modlist's explicit reapply.
+        for sig in (self._modlist_model.layoutChanged,
+                    self._modlist_model.rowsMoved,
+                    self._modlist_model.rowsInserted,
+                    self._modlist_model.rowsRemoved):
+            sig.connect(self._on_modlist_layout_changed)
         return self._modlist_view
 
     def _on_modlist_layout_changed(self, *_a):
@@ -8588,6 +8625,9 @@ class MainWindow(QMainWindow):
         # Persistent red marker-strip ticks for plugins with missing masters
         # (Tk parity) — recomputed from the freshly-loaded PF_MISSING flags.
         self._plugin_view.refresh_missing_marker()
+        # Red marker-strip ticks for plugins whose userlist rules form a broken
+        # cycle — recomputed from the freshly-loaded PF_UL_CYCLE flags.
+        self._plugin_view.refresh_cycle_marker()
         # Resolved plugin paths (name.lower → on-disk path) power the master-
         # highlight on plugin selection; clear any stale master ticks.
         self._plugin_paths = paths
@@ -8916,8 +8956,13 @@ class MainWindow(QMainWindow):
 
         def sort():
             from LOOT.loot_sorter import sort_plugins
+            from Utils.app_log import app_log
+            # Route libloot's status lines (and, via run_in_worker's exception
+            # handler, cyclic-dependency / sort-failure messages) to the visible
+            # log panel — Tk did this with self._log; the Qt port had dropped it
+            # to a stdout print(), so users never saw why a sort failed.
             return sort_plugins(
-                log_fn=lambda m: print(f"[loot] {m}", flush=True), **kw)
+                log_fn=lambda m: app_log(f"[loot] {m}"), **kw)
 
         run_in_worker(sort, self._sort_plugins_ready, name="loot-sort")
 
@@ -9015,8 +9060,9 @@ class MainWindow(QMainWindow):
 
         def check():
             from LOOT.loot_sorter import find_overlapping_plugins
+            from Utils.app_log import app_log
             overlaps = find_overlapping_plugins(
-                log_fn=lambda m: print(f"[loot] {m}", flush=True), **kw)
+                log_fn=lambda m: app_log(f"[loot] {m}"), **kw)
             return (plugin_name, overlaps)
 
         # error_result carries the target name with a None payload so the apply
@@ -9115,6 +9161,52 @@ class MainWindow(QMainWindow):
         if gen != self._framework_gen or not hasattr(self, "_framework_banner"):
             return
         self._framework_banner.set_statuses(statuses)
+
+    def _recompute_bsa_conflicts_async(self):
+        """A plugin toggle/reorder changed the plugin load order. BSAs load at
+        their plugin's position, so BSA conflict winners may have changed — but
+        the deployed file set (filemap.txt / modindex.bin), loose conflicts,
+        plugin ownership and framework states are all unaffected. So recompute
+        ONLY the BSA conflicts off-thread (re-reads the freshly-written
+        loadorder.txt) and repaint just the BSA icons on the modlist — instead
+        of the full _rebuild_conflicts_async, which rebuilds the filemap and
+        reloads both the modlist and the Plugins panel. Tk parity: plugin
+        toggle → recompute_bsa_conflicts (BSA-only), NOT a filemap rebuild."""
+        import threading
+        g = self._gs.game
+        if g is None or not self._gs.profile:
+            return
+        gen = getattr(self, "_bsa_conflict_gen", 0) + 1
+        self._bsa_conflict_gen = gen
+
+        def worker():
+            try:
+                bsa_codes, bsa_over, bsa_overby = self._gs._build_bsa_conflicts(
+                    g, lambda _m: None)
+            except Exception as exc:
+                print(f"[gui_qt] BSA recompute failed: {exc}", flush=True)
+                return
+            self._bsa_conflicts_ready.emit(gen, bsa_codes, bsa_over, bsa_overby)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_bsa_conflicts_ready(self, gen, bsa_codes, bsa_over, bsa_overby):
+        if gen != getattr(self, "_bsa_conflict_gen", 0):
+            return   # superseded by a newer plugin toggle
+        # Keep the cached conflict data's BSA maps in sync so a later full
+        # rebuild path / highlight lookup sees the current winners.
+        if getattr(self, "_conflict_data", None) is not None:
+            self._conflict_data.bsa_codes = bsa_codes
+            self._conflict_data.bsa_overrides = bsa_over
+            self._conflict_data.bsa_overridden_by = bsa_overby
+        self._modlist_model.set_bsa_conflicts(bsa_codes)
+        # Cross-panel highlights follow the BSA override maps (loose maps unchanged).
+        loose_over = loose_overby = None
+        if getattr(self, "_conflict_data", None) is not None:
+            loose_over = self._conflict_data.overrides
+            loose_overby = self._conflict_data.overridden_by
+        self._modlist_view.set_conflict_maps(
+            loose_over or {}, loose_overby or {}, bsa_over, bsa_overby)
 
     def _rebuild_conflicts_async(self, rescan_index: bool = False):
         """Build the filemap off-thread; the worker emits _conflicts_ready
@@ -9436,10 +9528,14 @@ class MainWindow(QMainWindow):
         # columns (one colored row per framework the game declares).
         self._plugin_model = PluginModel()
         # A plugin reorder/toggle changes BSA load order (BSAs load at their
-        # plugin's position), so recompute conflicts when the order is saved —
-        # reuses the same rebuild path as mod toggles. _build_bsa_conflicts
-        # re-reads the freshly-written loadorder.txt.
-        self._plugin_model.order_changed.connect(self._rebuild_conflicts_async)
+        # plugin's position), so recompute BSA conflicts when the order is saved.
+        # BSA-ONLY: a plugin toggle doesn't touch the deployed file set, so the
+        # filemap/modindex, loose conflicts and the Plugins panel itself are all
+        # unaffected — recompute just the BSA winners (re-reads the freshly-
+        # written loadorder.txt) instead of a full filemap rebuild + modlist/
+        # plugins reload. Tk parity: recompute_bsa_conflicts.
+        self._plugin_model.order_changed.connect(
+            self._recompute_bsa_conflicts_async)
         self._plugin_model.save_failed.connect(
             lambda msg: self._notify(msg, "error"))
         self._plugin_view = PluginView(self._plugin_model)
@@ -9719,6 +9815,7 @@ class MainWindow(QMainWindow):
         else:
             total = self._vsplit.height()
             self._vsplit.setSizes([total - 180, 180])             # open ~180px
+            self._log_view.moveCursor(QTextCursor.End)            # scroll to newest
         self._sync_log_controls()
 
     def _sync_log_controls(self):
@@ -10131,7 +10228,7 @@ def _apply_app_identity(app) -> None:
     if os.environ.get("FLATPAK_ID") == "io.github.Amethyst.ModManager":
         app.setDesktopFileName("io.github.Amethyst.ModManager")
     elif os.environ.get("APPDIR") or os.environ.get("APPIMAGE"):
-        app.setDesktopFileName("mod-manager")
+        app.setDesktopFileName("amethyst-mod-manager")
 
 
 def run() -> int:
@@ -10214,6 +10311,21 @@ def run() -> int:
         _splash = None
 
     win = MainWindow(app, splash=_splash)
+    # Route stderr + uncaught tracebacks into the log panel now that the log
+    # sink (set_app_log) is wired by MainWindow.__init__. Best-effort — a
+    # failure here must never block startup.
+    try:
+        from Utils.stderr_capture import (
+            install as _install_stderr_capture,
+            install_faulthandler as _install_faulthandler,
+        )
+        _install_stderr_capture()
+        # Native crashes (segfaults from Qt/C code) can't reach a Python hook —
+        # faulthandler dumps a C-level traceback to a file in the logs dir so a
+        # crashed user still has something to share.
+        _install_faulthandler()
+    except Exception:
+        pass
     # Show the window immediately so its layout gets a real size (the deferred
     # singleShot(0) setup in __init__ reads live widget heights), but at zero
     # opacity so nothing is visibly rendered behind the splash while it loads.

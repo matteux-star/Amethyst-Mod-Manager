@@ -182,6 +182,40 @@ for _l in libQt6Core libQt6Gui libQt6Widgets libQt6DBus libQt6Network \
     done
 done
 
+# ── Resolve libshiboken6 / libpyside6 ────────────────────────────────
+_pyside_dir="$(/usr/bin/python3 -c 'import PySide6, os; print(os.path.dirname(PySide6.__file__))')"
+[ -n "$_pyside_dir" ] && [ -d "$_pyside_dir" ] || {
+    echo "ERROR: could not locate the PySide6 package directory" >&2; exit 1; }
+_site_dir="$(dirname "$_pyside_dir")"     # site-packages/ (holds shiboken6/)
+_pyside_libs=()
+_seen_names=""
+for _root in \
+    "$_pyside_dir" \
+    "$_site_dir/shiboken6" \
+    /usr/lib; do
+    [ -d "$_root" ] || continue
+    for _so in \
+        "$_root"/libshiboken6.*.so* \
+        "$_root"/libpyside6.*.so* \
+        "$_root"/Shiboken.*.so; do
+        [ -e "$_so" ] || continue
+        # de-dup by basename (a lib may be reachable from >1 root)
+        case " $_seen_names " in *" $(basename "$_so") "*) continue ;; esac
+        _seen_names="$_seen_names $(basename "$_so")"
+        _pyside_libs+=("$_so")
+    done
+done
+# Both core libs are mandatory — fail loudly if either is missing rather
+# than shipping an AppImage that ImportErrors on the user's machine.
+case "$_seen_names" in *libshiboken6.*) : ;; *)
+    echo "ERROR: libshiboken6 not found (searched $_pyside_dir, $_site_dir/shiboken6, /usr/lib)" >&2
+    exit 1 ;; esac
+case "$_seen_names" in *libpyside6.*) : ;; *)
+    echo "ERROR: libpyside6 not found (searched $_pyside_dir, $_site_dir/shiboken6, /usr/lib)" >&2
+    exit 1 ;; esac
+echo "  PySide6 runtime libs deployed:"
+printf '    %s\n' "${_pyside_libs[@]}"
+
 echo "=== Running quick-sharun ==="
 # Stdlib extension modules in lib-dynload are dlopened at runtime, so
 # quick-sharun's per-binary ldd trace never sees their DT_NEEDED entries
@@ -202,6 +236,7 @@ quick-sharun \
     /usr/lib/libuuid.so*               \
     /usr/lib/libmpdec.so*              \
     "${_qt_args[@]}"                   \
+    "${_pyside_libs[@]}"               \
     $( [ -f "$AUX_DIR/bin/bsdtar" ] && printf %s "$AUX_DIR/bin/bsdtar" )
 
 # Rewrite the wrapper's /usr/share path to "$APPDIR"/share — quick-sharun's
@@ -226,13 +261,26 @@ install -Dm644 "${ASSETS_DIR}/mod-manager.png" \
 
 # ── Build the AppImage ───────────────────────────────────────────────
 echo "=== Building AppImage ==="
+# OUTNAME: appimagetool reads this from the env — naming the output here
+# (instead of renaming afterwards) keeps the generated .zsync consistent
+# with the final filename.
+# UPINFO: embedded update info + .zsync generation. Set explicitly so the
+# zsync glob matches OUTNAME; without this appimagetool guesses the same
+# thing from GITHUB_REPOSITORY, but the docs say not to rely on the guess.
+_gh_repo="${GITHUB_REPOSITORY:-ChrisDKN/Amethyst-Mod-Manager}"
+export OUTNAME="AmethystModManager-${VERSION}-${ARCH}.AppImage"
+export UPINFO="gh-releases-zsync|${_gh_repo%/*}|${_gh_repo#*/}|latest|*${ARCH}.AppImage.zsync"
 quick-sharun --make-appimage
 
-RAW_OUT=$(find "$OUTPATH" -maxdepth 2 -name '*.AppImage' -type f | head -1)
-FINAL="${FINAL_OUTPATH}/AmethystModManager-${VERSION}-${ARCH}.AppImage"
-if [ -n "$RAW_OUT" ]; then
-    mv "$RAW_OUT" "$FINAL"
+FINAL="${FINAL_OUTPATH}/${OUTNAME}"
+if [ -f "$OUTPATH/$OUTNAME" ]; then
+    mv "$OUTPATH/$OUTNAME" "$FINAL"
 fi
+# The .zsync must be published next to the AppImage for the embedded
+# update info to work (AppImageUpdate / Gear Lever / appimaged).
+for _zs in "$OUTPATH"/*.zsync; do
+    [ -e "$_zs" ] && mv "$_zs" "$FINAL_OUTPATH/"
+done
 
 echo ""
 echo "=== Build complete ==="

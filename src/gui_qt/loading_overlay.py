@@ -4,8 +4,9 @@ A small reusable widget that shows the application logo centered over its parent
 widget as a static "loading…" indicator. Call ``show_over(parent)`` to (re)parent
 + resize it to cover *parent* and show it; ``hide_overlay()`` hides it.
 
-Used by the card-grid views (Add-Game, Nexus browser, Collections browser) to
-give visual feedback while their contents fetch on a worker thread. A static
+Used by the card-grid views (Add-Game, Nexus browser, Collections browser) and
+the Data / Text Files tab trees to give visual feedback while their contents
+fetch on a worker thread. A static
 image is used (not an animated gif) because the animation can't be driven
 reliably while the GUI thread is busy building the panel's contents.
 """
@@ -52,7 +53,7 @@ class LoadingOverlay(QWidget):
                 Qt.KeepAspectRatio, Qt.SmoothTransformation))
         lay.addWidget(self._logo)
 
-        self._text = QLabel("Loading…")
+        self._text = QLabel(self.tr("Loading…"))
         self._text.setAlignment(Qt.AlignCenter)
         self._text.setStyleSheet("color: white; font-size: 15px; font-weight: 600;")
         lay.addWidget(self._text)

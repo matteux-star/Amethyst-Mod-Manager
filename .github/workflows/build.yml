@@ -120,17 +120,6 @@ jobs:
     runs-on: ubuntu-latest
     container: ghcr.io/pkgforge-dev/archlinux:latest
     steps:
-      - name: Free disk space on runner
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-
       - uses: actions/checkout@v4
 
       # anylinux-setup-action downloads three helper scripts from
@@ -217,10 +206,13 @@ jobs:
       - name: Install debloated packages
         run: |
           # icu-mini: ICU is qt6-base's largest dependency; libxml2-mini:
-          # small, still a transitive dep.
+          # small, still a transitive dep. qt6-base-mini: debloated qt6-base
+          # (provides/replaces the full package pyside6 pulled in above) —
+          # same variant upstream pkgforge Qt AppImages ship.
           get-debloated-pkgs \
               icu-mini \
-              libxml2-mini
+              libxml2-mini \
+              qt6-base-mini
 
       - name: Create makepkg build user
         run: |
@@ -242,8 +234,6 @@ jobs:
         run: df -h && du -sh /tmp 2>/dev/null || true
 
       - name: Build AppImage
-        env:
-          ANYLINUX_LIB: '1'
         run: bash src/appimage/make-appimage.sh
 
       - name: Disk space after build
@@ -253,8 +243,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: AmethystModManager-AppImage
-          path: src/appimage/dist/*.AppImage
+          path: src/appimage/dist/*
           if-no-files-found: error
+
+      - name: Smoke test AppImage
+        run: quick-sharun --test src/appimage/dist/*.AppImage
 
   # ────────────────────────────────────────────────────────────────────
   # Flatpak bundle (KDE 6.9 runtime + PySide BaseApp).

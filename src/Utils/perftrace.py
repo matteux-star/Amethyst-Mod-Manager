@@ -9,13 +9,13 @@ one line to stderr with its duration. Cumulative per-label stats accumulate so
 you can press a key to see the worst offenders across a whole session.
 
 This is the timing twin of ``memtrace.py`` (which tracks memory). Same
-conventions: auto-on from source, env override, stderr output (teed live to the
-terminal and run-stderr.log by run.sh).
+conventions: opt-in via env var, stderr output (teed live to the terminal and
+run-stderr.log by run.sh).
 
 Usage
 -----
-- Auto-enabled when run from source; force with ``MM_PERFTRACE=1`` / disable
-  with ``MM_PERFTRACE=0``.
+- Opt-in: off by default. Enable with ``MM_PERFTRACE=1`` (disable again with
+  ``MM_PERFTRACE=0`` or by unsetting it).
 - Wrap a block::
 
       from Utils import perftrace
@@ -62,19 +62,13 @@ _ENABLED: bool | None = None     # cached is_enabled()
 _THRESHOLD_S: float | None = None
 
 
-def _running_from_source() -> bool:
-    """True when not launched via the AppImage (run.sh unsets these)."""
-    return not any(os.environ.get(k) for k in ("APPDIR", "APPIMAGE", "SHARUN_DIR"))
-
-
 def is_enabled() -> bool:
     global _ENABLED
     if _ENABLED is None:
         val = os.environ.get("MM_PERFTRACE")
-        if val is not None:
-            _ENABLED = val not in ("0", "", "false", "False")
-        else:
-            _ENABLED = _running_from_source()
+        # Opt-in only: off unless MM_PERFTRACE is explicitly set to a truthy
+        # value. Previously auto-on from source, which cluttered the log.
+        _ENABLED = val is not None and val not in ("0", "", "false", "False")
     return _ENABLED
 
 
