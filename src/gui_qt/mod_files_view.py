@@ -43,6 +43,7 @@ class ModFilesView(QWidget):
         self._inc_exts: set[str] = set()
         self._exc_exts: set[str] = set()
         self._ext_counts: dict[str, int] = {}
+        self._needs_repopulate = False
         self._build()
 
     # -- context ------------------------------------------------------------
@@ -156,15 +157,42 @@ class ModFilesView(QWidget):
             self._label.setText(self.tr("(no mod selected)"))
             self._model.clear()
             self._ext_counts = {}
+            self._needs_repopulate = False
             self.filetypes_changed.emit()
             return
         self._label.setText(mod_name)
         self._stripped = mflogic.read_strip_prefixes(self.profile_dir, mod_name)
-        self._repopulate()
+        self._request_repopulate()
+
+    def _request_repopulate(self):
+        """Defer the (expensive: live disk scan + conflict cache) tree rebuild
+        off the caller's stack. show_mod runs inside the modlist selection
+        handler — rebuilding synchronously there blocks the conflict
+        highlights/marker-strip repaint for seconds on a file-heavy mod. While
+        this tab is hidden (e.g. the Plugins sub-tab is showing) skip the work
+        entirely and do it on show instead; when visible, coalesce onto a
+        0-timer so the selection handler returns and paints first."""
+        if not self.isVisible():
+            self._needs_repopulate = True
+            return
+        t = getattr(self, "_repop_timer", None)
+        if t is None:
+            t = QTimer(self)
+            t.setSingleShot(True)
+            t.setInterval(0)
+            t.timeout.connect(self._repopulate)
+            self._repop_timer = t
+        t.start()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if getattr(self, "_needs_repopulate", False):
+            self._repopulate()
 
     def _repopulate(self):
         """Rebuild the tree from disk/index + the current strip/exclude/filter
         state, preserving expand state by path."""
+        self._needs_repopulate = False
         mod_name = self._mod_name
         if mod_name is None:
             return

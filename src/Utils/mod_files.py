@@ -18,6 +18,7 @@ no GUI toolkit imported.
 
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 
 from Utils.profile_state import (
@@ -101,6 +102,15 @@ def _mod_dir_for(game, mod_name: str) -> Path | None:
 # ---------------------------------------------------------------------------
 # Conflict cache — which post-strip keys are contested + the filemap winner
 # ---------------------------------------------------------------------------
+# Single-slot result cache. Counting every key of every enabled mod (plus
+# re-parsing filemap.txt) costs seconds on a large setup, and the Mod Files
+# tab rebuilds on every modlist click — keyed by the source-file mtimes (and
+# index identity) so unchanged inputs return the previous result for free.
+# Callers treat the result as read-only (they only do `in` / `.get`).
+_conflict_cache_lock = threading.Lock()
+_conflict_cache: tuple | None = None   # (key, full_index (identity), result)
+
+
 def build_conflict_cache(index_path: Path | None,
                          profile_dir: Path | None,
                          full_index: dict | None = None) -> tuple[set[str], dict[str, str]]:
@@ -109,11 +119,36 @@ def build_conflict_cache(index_path: Path | None,
     contested_keys: post-strip rel_keys (lower) owned by >1 ENABLED mod.
     filemap_winner: rel_key (lower) -> winning mod name (from filemap.txt).
     Disabled mods are excluded from the contest count (they deploy nothing).
+    Results are cached by (filemap.txt mtime, modlist.txt mtime, index
+    identity); treat the returned set/dict as read-only.
     """
+    global _conflict_cache
     if index_path is None:
         return set(), {}
     fm_path = index_path.parent / "filemap.txt"
     ml_path = (profile_dir / "modlist.txt") if profile_dir is not None else None
+
+    if full_index is None:
+        try:
+            from Utils.filemap import read_mod_index
+            full_index = read_mod_index(index_path)
+        except Exception:
+            full_index = None
+
+    def _mtime(p: Path | None) -> float | None:
+        try:
+            return p.stat().st_mtime if p is not None else None
+        except OSError:
+            return None
+
+    key = (str(index_path), _mtime(fm_path),
+           str(ml_path) if ml_path is not None else None, _mtime(ml_path))
+    with _conflict_cache_lock:
+        cached = _conflict_cache
+    # read_mod_index caches by mtime, so an unchanged index returns the SAME
+    # dict object — identity is the cheap staleness check for it.
+    if cached is not None and cached[0] == key and cached[1] is full_index:
+        return cached[2]
 
     filemap_winner: dict[str, str] = {}
     if fm_path.is_file():
@@ -124,13 +159,6 @@ def build_conflict_cache(index_path: Path | None,
                     filemap_winner[rk.lower()] = mn
         except Exception:
             pass
-
-    if full_index is None:
-        try:
-            from Utils.filemap import read_mod_index
-            full_index = read_mod_index(index_path)
-        except Exception:
-            full_index = None
 
     contested: set[str] = set()
     if full_index:
@@ -151,7 +179,10 @@ def build_conflict_cache(index_path: Path | None,
             for k in root:
                 counts[k] = counts.get(k, 0) + 1
         contested = {k for k, c in counts.items() if c > 1}
-    return contested, filemap_winner
+    result = (contested, filemap_winner)
+    with _conflict_cache_lock:
+        _conflict_cache = (key, full_index, result)
+    return result
 
 
 # ---------------------------------------------------------------------------
