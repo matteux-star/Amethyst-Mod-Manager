@@ -1,5 +1,6 @@
 - v2.0.2
 - Fixed segfault on startup caused by incompatible fontconfig files
+- Fixed an issue where plugins from disabled optional mods in collections would show up in plugins.txt
 
 - v2.0.1
 - Fixed various issues with 2.0.0 that didn't appear during testing

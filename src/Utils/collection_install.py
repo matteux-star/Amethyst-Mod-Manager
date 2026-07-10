@@ -1611,12 +1611,40 @@ def _write_collection_plugins(game, profile_dir, plugins_path, collection_schema
             if not plugins_include_vanilla and getattr(game, "plugins_include_cc", plugins_include_vanilla):
                 from Utils.game_helpers import _cc_plugins_for_game
                 vanilla_lower -= set(_cc_plugins_for_game(game).keys())
+            deployed = _filemap_deployed_plugins(game, profile_dir)
+            # Drop manifest plugins whose file was never installed. A collection's
+            # ``plugins`` array covers ALL its mods including optional ones the
+            # user skipped (e.g. GTS's 119 Anniversary-Edition patch mods), and
+            # Vortex only lists plugins that exist on disk — writing the array
+            # verbatim leaves phantom plugins.txt entries that inflate the
+            # regular-slot count and that the panel's prune refuses to bulk-remove
+            # (> _PRUNE_MAX). Keep = deployed per the filemap / vanilla+CC /
+            # on disk at a staged-mod root, overwrite or Data. Skip the filter
+            # when both scans come back empty (no filemap AND wrong/empty staging
+            # path) — a miss means nothing then.
+            on_disk = _on_disk_plugin_names(game)
+            if deployed or on_disk:
+                kept: list[PluginEntry] = []
+                missing: list[str] = []
+                for e in author_entries:
+                    low = e.name.lower()
+                    if low in deployed or low in vanilla_map or low in on_disk:
+                        kept.append(e)
+                    else:
+                        missing.append(e.name)
+                if missing:
+                    author_entries = kept
+                    author_lower = {e.name.lower() for e in author_entries}
+                    log(f"Collection install: skipped {len(missing)} manifest "
+                        f"plugin(s) with no installed file (skipped optional "
+                        f"mods): {', '.join(missing[:8])}"
+                        f"{', …' if len(missing) > 8 else ''}")
             # Recover plugins staged by the collection's mods but absent from the
             # manifest's ``plugins`` array (FOMOD-conditional / unlisted plugins).
             # These are read from the filemap built in Step 3c so the LOOT sort
             # covers the SAME set as a later manual sort — otherwise they're
             # dropped and the manual sort re-inserts them (the "400+ moved" bug).
-            for low, orig in _filemap_deployed_plugins(game, profile_dir).items():
+            for low, orig in deployed.items():
                 if low in author_lower or low in vanilla_map:
                     continue
                 author_entries.append(PluginEntry(name=orig, enabled=True))
@@ -1722,6 +1750,47 @@ def _filemap_deployed_plugins(game, profile_dir) -> "dict[str, str]":
                 found.setdefault(low, rel_path)
     except OSError:
         pass
+    return found
+
+
+def _on_disk_plugin_names(game) -> "set[str]":
+    """Lowercase filenames of plugin files present on disk outside the filemap:
+    each staged mod's root, overwrite/ (+ overwrite/Data) and the game Data dir
+    (+ its _Core swap-deploy variant). Complements _filemap_deployed_plugins as
+    evidence that a manifest-listed plugin was actually installed — the filemap
+    is only rebuilt at Step 3c when LOOT is enabled, so it can be missing or
+    stale here. Mod roots only (no recursion): a plugin nested deeper that still
+    deploys top-level always appears in a fresh filemap, and load_plugins'
+    deployed-plugin recovery re-adds any such miss on the next reload."""
+    exts = tuple(e.lower() for e in (getattr(game, "plugin_extensions", []) or ())) \
+        or (".esp", ".esm", ".esl")
+    found: "set[str]" = set()
+
+    def _scan_flat(d: Path) -> None:
+        try:
+            for entry in d.iterdir():
+                if entry.is_file() and entry.name.lower().endswith(exts):
+                    found.add(entry.name.lower())
+        except OSError:
+            pass
+
+    staging = (game.get_effective_mod_staging_path()
+               if hasattr(game, "get_effective_mod_staging_path") else None)
+    if staging is not None and staging.is_dir():
+        try:
+            for mod_dir in staging.iterdir():
+                if mod_dir.is_dir():
+                    _scan_flat(mod_dir)
+        except OSError:
+            pass
+        overwrite_dir = staging.parent / "overwrite"
+        _scan_flat(overwrite_dir)
+        _scan_flat(overwrite_dir / "Data")
+    data_dir = (game.get_vanilla_plugins_path()
+                if hasattr(game, "get_vanilla_plugins_path") else None)
+    if data_dir is not None:
+        _scan_flat(data_dir)
+        _scan_flat(data_dir.parent / (data_dir.name + "_Core"))
     return found
 
 
