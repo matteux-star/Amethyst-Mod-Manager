@@ -20,63 +20,25 @@ from typing import Callable
 
 from Utils.app_log import safe_log as _safe_log
 
-# Env vars the AppImage runtime injects to isolate the bundle's own libraries.
-# They point into the (transient) FUSE mount, so a Proton subprocess that
-# inherits them loads the AppImage's bundled Python/libs and its blocked
-# LD_LIBRARY_PATH sentinel instead of the host's — which breaks Proton's
-# startup Vulkan probe (CDLL('libvulkan.so.1') fails to find the host lib).
-_APPIMAGE_ENV_PREFIXES = (
-    "APPDIR", "APPIMAGE", "OWD", "ARGV0",
-    "SSL_CERT_FILE", "SSL_CERT_DIR", "CURL_CA_BUNDLE",
-    "LD_LIBRARY_PATH", "LD_PRELOAD",
-    "PYTHONHOME", "PYTHONPATH",
-    "GDK_PIXBUF_MODULEDIR", "GDK_PIXBUF_MODULE_FILE",
-    "GIO_MODULE_DIR", "GSETTINGS_SCHEMA_DIR",
-    "GTK_PATH", "GTK_IM_MODULE_FILE",
-    "QT_PLUGIN_PATH", "QML2_IMPORT_PATH", "QT_QPA_PLATFORM_PLUGIN_PATH",
-    "GCONV_PATH", "PERLLIB", "PERL5LIB",
-)
+from Utils.appimage_env import in_appimage, strip_appimage_vars
 
 
 def strip_appimage_env(env: dict) -> dict:
     """Return *env* with AppImage-injected loader/bundle vars removed.
 
-    No-op outside the AppImage. When bundled, these vars point into the
-    AppImage's FUSE mount; passing them to a Proton subprocess makes it load
-    the bundle's libraries and its blocked LD_LIBRARY_PATH sentinel instead of
-    the host's, breaking Proton's Vulkan GPU probe on startup.
+    No-op outside the AppImage (from-source / flatpak callers keep their env
+    untouched). When bundled, these vars point into the AppImage's FUSE mount;
+    passing them to a Proton subprocess makes it load the bundle's libraries
+    and its blocked LD_LIBRARY_PATH sentinel instead of the host's, breaking
+    Proton's Vulkan GPU probe on startup.
 
-    Whole vars in ``_APPIMAGE_ENV_PREFIXES`` are dropped outright; list-style
-    vars (PATH, XDG_DATA_DIRS) keep their host entries but have any
-    ``/tmp/.mount_*`` / ``$APPDIR`` fragments removed — otherwise the host
-    Proton we launch would still find the bundle's own ``python3`` / tools on
-    PATH and re-pollute itself.
+    The var list and strip logic live in :mod:`Utils.appimage_env` — the
+    single source of truth shared with ``xdg.host_env`` and
+    ``smapi_installer.clean_env``.
     """
-    if not os.environ.get("APPDIR") and not os.environ.get("APPIMAGE"):
+    if not in_appimage():
         return env
-    appdir = os.path.realpath(os.environ.get("APPDIR", "")) if os.environ.get("APPDIR") else ""
-    out = {
-        k: v for k, v in env.items()
-        if not any(k.startswith(p) for p in _APPIMAGE_ENV_PREFIXES)
-    }
-
-    def _bundled_entry(entry: str) -> bool:
-        if not entry:
-            return True
-        if entry.startswith("/tmp/.mount_"):
-            return True
-        return bool(appdir) and os.path.realpath(entry).startswith(appdir)
-
-    for k in ("PATH", "XDG_DATA_DIRS", "XDG_CONFIG_DIRS"):
-        if k not in out:
-            continue
-        cleaned = os.pathsep.join(
-            p for p in out[k].split(os.pathsep) if not _bundled_entry(p))
-        if cleaned:
-            out[k] = cleaned
-        else:
-            out.pop(k, None)
-    return out
+    return strip_appimage_vars(env)
 
 
 _WINETRICKS_URL = "https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks"

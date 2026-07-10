@@ -37,6 +37,7 @@ from Utils.config_paths import (
     get_game_config_dir,
     get_vcredist_cache_path,
 )
+from Utils.protontricks import strip_appimage_env
 from Utils.steam_finder import list_installed_proton
 
 if TYPE_CHECKING:
@@ -213,7 +214,7 @@ def build_proton_env(
     container wrapper.
     """
     files = _proton_files_dir(wine)
-    env = os.environ.copy()
+    env = strip_appimage_env(os.environ.copy())
     env["WINEPREFIX"] = str(pfx)
     env["WINEDEBUG"] = "-all"
     env["WINEDLLOVERRIDES"] = dll_overrides
@@ -237,7 +238,7 @@ def build_proton_env(
 def _base_env(pfx: Path, wine: Path | None = None) -> dict[str, str]:
     if wine is not None:
         return build_proton_env(pfx, wine)
-    env = os.environ.copy()
+    env = strip_appimage_env(os.environ.copy())
     env["WINEPREFIX"] = str(pfx)
     env["WINEDEBUG"] = "-all"
     env["WINEDLLOVERRIDES"] = "mshtml=d;winemenubuilder.exe=d"

@@ -25,37 +25,7 @@ from typing import Callable
 from Utils.app_log import app_log
 
 
-# Env vars the AppImage runtime / sharun / our own launcher inject. These all
-# either point at /tmp/.mount_* (which disappears the moment the AppImage
-# exits) or are otherwise meaningful only inside the AppImage's own python.
-# Carrying them into a child process — especially a long-lived terminal the
-# user might later run `python3` from — turns into "ImportError: cannot
-# import name '_imaging' from 'PIL'" after the mount is gone.
-_APPIMAGE_LEAK_VARS = (
-    "APPDIR", "APPIMAGE", "ARGV0", "ARG0", "OWD", "URUNTIME",
-    "APPIMAGE_ARCH", "APPIMAGE_UUID",
-    "SHARUN_DIR", "SHARUN_WORKING_DIR", "SHARUN_ALLOW_SYS_VKICD",
-    "PYTHONPATH", "PYTHONHOME", "PYTHONDONTWRITEBYTECODE",
-    "MOD_MANAGER_GAMES",  # app_bootstrap auto-points this at $APPDIR/.../Games
-    "GIO_LAUNCH_DESKTOP",
-    "GDK_PIXBUF_MODULEDIR", "GDK_PIXBUF_MODULE_FILE",
-    "GIO_MODULE_DIR",
-    "GSETTINGS_SCHEMA_DIR",
-    "GTK_PATH", "GTK_IM_MODULE_FILE",
-    "QT_PLUGIN_PATH",
-    "TERMINFO", "LIBTHAI_DICTDIR",
-    "PERLLIB", "PERL5LIB",
-    "SSL_CERT_FILE", "SSL_CERT_DIR", "CURL_CA_BUNDLE",
-    "LD_LIBRARY_PATH", "LD_PRELOAD",
-)
-
-
-def _strip_appimage_path_entries(value: str) -> str:
-    """Drop colon-separated entries that point at /tmp/.mount_*."""
-    if not value:
-        return value
-    parts = [p for p in value.split(":") if p and not p.startswith("/tmp/.mount_")]
-    return ":".join(parts)
+from Utils.appimage_env import strip_appimage_vars
 
 
 def host_env() -> dict[str, str]:
@@ -63,26 +33,17 @@ def host_env() -> dict[str, str]:
 
     Inside an AppImage, anylinux.so (LD_PRELOAD'd by quick-sharun) already
     drops some AppDir-pointing vars on execve, but it doesn't know about our
-    custom ones (MOD_MANAGER_GAMES) or about /tmp/.mount_* fragments inside
-    PATH / XDG_DATA_DIRS. So we strip them here too.
+    custom ones (MOD_MANAGER_GAMES, FONTCONFIG_FILE) or about /tmp/.mount_*
+    fragments inside PATH / XDG_DATA_DIRS — and it isn't built at all on some
+    build hosts (ANYLINUX_LIB=0). So we strip in Python too.
 
-    Outside an AppImage this also defends against stale env in shells the
+    Deliberately unconditional (unlike ``protontricks.strip_appimage_env``):
+    outside an AppImage this also defends against stale env in shells the
     user opened *from* a previous AppImage launch — `$PATH` still has
-    `/tmp/.mount_<dead>/bin` in it, etc.
+    `/tmp/.mount_<dead>/bin` in it, etc. The var list lives in
+    :mod:`Utils.appimage_env` (single source of truth).
     """
-    env = os.environ.copy()
-    for k in _APPIMAGE_LEAK_VARS:
-        env.pop(k, None)
-    # Strip /tmp/.mount_* entries from list-style vars rather than unsetting
-    # them outright — they may still hold useful host paths.
-    for k in ("PATH", "XDG_DATA_DIRS", "XDG_CONFIG_DIRS"):
-        if k in env:
-            cleaned = _strip_appimage_path_entries(env[k])
-            if cleaned:
-                env[k] = cleaned
-            else:
-                env.pop(k, None)
-    return env
+    return strip_appimage_vars(os.environ.copy())
 
 
 def _in_flatpak() -> bool:

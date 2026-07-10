@@ -35,6 +35,7 @@ from Utils.config_paths import (
     get_game_config_path,
     get_profile_exe_args_path,
 )
+from Utils.protontricks import strip_appimage_env
 from Utils.xdg import spawn_watched, xdg_open
 
 _LAUNCH_MODE_FILE = "exe_launch_mode.json"
@@ -652,7 +653,7 @@ def get_tool_prefix_env(
     is_new = not (prefix_dir / "pfx").is_dir()
     prefix_dir.mkdir(parents=True, exist_ok=True)
 
-    env = os.environ.copy()
+    env = strip_appimage_env(os.environ.copy())
     env["STEAM_COMPAT_DATA_PATH"] = str(prefix_dir)
     env["STEAM_COMPAT_CLIENT_INSTALL_PATH"] = str(steam_root)
     # lsteamclient asserts when it tries to attach to the Steam client with no
@@ -814,7 +815,7 @@ def shutdown_prefix_wineserver(proton_script: Path, compat_data: Path,
         )
         if bin_dir is None:
             return
-        env = os.environ.copy()
+        env = strip_appimage_env(os.environ.copy())
         env["WINEPREFIX"] = str(Path(compat_data) / "pfx")
         env["PATH"] = str(bin_dir) + os.pathsep + env.get("PATH", "")
         subprocess.run(
@@ -865,7 +866,7 @@ def get_game_prefix_env(game, log_fn=_noop_log, *,
     if steam_root is None:
         return None
     compat_data = Path(pfx).parent
-    env = os.environ.copy()
+    env = strip_appimage_env(os.environ.copy())
     env["STEAM_COMPAT_DATA_PATH"] = str(compat_data)
     env["STEAM_COMPAT_CLIENT_INSTALL_PATH"] = str(steam_root)
     if steam_id:
@@ -1005,7 +1006,7 @@ def launch_winetricks_in_prefix(wineprefix: Path, log_fn=_noop_log) -> None:
             return
 
     wt = _bundled_winetricks()
-    env = os.environ.copy()
+    env = strip_appimage_env(os.environ.copy())
     env["WINEPREFIX"] = str(wineprefix)
     path_prefix = str(wt.parent)
     proton_bin = _get_proton_bin()
@@ -1186,7 +1187,7 @@ def launch_exe_via_proton(exe_path: Path, game, log_fn=_noop_log) -> None:
         log_fn("Run EXE: could not determine Steam root for the selected Proton tool.")
         return
 
-    env = os.environ.copy()
+    env = strip_appimage_env(os.environ.copy())
     env["STEAM_COMPAT_DATA_PATH"] = str(compat_data)
     env["STEAM_COMPAT_CLIENT_INSTALL_PATH"] = str(steam_root)
     # Proton expects these to locate the game install and per-game shader/
@@ -1355,7 +1356,7 @@ def launch_jar(jar_path: Path, game, log_fn=_noop_log) -> None:
         final_cmd = proton_run_command(
             proton_script, "run", *jvm_cmd, env=env) + extra_args
     else:  # host
-        env = os.environ.copy()
+        env = strip_appimage_env(os.environ.copy())
         jar_token = str(jar_path)
         try:
             extra_args = shlex.split(args_str)

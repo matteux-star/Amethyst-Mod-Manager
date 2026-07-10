@@ -134,18 +134,10 @@ def clean_env() -> dict:
     AppImage exports LD_LIBRARY_PATH, QT_PLUGIN_PATH, PYTHONHOME etc. pointing
     into its bundle. Inherited by konsole, those make it load the wrong Qt libs
     and exit immediately. Strip them so the terminal uses host libraries.
+    The var list lives in :mod:`Utils.appimage_env` (single source of truth).
     """
-    env = os.environ.copy()
-    for var in (
-        "LD_LIBRARY_PATH", "LD_PRELOAD",
-        "PYTHONHOME", "PYTHONPATH",
-        "QT_PLUGIN_PATH", "QML2_IMPORT_PATH", "QT_QPA_PLATFORM_PLUGIN_PATH",
-        "GTK_PATH", "GIO_MODULE_DIR", "GSETTINGS_SCHEMA_DIR",
-        "GDK_PIXBUF_MODULE_FILE", "GDK_PIXBUF_MODULEDIR",
-        "XDG_DATA_DIRS_APPIMAGE", "PERLLIB", "GCONV_PATH",
-        "APPDIR", "APPIMAGE", "ARGV0", "OWD",
-    ):
-        env.pop(var, None)
+    from Utils.appimage_env import strip_appimage_vars
+    env = strip_appimage_vars(os.environ.copy())
     env.setdefault("XDG_DATA_DIRS", "/usr/local/share:/usr/share")
     return env
 
