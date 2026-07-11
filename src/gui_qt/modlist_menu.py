@@ -841,8 +841,12 @@ def _sort_selected_alphabetically(view, model, mod_rows):
     # bottom of the selection. Only conflict-free mods are sorted A→Z.
     conflicted = [e for e in sel if model.loose_conflict_code(e.name)]
     sortable = [e for e in sel if not model.loose_conflict_code(e.name)]
-    sorted_entries = (sorted(sortable, key=lambda e: e.display_name.casefold())
-                      + conflicted)
+    key_fn = lambda e: e.display_name.casefold()
+    if model.reverse_mode_active:
+        sorted_entries = (list(reversed(conflicted))
+                          + sorted(sortable, key=key_fn, reverse=True))
+    else:
+        sorted_entries = sorted(sortable, key=key_fn) + conflicted
     # Rebuild the body from the NATURAL order (the display may be a sorted
     # permutation); at each selected slot drop in the next sorted entry.
     # set_entries re-appends boundaries.
