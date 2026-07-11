@@ -1088,8 +1088,36 @@ The md5 cache is preserved. Archives will be re-downloaded as needed.</source>
         <translation>Жесткая ссылка</translation>
     </message>
     <message>
+        <source>Swap launcher with script extender on deploy</source>
+        <translation>Swap Launcher с расширением скрипта для развертывания</translation>
+    </message>
+    <message>
+        <source>Auto deploy (deploy automatically on enable/disable/reorder)</source>
+        <translation>Автоматическое развертывание (развертывание автоматически при включении/отключении/заказе)</translation>
+    </message>
+    <message>
+        <source>Automatic archive invalidation (prefer loose files over BSAs)</source>
+        <translation>Автоматическая аннулирование архива (предпочитает свободные файлы по сравнению с BSA)</translation>
+    </message>
+    <message>
+        <source>Use profile-specific INI files</source>
+        <translation>Используйте профильные файлы INI</translation>
+    </message>
+    <message>
+        <source>Use profile-specific saves</source>
+        <translation>Используйте профильные сохранения</translation>
+    </message>
+    <message>
+        <source>Prepend load-order numbers to mod folders</source>
+        <translation>Приготовьте номера заказов на мод папки</translation>
+    </message>
+    <message>
         <source>Game Patch Version</source>
         <translation>Версия патча к игре</translation>
+    </message>
+    <message>
+        <source>Patch {0}</source>
+        <translation>Патч {0}</translation>
     </message>
     <message>
         <source>Plugins file name</source>
@@ -1208,8 +1236,38 @@ The default profile's settings are not affected.</source>
         <translation>Да</translation>
     </message>
     <message>
+        <source>Remove the instance configuration for {0}?
+
+Deleted: game config + generated caches; the game is restored to vanilla.
+Kept: your mods, profiles, and overwrite folders.
+
+This cannot be undone.</source>
+        <translation>Удалить конфигурацию экземпляра для {0}?
+
+Удален: конфигурация игры + сгенерированные кэши; игра восстановлена в ваниль.
+Kept: ваши моды, профили и папки перезаписи.
+
+Это нельзя отменить.</translation>
+    </message>
+    <message>
+        <source>Remove Instance — {0}</source>
+        <translation>Удалить инстанцию — {0}</translation>
+    </message>
+    <message>
         <source>Removing instance…</source>
         <translation>Удаление экземпляра…</translation>
+    </message>
+    <message>
+        <source>Scan {0} and remove leftover deployed mod files (hardlinks/symlinks/copies) that weren't restored?
+
+Vanilla game files are kept. This cannot be undone.</source>
+        <translation>Сканирование {0} и удаление оставшихся развернутых мод-файлов (hardlinks/symlinks/copies), которые не были восстановлены?
+
+Файлы игры Vanilla сохранены. Это нельзя отменить.</translation>
+    </message>
+    <message>
+        <source>Clean Game Folder — {0}</source>
+        <translation>Чистая игровая папка — {0}</translation>
     </message>
     <message>
         <source>Cleaning game folder…</source>
@@ -4326,6 +4384,26 @@ Download and install them manually — the links are in the collection page's "O
         <translation>Запуск winetricks…</translation>
     </message>
     <message>
+        <source>Select EXE to run in this prefix</source>
+        <translation>Выберите EXE для запуска в этом префиксе</translation>
+    </message>
+    <message>
+        <source>Installing VC++ Redistributable</source>
+        <translation>Установка VC++ распространяемый</translation>
+    </message>
+    <message>
+        <source>Installing d3dcompiler_47</source>
+        <translation>Установка d3dcompiler 47</translation>
+    </message>
+    <message>
+        <source>Installing XACT audio (XAudio2)</source>
+        <translation>Установка аудио XACT (XAudio2)</translation>
+    </message>
+    <message>
+        <source>Installing .NET {0}</source>
+        <translation>Установка .NET {0}</translation>
+    </message>
+    <message>
         <source>A Proton installer is already running.</source>
         <translation>Установщик Proton уже запущен.</translation>
     </message>
@@ -5777,6 +5855,14 @@ You can skip this and connect later from the Nexus button in the toolbar.</sourc
     <message>
         <source>Waiting for browser...</source>
         <translation>Ожидание загрузки браузера...</translation>
+    </message>
+    <message>
+        <source>Browser login started — complete it in your browser.</source>
+        <translation>Запущен вход в браузер — заполните его в своем браузере.</translation>
+    </message>
+    <message>
+        <source>✓ Logged in to Nexus Mods!</source>
+        <translation>Зарегистрируйтесь в Nexus Mods!</translation>
     </message>
     <message>
         <source>Default Mod Staging Folder</source>

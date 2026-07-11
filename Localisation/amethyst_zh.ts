@@ -1088,8 +1088,36 @@ MD5缓存将被保留。压缩包将根据需要重新下载。</translation>
         <translation>硬链接</translation>
     </message>
     <message>
+        <source>Swap launcher with script extender on deploy</source>
+        <translation>部署时使用脚本扩展器的交换发射器</translation>
+    </message>
+    <message>
+        <source>Auto deploy (deploy automatically on enable/disable/reorder)</source>
+        <translation>自动部署(在启用/残疾/重排时自动部署)</translation>
+    </message>
+    <message>
+        <source>Automatic archive invalidation (prefer loose files over BSAs)</source>
+        <translation>自动归档无效( 比 BSAs 优先松开文件)</translation>
+    </message>
+    <message>
+        <source>Use profile-specific INI files</source>
+        <translation>使用特定配置文件 INI 文件</translation>
+    </message>
+    <message>
+        <source>Use profile-specific saves</source>
+        <translation>使用特定配置文件保存</translation>
+    </message>
+    <message>
+        <source>Prepend load-order numbers to mod folders</source>
+        <translation>在 Mod 文件夹中预置负载顺序号</translation>
+    </message>
+    <message>
         <source>Game Patch Version</source>
         <translation>游戏补丁版本</translation>
+    </message>
+    <message>
+        <source>Patch {0}</source>
+        <translation>补丁 {0}</translation>
     </message>
     <message>
         <source>Plugins file name</source>
@@ -1208,8 +1236,38 @@ The default profile's settings are not affected.</source>
         <translation>对</translation>
     </message>
     <message>
+        <source>Remove the instance configuration for {0}?
+
+Deleted: game config + generated caches; the game is restored to vanilla.
+Kept: your mods, profiles, and overwrite folders.
+
+This cannot be undone.</source>
+        <translation>删除 {0} 的实例配置吗 ?
+
+删除: 游戏配置 + 生成缓存; 游戏被恢复为香草.
+隐藏:您的模式,配置文件,并覆盖文件夹 。
+
+这一点是无法消除的.</translation>
+    </message>
+    <message>
+        <source>Remove Instance — {0}</source>
+        <translation>删除实例 — {0}</translation>
+    </message>
+    <message>
         <source>Removing instance…</source>
         <translation>正在删除实例……</translation>
+    </message>
+    <message>
+        <source>Scan {0} and remove leftover deployed mod files (hardlinks/symlinks/copies) that weren't restored?
+
+Vanilla game files are kept. This cannot be undone.</source>
+        <translation>扫描 {0} 并去除未恢复的已部署的剩余 Mod文件(硬链接/符号/复制) ?
+
+香草游戏文件保存. 这一点是无法消除的.</translation>
+    </message>
+    <message>
+        <source>Clean Game Folder — {0}</source>
+        <translation>清洁游戏文件夹 — {0}</translation>
     </message>
     <message>
         <source>Cleaning game folder…</source>
@@ -4326,6 +4384,26 @@ Download and install them manually — the links are in the collection page's "O
         <translation>正在启动 winetricks…</translation>
     </message>
     <message>
+        <source>Select EXE to run in this prefix</source>
+        <translation>选择在此前缀运行的 EXE</translation>
+    </message>
+    <message>
+        <source>Installing VC++ Redistributable</source>
+        <translation>正在安装 VC++ 可再分配</translation>
+    </message>
+    <message>
+        <source>Installing d3dcompiler_47</source>
+        <translation>正在安装 d3d 编译器  47</translation>
+    </message>
+    <message>
+        <source>Installing XACT audio (XAudio2)</source>
+        <translation>安装 XACT 音频( XAudio2)</translation>
+    </message>
+    <message>
+        <source>Installing .NET {0}</source>
+        <translation>正在安装.NET {0}</translation>
+    </message>
+    <message>
         <source>A Proton installer is already running.</source>
         <translation>Proton 安装程序已经在运行了。</translation>
     </message>
@@ -5777,6 +5855,14 @@ You can skip this and connect later from the Nexus button in the toolbar.</sourc
     <message>
         <source>Waiting for browser...</source>
         <translation>正在等待浏览器...</translation>
+    </message>
+    <message>
+        <source>Browser login started — complete it in your browser.</source>
+        <translation>浏览器登录开始 —— 在您的浏览器中完成 .</translation>
+    </message>
+    <message>
+        <source>✓ Logged in to Nexus Mods!</source>
+        <translation>登入Nexus Mods系统!</translation>
     </message>
     <message>
         <source>Default Mod Staging Folder</source>
