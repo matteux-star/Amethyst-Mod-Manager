@@ -27,6 +27,18 @@
 <context>
     <name>BG3ImportView</name>
     <message>
+        <source>Load Order (*.json)</source>
+        <translation>Laadvolgorde (*.json)</translation>
+    </message>
+    <message>
+        <source>All files</source>
+        <translation>Alle bestanden</translation>
+    </message>
+    <message>
+        <source>Import BG3MM Load Order — {0}</source>
+        <translation>Importeer BG3MM-laadvolgorde {0}</translation>
+    </message>
+    <message>
         <source>Step 1: Select a BG3 Mod Manager order file</source>
         <translation>Stap 1: Selecteer een BG3 Mod Manager-volgordebestand</translation>
     </message>
@@ -49,6 +61,10 @@ Mods worden op basis van hun UUID gekoppeld aan de mods die je hebt geïnstallee
         <translation>Voorbeeld bekijken →</translation>
     </message>
     <message>
+        <source>Select a BG3MM order .json</source>
+        <translation>Selecteer een BG3MM bestelling .json</translation>
+    </message>
+    <message>
         <source>Selected: {0}</source>
         <translation>Geselecteerd: {0}</translation>
     </message>
@@ -67,6 +83,10 @@ Mods worden op basis van hun UUID gekoppeld aan de mods die je hebt geïnstallee
     <message>
         <source>Reading order and scanning installed mods…</source>
         <translation>Leesvolgorde en het scannen van geïnstalleerde mods…</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
     </message>
     <message>
         <source>Failed</source>
@@ -192,6 +212,56 @@ Klik op ‘Deploy’ om de nieuwe laadvolgorde naar het spel door te voeren.</tr
 <context>
     <name>BethiniView</name>
     <message>
+        <source>Run BethINI Pie — {0}</source>
+        <translation>Start BethINI Pie {0}</translation>
+    </message>
+    <message>
+        <source>Step 1: Download BethINI Pie</source>
+        <translation>Stap 1: Download Bethini Pie</translation>
+    </message>
+    <message>
+        <source>Click the button below to open the BethINI Pie page on Nexus Mods.
+
+Download the archive manually (do NOT use the Mod Manager download button), then click Next.</source>
+        <translation>Klik op de knop hieronder om de Bethini Pie pagina op Nexus Mods te openen.
+
+Download het archief handmatig (niet gebruik maken van de knop Mod Manager downloaden), klik vervolgens op Volgende.</translation>
+    </message>
+    <message>
+        <source>Step 2: Locate the Archive</source>
+        <translation>Stap 2: Zoek het archief</translation>
+    </message>
+    <message>
+        <source>Step 3: Extract BethINI Pie</source>
+        <translation>Stap 3: Extract Bethini Pie</translation>
+    </message>
+    <message>
+        <source>Step 5: Run BethINI Pie</source>
+        <translation>Stap 5: Start Bethini Pie</translation>
+    </message>
+    <message>
+        <source>Select the BethINI Pie archive</source>
+        <translation>Selecteer het BethINI Pie archief</translation>
+    </message>
+    <message>
+        <source>BethINI archive not found in Downloads.
+Make sure you downloaded it, then press Try Again,
+or use Browse to select it manually.</source>
+        <translation>BethINI archief niet gevonden in Downloads.
+Zorg ervoor dat je het hebt gedownload en druk op Opnieuw proberen,
+of gebruik Browse om het handmatig te selecteren.</translation>
+    </message>
+    <message>
+        <source>Step 4: Choose Proton Version</source>
+        <translation>Stap 4: Kies Proton versie</translation>
+    </message>
+    <message>
+        <source>'{0}' was not found.
+Please restart the wizard and install BethINI Pie first.</source>
+        <translation>'{0}' is niet gevonden.
+Herstart de wizard en installeer BethINI Pie eerst.</translation>
+    </message>
+    <message>
         <source>'{0}' was not found.</source>
         <translation>'{0}' is niet gevonden.</translation>
     </message>
@@ -199,9 +269,35 @@ Klik op ‘Deploy’ om de nieuwe laadvolgorde naar het spel door te voeren.</tr
         <source>Preparing BethINI Pie's Wine prefix…</source>
         <translation>De wijnselectie voor BethINI Pie voorbereiden…</translation>
     </message>
+    <message>
+        <source>Could not find Proton '{0}' — check that it is installed in Steam.</source>
+        <translation>Kon Proton '{0}' niet vinden Controleer of het is geïnstalleerd in Steam.</translation>
+    </message>
+    <message>
+        <source>BethINI Pie is running.
+Configure your INI settings, then close it and click Done.</source>
+        <translation>BETHINI De taart loopt.
+Configureer uw INI-instellingen, sluit deze vervolgens en klik op Klaar.</translation>
+    </message>
+    <message>
+        <source>BethINI Pie finished.</source>
+        <translation>BETHINI De taart is klaar.</translation>
+    </message>
+    <message>
+        <source>Launch error: {0}</source>
+        <translation>Startfout: {0}</translation>
+    </message>
 </context>
 <context>
     <name>BodySlideView</name>
+    <message>
+        <source>{0} — {1}</source>
+        <translation>{0} — {1}</translation>
+    </message>
+    <message>
+        <source>Step 3: Run {0}</source>
+        <translation>Stap 3: {0} uitvoeren</translation>
+    </message>
     <message>
         <source>Step 1: Deploy Modlist</source>
         <translation>Stap 1: Modlist implementeren</translation>
@@ -227,6 +323,18 @@ Implementeer eerst je modlijst en klik vervolgens op „Uitvoeren“.</translati
         <translation>Implementeren</translation>
     </message>
     <message>
+        <source>Step 2: Choose Proton Version</source>
+        <translation>Stap 2: Kies de Proton-versie</translation>
+    </message>
+    <message>
+        <source>{0} was not found in your mod staging folder.
+
+Install {0} as a mod, then reopen this wizard.</source>
+        <translation>{0} is niet gevonden in uw mod ensceneringsmap.
+
+Installeer {0} als een mod en heropen deze wizard.</translation>
+    </message>
+    <message>
         <source>Launching {0}…</source>
         <translation>{0} wordt gelanceerd…</translation>
     </message>
@@ -237,6 +345,24 @@ Deploy your modlist first, then reopen this wizard.</source>
         <translation>{0} werd niet aangetroffen in de map ‘Data’ waarin de mod is geïnstalleerd.
 
 Installeer eerst je modlijst en open deze wizard daarna opnieuw.</translation>
+    </message>
+    <message>
+        <source>Could not find Proton '{0}' — check that it is installed in Steam.</source>
+        <translation>Kon Proton '{0}' niet vinden Controleer of het is geïnstalleerd in Steam.</translation>
+    </message>
+    <message>
+        <source>{0} is running.
+Close it when you are done, then click Done.</source>
+        <translation>{0} is actief.
+Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</translation>
+    </message>
+    <message>
+        <source>{0} finished.</source>
+        <translation>{0} klaar.</translation>
+    </message>
+    <message>
+        <source>Launch error: {0}</source>
+        <translation>Startfout: {0}</translation>
     </message>
 </context>
 <context>
@@ -284,6 +410,18 @@ Installeer eerst je modlijst en open deze wizard daarna opnieuw.</translation>
 </context>
 <context>
     <name>BsaPreview</name>
+    <message>
+        <source>Only conflicts</source>
+        <translation>Alleen conflicten</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation>Alles uitvouwen</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation>Alles invouwen</translation>
+    </message>
     <message>
         <source>(archive is empty or unreadable)</source>
         <translation>(het archief is leeg of onleesbaar)</translation>
@@ -370,8 +508,32 @@ Installeer eerst je modlijst en open deze wizard daarna opnieuw.</translation>
         <translation>Locatie: {0}</translation>
     </message>
     <message>
+        <source>All</source>
+        <translation>Alles</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Geen</translation>
+    </message>
+    <message>
+        <source>Clear Selected</source>
+        <translation>Geselecteerd wissen</translation>
+    </message>
+    <message>
+        <source>Clear All</source>
+        <translation>Alles wissen</translation>
+    </message>
+    <message>
         <source>No per-game caches found.</source>
         <translation>Er zijn geen caches per wedstrijd gevonden.</translation>
+    </message>
+    <message>
+        <source>{0}  (active)</source>
+        <translation>{0} (actief)</translation>
+    </message>
+    <message>
+        <source>Leftover temp folders  ({0})</source>
+        <translation>Resterende tijdelijke mappen ({0})</translation>
     </message>
     <message>
         <source>Total: {0}</source>
@@ -457,6 +619,22 @@ De MD5-cache blijft behouden. Archieven worden indien nodig opnieuw gedownload.<
 <context>
     <name>ChangeVersionView</name>
     <message>
+        <source>File</source>
+        <translation>Bestand</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation>Versie</translation>
+    </message>
+    <message>
+        <source>Category</source>
+        <translation>Categorie</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Afmetingen</translation>
+    </message>
+    <message>
         <source>Change Version — {0}</source>
         <translation>Versie wijzigen — {0}</translation>
     </message>
@@ -511,6 +689,26 @@ De MD5-cache blijft behouden. Archieven worden indien nodig opnieuw gedownload.<
 <context>
     <name>CollectionDetailView</name>
     <message>
+        <source>Name</source>
+        <translation>Naam</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation>Auteur</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation>Versie</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Afmetingen</translation>
+    </message>
+    <message>
+        <source>Opt</source>
+        <translation>Opt</translation>
+    </message>
+    <message>
         <source>Total size: {0}  |  {1} mods</source>
         <translation>Totale grootte: {0}  |  {1} mods</translation>
     </message>
@@ -561,6 +759,14 @@ De MD5-cache blijft behouden. Archieven worden indien nodig opnieuw gedownload.<
     <message>
         <source>Update Collection</source>
         <translation>Updates verzamelen</translation>
+    </message>
+    <message>
+        <source>Rev {0}</source>
+        <translation>{0}</translation>
+    </message>
+    <message>
+        <source>(installed)</source>
+        <translation>(geïnstalleerd)</translation>
     </message>
     <message>
         <source>No optional mods.</source>
@@ -736,6 +942,26 @@ De MD5-cache blijft behouden. Archieven worden indien nodig opnieuw gedownload.<
         <translation>Er is geen Nexus-domein voor dit spel.</translation>
     </message>
     <message>
+        <source>Search '{0}': page {1} ({2} result(s))</source>
+        <translation>Zoeken '{0}': pagina {1} ({2} resultaat(s))</translation>
+    </message>
+    <message>
+        <source>Collections: page {0}</source>
+        <translation>Verzamelingen: pagina {0}</translation>
+    </message>
+    <message>
+        <source>No collections found.</source>
+        <translation>Geen collecties gevonden.</translation>
+    </message>
+    <message>
+        <source>No matches for '{0}'.</source>
+        <translation>Geen overeenkomsten voor '{0}'.</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
+    </message>
+    <message>
         <source>Loading…</source>
         <translation>Bezig met laden…</translation>
     </message>
@@ -902,6 +1128,14 @@ De instellingen van het standaardprofiel blijven ongewijzigd.</translation>
         <translation>Instellingen opgeslagen.</translation>
     </message>
     <message>
+        <source>Executable ({0}) not found in this folder — double-check the path.</source>
+        <translation>Uitvoerbaar bestand ({0}) niet gevonden in deze map. Controleer het pad dubbel.</translation>
+    </message>
+    <message>
+        <source>Executable found.</source>
+        <translation>Uitvoerbaar gevonden.</translation>
+    </message>
+    <message>
         <source>Custom staging folder selected.</source>
         <translation>Aangepaste stagingmap geselecteerd.</translation>
     </message>
@@ -954,8 +1188,24 @@ De instellingen van het standaardprofiel blijven ongewijzigd.</translation>
         <translation>Bestaande staging-bestanden worden gecontroleerd…</translation>
     </message>
     <message>
+        <source>Move</source>
+        <translation>Verplaatsen</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation>Overslaan</translation>
+    </message>
+    <message>
         <source>Moving staging files…</source>
         <translation>Stagingbestanden worden verplaatst…</translation>
+    </message>
+    <message>
+        <source>Moving Mod Staging Files</source>
+        <translation>Mod-stagingbestanden verplaatsen</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
     </message>
     <message>
         <source>Removing instance…</source>
@@ -972,6 +1222,21 @@ De instellingen van het standaardprofiel blijven ongewijzigd.</translation>
     <message>
         <source>Clean complete — {0} deployed file(s) removed.</source>
         <translation>Volledig opgeschoond — de door {0} geïmplementeerde bestanden zijn verwijderd.</translation>
+    </message>
+</context>
+<context>
+    <name>ConfirmOverlay</name>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>Oké</translation>
     </message>
 </context>
 <context>
@@ -995,6 +1260,10 @@ De instellingen van het standaardprofiel blijven ongewijzigd.</translation>
 </context>
 <context>
     <name>CreationKitView</name>
+    <message>
+        <source>Run Creation Kit — {0}</source>
+        <translation>Creation Kit uitvoeren {0}</translation>
+    </message>
     <message>
         <source>Step 3: Deploy Modlist</source>
         <translation>Stap 3: Modlist implementeren</translation>
@@ -1034,6 +1303,22 @@ Installeer het en open deze wizard vervolgens opnieuw.</translation>
         <translation>Stap 2: Creation Kit Platform Extended</translation>
     </message>
     <message>
+        <source>Creation Kit Platform Extended (CKPE) patches the Creation Kit so it runs correctly. It is downloaded from GitHub and installed as a mod with the root flag enabled, so it deploys into the game folder next to CreationKit.exe.
+
+</source>
+        <translation>Creation Kit Platform Extended (CKPE) patches de Creation Kit zodat het correct draait. Het wordt gedownload van GitHub en geïnstalleerd als een mod met de root vlag ingeschakeld, dus het zet in de game map naast CreationKit.exe.
+
+.</translation>
+    </message>
+    <message>
+        <source>CKPE already appears to be installed. You can update it or skip.</source>
+        <translation>CKPE lijkt al geïnstalleerd te zijn. Je kunt het bijwerken of overslaan.</translation>
+    </message>
+    <message>
+        <source>Click Install to download and add the latest CKPE (SSE build).</source>
+        <translation>Klik op installeren om te downloaden en voeg de nieuwste CKPE (SSE build) toe.</translation>
+    </message>
+    <message>
         <source>Update CKPE</source>
         <translation>Update CKPE</translation>
     </message>
@@ -1058,8 +1343,26 @@ De Creation Kit kan onder Proton soms ook crashen bij het opstarten (een bekend 
         <translation>Klaar</translation>
     </message>
     <message>
+        <source>Step 3: Choose Proton Version</source>
+        <translation>Stap 3: Kies Proton versie</translation>
+    </message>
+    <message>
+        <source>{0} was not found in the game folder.
+Install the Creation Kit from Steam, then reopen this wizard.</source>
+        <translation>{0} is niet gevonden in de gamemap.
+Installeer de Creation Kit van Steam en heropen deze wizard.</translation>
+    </message>
+    <message>
         <source>Contacting GitHub…</source>
         <translation>Verbinding maken met GitHub…</translation>
+    </message>
+    <message>
+        <source>CKPE {0} installed as a mod (root flag enabled).</source>
+        <translation>CKPE {0} geïnstalleerd als een mod (root vlag ingeschakeld).</translation>
+    </message>
+    <message>
+        <source>CKPE install error: {0}</source>
+        <translation>CKPE installatiefout: {0}</translation>
     </message>
     <message>
         <source>{0} was not found.</source>
@@ -1068,6 +1371,36 @@ De Creation Kit kan onder Proton soms ook crashen bij het opstarten (een bekend 
     <message>
         <source>Launching Creation Kit…</source>
         <translation>Creation Kit wordt gestart…</translation>
+    </message>
+    <message>
+        <source>Could not find Proton '{0}' — check that it is installed in Steam.</source>
+        <translation>Kon Proton '{0}' niet vinden Controleer of het is geïnstalleerd in Steam.</translation>
+    </message>
+    <message>
+        <source>Game path not configured.</source>
+        <translation>Spelpad is niet ingesteld.</translation>
+    </message>
+    <message>
+        <source>Installing d3dcompiler_47…</source>
+        <translation>D3dcompiler 47 installeren..</translation>
+    </message>
+    <message>
+        <source>Installing VC++ Redistributable (first run only)…</source>
+        <translation>VC++ installeren Herverdeelbaar (alleen eerste run)..</translation>
+    </message>
+    <message>
+        <source>Creation Kit is running.
+Close it when you are done, then click Done.</source>
+        <translation>Creation Kit draait.
+Sluit het wanneer u klaar bent, klik vervolgens op Klaar.</translation>
+    </message>
+    <message>
+        <source>Creation Kit finished.</source>
+        <translation>Creation Kit klaar.</translation>
+    </message>
+    <message>
+        <source>Launch error: {0}</source>
+        <translation>Startfout: {0}</translation>
     </message>
 </context>
 <context>
@@ -1432,6 +1765,18 @@ De Creation Kit kan onder Proton soms ook crashen bij het opstarten (een bekend 
         <source>Remove framework</source>
         <translation>Framework verwijderen</translation>
     </message>
+    <message>
+        <source>Downloading image…</source>
+        <translation>Afbeelding wordt gedownload..</translation>
+    </message>
+    <message>
+        <source>Image cached.</source>
+        <translation>Afbeelding gecached.</translation>
+    </message>
+    <message>
+        <source>Image download failed: {0}</source>
+        <translation>Downloaden van afbeelding is mislukt: {0}</translation>
+    </message>
 </context>
 <context>
     <name>DataModel</name>
@@ -1571,9 +1916,43 @@ De Creation Kit kan onder Proton soms ook crashen bij het opstarten (een bekend 
         <source>Scan default Downloads folder ({0})</source>
         <translation>De standaardmap ‘Downloads’ scannen ({0})</translation>
     </message>
+    <message>
+        <source>Add download folder</source>
+        <translation>Downloadmap toevoegen</translation>
+    </message>
+</context>
+<context>
+    <name>DownloadsDelegate</name>
+    <message>
+        <source>Select all</source>
+        <translation>Alles selecteren</translation>
+    </message>
+    <message>
+        <source>Reinstall</source>
+        <translation>Opnieuw installeren</translation>
+    </message>
+    <message>
+        <source>Install</source>
+        <translation>Installeren</translation>
+    </message>
+</context>
+<context>
+    <name>DownloadsModel</name>
+    <message>
+        <source>Name</source>
+        <translation>Naam</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Afmetingen</translation>
+    </message>
 </context>
 <context>
     <name>DtkitPatchView</name>
+    <message>
+        <source>Patch Game (dtkit-patch) — {0}</source>
+        <translation>Spel Patchen (dtkit-patch)</translation>
+    </message>
     <message>
         <source>Step 1: Deploy mods</source>
         <translation>Stap 1: Deploy mods</translation>
@@ -1625,6 +2004,10 @@ Zorg ervoor dat de Darktide Mod Loader mod is ingeschakeld.</translation>
         <translation>Draaien van ditkit-patch..</translation>
     </message>
     <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
+    </message>
+    <message>
         <source>Done. The bundle patch state was toggled.
 Launch the game to verify mods load (toggle again to disable).</source>
         <translation>Klaar. De bundel patch staat was aan elkaar getoogd.
@@ -1672,6 +2055,22 @@ Download het archief handmatig (gebruik NIET de downloadknop van de Mod Manager)
         <translation>Stap 1: Download {0}</translation>
     </message>
     <message>
+        <source>Downloading {0}…</source>
+        <translation>{0} wordt gedownload…</translation>
+    </message>
+    <message>
+        <source>{0} not found after extraction.</source>
+        <translation>{0} niet gevonden na extractie.</translation>
+    </message>
+    <message>
+        <source>Downloaded and extracted {0}.</source>
+        <translation>{0} gedownload en eruit gehaald.</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
+    </message>
+    <message>
         <source>Step 2: Locate the Archive</source>
         <translation>Stap 2: Zoek het archief</translation>
     </message>
@@ -1696,12 +2095,34 @@ Controleer of je het hebt gedownload en klik vervolgens op ‘Opnieuw proberen�
 of gebruik ‘Bladeren’ om het handmatig te selecteren.</translation>
     </message>
     <message>
+        <source>Select the DynDOLOD archive</source>
+        <translation>Selecteer het DynDOLOD archief</translation>
+    </message>
+    <message>
         <source>Selected: {0}</source>
         <translation>Geselecteerd: {0}</translation>
     </message>
     <message>
         <source>Step 3: Extract DynDOLOD</source>
         <translation>Stap 3: DynDOLOD uitpakken</translation>
+    </message>
+    <message>
+        <source>Archive not found.</source>
+        <translation>Archief niet gevonden.</translation>
+    </message>
+    <message>
+        <source>Extracting {0}…</source>
+        <translation>{0} uitpakken..</translation>
+    </message>
+    <message>
+        <source>{0} not found after extraction.
+Check that the archive contains {0}.</source>
+        <translation>{0} niet gevonden na extractie.
+Controleer of het archief {0} bevat.</translation>
+    </message>
+    <message>
+        <source>Extracted {0} file(s).</source>
+        <translation>Uitgepakt {0}-bestand(s).</translation>
     </message>
     <message>
         <source>Step 4: Deploy Modlist</source>
@@ -1752,6 +2173,10 @@ Please restart the wizard and install {1} first.</source>
 Start de wizard opnieuw en installeer eerst {1}.</translation>
     </message>
     <message>
+        <source>Step 5: Choose Proton Version</source>
+        <translation>Stap 5: Kies Proton versie</translation>
+    </message>
+    <message>
         <source>Step 6: Run {0}</source>
         <translation>Stap 6: Voer het commando `{0}` uit</translation>
     </message>
@@ -1766,6 +2191,22 @@ Start de wizard opnieuw en installeer eerst {1}.</translation>
     <message>
         <source>Launching {0}…</source>
         <translation>{0} wordt gelanceerd…</translation>
+    </message>
+    <message>
+        <source>Could not find Proton '{0}' — check that it is installed in Steam.</source>
+        <translation>Kon Proton '{0}' niet vinden Controleer of het is geïnstalleerd in Steam.</translation>
+    </message>
+    <message>
+        <source>Game path not configured.</source>
+        <translation>Spelpad is niet ingesteld.</translation>
+    </message>
+    <message>
+        <source>{0} finished.</source>
+        <translation>{0} klaar.</translation>
+    </message>
+    <message>
+        <source>Launch error: {0}</source>
+        <translation>Startfout: {0}</translation>
     </message>
     <message>
         <source>{0} is running.
@@ -1788,6 +2229,10 @@ Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</trans
 </context>
 <context>
     <name>ESLifierView</name>
+    <message>
+        <source>Run ESLifier — {0}</source>
+        <translation>ESLifier uitvoeren</translation>
+    </message>
     <message>
         <source>Step 1: Install ESLifier</source>
         <translation>Stap 1: ESLifier installeren</translation>
@@ -1827,12 +2272,44 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
         <translation>Klaar</translation>
     </message>
     <message>
+        <source>Step 2: Choose Proton Version</source>
+        <translation>Stap 2: Kies de Proton-versie</translation>
+    </message>
+    <message>
+        <source>{0} was not found.
+Please restart the wizard and let it install ESLifier first.</source>
+        <translation>{0} is niet gevonden.
+Herstart de wizard en laat het eerst ESLifier installeren.</translation>
+    </message>
+    <message>
         <source>Launching ESLifier…</source>
         <translation>ESLifier wordt gestart…</translation>
     </message>
     <message>
         <source>{0} was not found.</source>
         <translation>{0} is niet gevonden.</translation>
+    </message>
+    <message>
+        <source>Could not find Proton '{0}' — check that it is installed in Steam.</source>
+        <translation>Kon Proton '{0}' niet vinden Controleer of het is geïnstalleerd in Steam.</translation>
+    </message>
+    <message>
+        <source>Could not write settings: {0}</source>
+        <translation>Kon instellingen niet schrijven: {0}</translation>
+    </message>
+    <message>
+        <source>ESLifier is running.
+Close it when you are done, then click Done.</source>
+        <translation>ESLifier draait.
+Sluit het wanneer u klaar bent, klik vervolgens op Klaar.</translation>
+    </message>
+    <message>
+        <source>ESLifier finished. Click Done to close.</source>
+        <translation>ESLifier klaar. Klik op Gereed om te sluiten.</translation>
+    </message>
+    <message>
+        <source>Launch error: {0}</source>
+        <translation>Startfout: {0}</translation>
     </message>
 </context>
 <context>
@@ -1848,6 +2325,10 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
     <message>
         <source>Close</source>
         <translation>Sluiten</translation>
+    </message>
+    <message>
+        <source>Engine Fixes — {0}</source>
+        <translation>Motor Fixes {0}</translation>
     </message>
     <message>
         <source>Reset to defaults</source>
@@ -1889,6 +2370,18 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
         <translation>Configureren: {0}</translation>
     </message>
     <message>
+        <source>Java runtime</source>
+        <translation>Java runtime</translation>
+    </message>
+    <message>
+        <source>How to run this .jar:
+Host: run with your system's java (no Proton). Set the Java command in Launch Options, e.g. 'java -jar %command%' (%command% is the jar path).
+Proton prefix: click 'Install Java into prefix' once, then it runs automatically as 'java.exe -jar &lt;jar&gt;' — anything you put in Launch Options / Launch arguments is appended as extra flags. Which prefix follows the Proton version below ('Game default' = the game's prefix; a specific version = an isolated prefix next to the jar).</source>
+        <translation>Hoe deze .jar draaien:
+Host: draaien met de java van uw systeem (geen Proton). Stel het Java commando in in Startopties, bijvoorbeeld 'java -jar %command%' (%command% is het jar pad).
+Proton-voorvoegsel: klik eens op 'Installeer Java in prefix' en dan draait het automatisch als 'java.exe -jar &lt;jar&gt;'.Alles wat je in Startopties / Startargumenten plaatst, wordt toegevoegd als extra vlaggen. Welk voorvoegsel volgt de Proton versie hieronder ('Game default' = het voorvoegsel van het spel; een specifieke versie = een geïsoleerd voorvoegsel naast de pot).</translation>
+    </message>
+    <message>
         <source>Host (system java)</source>
         <translation>Host (systeem java)</translation>
     </message>
@@ -1897,12 +2390,52 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
         <translation>Protonvoorvoegsel (Windows Java)</translation>
     </message>
     <message>
+        <source>Launch arguments</source>
+        <translation>Opstartargumenten</translation>
+    </message>
+    <message>
+        <source>Arguments passed to the exe. Use Wine paths for file arguments (e.g. Z:\home\...) — the buttons below insert them for you.</source>
+        <translation>Argumenten doorgegeven aan de exe. Gebruik Wine paden voor bestandsargumenten (bijv. Z:\home\...).De onderstaande knoppen plaatsen ze voor u.</translation>
+    </message>
+    <message>
         <source>Insert game path</source>
         <translation>Voer het pad naar het spel in</translation>
     </message>
     <message>
         <source>Insert mod path ▼</source>
         <translation>Mod-pad invoeren ▼</translation>
+    </message>
+    <message>
+        <source>Proton version</source>
+        <translation>Protonversie</translation>
+    </message>
+    <message>
+        <source>Use a specific Proton version with an isolated prefix next to the exe, instead of the game's prefix. Useful for tools that don't work with the game's Proton version. For Bethesda games the game path (registry), plugins.txt and My Games INIs are set up in the prefix automatically at launch.</source>
+        <translation>Gebruik een specifieke Proton versie met een geïsoleerd voorvoegsel naast de exe, in plaats van de spelvoorvoegsel. Handig voor tools die niet werken met de game's Proton versie. Voor Bethesda spellen worden het spelpad (registry), plugins.txt en My Games INI's automatisch ingesteld in het voorvoegsel bij de lancering.</translation>
+    </message>
+    <message>
+        <source>Run EXE in prefix…</source>
+        <translation>EXE uitvoeren in voorvoegsel..</translation>
+    </message>
+    <message>
+        <source>Run winecfg</source>
+        <translation>Voer winecfg uit</translation>
+    </message>
+    <message>
+        <source>Run winetricks</source>
+        <translation>Winetricks uitvoeren</translation>
+    </message>
+    <message>
+        <source>Open prefix folder</source>
+        <translation>Voorvoegselmap openen</translation>
+    </message>
+    <message>
+        <source>Launch Options</source>
+        <translation>Startopties</translation>
+    </message>
+    <message>
+        <source>Steam-style options: env vars (KEY=VALUE), wrappers (e.g. gamemoderun), and %command% as placeholder for the full command. Without %command%, appended as suffix.</source>
+        <translation>Steam-stijlopties: env vars (KEY=VALUE), wrappers (bijv. gamemoderun) en %command% als plaatshouder voor het volledige commando. Zonder %command%, toegevoegd als achtervoegsel.</translation>
     </message>
     <message>
         <source>e.g. PROTON_ENABLE_WAYLAND=0 gamemoderun %command%</source>
@@ -1932,6 +2465,26 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
 <context>
     <name>ExportProfileView</name>
     <message>
+        <source>Nexus</source>
+        <translation>Nexus</translation>
+    </message>
+    <message>
+        <source>Direct</source>
+        <translation>Rechtstreeks</translation>
+    </message>
+    <message>
+        <source>Bundle</source>
+        <translation>Bundel</translation>
+    </message>
+    <message>
+        <source>Ignore</source>
+        <translation>Negeren</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+    <message>
         <source>Export Profile</source>
         <translation>Exportprofiel</translation>
     </message>
@@ -1958,6 +2511,26 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
     <message>
         <source>Export…</source>
         <translation>Exporteren…</translation>
+    </message>
+    <message>
+        <source>Mod Name</source>
+        <translation>Naam van de mod</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Bron</translation>
+    </message>
+    <message>
+        <source>Preferred Version</source>
+        <translation>Voorkeursversie</translation>
+    </message>
+    <message>
+        <source>Fomod</source>
+        <translation>Fomod</translation>
+    </message>
+    <message>
+        <source>Optional</source>
+        <translation>Optioneel</translation>
     </message>
     <message>
         <source>Nothing to save.</source>
@@ -1992,8 +2565,36 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
         <translation>Er zijn geen mods om te exporteren.</translation>
     </message>
     <message>
+        <source>mod</source>
+        <translation>mod</translation>
+    </message>
+    <message>
+        <source>mods</source>
+        <translation>mods</translation>
+    </message>
+    <message>
+        <source>is</source>
+        <translation>is</translation>
+    </message>
+    <message>
+        <source>are</source>
+        <translation>zijn</translation>
+    </message>
+    <message>
         <source>{0} Nexus {1} {2} missing a File ID and must be set before exporting.</source>
         <translation>{0} Nexus {1} {2} mist een bestands-ID en moet worden ingesteld voordat er wordt geëxporteerd.</translation>
+    </message>
+    <message>
+        <source>Export Amethyst Manifest</source>
+        <translation>Amethist Manifest exporteren</translation>
+    </message>
+    <message>
+        <source>Amethyst Manifest (*.amethyst)</source>
+        <translation>Amethist Manifest (*.amethist)</translation>
+    </message>
+    <message>
+        <source>All files</source>
+        <translation>Alle bestanden</translation>
     </message>
     <message>
         <source>Exported to {0}</source>
@@ -2007,8 +2608,88 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
 <context>
     <name>FalloutDowngradeView</name>
     <message>
+        <source>Downgrade Fallout 3 — {0}</source>
+        <translation>Downgrade Fallout 3</translation>
+    </message>
+    <message>
+        <source>Step 1: Download the Patcher</source>
+        <translation>Stap 1: Download de Patcher</translation>
+    </message>
+    <message>
+        <source>To downgrade Fallout 3 you need the
+Fallout Anniversary Patcher from Nexus Mods.
+
+Click the button below to open the mod page,
+then download the main file.</source>
+        <translation>Om te downgraden Fallout 3 moet je de
+Fallout Anniversary Patcher van Nexus Mods.
+
+Klik op de knop hieronder om de mod pagina te openen,
+download dan het hoofdbestand.</translation>
+    </message>
+    <message>
+        <source>Open Nexus Mods Page</source>
+        <translation>Open Nexus Mods Pagina</translation>
+    </message>
+    <message>
+        <source>Step 2: Locate the Archive</source>
+        <translation>Stap 2: Zoek het archief</translation>
+    </message>
+    <message>
+        <source>Step 3: Extract &amp; Run Patcher</source>
+        <translation>Stap 3: Patcher uitpakken en uitvoeren</translation>
+    </message>
+    <message>
+        <source>Select the Fallout Anniversary Patcher archive</source>
+        <translation>Selecteer het Fallout Anniversary Patcher archief</translation>
+    </message>
+    <message>
+        <source>Archive not found in Downloads.
+Make sure you downloaded the mod, then press Try Again,
+or use Browse to select it manually.</source>
+        <translation>Archief niet gevonden in Downloads.
+Zorg ervoor dat je de mod hebt gedownload en druk vervolgens op Opnieuw proberen,
+of gebruik Browse om het handmatig te selecteren.</translation>
+    </message>
+    <message>
         <source>Extracting archive to game folder…</source>
         <translation>Het archief wordt uitgepakt naar de gamemap…</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
+    </message>
+    <message>
+        <source>Game path is not configured.</source>
+        <translation>Het spoor is niet geconfigureerd.</translation>
+    </message>
+    <message>
+        <source>Archive not found.</source>
+        <translation>Archief niet gevonden.</translation>
+    </message>
+    <message>
+        <source>Could not find Patcher.exe after extraction.
+Make sure you downloaded the correct mod.</source>
+        <translation>Kon Patcher.exe niet vinden na extractie.
+Zorg ervoor dat je de juiste mod hebt gedownload.</translation>
+    </message>
+    <message>
+        <source>Running {0} via Proton…
+This may take a moment.</source>
+        <translation>{0} draaien via Proton...
+Dit kan even duren.</translation>
+    </message>
+    <message>
+        <source>Could not determine Proton version for this game.</source>
+        <translation>Kon Proton versie voor dit spel niet bepalen.</translation>
+    </message>
+    <message>
+        <source>Patcher has finished.
+
+Click Done to clean up the extracted files and close.</source>
+        <translation>Patcher is klaar.
+
+Klik Klaar om de uitgepakte bestanden op te ruimen en te sluiten.</translation>
     </message>
 </context>
 <context>
@@ -2220,6 +2901,10 @@ mod ‘{0}’, die in je mod-lijst zal verschijnen.</translation>
 <context>
     <name>Fnv4GbView</name>
     <message>
+        <source>4GB Patch — {0}</source>
+        <translation>4GB-patch</translation>
+    </message>
+    <message>
         <source>Fallout New Vegas 4GB Patch</source>
         <translation>Fallout New Vegas 4 GB-patch</translation>
     </message>
@@ -2256,12 +2941,52 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
         <translation>{0} wordt gecontroleerd…</translation>
     </message>
     <message>
+        <source>Error reading exe: {0}</source>
+        <translation>Fout bij lezen exe: {0}</translation>
+    </message>
+    <message>
+        <source>{0} not found in the game folder.</source>
+        <translation>{0} niet gevonden in de gamemap.</translation>
+    </message>
+    <message>
+        <source>{0} is already 4GB patched.</source>
+        <translation>{0} is al 4GB gepatcht.</translation>
+    </message>
+    <message>
+        <source>Unpatched {0} detected ({1} version) — ready to patch.</source>
+        <translation>Unpatched {0} gedetecteerd ({1} versie).</translation>
+    </message>
+    <message>
+        <source>Unrecognised {0} version.
+SHA-1: {1}
+It may already be modified. Verify game files in Steam/Heroic to get a clean exe, then try again.</source>
+        <translation>Niet herkende {0} versie.
+SHA-1: {1}
+Het kan al gewijzigd zijn. Controleer gamebestanden in Steam/Heroic om een schone exe te krijgen, probeer het dan opnieuw.</translation>
+    </message>
+    <message>
+        <source>Backup found: {0}</source>
+        <translation>Back-up gevonden: {0}</translation>
+    </message>
+    <message>
+        <source>No backup present.</source>
+        <translation>Geen back-up cadeau.</translation>
+    </message>
+    <message>
         <source>Patching {0}…</source>
         <translation>{0} patchen…</translation>
     </message>
     <message>
+        <source>Patch failed: {0}</source>
+        <translation>Patch mislukt: {0}</translation>
+    </message>
+    <message>
         <source>Restoring original {0}…</source>
         <translation>De oorspronkelijke {0} herstellen…</translation>
+    </message>
+    <message>
+        <source>Restore failed: {0}</source>
+        <translation>Herstellen mislukt: {0}</translation>
     </message>
 </context>
 <context>
@@ -2310,6 +3035,10 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
 <context>
     <name>GpakView</name>
     <message>
+        <source>GPAK tools — {0}</source>
+        <translation>GPAK-gereedschappen {0}</translation>
+    </message>
+    <message>
         <source>GPAK unpack / repack</source>
         <translation>GPAK uitpakken / opnieuw verpakken</translation>
     </message>
@@ -2332,6 +3061,38 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
     <message>
         <source>Log:</source>
         <translation>Logboek:</translation>
+    </message>
+    <message>
+        <source>'{0}' not found in game root.</source>
+        <translation>'{0}' niet gevonden in game root.</translation>
+    </message>
+    <message>
+        <source>Unpacking resources.gpak…</source>
+        <translation>Resources.gpak uitpakken..</translation>
+    </message>
+    <message>
+        <source>Removing previous Unpacked folder…</source>
+        <translation>Vorige uitgepakte map verwijderen..</translation>
+    </message>
+    <message>
+        <source>Unpack complete.</source>
+        <translation>Uitpakken.</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
+    </message>
+    <message>
+        <source>'{0}' folder not found. Unpack first.</source>
+        <translation>'{0}' map niet gevonden. Eerst uitpakken.</translation>
+    </message>
+    <message>
+        <source>Repacking to resources.gpak…</source>
+        <translation>Terugpakken naar resources.gpak..</translation>
+    </message>
+    <message>
+        <source>Repack complete.</source>
+        <translation>Terugpakken.</translation>
     </message>
 </context>
 <context>
@@ -2458,12 +3219,28 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
 <context>
     <name>MSCLoaderView</name>
     <message>
+        <source>Select the MSCLoader archive</source>
+        <translation>Selecteer het MSCLoader archief</translation>
+    </message>
+    <message>
         <source>Step 4: Create MSCFolder.txt</source>
         <translation>Stap 4: Maak het bestand MSCFolder.txt aan</translation>
     </message>
     <message>
         <source>Writing MSCFolder.txt…</source>
         <translation>MSCFolder.txt wordt geschreven…</translation>
+    </message>
+    <message>
+        <source>Game path not configured.</source>
+        <translation>Spelpad is niet ingesteld.</translation>
+    </message>
+    <message>
+        <source>Created MSCFolder.txt → {0}</source>
+        <translation>Aangemaakt MSCFolder.txt → {0}</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
     </message>
 </context>
 <context>
@@ -2805,6 +3582,38 @@ Het originele exe-bestand blijft bewaard als {0}.</translation>
         <translation>Bestanden doorzoeken... (probeer !.dds)</translation>
     </message>
     <message>
+        <source>Remove archives</source>
+        <translation>Archieven verwijderen</translation>
+    </message>
+    <message>
+        <source>Permanently delete {0} archive(s) from disk?
+
+</source>
+        <translation>{0}-archief(s) permanent van schijf verwijderen?
+
+?</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
+        <source>Overwrite archives</source>
+        <translation>Archieven overschrijven</translation>
+    </message>
+    <message>
+        <source>{0} file(s) already exist in that folder and will be overwritten:
+
+</source>
+        <translation>{0} bestand(s) bestaat al in die map en zal worden overschreven:
+
+</translation>
+    </message>
+    <message>
+        <source>Overwrite</source>
+        <translation>Overschrijven</translation>
+    </message>
+    <message>
         <source>Install XACT audio (XAudio2)</source>
         <translation>XACT-audio installeren (XAudio2)</translation>
     </message>
@@ -2993,12 +3802,60 @@ Wil je het toegevoegde collectievermelding verwijderen?</translation>
         <translation>Installeren: {0}</translation>
     </message>
     <message>
+        <source>Cancelling…</source>
+        <translation>Annuleren..</translation>
+    </message>
+    <message>
+        <source>Cancel install?</source>
+        <translation>Installatie annuleren?</translation>
+    </message>
+    <message>
+        <source>This will stop the install and delete the collection profile.</source>
+        <translation>Dit zal de installatie stoppen en het collectieprofiel verwijderen.</translation>
+    </message>
+    <message>
+        <source>Cancel Install</source>
+        <translation>Annuleren installeren</translation>
+    </message>
+    <message>
+        <source>Keep Going</source>
+        <translation>Blijf doorgaan</translation>
+    </message>
+    <message>
         <source>Nexus Premium not detected — manual download mode.</source>
         <translation>Nexus Premium niet gedetecteerd — handmatige downloadmodus.</translation>
     </message>
     <message>
+        <source>Paused — {0} installed.</source>
+        <translation>Gepauzeerd {0} geïnstalleerd.</translation>
+    </message>
+    <message>
         <source>Install paused — {0} mod(s) installed.</source>
         <translation>Installatie onderbroken — {0} mod(s) geïnstalleerd.</translation>
+    </message>
+    <message>
+        <source>Done — {0}/{1} installed.</source>
+        <translation>Geïnstalleerd {0}/{1}.</translation>
+    </message>
+    <message>
+        <source>Collection installed — {0}/{1} mod(s)</source>
+        <translation>Geïnstalleerde verzameling {0}/{1} mod(s)</translation>
+    </message>
+    <message>
+        <source> ({0} skipped)</source>
+        <translation>({0} overgeslagen)</translation>
+    </message>
+    <message>
+        <source>Restoring bundled mods + profile files…</source>
+        <translation>Herstel gebundelde mods + profielbestanden..</translation>
+    </message>
+    <message>
+        <source>Imported — {0}/{1} installed.</source>
+        <translation>Geïmporteerde {0}/{1} geïnstalleerd.</translation>
+    </message>
+    <message>
+        <source>Profile imported — {0}/{1} mod(s)</source>
+        <translation>Profiel geïmporteerde {0}/{1} mod(s)</translation>
     </message>
     <message>
         <source>…and {0} more</source>
@@ -3055,6 +3912,10 @@ Download en installeer ze handmatig.De links staan in het "Off-site mods"-paneel
     <message>
         <source>The login session has ended — start 'Login via SSO' again.</source>
         <translation>De inlogsessie is beëindigd — start 'Inloggen via SSO' opnieuw.</translation>
+    </message>
+    <message>
+        <source>Submit</source>
+        <translation>Verzenden</translation>
     </message>
     <message>
         <source>Nexus credentials cleared.</source>
@@ -3231,6 +4092,22 @@ Download en installeer ze handmatig.De links staan in het "Off-site mods"-paneel
     <message>
         <source>All selected mods already exist there.</source>
         <translation>Alle geselecteerde mods staan daar al.</translation>
+    </message>
+    <message>
+        <source>Copy to profile</source>
+        <translation>Naar profiel kopiëren</translation>
+    </message>
+    <message>
+        <source>{0} of {1} mod(s) already exist in '{2}'. Replace them? (Cancel skips those.)</source>
+        <translation>{0} van {1} mod(s) bestaat al in '{2}'. Vervangen? (Annuleren slaat die over.)</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Vervangen</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation>Overslaan</translation>
     </message>
     <message>
         <source>A copy/move is already in progress.</source>
@@ -3525,6 +4402,10 @@ Download en installeer ze handmatig.De links staan in het "Off-site mods"-paneel
         <translation>Installatie geannuleerd: {0}</translation>
     </message>
     <message>
+        <source>Rename</source>
+        <translation>Naam wijzigen</translation>
+    </message>
+    <message>
         <source>Replace failed: {0}</source>
         <translation>Vervanging mislukt: {0}</translation>
     </message>
@@ -3689,12 +4570,20 @@ Download en installeer ze handmatig.De links staan in het "Off-site mods"-paneel
         <translation>Mods met BA2-archieven</translation>
     </message>
     <message>
+        <source>Mods with PAK archives</source>
+        <translation>Mods met PAK archieven</translation>
+    </message>
+    <message>
         <source>Mods with BSA archives</source>
         <translation>Mods met BSA-archieven</translation>
     </message>
     <message>
         <source>{0} enabled of {1} mods</source>
         <translation>{0} {1}-mods ingeschakeld</translation>
+    </message>
+    <message>
+        <source>P:{0} / Non-ESL:{1}</source>
+        <translation>P:{0} / Non-ESL:{1}</translation>
     </message>
     <message>
         <source>{0} plugins ({1} ESL, {2} non-ESL)</source>
@@ -3981,6 +4870,18 @@ Toch inzetten?</translation>
         <translation>De mod bestaat al</translation>
     </message>
     <message>
+        <source>'{0}' is also already installed.
+Pick a different name, or choose another option.</source>
+        <translation>'{0}' is ook al geïnstalleerd.
+Kies een andere naam of kies een andere optie.</translation>
+    </message>
+    <message>
+        <source>'{0}' is already installed.
+How would you like to handle the existing mod?</source>
+        <translation>'{0}' is al geïnstalleerd.
+Hoe wil je omgaan met de bestaande mod?</translation>
+    </message>
+    <message>
         <source>New mod name…</source>
         <translation>Nieuwe mod-naam…</translation>
     </message>
@@ -3999,6 +4900,21 @@ Toch inzetten?</translation>
     <message>
         <source>Replace All</source>
         <translation>Alles vervangen</translation>
+    </message>
+</context>
+<context>
+    <name>ModFilesModel</name>
+    <message>
+        <source>File name</source>
+        <translation>Bestandsnaam</translation>
+    </message>
+    <message>
+        <source>Top Level</source>
+        <translation>Topniveau</translation>
+    </message>
+    <message>
+        <source>Disable</source>
+        <translation>Uitschakelen</translation>
     </message>
 </context>
 <context>
@@ -4025,6 +4941,14 @@ Toch inzetten?</translation>
     <message>
         <source>Add note ({0})</source>
         <translation>Notitie toevoegen ({0})</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Toevoegen</translation>
+    </message>
+    <message>
+        <source>Add separator</source>
+        <translation>Scheidingsteken toevoegen</translation>
     </message>
     <message>
         <source>Add separator above</source>
@@ -4059,8 +4983,22 @@ Toch inzetten?</translation>
         <translation>Naar profiel kopiëren ({0})</translation>
     </message>
     <message>
+        <source>Could not create the mod folder:
+{0}</source>
+        <translation>Kon de huidige map niet aanmaken:
+{0}</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Aanmaken</translation>
+    </message>
+    <message>
         <source>Create an empty mod below</source>
         <translation>Een lege mod aanmaken</translation>
+    </message>
+    <message>
+        <source>Create empty mod</source>
+        <translation>Lege mod aanmaken</translation>
     </message>
     <message>
         <source>Create empty mod below</source>
@@ -4123,6 +5061,10 @@ Toch inzetten?</translation>
         <translation>Ontbrekende vereisten ({0})</translation>
     </message>
     <message>
+        <source>Mod name:</source>
+        <translation>Mod name:</translation>
+    </message>
+    <message>
         <source>Move to profile</source>
         <translation>Ga naar profiel</translation>
     </message>
@@ -4137,6 +5079,10 @@ Toch inzetten?</translation>
     <message>
         <source>Move to separator ({0})</source>
         <translation>Ga naar de scheidingsteken ({0})</translation>
+    </message>
+    <message>
+        <source>New name:</source>
+        <translation>Nieuwe naam:</translation>
     </message>
     <message>
         <source>Open folder</source>
@@ -4191,6 +5137,10 @@ Toch inzetten?</translation>
         <translation>Scheidingstekens verwijderen ({0})</translation>
     </message>
     <message>
+        <source>Rename</source>
+        <translation>Naam wijzigen</translation>
+    </message>
+    <message>
         <source>Rename mod</source>
         <translation>Mod hernoemen</translation>
     </message>
@@ -4199,12 +5149,24 @@ Toch inzetten?</translation>
         <translation>Scheidingsteken hernoemen</translation>
     </message>
     <message>
+        <source>Separator name:</source>
+        <translation>Scheidingsnaam:</translation>
+    </message>
+    <message>
         <source>Separator settings…</source>
         <translation>Instellingen voor de scheider…</translation>
     </message>
     <message>
+        <source>Set priority</source>
+        <translation>Prioriteit instellen</translation>
+    </message>
+    <message>
         <source>Set priority…</source>
         <translation>Stel prioriteit in…</translation>
+    </message>
+    <message>
+        <source>Priority for {0}:</source>
+        <translation>Prioriteit voor {0}:</translation>
     </message>
     <message>
         <source>Show Conflicts</source>
@@ -4272,6 +5234,34 @@ Toch inzetten?</translation>
 <context>
     <name>ModLoaderInstallerView</name>
     <message>
+        <source>Select the archive</source>
+        <translation>Het archief selecteren</translation>
+    </message>
+    <message>
+        <source>Install {0} — {1}</source>
+        <translation>{0} installeren</translation>
+    </message>
+    <message>
+        <source>Step 1: Download {0}</source>
+        <translation>Stap 1: Download {0}</translation>
+    </message>
+    <message>
+        <source>Click the button below to open the {0}
+download page on Nexus Mods.
+
+Download the archive manually (do NOT use the Mod Manager
+download button), then click Next.</source>
+        <translation>Klik op onderstaande knop om de {0} te openen
+download pagina over Nexus Mods.
+
+Het archief handmatig downloaden (gebruik de Mod Manager NIET
+downloadknop), klik vervolgens op Volgende.</translation>
+    </message>
+    <message>
+        <source>Step 2: Locate the Archive</source>
+        <translation>Stap 2: Zoek het archief</translation>
+    </message>
+    <message>
         <source>Step 3: Extract to Game Folder</source>
         <translation>Stap 3: Uitpakken naar de gamemap</translation>
     </message>
@@ -4280,12 +5270,151 @@ Toch inzetten?</translation>
         <translation>Volgende →</translation>
     </message>
     <message>
+        <source>Step {0}: Run {1}</source>
+        <translation>Stap {0}: {1} uitvoeren</translation>
+    </message>
+    <message>
+        <source>{0} archive not found in Downloads.
+Make sure you downloaded it, then press Try Again,
+or use Browse to select it manually.</source>
+        <translation>{0} Archief niet gevonden in Downloads.
+Controleer of je het hebt gedownload en klik vervolgens op ‘Opnieuw proberen’,
+of gebruik ‘Bladeren’ om het handmatig te selecteren.</translation>
+    </message>
+    <message>
         <source>Extracting archive to game folder…</source>
         <translation>Het archief wordt uitgepakt naar de gamemap…</translation>
     </message>
     <message>
         <source>Launching {0} via Proton…</source>
         <translation>{0} wordt gelanceerd via Proton…</translation>
+    </message>
+    <message>
+        <source>Game path is not configured.</source>
+        <translation>Het spoor is niet geconfigureerd.</translation>
+    </message>
+    <message>
+        <source>Archive not found.</source>
+        <translation>Archief niet gevonden.</translation>
+    </message>
+    <message>
+        <source>Extracted {0} file(s).
+
+Click Next to continue.</source>
+        <translation>Uitgepakt {0}-bestand(s).
+
+Klik op Volgende om verder te gaan.</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
+    </message>
+    <message>
+        <source>{0} was not found in the game folder.
+Check that the archive extracted correctly.</source>
+        <translation>{0} is niet gevonden in de gamemap.
+Controleer of het archief correct is uitgepakt.</translation>
+    </message>
+    <message>
+        <source>Could not find Proton — check that the prefix is configured.</source>
+        <translation>Kon Proton niet vinden, controleer of het prefix is geconfigureerd.</translation>
+    </message>
+    <message>
+        <source>{0} is running.
+Close it when you are done, then click Done.</source>
+        <translation>{0} is actief.
+Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</translation>
+    </message>
+    <message>
+        <source>{0} finished.
+
+Click Done to close.</source>
+        <translation>{0} klaar.
+
+Klik op Gereed om te sluiten.</translation>
+    </message>
+</context>
+<context>
+    <name>ModRowDelegate</name>
+    <message>
+        <source>Note</source>
+        <translation>Opmerking</translation>
+    </message>
+    <message>
+        <source>Click here to open bundle settings</source>
+        <translation>Klik hier om de bundelinstellingen te openen</translation>
+    </message>
+    <message>
+        <source>Missing requirements</source>
+        <translation>Ontbrekende vereisten</translation>
+    </message>
+    <message>
+        <source>Update available on Nexus Mods</source>
+        <translation>Update beschikbaar op Nexus Mods</translation>
+    </message>
+    <message>
+        <source>Update available on mod.io</source>
+        <translation>Update beschikbaar op mod.io</translation>
+    </message>
+    <message>
+        <source>Endorsed</source>
+        <translation>Gunstig</translation>
+    </message>
+    <message>
+        <source>Pre-RTX mod</source>
+        <translation>Pre-RTX-mod</translation>
+    </message>
+    <message>
+        <source>This mod is a collection bundled mod</source>
+        <translation>Deze mod is een verzameling gebundeld mod</translation>
+    </message>
+    <message>
+        <source>This mod has diff patches applied by the collection install</source>
+        <translation>Deze mod heeft diff patches toegepast door de collectie installatie</translation>
+    </message>
+    <message>
+        <source>Modified in Mod Files tab</source>
+        <translation>Aangepast in tabblad Modbestanden</translation>
+    </message>
+    <message>
+        <source>Contains a plugin modified in xEdit</source>
+        <translation>Bevat een plugin gewijzigd in xEdit</translation>
+    </message>
+    <message>
+        <source>This mod is sent to the root folder</source>
+        <translation>Deze mod wordt naar de hoofdmap verzonden</translation>
+    </message>
+    <message>
+        <source>This mod contains files that route to the game root</source>
+        <translation>Deze mod bevat bestanden die naar de spelwortel leiden</translation>
+    </message>
+    <message>
+        <source>Loose file conflict - Winning</source>
+        <translation>Losse bestand conflict - Winnen</translation>
+    </message>
+    <message>
+        <source>Loose file conflict - Losing</source>
+        <translation>Losse bestandsconflict - verlies</translation>
+    </message>
+    <message>
+        <source>Loose file conflict - Partial</source>
+        <translation>Losse bestandsconflict - Gedeeltelijk</translation>
+    </message>
+    <message>
+        <source>Loose file conflict - Full</source>
+        <translation>Losse bestandsconflict - volledig</translation>
+    </message>
+    <message>
+        <source>Archive conflict - Winning</source>
+        <translation>Archiefconflict - Winnen</translation>
+    </message>
+    <message>
+        <source>Archive conflict - Losing</source>
+        <translation>Archiefconflict - Verliezen</translation>
+    </message>
+    <message>
+        <source>Archive conflict - Partial</source>
+        <translation>Archiefconflict - gedeeltelijk</translation>
     </message>
 </context>
 <context>
@@ -4309,6 +5438,10 @@ Toch inzetten?</translation>
     <message>
         <source>Append to existing profile</source>
         <translation>Toevoegen aan bestaand profiel</translation>
+    </message>
+    <message>
+        <source>(no profiles)</source>
+        <translation>(geen profielen)</translation>
     </message>
     <message>
         <source>Overwrite existing mods</source>
@@ -4360,6 +5493,38 @@ of in een versleuteld bestand als er geen sleutelring beschikbaar is).</translat
     <message>
         <source>Test &amp;&amp; Save</source>
         <translation>Testen &amp;&amp; Opslaan</translation>
+    </message>
+    <message>
+        <source>Enter a key first.</source>
+        <translation>Voer eerst een sleutel in.</translation>
+    </message>
+    <message>
+        <source>Testing key…</source>
+        <translation>Testsleutel..</translation>
+    </message>
+    <message>
+        <source>Key rejected by mod.io.</source>
+        <translation>Sleutel afgewezen door mod.io.</translation>
+    </message>
+    <message>
+        <source>Key test failed: {0}</source>
+        <translation>Sleuteltest mislukt: {0}</translation>
+    </message>
+    <message>
+        <source>Key saved. mod.io update checks are now enabled.</source>
+        <translation>Sleutel opgeslagen. mod.io update controles zijn nu ingeschakeld.</translation>
+    </message>
+    <message>
+        <source>Could not save key: {0}</source>
+        <translation>Kon sleutel niet opslaan: {0}</translation>
+    </message>
+    <message>
+        <source>Key cleared.</source>
+        <translation>Sleutel vrij.</translation>
+    </message>
+    <message>
+        <source>Could not clear key: {0}</source>
+        <translation>Kon sleutel niet wissen: {0}</translation>
     </message>
 </context>
 <context>
@@ -4684,6 +5849,10 @@ Elke game krijgt een eigen submap.</translation>
 <context>
     <name>PGPatcherView</name>
     <message>
+        <source>Run PGPatcher — {0}</source>
+        <translation>PGPatcher uitvoeren</translation>
+    </message>
+    <message>
         <source>Step 1: Download PGPatcher</source>
         <translation>Stap 1: PGPatcher downloaden</translation>
     </message>
@@ -4694,6 +5863,10 @@ Elke game krijgt een eigen submap.</translation>
     <message>
         <source>Step 4: Apply PGPatcher Config</source>
         <translation>Stap 4: PGPatcher-configuratie toepassen</translation>
+    </message>
+    <message>
+        <source>Step 6: Run PGPatcher</source>
+        <translation>Stap 6: PGPatcher uitvoeren</translation>
     </message>
     <message>
         <source>Step 5: Deploy Modlist</source>
@@ -4728,6 +5901,16 @@ per mod conflicteren, net als bij een echte MO2-configuratie. Experimenteel.</tr
         <translation>Implementeren</translation>
     </message>
     <message>
+        <source>Step 2: Choose Proton Version</source>
+        <translation>Stap 2: Kies de Proton-versie</translation>
+    </message>
+    <message>
+        <source>{0} was not found.
+Please restart the wizard and download PGPatcher first.</source>
+        <translation>{0} is niet gevonden.
+Herstart de wizard en download eerst PGPatcher.</translation>
+    </message>
+    <message>
         <source>Checking d3dcompiler_47…</source>
         <translation>d3dcompiler_47 wordt gecontroleerd…</translation>
     </message>
@@ -4740,12 +5923,90 @@ per mod conflicteren, net als bij een echte MO2-configuratie. Experimenteel.</tr
         <translation>PGPatcher wordt gestart…</translation>
     </message>
     <message>
+        <source>Preparing PGPatcher's Wine prefix…</source>
+        <translation>PGPatcher's wijnvoorvoegsel voorbereiden..</translation>
+    </message>
+    <message>
+        <source>Could not find Proton '{0}' — check that it is installed in Steam, then reopen this wizard.</source>
+        <translation>Kon Proton '{0}' niet vinden, controleer of het is geïnstalleerd in Steam en heropen deze wizard.</translation>
+    </message>
+    <message>
+        <source>d3dcompiler_47 already installed — skipping.</source>
+        <translation>d3dcompiler 47 is al geïnstalleerd en overslaat.</translation>
+    </message>
+    <message>
+        <source>Installing d3dcompiler_47… (may take a minute)</source>
+        <translation>Het installeren van d3dcompiler 47... (kan even duren)</translation>
+    </message>
+    <message>
+        <source>d3dcompiler_47 installed.</source>
+        <translation>d3dcompiler 47 geïnstalleerd.</translation>
+    </message>
+    <message>
+        <source>d3dcompiler_47 install failed — continuing anyway.</source>
+        <translation>d3dcompiler 47 installeren is toch mislukt.</translation>
+    </message>
+    <message>
+        <source>Checking .NET 8…</source>
+        <translation>.NET 8 wordt gecontroleerd…</translation>
+    </message>
+    <message>
+        <source>.NET 8 already installed — skipping.</source>
+        <translation>.NET 8 is al geïnstalleerd.</translation>
+    </message>
+    <message>
+        <source>.NET 8 install failed (see log).</source>
+        <translation>.NET 8 installatie mislukt (zie log).</translation>
+    </message>
+    <message>
+        <source>.NET 8 ready.</source>
+        <translation>.NET 8 klaar.</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
+    </message>
+    <message>
+        <source>{0} not found — please restart the wizard.</source>
+        <translation>{0} niet gevonden .</translation>
+    </message>
+    <message>
+        <source>Config applied.</source>
+        <translation>Configuratie toegepast.</translation>
+    </message>
+    <message>
+        <source>Config error: {0}</source>
+        <translation>Configuratiefout: {0}</translation>
+    </message>
+    <message>
         <source>Building MO2 instance…</source>
         <translation>MO2-instantie wordt opgestart…</translation>
     </message>
     <message>
+        <source>MO2 instance error: {0}</source>
+        <translation>MO2 instantiefout: {0}</translation>
+    </message>
+    <message>
         <source>{0} was not found.</source>
         <translation>{0} is niet gevonden.</translation>
+    </message>
+    <message>
+        <source>Could not find Proton '{0}' — check that it is installed in Steam.</source>
+        <translation>Kon Proton '{0}' niet vinden Controleer of het is geïnstalleerd in Steam.</translation>
+    </message>
+    <message>
+        <source>PGPatcher is running.
+Wait for it to finish, then click Done.</source>
+        <translation>PGPatcher loopt.
+Wacht tot het klaar is, klik vervolgens op Klaar.</translation>
+    </message>
+    <message>
+        <source>PGPatcher finished.</source>
+        <translation>PGPatcher klaar.</translation>
+    </message>
+    <message>
+        <source>Launch error: {0}</source>
+        <translation>Startfout: {0}</translation>
     </message>
 </context>
 <context>
@@ -4781,6 +6042,14 @@ Zodra je dit hebt gedaan, klik je op ‘Implementeren’.</translation>
         <translation>Implementeren</translation>
     </message>
     <message>
+        <source>Deploy is unavailable here.</source>
+        <translation>Deploy is hier niet beschikbaar.</translation>
+    </message>
+    <message>
+        <source>Deploying…</source>
+        <translation>Bezig met implementeren…</translation>
+    </message>
+    <message>
         <source>Deploy complete.</source>
         <translation>Implementatie voltooid.</translation>
     </message>
@@ -4813,6 +6082,26 @@ Installeer Pandora Behaviour Engine+ als mod en open deze wizard vervolgens opni
         <translation>.NET 10 wordt gecontroleerd…</translation>
     </message>
     <message>
+        <source>Preparing Pandora's Wine prefix…</source>
+        <translation>Het voorbereiden van Pandora's wijnvoorvoegsel..</translation>
+    </message>
+    <message>
+        <source>Could not find Proton '{0}' — check that it is installed in Steam, then reopen this wizard.</source>
+        <translation>Kon Proton '{0}' niet vinden, controleer of het is geïnstalleerd in Steam en heropen deze wizard.</translation>
+    </message>
+    <message>
+        <source>.NET 10 already installed — skipping.</source>
+        <translation>.NET 10 is al geïnstalleerd.</translation>
+    </message>
+    <message>
+        <source>.NET 10 installed successfully.</source>
+        <translation>.NET 10 met succes geïnstalleerd.</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
+    </message>
+    <message>
         <source>Step 4: Run Pandora</source>
         <translation>Stap 4: Start Pandora</translation>
     </message>
@@ -4825,6 +6114,24 @@ Installeer Pandora Behaviour Engine+ als mod en open deze wizard vervolgens opni
         <translation>Klaar</translation>
     </message>
     <message>
+        <source>Prefix was not prepared — go back and retry.</source>
+        <translation>Voorvoegsel was niet voorbereid ga terug en probeer het opnieuw.</translation>
+    </message>
+    <message>
+        <source>Pandora exited with error (code {0}).
+See the log for details. Click Done to close.</source>
+        <translation>Pandora eindigde met een foutmelding (code {0}).
+Zie het logboek voor details. Klik op Gereed om te sluiten.</translation>
+    </message>
+    <message>
+        <source>Pandora finished. Click Done to close.</source>
+        <translation>Pandora is klaar. Klik op Gereed om te sluiten.</translation>
+    </message>
+    <message>
+        <source>Launch error: {0}</source>
+        <translation>Startfout: {0}</translation>
+    </message>
+    <message>
         <source>Pandora is running.
 Close it when you are done, then click Done.</source>
         <translation>Pandora is gestart.
@@ -4833,6 +6140,10 @@ Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</trans
 </context>
 <context>
     <name>PluginAuditView</name>
+    <message>
+        <source>Plugin Audit — {0}</source>
+        <translation>Plugin-audit</translation>
+    </message>
     <message>
         <source>Scan Load Order</source>
         <translation>Scan-laadvolgorde</translation>
@@ -4848,6 +6159,10 @@ Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</trans
     <message>
         <source>Scanning…</source>
         <translation>Beeld wordt gescand…</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
     </message>
     <message>
         <source>No active plugins found.</source>
@@ -4882,12 +6197,56 @@ Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</trans
         <translation>Geblokkeerd</translation>
     </message>
     <message>
+        <source>Safe to disable ({0})</source>
+        <translation>Veilig uitschakelen ({0})</translation>
+    </message>
+    <message>
+        <source>Blocked — adds new records ({0})</source>
+        <translation>Geblokt voegt nieuwe records toe ({0})</translation>
+    </message>
+    <message>
+        <source>Blocked — required by other plugins ({0})</source>
+        <translation>Geblokkeerde </translation>
+    </message>
+    <message>
         <source>Audit complete — {0} plugins, {1} safe to disable.</source>
         <translation>Controle voltooid — {0} plug-ins, {1} kunnen veilig worden uitgeschakeld.</translation>
     </message>
     <message>
+        <source>Disable Selected Plugins</source>
+        <translation>Geselecteerde plugins uitschakelen</translation>
+    </message>
+    <message>
+        <source>Disable {0} plugin(s)?
+
+{1}
+
+The patches for these plugins will still apply at runtime.</source>
+        <translation>{0}-plugin(s) uitschakelen?
+
+{1}
+
+De patches voor deze plugins zullen nog steeds van toepassing zijn op runtime.</translation>
+    </message>
+    <message>
+        <source>Disable</source>
+        <translation>Uitschakelen</translation>
+    </message>
+    <message>
         <source>No orphaned INIs to clean.</source>
         <translation>Er zijn geen verweesde INI’s die moeten worden opgeruimd.</translation>
+    </message>
+    <message>
+        <source>Delete SkyGen-generated INI files for {0} plugin(s) that cannot be disabled?
+
+This removes INIs in the SkyGen BOS and SkyGen SkyPatcher output mods. INIs that ship with original mods are not affected.</source>
+        <translation>SkyGen-gegenereerde INI-bestanden verwijderen voor {0}-plugin(s) die niet kunnen worden uitgeschakeld?
+
+Dit verwijdert INI's in de SkyGen BOS en SkyGen SkyPatcher output mods. INI's die schip met originele mods zijn niet aangetast.</translation>
+    </message>
+    <message>
+        <source>Clean</source>
+        <translation>Schoon</translation>
     </message>
     <message>
         <source>Cleanup complete — deleted {0} of {1} INI(s) found.
@@ -4943,6 +6302,21 @@ Scan opnieuw om te controleren.</translation>
     <message>
         <source>(group rule — edit via Groups overlay)</source>
         <translation>(groepsregel — bewerken via het overlayscherm ‘Groepen’)</translation>
+    </message>
+</context>
+<context>
+    <name>PluginDelegate</name>
+    <message>
+        <source>Missing masters:</source>
+        <translation>Ontbrekende meesters:</translation>
+    </message>
+    <message>
+        <source>Masters loaded after this plugin:</source>
+        <translation>Meesters geladen na deze plugin:</translation>
+    </message>
+    <message>
+        <source>Version mismatched masters:</source>
+        <translation>Versie matched masters:</translation>
     </message>
 </context>
 <context>
@@ -5105,6 +6479,10 @@ Scan opnieuw om te controleren.</translation>
         <translation>Filter</translation>
     </message>
     <message>
+        <source>— no plugin selected —</source>
+        <translation>geen plugin geselecteerd</translation>
+    </message>
+    <message>
         <source>Rules for: {0}</source>
         <translation>Regels voor: {0}</translation>
     </message>
@@ -5191,6 +6569,10 @@ Sleep een plug-in vanuit het linkerdeelvenster om een regel toe te voegen.</tran
         <translation>{0} gevonden voorvoegsels.</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
         <source>Deleting…</source>
         <translation>Bezig met verwijderen…</translation>
     </message>
@@ -5256,12 +6638,28 @@ Sleep een plug-in vanuit het linkerdeelvenster om een regel toe te voegen.</tran
 <context>
     <name>ProtonStepWidget</name>
     <message>
+        <source>Choose Proton Version</source>
+        <translation>Kies Protonversie</translation>
+    </message>
+    <message>
+        <source>Each version gets its own prefix; dependencies are installed into it automatically on the next step.</source>
+        <translation>Elke versie krijgt zijn eigen prefix; afhankelijkheden worden automatisch geïnstalleerd in de volgende stap.</translation>
+    </message>
+    <message>
         <source>No Proton versions were found.
 
 Install a Proton version in Steam, then reopen this wizard.</source>
         <translation>Er zijn geen Proton-versies gevonden.
 
 Installeer een Proton-versie in Steam en open deze wizard vervolgens opnieuw.</translation>
+    </message>
+    <message>
+        <source>{0} runs in its own Wine prefix, stored next to its exe and separate from the game's prefix, so you can pick any Proton version without affecting the game.
+
+</source>
+        <translation>{0} draait in zijn eigen Wine prefix, opgeslagen naast zijn exe en gescheiden van de game's prefix, zodat u kunt kiezen elke Proton versie zonder invloed op het spel.
+
+.</translation>
     </message>
     <message>
         <source>Use shared prefix</source>
@@ -5392,6 +6790,26 @@ Als het spel nog steeds niet goed werkt, controleer dan de spelbestanden via Ste
         <source>Log:</source>
         <translation>Logboek:</translation>
     </message>
+    <message>
+        <source>Repairing PAK files from game-root manifest …</source>
+        <translation>Reparatie van PAK-bestanden van game-root manifest ..</translation>
+    </message>
+    <message>
+        <source>Repair complete — restored {0} entry to vanilla.</source>
+        <translation>Repareer de volledige {0}-ingang naar vanille.</translation>
+    </message>
+    <message>
+        <source>Repair complete — restored {0} entries to vanilla.</source>
+        <translation>Repareer de volledige {0}-ingangen naar vanille.</translation>
+    </message>
+    <message>
+        <source>Nothing to repair — the PAK entries are already vanilla (or no manifest was found).</source>
+        <translation>Niets om te repareren De PAK-inzendingen zijn al vanille (of er is geen manifest gevonden).</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
+    </message>
 </context>
 <context>
     <name>ReShadeView</name>
@@ -5418,6 +6836,14 @@ Als het spel nog steeds niet goed werkt, controleer dan de spelbestanden via Ste
     <message>
         <source>Executable architecture</source>
         <translation>Uitvoerbare architectuur</translation>
+    </message>
+    <message>
+        <source>64-bit</source>
+        <translation>64-bit</translation>
+    </message>
+    <message>
+        <source>32-bit</source>
+        <translation>32-bit</translation>
     </message>
     <message>
         <source>Next →</source>
@@ -5456,6 +6882,10 @@ Als het spel nog steeds niet goed werkt, controleer dan de spelbestanden via Ste
         <translation>← Terug</translation>
     </message>
     <message>
+        <source>Select a ReShade preset (.ini)</source>
+        <translation>Selecteer een ReShade-voorinstelling (.ini)</translation>
+    </message>
+    <message>
         <source>{0} (no effects found — using pack selection)</source>
         <translation>{0} (geen resultaten gevonden — selectie op pakket)</translation>
     </message>
@@ -5470,6 +6900,44 @@ Als het spel nog steeds niet goed werkt, controleer dan de spelbestanden via Ste
     <message>
         <source>Fetching latest ReShade version…</source>
         <translation>De nieuwste versie van ReShade wordt opgehaald…</translation>
+    </message>
+    <message>
+        <source>Downloading ReShade and shaders…</source>
+        <translation>ReShade en shaders downloaden..</translation>
+    </message>
+    <message>
+        <source>Downloaded ReShade and shaders successfully.</source>
+        <translation>Gedownload ReShade en shaders succesvol.</translation>
+    </message>
+    <message>
+        <source>Trimming shaders to preset…</source>
+        <translation>Schaduwen afknippen om voor te stellen..</translation>
+    </message>
+    <message>
+        <source>Installed {0} of {1} preset effects.</source>
+        <translation>Geïnstalleerd {0} van {1} vooraf ingestelde effecten.</translation>
+    </message>
+    <message>
+        <source>Missing (not in any pack): {0}</source>
+        <translation>Ontbrekend (niet in een verpakking): {0}</translation>
+    </message>
+    <message>
+        <source>Skipped (renamed/removed upstream): {0}</source>
+        <translation>Overgeslagen (hernoemd/verwijderd stroomopwaarts): {0}</translation>
+    </message>
+    <message>
+        <source>Trimmed shaders to {0} preset effect(s).</source>
+        <translation>Getrimde shaders naar {0} vooraf ingestelde effect(s).</translation>
+    </message>
+    <message>
+        <source>Download failed:
+{0}
+
+Check your internet connection and try again.</source>
+        <translation>Downloaden mislukt:
+{0}
+
+Controleer uw internetverbinding en probeer het opnieuw.</translation>
     </message>
     <message>
         <source>Retry ↺</source>
@@ -5510,6 +6978,20 @@ Dit kan tot een minuut duren.</translation>
         <translation>Bezig met installeren…</translation>
     </message>
     <message>
+        <source>Install error: {0}</source>
+        <translation>Installeerfout: {0}</translation>
+    </message>
+    <message>
+        <source>d3dcompiler_47 installed successfully.
+Click Next to continue.</source>
+        <translation>d3dcompiler 47 met succes geïnstalleerd.
+Klik op Volgende om verder te gaan.</translation>
+    </message>
+    <message>
+        <source>Install failed — you can Skip and install it manually.</source>
+        <translation>Installeren is mislukt. U kunt het handmatig overslaan en installeren.</translation>
+    </message>
+    <message>
         <source>Retry</source>
         <translation>Opnieuw proberen</translation>
     </message>
@@ -5520,6 +7002,18 @@ Dit kan tot een minuut duren.</translation>
     <message>
         <source>Install destination</source>
         <translation>Installatielocatie</translation>
+    </message>
+    <message>
+        <source>Game folder</source>
+        <translation>Spelmap</translation>
+    </message>
+    <message>
+        <source>Root_Folder (staging)</source>
+        <translation>Rootmap (staging)</translation>
+    </message>
+    <message>
+        <source>As a managed mod (root-flagged)</source>
+        <translation>Als een beheerde mod (root-vlagged)</translation>
     </message>
     <message>
         <source>Mod name</source>
@@ -5545,9 +7039,17 @@ wordt naar het Proton-prefix geschreven.</translation>
         <source>{0} - ReShade</source>
         <translation>{0} - ReShade</translation>
     </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
+    </message>
 </context>
 <context>
     <name>RegisterGamePathView</name>
+    <message>
+        <source>Register Game Path — {0}</source>
+        <translation>Spelpad registreren {0}</translation>
+    </message>
     <message>
         <source>not configured</source>
         <translation>niet geconfigureerd</translation>
@@ -5583,6 +7085,34 @@ Proton-voorvoegsel: {2}</translation>
     <message>
         <source>Retry</source>
         <translation>Opnieuw proberen</translation>
+    </message>
+    <message>
+        <source>This game has no Bethesda registry name; nothing to do.</source>
+        <translation>Dit spel heeft geen Bethesda registernaam; niets te doen.</translation>
+    </message>
+    <message>
+        <source>Game path or Proton prefix not available.</source>
+        <translation>Spelpad of Proton-voorvoegsel niet beschikbaar.</translation>
+    </message>
+    <message>
+        <source>Prefix: {0}</source>
+        <translation>Voorvoegsel: {0}</translation>
+    </message>
+    <message>
+        <source>Proton: {0}</source>
+        <translation>Proton: {0}</translation>
+    </message>
+    <message>
+        <source>Registry write raised: {0}</source>
+        <translation>Register schrijven verhoogd: {0}</translation>
+    </message>
+    <message>
+        <source>Registry keys written (64-bit + Wow6432Node views).</source>
+        <translation>Registersleutels geschreven (64-bit + Wow6432 Node views).</translation>
+    </message>
+    <message>
+        <source>Registry write finished with errors — see log above.</source>
+        <translation>Registry write voltooid met fouten .</translation>
     </message>
 </context>
 <context>
@@ -5627,6 +7157,10 @@ Kies 'Behouden' als dit een optionele/alternatieve variant is in plaats van een 
         <translation>Sluiten</translation>
     </message>
     <message>
+        <source>SSE Display Tweaks — {0}</source>
+        <translation>SSE-weergave Tweaks</translation>
+    </message>
+    <message>
         <source>Reset to defaults</source>
         <translation>Terugzetten naar standaardinstellingen</translation>
     </message>
@@ -5656,6 +7190,13 @@ Kies 'Behouden' als dit een optionele/alternatieve variant is in plaats van een 
     </message>
 </context>
 <context>
+    <name>SRMLView</name>
+    <message>
+        <source>Select the SRML archive</source>
+        <translation>Selecteer het SRML-archief</translation>
+    </message>
+</context>
+<context>
     <name>ScriptExtenderView</name>
     <message>
         <source>Install Script Extender — {0}</source>
@@ -5668,6 +7209,18 @@ Kies 'Behouden' als dit een optionele/alternatieve variant is in plaats van een 
     <message>
         <source>Install destination</source>
         <translation>Installatielocatie</translation>
+    </message>
+    <message>
+        <source>Game folder (restores to vanilla first)</source>
+        <translation>Spelmap (eerste herstelt naar vanille)</translation>
+    </message>
+    <message>
+        <source>Root_Folder (staging)</source>
+        <translation>Rootmap (staging)</translation>
+    </message>
+    <message>
+        <source>As a managed mod (root-flagged)</source>
+        <translation>Als een beheerde mod (root-vlagged)</translation>
     </message>
     <message>
         <source>Choose a Version</source>
@@ -5694,6 +7247,38 @@ Kies 'Behouden' als dit een optionele/alternatieve variant is in plaats van een 
         <translation>Volgende →</translation>
     </message>
     <message>
+        <source>Fetching release from GitHub…</source>
+        <translation>Vrijgave van GitHub ophalen..</translation>
+    </message>
+    <message>
+        <source>selected version</source>
+        <translation>geselecteerde versie</translation>
+    </message>
+    <message>
+        <source>No download URL configured.</source>
+        <translation>Geen URL-adres ingesteld.</translation>
+    </message>
+    <message>
+        <source>Downloading {0}…</source>
+        <translation>{0} wordt gedownload…</translation>
+    </message>
+    <message>
+        <source>Downloaded {0}.
+Choose the install destination, then click Next.</source>
+        <translation>{0} gedownload.
+Kies de installatiebestemming en klik vervolgens op Volgende.</translation>
+    </message>
+    <message>
+        <source>Download failed:
+{0}
+
+Use Browse… to pick an archive you downloaded manually.</source>
+        <translation>Downloaden mislukt:
+{0}
+
+Gebruik Bladeren... om een archief te kiezen dat je handmatig hebt gedownload.</translation>
+    </message>
+    <message>
         <source>This script extender must be downloaded manually. Click the button below to open the download page, save the archive to your Downloads folder, then click Next.</source>
         <translation>Deze script-extender moet handmatig worden gedownload. Klik op de onderstaande knop om de downloadpagina te openen, sla het archief op in je map ‘Downloads’ en klik vervolgens op ‘Volgende’.</translation>
     </message>
@@ -5710,12 +7295,62 @@ Kies 'Behouden' als dit een optionele/alternatieve variant is in plaats van een 
         <translation>Probeer het nog eens</translation>
     </message>
     <message>
+        <source>Found: {0}
+Click Next to install it.</source>
+        <translation>Gevonden: {0}
+Klik op Volgende om het te installeren.</translation>
+    </message>
+    <message>
+        <source>No archive matching '{0}' was found in your Downloads folder.
+Download it first, then Try Again — or Browse… to pick the file.</source>
+        <translation>Er is geen archief gevonden dat overeenkomt met '{0}' in uw Downloads-map.
+Download het eerst, probeer het vervolgens opnieuw of Bladeren... om het bestand te kiezen.</translation>
+    </message>
+    <message>
+        <source>Select the script extender archive</source>
+        <translation>Selecteer het script extender archief</translation>
+    </message>
+    <message>
+        <source>Selected: {0}
+Choose the install destination, then click Next.</source>
+        <translation>Geselecteerd: {0}
+Kies de installatiebestemming en klik vervolgens op Volgende.</translation>
+    </message>
+    <message>
+        <source>Selected: {0}
+Click Next to install it.</source>
+        <translation>Geselecteerd: {0}
+Klik op Volgende om het te installeren.</translation>
+    </message>
+    <message>
         <source>Install Script Extender</source>
         <translation>Script Extender installeren</translation>
     </message>
     <message>
         <source>Done</source>
         <translation>Klaar</translation>
+    </message>
+    <message>
+        <source>Extracting…</source>
+        <translation>Bezig met uitpakken…</translation>
+    </message>
+    <message>
+        <source>Restoring game to vanilla state…</source>
+        <translation>Spel herstellen naar vanille staat..</translation>
+    </message>
+    <message>
+        <source>Script extender installed successfully!
+{0} file(s) extracted to the {1}.
+
+Click Done to close.</source>
+        <translation>Script extender succesvol geïnstalleerd!
+{0} bestand(s) uitgepakt naar de {1}.
+
+Klik op Gereed om te sluiten.</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
     </message>
 </context>
 <context>
@@ -5729,12 +7364,78 @@ Kies 'Behouden' als dit een optionele/alternatieve variant is in plaats van een 
         <translation>Overslaan</translation>
     </message>
     <message>
+        <source>Step 2: Download Script Merger</source>
+        <translation>Stap 2: Download Script Fusie</translation>
+    </message>
+    <message>
+        <source>Click the button below to open the Script Merger download page
+on Nexus Mods, then download the archive.
+
+Once downloaded, click Next.</source>
+        <translation>Klik op de knop hieronder om de Script Merger download pagina te openen
+op Nexus Mods, download dan het archief.
+
+Eenmaal gedownload, klikt u op Volgende.</translation>
+    </message>
+    <message>
+        <source>Step 3: Locate the Archive</source>
+        <translation>Stap 3: Zoek het archief</translation>
+    </message>
+    <message>
+        <source>Step 4: Extract Script Merger</source>
+        <translation>Stap 4: Scriptfusie uitpakken</translation>
+    </message>
+    <message>
         <source>Step 6: Install .NET 8</source>
         <translation>Stap 6: Installeer .NET 8</translation>
     </message>
     <message>
+        <source>Step 7: Run Script Merger</source>
+        <translation>Stap 7: Scriptfusie uitvoeren</translation>
+    </message>
+    <message>
+        <source>Select the Script Merger archive</source>
+        <translation>Selecteer het archief Scriptfusie</translation>
+    </message>
+    <message>
+        <source>Script Merger archive not found in Downloads.
+Make sure you downloaded it, then press Try Again,
+or use Browse to select it manually.</source>
+        <translation>Script Fusie archief niet gevonden in Downloads.
+Zorg ervoor dat je het hebt gedownload en druk op Opnieuw proberen,
+of gebruik Browse om het handmatig te selecteren.</translation>
+    </message>
+    <message>
+        <source>Step 5: Choose Proton Version</source>
+        <translation>Stap 5: Kies Proton versie</translation>
+    </message>
+    <message>
         <source>Checking .NET 8…</source>
         <translation>.NET 8 wordt gecontroleerd…</translation>
+    </message>
+    <message>
+        <source>Preparing Script Merger's Wine prefix…</source>
+        <translation>Voorbereiden van het voorvoegsel van de scriptfusie van de wijn..</translation>
+    </message>
+    <message>
+        <source>Could not find Proton '{0}' — check that it is installed in Steam, then reopen this wizard.</source>
+        <translation>Kon Proton '{0}' niet vinden, controleer of het is geïnstalleerd in Steam en heropen deze wizard.</translation>
+    </message>
+    <message>
+        <source>.NET 8 already installed — skipping.</source>
+        <translation>.NET 8 is al geïnstalleerd.</translation>
+    </message>
+    <message>
+        <source>.NET 8 install failed (see log).</source>
+        <translation>.NET 8 installatie mislukt (zie log).</translation>
+    </message>
+    <message>
+        <source>.NET 8 ready.</source>
+        <translation>.NET 8 klaar.</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
     </message>
     <message>
         <source>Existing Merges Use Missing Mods</source>
@@ -5771,10 +7472,32 @@ Annuleer en schakel de vermelde mods opnieuw in om de samenvoegingen te behouden
         <translation>WitcherScriptMerger wordt gestart…</translation>
     </message>
     <message>
+        <source>Run Script Merger — {0}</source>
+        <translation>Script-fusie uitvoeren</translation>
+    </message>
+    <message>
         <source>{0} was not found.
 Please restart the wizard and install Script Merger first.</source>
         <translation>{0} is niet gevonden.
 Start de wizard opnieuw op en installeer eerst Script Merger.</translation>
+    </message>
+    <message>
+        <source>Could not find Proton '{0}' — check that it is installed in Steam.</source>
+        <translation>Kon Proton '{0}' niet vinden Controleer of het is geïnstalleerd in Steam.</translation>
+    </message>
+    <message>
+        <source>WitcherScriptMerger is running.
+Merge your conflicts, then close it and click Done.</source>
+        <translation>WitcherScriptMerger draait.
+Uw conflicten samenvoegen, dan sluiten en klik op Klaar.</translation>
+    </message>
+    <message>
+        <source>WitcherScriptMerger closed.</source>
+        <translation>WitcherScriptMerger gesloten.</translation>
+    </message>
+    <message>
+        <source>Launch error: {0}</source>
+        <translation>Startfout: {0}</translation>
     </message>
     <message>
         <source>Restoring game files (rescuing merges)…</source>
@@ -6197,6 +7920,10 @@ Start de wizard opnieuw op en installeer eerst Script Merger.</translation>
 <context>
     <name>SkyGenView</name>
     <message>
+        <source>SkyGen — Patch Generator — {0}</source>
+        <translation>Skygen Patch Generator {0}</translation>
+    </message>
+    <message>
         <source>Step 1: Scan Active Plugins</source>
         <translation>Stap 1: Actieve plug-ins scannen</translation>
     </message>
@@ -6215,6 +7942,10 @@ Start de wizard opnieuw op en installeer eerst Script Merger.</translation>
     <message>
         <source>Scanning…</source>
         <translation>Beeld wordt gescand…</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
     </message>
     <message>
         <source>No active plugins found.
@@ -6291,6 +8022,10 @@ Uitvoer-mod:{2}
 <context>
     <name>SmapiView</name>
     <message>
+        <source>Install SMAPI — {0}</source>
+        <translation>Installeer SMAPI {0}</translation>
+    </message>
+    <message>
         <source>Step 1: Download SMAPI</source>
         <translation>Stap 1: SMAPI downloaden</translation>
     </message>
@@ -6313,6 +8048,30 @@ Volg de instructies en druk vervolgens op een toets om het venster te sluiten.</
         <translation>Volgende →</translation>
     </message>
     <message>
+        <source>Fetching latest SMAPI release from GitHub…</source>
+        <translation>Laatste SMAPI versie van GitHub ophalen..</translation>
+    </message>
+    <message>
+        <source>Downloading SMAPI {0}…</source>
+        <translation>SMAPI {0} wordt gedownload..</translation>
+    </message>
+    <message>
+        <source>Downloaded SMAPI {0}: {1}</source>
+        <translation>Gedownloade SMAPI {0}: {1}</translation>
+    </message>
+    <message>
+        <source>Download failed: {0}
+
+Use Browse to select a manually downloaded archive.</source>
+        <translation>Downloaden mislukt: {0}
+
+Gebruik Bladeren om een handmatig gedownload archief te selecteren.</translation>
+    </message>
+    <message>
+        <source>Select the SMAPI archive</source>
+        <translation>Selecteer het SMAPI archief</translation>
+    </message>
+    <message>
         <source>Selected: {0}</source>
         <translation>Geselecteerd: {0}</translation>
     </message>
@@ -6328,6 +8087,35 @@ Volg de instructies en druk vervolgens op een toets om het venster te sluiten.</
         <source>Extracting SMAPI archive…</source>
         <translation>SMAPI-archief wordt uitgepakt…</translation>
     </message>
+    <message>
+        <source>Launching the SMAPI installer in a terminal.
+
+Follow the on-screen prompts, then press a key to close the terminal and click Done here.</source>
+        <translation>Start de SMAPI installatie in een terminal.
+
+Volg de aanwijzingen op het scherm, druk vervolgens op een toets om de terminal te sluiten en klik hier op Klaar.</translation>
+    </message>
+    <message>
+        <source>SMAPI installer finished.
+
+If it completed successfully, SMAPI is now installed.
+Click Done to close.</source>
+        <translation>SMAPI installateur klaar.
+
+Als het succesvol is voltooid, is SMAPI nu geïnstalleerd.
+Klik op Gereed om te sluiten.</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
+    </message>
+</context>
+<context>
+    <name>Splash</name>
+    <message>
+        <source>Starting Amethyst…</source>
+        <translation>Amethist starten..</translation>
+    </message>
 </context>
 <context>
     <name>StatsBar</name>
@@ -6339,12 +8127,24 @@ Volg de instructies en druk vervolgens op een toets om het venster te sluiten.</
 <context>
     <name>SynthesisView</name>
     <message>
+        <source>Run Synthesis — {0}</source>
+        <translation>Synthese uitvoeren {0}</translation>
+    </message>
+    <message>
         <source>Step 1: Download Synthesis</source>
         <translation>Stap 1: Synthesis downloaden</translation>
     </message>
     <message>
         <source>Fetching latest release from GitHub …</source>
         <translation>De nieuwste versie ophalen van GitHub …</translation>
+    </message>
+    <message>
+        <source>Installed Synthesis {0}.</source>
+        <translation>Geïnstalleerde synthese {0}.</translation>
+    </message>
+    <message>
+        <source>Download failed: {0}</source>
+        <translation>Downloaden mislukt: {0}</translation>
     </message>
     <message>
         <source>Step 2: Select Proton Version</source>
@@ -6377,12 +8177,52 @@ Kies een Proton-versie waarmee je die prefix wilt aanmaken.</translation>
         <translation>Lancering van Synthesis</translation>
     </message>
     <message>
+        <source>Game path is not configured; aborting.</source>
+        <translation>Spelpad is niet geconfigureerd; afgebroken.</translation>
+    </message>
+    <message>
+        <source>Game path not configured.</source>
+        <translation>Spelpad is niet ingesteld.</translation>
+    </message>
+    <message>
+        <source>No Proton selected; aborting.</source>
+        <translation>Geen Proton geselecteerd; afbreken.</translation>
+    </message>
+    <message>
+        <source>Synthesis dir: {0}</source>
+        <translation>Synthese dir: {0}</translation>
+    </message>
+    <message>
+        <source>Proton: {0}</source>
+        <translation>Proton: {0}</translation>
+    </message>
+    <message>
+        <source>Game path: {0}</source>
+        <translation>Spelpad: {0}</translation>
+    </message>
+    <message>
+        <source>Prefix setup raised: {0}</source>
+        <translation>Voorvoegsel instellen verhoogd: {0}</translation>
+    </message>
+    <message>
+        <source>Prefix ready. Click Launch Synthesis.</source>
+        <translation>Voorvoegsel klaar. Klik op Synthese starten.</translation>
+    </message>
+    <message>
+        <source>Setup completed with errors — launch may still work.</source>
+        <translation>Setup voltooid met fouten Lancering kan nog steeds werken.</translation>
+    </message>
+    <message>
         <source>Running …</source>
         <translation>Hardlopen …</translation>
     </message>
 </context>
 <context>
     <name>TTWView</name>
+    <message>
+        <source>Install Tale of Two Wastelands — {0}</source>
+        <translation>Installeer Verhaal van Twee Wastelands</translation>
+    </message>
     <message>
         <source>Step 1: Install the TTW MPI Installer</source>
         <translation>Stap 1: Installeer het TTW MPI-installatieprogramma</translation>
@@ -6412,6 +8252,30 @@ Klik op ‘Installeren’ om te beginnen.</translation>
     <message>
         <source>Contacting GitHub…</source>
         <translation>Verbinding maken met GitHub…</translation>
+    </message>
+    <message>
+        <source>No Linux installer asset found in the latest TTW release ({0}).</source>
+        <translation>Geen Linux installatie activa gevonden in de nieuwste TTW release ({0}).</translation>
+    </message>
+    <message>
+        <source>Downloading TTW installer {0}…</source>
+        <translation>Downloaden van TTW installatie {0}..</translation>
+    </message>
+    <message>
+        <source>Extracting installer…</source>
+        <translation>Uitpakken van installatie..</translation>
+    </message>
+    <message>
+        <source>{0} not found after extraction at {1}.</source>
+        <translation>{0} niet gevonden na extractie bij {1}.</translation>
+    </message>
+    <message>
+        <source>Installer ready.</source>
+        <translation>Installer klaar.</translation>
+    </message>
+    <message>
+        <source>Install error: {0}</source>
+        <translation>Installeerfout: {0}</translation>
     </message>
     <message>
         <source>Tale of Two Wastelands is already installed</source>
@@ -6458,12 +8322,52 @@ Download de nieuwste TTW .mpi van mod.pub (gratis account vereist) — pak het g
         <translation>Open de TTW-pagina van mod.pub</translation>
     </message>
     <message>
+        <source>Fallout New Vegas:</source>
+        <translation>Fallout New Vegas:</translation>
+    </message>
+    <message>
+        <source>Select the Fallout New Vegas folder</source>
+        <translation>Selecteer de map Fallout New Vegas</translation>
+    </message>
+    <message>
+        <source>Fallout 3:</source>
+        <translation>Fallout 3:</translation>
+    </message>
+    <message>
+        <source>Select the Fallout 3 folder</source>
+        <translation>Selecteer de Fallout 3 map</translation>
+    </message>
+    <message>
+        <source>TTW .mpi package:</source>
+        <translation>TTW .mpi pakket:</translation>
+    </message>
+    <message>
+        <source>Choose .mpi…</source>
+        <translation>Kies.mpi..</translation>
+    </message>
+    <message>
         <source>Continue</source>
         <translation>Doorgaan</translation>
     </message>
     <message>
+        <source>Browse…</source>
+        <translation>Bladeren…</translation>
+    </message>
+    <message>
         <source>— not set —</source>
         <translation>— niet ingesteld —</translation>
+    </message>
+    <message>
+        <source>Select the TTW .mpi package</source>
+        <translation>Selecteer het TTW .mpi pakket</translation>
+    </message>
+    <message>
+        <source>TTW Package (*.mpi)</source>
+        <translation>TTW-pakket (*.mpi)</translation>
+    </message>
+    <message>
+        <source>All files</source>
+        <translation>Alle bestanden</translation>
     </message>
     <message>
         <source>Please select the TTW .mpi package.</source>
@@ -6497,6 +8401,92 @@ De uitvoer wordt rechtstreeks in je modlijst opgeslagen als de mod ‘{0}’.</t
         <source>Done</source>
         <translation>Klaar</translation>
     </message>
+    <message>
+        <source>Installer binary is missing. Restart the wizard and let it install first.</source>
+        <translation>Installer binaire is vermist. Herstart de wizard en laat het eerst installeren.</translation>
+    </message>
+    <message>
+        <source>Restoring game to vanilla…</source>
+        <translation>Spel herstellen naar vanille..</translation>
+    </message>
+    <message>
+        <source>Restoring game to a vanilla state before install…</source>
+        <translation>Het herstellen van spel naar een vanille staat voordat..</translation>
+    </message>
+    <message>
+        <source>Restore failed — see the log. Fix the issue (or restore manually via the Restore button) and retry.</source>
+        <translation>Terugzetten mislukt Zie het logboek. Repareer het probleem (of herstel handmatig via de knop Herstellen) en probeer het opnieuw.</translation>
+    </message>
+    <message>
+        <source>Mod staging path is not configured.</source>
+        <translation>Mod staging pad is niet geconfigureerd.</translation>
+    </message>
+    <message>
+        <source>Fallout New Vegas: {0}</source>
+        <translation>Fallout New Vegas: {0}</translation>
+    </message>
+    <message>
+        <source>Fallout 3: {0}</source>
+        <translation>Fallout 3: {0}</translation>
+    </message>
+    <message>
+        <source>ERROR: missing vanilla plugin files:
+{0}</source>
+        <translation>FOUT: ontbrekende vanille-pluginbestanden:
+{0}</translation>
+    </message>
+    <message>
+        <source>Missing vanilla plugin files even after restoring to vanilla — these were never backed up.
+In Steam, right-click each game → Properties → Installed Files → Verify integrity of game files, then retry.
+
+{0}</source>
+        <translation>Ontbrekende vanille plugin bestanden, zelfs na het herstellen van vanille 
+In Steam, klik met de rechtermuisknop op elk spel → Eigenschappen → Geïnstalleerde bestanden → Controleer de integriteit van gamebestanden, probeer het dan opnieuw.
+
+{0}</translation>
+    </message>
+    <message>
+        <source>Installing… (see log below)</source>
+        <translation>Installeren... (zie log hieronder)</translation>
+    </message>
+    <message>
+        <source>Launch error: {0}</source>
+        <translation>Startfout: {0}</translation>
+    </message>
+    <message>
+        <source>Installer exited with error (code {0}). See the log for details.</source>
+        <translation>Installer afgesloten met fout (code {0}). Zie het logboek voor details.</translation>
+    </message>
+    <message>
+        <source>Install complete — registering mod…</source>
+        <translation>Installeer complete .</translation>
+    </message>
+    <message>
+        <source>Install finished but registering the mod failed: {0}</source>
+        <translation>Installeer voltooid maar registreren van de mod is mislukt: {0}</translation>
+    </message>
+    <message>
+        <source>Setting up profile INIs + FalloutCustom.ini for TTW…</source>
+        <translation>Profiel INI's + FalloutCustom.ini instellen voor TTW..</translation>
+    </message>
+    <message>
+        <source>Recommended Nexus mods are flagged on the TTW mod via the 'missing requirements' marker (installed ones are hidden automatically).</source>
+        <translation>Aanbevolen Nexus mods worden gemarkeerd op de TTW mod via de 'ontbrekende vereisten' marker (geïnstalleerde mods worden automatisch verborgen).</translation>
+    </message>
+    <message>
+        <source>Done! '{0}' was added to your mod list. Enable it and deploy.</source>
+        <translation>Klaar! '{0}' is toegevoegd aan je mod lijst. Inschakelen en inzetten.</translation>
+    </message>
+    <message>
+        <source>Setup re-applied for the existing '{0}' mod. Enable it and deploy.</source>
+        <translation>Setup opnieuw toegepast voor de bestaande '{0}' mod. Inschakelen en inzetten.</translation>
+    </message>
+    <message>
+        <source>
+
+TTW needs several supporting mods (script extender plugins, patches, etc.). These are flagged on the TTW mod via the red 'missing requirements' marker — click it to install them, then deploy.</source>
+        <translation>TTW heeft verschillende ondersteunende mods nodig (script extender plugins, patches, etc.). Deze worden gemarkeerd op de TTW mod via de rode 'ontbrekende eisen' marker .</translation>
+    </message>
 </context>
 <context>
     <name>TextEditor</name>
@@ -6522,6 +8512,24 @@ De uitvoer wordt rechtstreeks in je modlijst opgeslagen als de mod ‘{0}’.</t
     </message>
 </context>
 <context>
+    <name>TextFilesModel</name>
+    <message>
+        <source>Name</source>
+        <translation>Naam</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Bron</translation>
+    </message>
+</context>
+<context>
+    <name>TextFilesView</name>
+    <message>
+        <source>(no ext)</source>
+        <translation>(geen ext)</translation>
+    </message>
+</context>
+<context>
     <name>TextInputOverlay</name>
     <message>
         <source>Cancel</source>
@@ -6530,6 +8538,54 @@ De uitvoer wordt rechtstreeks in je modlijst opgeslagen als de mod ‘{0}’.</t
 </context>
 <context>
     <name>TextureToolView</name>
+    <message>
+        <source>Select an optimisation preset, then click Run.</source>
+        <translation>Selecteer een optimalisatievoorinstelling en klik vervolgens op Uitvoeren.</translation>
+    </message>
+    <message>
+        <source>Processes normal maps: BSA extract → filter → parallax prep → bend normals → BC7 compress</source>
+        <translation>Processen normale kaarten: BSA extract → filter → parallax prep → bocht normals → BC7 compress</translation>
+    </message>
+    <message>
+        <source>Processes parallax textures: BSA extract → filter pairs → height maps → output QC</source>
+        <translation>Processen parallax texturen: BSA extract → filterparen → hoogtekaarten → output QC</translation>
+    </message>
+    <message>
+        <source>Run {0} — {1}</source>
+        <translation>Voer {0} uit — {1}</translation>
+    </message>
+    <message>
+        <source>Step 1: Download {0}</source>
+        <translation>Stap 1: Download {0}</translation>
+    </message>
+    <message>
+        <source>Click the button below to open the {0} page on Nexus Mods, then download the archive.
+
+Once downloaded, click Next.</source>
+        <translation>Klik op de knop hieronder om de {0} pagina op Nexus Mods te openen en download het archief.
+
+Eenmaal gedownload, klikt u op Volgende.</translation>
+    </message>
+    <message>
+        <source>Step 2: Locate the Archive</source>
+        <translation>Stap 2: Zoek het archief</translation>
+    </message>
+    <message>
+        <source>Step 3: Extract {0}</source>
+        <translation>Stap 3: Pak ‘{0}’ uit</translation>
+    </message>
+    <message>
+        <source>Step 4: Deploy Modlist</source>
+        <translation>Stap 4: Modlist implementeren</translation>
+    </message>
+    <message>
+        <source>{0} reads your mods from the deployed Data folder.
+
+Deploy your modlist first, then click Run.</source>
+        <translation>{0} leest uw mods uit de geïmplementeerde Data map.
+
+Stel eerst uw modlist in en klik vervolgens op Uitvoeren.</translation>
+    </message>
     <message>
         <source>Step 5: Run {0}</source>
         <translation>Stap 5: Voer het programma ‘{0}’ uit</translation>
@@ -6547,12 +8603,40 @@ De uitvoer wordt rechtstreeks in je modlijst opgeslagen als de mod ‘{0}’.</t
         <translation>Klaar</translation>
     </message>
     <message>
+        <source>Select the {0} archive</source>
+        <translation>Het {0}-archief selecteren</translation>
+    </message>
+    <message>
+        <source>{0} archive not found in Downloads.
+Make sure you downloaded it, then press Try Again,
+or use Browse to select it manually.</source>
+        <translation>{0} Archief niet gevonden in Downloads.
+Controleer of je het hebt gedownload en klik vervolgens op ‘Opnieuw proberen’,
+of gebruik ‘Bladeren’ om het handmatig te selecteren.</translation>
+    </message>
+    <message>
         <source>{0} not found. Please restart the wizard.</source>
         <translation>{0} Niet gevonden. Start de wizard opnieuw op.</translation>
     </message>
     <message>
         <source>Game Data folder not found. Deploy first.</source>
         <translation>De map ‘Game Data’ is niet gevonden. Voer eerst de installatie uit.</translation>
+    </message>
+    <message>
+        <source>Running {0} ({1})… This may take a while.</source>
+        <translation>{0} ({1}) uitvoeren... Dit kan even duren.</translation>
+    </message>
+    <message>
+        <source>Running {0}… This may take a while.</source>
+        <translation>{0} uitvoeren... Dit kan even duren.</translation>
+    </message>
+    <message>
+        <source>{0} complete! Output is ready as a mod.</source>
+        <translation>{0} voltooid! Uitvoer is klaar als een mod.</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
     </message>
 </context>
 <context>
@@ -7531,6 +9615,76 @@ Nieuwste versie:  {1}</translation>
         <translation>Klaar</translation>
     </message>
     <message>
+        <source>Open Download Page</source>
+        <translation>Downloadpagina openen</translation>
+    </message>
+    <message>
+        <source>Locate the Archive</source>
+        <translation>Zoek het archief</translation>
+    </message>
+    <message>
+        <source>Found: {0}</source>
+        <translation>Gevonden op: {0}</translation>
+    </message>
+    <message>
+        <source>Selected: {0}</source>
+        <translation>Geselecteerd: {0}</translation>
+    </message>
+    <message>
+        <source>Archive not found.</source>
+        <translation>Archief niet gevonden.</translation>
+    </message>
+    <message>
+        <source>Extracting {0}…</source>
+        <translation>{0} uitpakken..</translation>
+    </message>
+    <message>
+        <source>'{0}' folder not found after extraction.
+Check that the archive contains {1}.</source>
+        <translation>'{0}' map niet gevonden na extractie.
+Controleer of het archief {1} bevat.</translation>
+    </message>
+    <message>
+        <source>{0} not found after extraction.
+Check that the archive contains {0}.</source>
+        <translation>{0} niet gevonden na extractie.
+Controleer of het archief {0} bevat.</translation>
+    </message>
+    <message>
+        <source>Extracted {0} file(s).</source>
+        <translation>Uitgepakt {0}-bestand(s).</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
+    </message>
+    <message>
+        <source>Fetching latest release from GitHub…</source>
+        <translation>De nieuwste versie ophalen van GitHub…</translation>
+    </message>
+    <message>
+        <source>Downloading {0}…</source>
+        <translation>{0} wordt gedownload…</translation>
+    </message>
+    <message>
+        <source>{0} not found after extraction.</source>
+        <translation>{0} niet gevonden na extractie.</translation>
+    </message>
+    <message>
+        <source>Downloaded and extracted {0}.</source>
+        <translation>{0} gedownload en eruit gehaald.</translation>
+    </message>
+    <message>
+        <source>Choose Proton Version</source>
+        <translation>Kies Protonversie</translation>
+    </message>
+    <message>
+        <source>{0} was not found.
+Reopen this wizard.</source>
+        <translation>{0} is niet gevonden.
+Open deze tovenaar.</translation>
+    </message>
+    <message>
         <source>Deploy is unavailable here.</source>
         <translation>Deploy is hier niet beschikbaar.</translation>
     </message>
@@ -7562,8 +9716,38 @@ Nieuwste versie:  {1}</translation>
 <context>
     <name>WryeBashView</name>
     <message>
+        <source>Run Wrye Bash — {0}</source>
+        <translation>Wrye Bash uitvoeren</translation>
+    </message>
+    <message>
         <source>Step 1: Download Wrye Bash</source>
         <translation>Stap 1: Download Wrye Bash</translation>
+    </message>
+    <message>
+        <source>Step 2: Deploy Modlist</source>
+        <translation>Stap 2: Modlist inzetten</translation>
+    </message>
+    <message>
+        <source>Deploy the modlist so Wrye Bash sees your mods and the
+Bashed Patch it creates lands in the modded Data folder.
+On restore, the new plugin is moved to Overwrite.</source>
+        <translation>Stel de modlist in zodat Wrye Bash uw mods en de
+Slag Patch het maakt landen in de Modded Data map.
+Bij herstel wordt de nieuwe plugin verplaatst naar Overschrijven.</translation>
+    </message>
+    <message>
+        <source>Step 4: Run Wrye Bash</source>
+        <translation>Stap 4: Start Wrye Bash</translation>
+    </message>
+    <message>
+        <source>Step 3: Choose Proton Version</source>
+        <translation>Stap 3: Kies Proton versie</translation>
+    </message>
+    <message>
+        <source>'{0}' was not found.
+Please restart the wizard to reinstall Wrye Bash.</source>
+        <translation>'{0}' is niet gevonden.
+Herstart de wizard om Wrye Bash opnieuw te installeren.</translation>
     </message>
     <message>
         <source>'{0}' was not found.</source>
@@ -7572,6 +9756,24 @@ Nieuwste versie:  {1}</translation>
     <message>
         <source>Launching Wrye Bash…</source>
         <translation>Wrye Bash gaat van start…</translation>
+    </message>
+    <message>
+        <source>Could not find Proton '{0}' — check that it is installed in Steam.</source>
+        <translation>Kon Proton '{0}' niet vinden Controleer of het is geïnstalleerd in Steam.</translation>
+    </message>
+    <message>
+        <source>Wrye Bash is running.
+Close it when you are done, then click Done.</source>
+        <translation>Wrye Bash loopt.
+Sluit het wanneer u klaar bent, klik vervolgens op Klaar.</translation>
+    </message>
+    <message>
+        <source>Wrye Bash finished.</source>
+        <translation>Wrye Bash is klaar.</translation>
+    </message>
+    <message>
+        <source>Launch error: {0}</source>
+        <translation>Startfout: {0}</translation>
     </message>
 </context>
 <context>
@@ -7651,12 +9853,38 @@ Controleer of je het hebt gedownload en klik vervolgens op ‘Opnieuw proberen�
 of gebruik ‘Bladeren’ om het handmatig te selecteren.</translation>
     </message>
     <message>
+        <source>Select the {0} archive</source>
+        <translation>Het {0}-archief selecteren</translation>
+    </message>
+    <message>
         <source>Selected: {0}</source>
         <translation>Geselecteerd: {0}</translation>
     </message>
     <message>
         <source>Step 3: Extract {0}</source>
         <translation>Stap 3: Pak ‘{0}’ uit</translation>
+    </message>
+    <message>
+        <source>Archive not found.</source>
+        <translation>Archief niet gevonden.</translation>
+    </message>
+    <message>
+        <source>Extracting {0}…</source>
+        <translation>{0} uitpakken..</translation>
+    </message>
+    <message>
+        <source>{0} not found after extraction.
+Check that the archive contains {0}.</source>
+        <translation>{0} niet gevonden na extractie.
+Controleer of het archief {0} bevat.</translation>
+    </message>
+    <message>
+        <source>Extracted {0} file(s).</source>
+        <translation>Uitgepakt {0}-bestand(s).</translation>
+    </message>
+    <message>
+        <source>Error: {0}</source>
+        <translation>Fout: {0}</translation>
     </message>
     <message>
         <source>Step 4: Deploy Modlist</source>
@@ -7693,6 +9921,10 @@ Please restart the wizard and install {1} first.</source>
 Start de wizard opnieuw en installeer eerst {1}.</translation>
     </message>
     <message>
+        <source>Step 5: Choose Proton Version</source>
+        <translation>Stap 5: Kies Proton versie</translation>
+    </message>
+    <message>
         <source>Step 6: Run {0}</source>
         <translation>Stap 6: Voer het commando `{0}` uit</translation>
     </message>
@@ -7711,6 +9943,22 @@ Start de wizard opnieuw en installeer eerst {1}.</translation>
     <message>
         <source>Launching {0}…</source>
         <translation>{0} wordt gelanceerd…</translation>
+    </message>
+    <message>
+        <source>Could not find Proton '{0}' — check that it is installed in Steam.</source>
+        <translation>Kon Proton '{0}' niet vinden Controleer of het is geïnstalleerd in Steam.</translation>
+    </message>
+    <message>
+        <source>Game path not configured.</source>
+        <translation>Spelpad is niet ingesteld.</translation>
+    </message>
+    <message>
+        <source>{0} finished.</source>
+        <translation>{0} klaar.</translation>
+    </message>
+    <message>
+        <source>Launch error: {0}</source>
+        <translation>Startfout: {0}</translation>
     </message>
     <message>
         <source>{0} is running.
@@ -7752,8 +10000,16 @@ Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</trans
 <context>
     <name>_LoadSettingsOverlay</name>
     <message>
+        <source>Load export settings</source>
+        <translation>Exportinstellingen laden</translation>
+    </message>
+    <message>
         <source>Select a saved settings file:</source>
         <translation>Kies een opgeslagen instellingenbestand:</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Laden</translation>
     </message>
 </context>
 <context>
@@ -7777,6 +10033,18 @@ Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</trans
 <context>
     <name>_ReqCard</name>
     <message>
+        <source>Mod {0}</source>
+        <translation>Mod {0}</translation>
+    </message>
+    <message>
+        <source>(External)</source>
+        <translation>(extern)</translation>
+    </message>
+    <message>
+        <source>No description provided.</source>
+        <translation>Geen beschrijving gegeven.</translation>
+    </message>
+    <message>
         <source>View</source>
         <translation>Bekijken</translation>
     </message>
@@ -7787,6 +10055,42 @@ Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</trans
 </context>
 <context>
     <name>_SourceOverlay</name>
+    <message>
+        <source>Source — {0}</source>
+        <translation>Bron: {0}</translation>
+    </message>
+    <message>
+        <source>Nexus Mods</source>
+        <translation>Nexus Mods</translation>
+    </message>
+    <message>
+        <source>Download mod from Nexus</source>
+        <translation>Download mod van Nexus</translation>
+    </message>
+    <message>
+        <source>Direct URL</source>
+        <translation>Directe URL</translation>
+    </message>
+    <message>
+        <source>For off-site mods</source>
+        <translation>Voor externe mods</translation>
+    </message>
+    <message>
+        <source>Bundle</source>
+        <translation>Bundel</translation>
+    </message>
+    <message>
+        <source>Include mod in the output (e.g. DynDOLOD output)</source>
+        <translation>Mod in de uitvoer opnemen (bv. DynDOLOD-uitvoer)</translation>
+    </message>
+    <message>
+        <source>Ignore</source>
+        <translation>Negeren</translation>
+    </message>
+    <message>
+        <source>Exclude this mod from the export entirely</source>
+        <translation>Deze mod volledig uitsluiten van de export</translation>
+    </message>
     <message>
         <source>{0}   — {1}</source>
         <translation>{0}   — {1}</translation>
@@ -7799,12 +10103,24 @@ Sluit het programma als je klaar bent en klik vervolgens op ‘Gereed’.</trans
         <source>https://…</source>
         <translation>https://…</translation>
     </message>
+    <message>
+        <source>Apply</source>
+        <translation>Toepassen</translation>
+    </message>
 </context>
 <context>
     <name>_VersionOverlay</name>
     <message>
+        <source>Version — {0}</source>
+        <translation>Versie {0}</translation>
+    </message>
+    <message>
         <source>Preferred version (file id — version):</source>
         <translation>Voorkeursversie (bestands-id — versie):</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation>Selecteer</translation>
     </message>
 </context>
 <context>
