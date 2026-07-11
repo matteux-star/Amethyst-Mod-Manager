@@ -1156,6 +1156,10 @@ The default profile's settings are not affected.</source>
         <translation>Настройки сохранены.</translation>
     </message>
     <message>
+        <source>Found via Lutris.</source>
+        <translation>Найдено через Лутрис.</translation>
+    </message>
+    <message>
         <source>Executable ({0}) not found in this folder — double-check the path.</source>
         <translation>Исполняемый ({0}) не найден в этой папке — дважды проверьте путь.</translation>
     </message>
@@ -3091,6 +3095,25 @@ SHA-1: {1}
     </message>
 </context>
 <context>
+    <name>FrameworkBanner</name>
+    <message>
+        <source>✔  {0} Installed</source>
+        <translation>{0} установлен</translation>
+    </message>
+    <message>
+        <source>●  {0} present in modlist but not deployed</source>
+        <translation>{0} присутствует в модлисте, но не развернут</translation>
+    </message>
+    <message>
+        <source>●  {0} present in modlist but not enabled</source>
+        <translation>{0} присутствует в модлисте, но не включен</translation>
+    </message>
+    <message>
+        <source>✘  {0} Not Present</source>
+        <translation>{0} не представлен</translation>
+    </message>
+</context>
+<context>
     <name>GpakView</name>
     <message>
         <source>GPAK tools — {0}</source>
@@ -3244,8 +3267,8 @@ SHA-1: {1}
         <translation>Запустить через</translation>
     </message>
     <message>
-        <source>Auto detects Steam/Heroic ownership. Force a specific launcher, or None to always launch the exe directly via Proton.</source>
-        <translation>Автоматически определяет наличие игры в Steam или в режиме Heroic. Укажите конкретный лаунчер или выберите «None», чтобы всегда запускать exe-файл напрямую через Proton.</translation>
+        <source>Auto detects Steam/Heroic/Lutris ownership. Force a specific launcher, or None to always launch the exe directly via Proton.</source>
+        <translation>Обнаружено владение Steam/Heroic/Lutris. Принудить конкретную пусковую установку или не всегда запускать exe непосредственно через Proton.</translation>
     </message>
     <message>
         <source>Deploy mods before launching</source>
@@ -3622,6 +3645,70 @@ SHA-1: {1}
     <message>
         <source>Restart now</source>
         <translation>Перезапустить сейчас</translation>
+    </message>
+    <message>
+        <source>Deploy Method</source>
+        <translation>Метод развертывания</translation>
+    </message>
+    <message>
+        <source>Symlink</source>
+        <translation>Символическая ссылка</translation>
+    </message>
+    <message>
+        <source>Symlink (Recommended)</source>
+        <translation>Символическая ссылка (рекомендуется)</translation>
+    </message>
+    <message>
+        <source>Hardlink</source>
+        <translation>Жесткая ссылка</translation>
+    </message>
+    <message>
+        <source>Hardlink (Recommended)</source>
+        <translation>Жесткая ссылка (рекомендуется)</translation>
+    </message>
+    <message>
+        <source>Swap launcher with script extender on deploy</source>
+        <translation>Swap Launcher с расширением скрипта для развертывания</translation>
+    </message>
+    <message>
+        <source>Auto deploy (on enable/disable/reorder)</source>
+        <translation>Автоматическое развертывание (включено/отключено/упорядочено)</translation>
+    </message>
+    <message>
+        <source>Automatic archive invalidation (prefer loose files over BSAs)</source>
+        <translation>Автоматическая аннулирование архива (предпочитает свободные файлы по сравнению с BSA)</translation>
+    </message>
+    <message>
+        <source>Use profile-specific INI files</source>
+        <translation>Используйте профильные файлы INI</translation>
+    </message>
+    <message>
+        <source>Use profile-specific saves</source>
+        <translation>Используйте профильные сохранения</translation>
+    </message>
+    <message>
+        <source>Prepend load-order numbers to mod folders</source>
+        <translation>Приготовьте номера заказов на мод папки</translation>
+    </message>
+    <message>
+        <source>Game Patch Version</source>
+        <translation>Версия патча к игре</translation>
+    </message>
+    <message>
+        <source>Patch 8</source>
+        <translation>Патч 8</translation>
+    </message>
+    <message>
+        <source>Patch 7</source>
+        <translation>Патч 7</translation>
+    </message>
+    <message>
+        <source>Patch 6</source>
+        <translation>Патч 6</translation>
+    </message>
+    <message>
+        <source>Plugins file name</source>
+        <translation>Имя файла плагина</translation>
     </message>
     <message>
         <source>Install-name Rules</source>
@@ -5307,6 +5394,18 @@ How would you like to handle the existing mod?</source>
     <message>
         <source>Show / hide columns</source>
         <translation>Показать / скрыть столбцы</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Включенный</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Инвалид</translation>
+    </message>
+    <message>
+        <source>Hide separators</source>
+        <translation>Скрыть разделители</translation>
     </message>
 </context>
 <context>
@@ -7888,6 +7987,22 @@ Merge your conflicts, then close it and click Done.</source>
     <message>
         <source>Folder containing Heroic's config.json. Blank = auto-detect (Flatpak and native locations).</source>
         <translation>Папка, содержащая файл config.json для Heroic. Пустое поле означает автоматическое определение (расположения для Flatpak и нативных приложений).</translation>
+    </message>
+    <message>
+        <source>Lutris Data Location</source>
+        <translation>Расположение данных Lutris</translation>
+    </message>
+    <message>
+        <source>Folder containing Lutris's pga.db. Blank = auto-detect (Flatpak and native locations).</source>
+        <translation>Откладка, содержащая pga.db Лютриса. Blank = автоматическое обнаружение (Flatpak и родные места).</translation>
+    </message>
+    <message>
+        <source>Lutris AppImage</source>
+        <translation>Lutris AppImage</translation>
+    </message>
+    <message>
+        <source>Path to the Lutris AppImage, so Play can launch it directly. Only needed for AppImage installs — leave blank for Flatpak or native Lutris.</source>
+        <translation>Путь к Lutris AppImage, так что Play может запустить его напрямую. Требуется только для установки AppImage — оставьте пустой для Flatpak или родного Lutris.</translation>
     </message>
     <message>
         <source>Steam libraryfolders.vdf</source>

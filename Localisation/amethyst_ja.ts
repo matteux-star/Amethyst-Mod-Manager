@@ -1156,6 +1156,10 @@ The default profile's settings are not affected.</source>
         <translation>設定が保存されました。</translation>
     </message>
     <message>
+        <source>Found via Lutris.</source>
+        <translation>Lutris によって見つけられる.</translation>
+    </message>
+    <message>
         <source>Executable ({0}) not found in this folder — double-check the path.</source>
         <translation>実行可能({0})はこのフォルダに見つかりません.</translation>
     </message>
@@ -3091,6 +3095,25 @@ SHA-1:{1}
     </message>
 </context>
 <context>
+    <name>FrameworkBanner</name>
+    <message>
+        <source>✔  {0} Installed</source>
+        <translation>✔ {0} インストール</translation>
+    </message>
+    <message>
+        <source>●  {0} present in modlist but not deployed</source>
+        <translation>● modlist に存在する {0} がデプロイされていない</translation>
+    </message>
+    <message>
+        <source>●  {0} present in modlist but not enabled</source>
+        <translation>● modlist に存在する {0} が機能しない</translation>
+    </message>
+    <message>
+        <source>✘  {0} Not Present</source>
+        <translation>̇ {0} 未発表</translation>
+    </message>
+</context>
+<context>
     <name>GpakView</name>
     <message>
         <source>GPAK tools — {0}</source>
@@ -3244,8 +3267,8 @@ SHA-1:{1}
         <translation>以下から起動</translation>
     </message>
     <message>
-        <source>Auto detects Steam/Heroic ownership. Force a specific launcher, or None to always launch the exe directly via Proton.</source>
-        <translation>Steam/Heroicの所有状況を自動検出します。特定のランチャーを強制的に使用するか、「なし」を選択すると、常にProton経由でexeファイルを直接起動します。</translation>
+        <source>Auto detects Steam/Heroic/Lutris ownership. Force a specific launcher, or None to always launch the exe directly via Proton.</source>
+        <translation>オートは、Steam/Heroic/Lutrisの所有権を検出します。 特定のランチャーを強制するか、None は Proton 経由で直接実行を起動します.</translation>
     </message>
     <message>
         <source>Deploy mods before launching</source>
@@ -3622,6 +3645,70 @@ SHA-1:{1}
     <message>
         <source>Restart now</source>
         <translation>今すぐ再起動する</translation>
+    </message>
+    <message>
+        <source>Deploy Method</source>
+        <translation>デプロイ方法</translation>
+    </message>
+    <message>
+        <source>Symlink</source>
+        <translation>シンボリックリンク</translation>
+    </message>
+    <message>
+        <source>Symlink (Recommended)</source>
+        <translation>シンボリックリンク（推奨）</translation>
+    </message>
+    <message>
+        <source>Hardlink</source>
+        <translation>ハードリンク</translation>
+    </message>
+    <message>
+        <source>Hardlink (Recommended)</source>
+        <translation>ハードリンク（推奨）</translation>
+    </message>
+    <message>
+        <source>Swap launcher with script extender on deploy</source>
+        <translation>スワップランチャーとスクリプトエクステンダーをデプロイ</translation>
+    </message>
+    <message>
+        <source>Auto deploy (on enable/disable/reorder)</source>
+        <translation>自動デプロイ(有効/無効/予約)</translation>
+    </message>
+    <message>
+        <source>Automatic archive invalidation (prefer loose files over BSAs)</source>
+        <translation>自動アーカイブの無効化(BSA上のプレッダーの緩いファイル)</translation>
+    </message>
+    <message>
+        <source>Use profile-specific INI files</source>
+        <translation>プロファイル固有のINIファイルを使用する</translation>
+    </message>
+    <message>
+        <source>Use profile-specific saves</source>
+        <translation>プロファイル固有の保存を使用する</translation>
+    </message>
+    <message>
+        <source>Prepend load-order numbers to mod folders</source>
+        <translation>読み込み順の数値を mod フォルダーに送信します</translation>
+    </message>
+    <message>
+        <source>Game Patch Version</source>
+        <translation>ゲームのパッチバージョン</translation>
+    </message>
+    <message>
+        <source>Patch 8</source>
+        <translation>パッチ 8</translation>
+    </message>
+    <message>
+        <source>Patch 7</source>
+        <translation>パッチ 7</translation>
+    </message>
+    <message>
+        <source>Patch 6</source>
+        <translation>パッチ 6</translation>
+    </message>
+    <message>
+        <source>Plugins file name</source>
+        <translation>プラグインのファイル名</translation>
     </message>
     <message>
         <source>Install-name Rules</source>
@@ -5307,6 +5394,18 @@ How would you like to handle the existing mod?</source>
     <message>
         <source>Show / hide columns</source>
         <translation>列の表示／非表示</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>有効化</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>バリアフリー</translation>
+    </message>
+    <message>
+        <source>Hide separators</source>
+        <translation>区切り記号を非表示にする</translation>
     </message>
 </context>
 <context>
@@ -7888,6 +7987,22 @@ Merge your conflicts, then close it and click Done.</source>
     <message>
         <source>Folder containing Heroic's config.json. Blank = auto-detect (Flatpak and native locations).</source>
         <translation>Heroicのconfig.jsonが含まれるフォルダ。空の場合 = 自動検出（Flatpakおよびネイティブの保存場所）。</translation>
+    </message>
+    <message>
+        <source>Lutris Data Location</source>
+        <translation>データロケーション</translation>
+    </message>
+    <message>
+        <source>Folder containing Lutris's pga.db. Blank = auto-detect (Flatpak and native locations).</source>
+        <translation>Lutrisのpga.dbを含むフォルダ。 Blank = auto-detect (Flatpak とネイティブの場所).</translation>
+    </message>
+    <message>
+        <source>Lutris AppImage</source>
+        <translation>Lutrisアプリイメージ</translation>
+    </message>
+    <message>
+        <source>Path to the Lutris AppImage, so Play can launch it directly. Only needed for AppImage installs — leave blank for Flatpak or native Lutris.</source>
+        <translation>Lutris AppImage へのパス、Play は直接起動できます。 AppImage のインストールのみが必要で、Flatpak またはネイティブ Lutris の空白のままにします.</translation>
     </message>
     <message>
         <source>Steam libraryfolders.vdf</source>

@@ -1156,6 +1156,10 @@ La configuración del perfil predeterminado no se ve afectada.</translation>
         <translation>Configuración guardada.</translation>
     </message>
     <message>
+        <source>Found via Lutris.</source>
+        <translation>Encontrado a través de Lutris.</translation>
+    </message>
+    <message>
         <source>Executable ({0}) not found in this folder — double-check the path.</source>
         <translation>Ejecutable ({0}) no se encuentra en esta carpeta — doble ver el camino.</translation>
     </message>
@@ -3091,6 +3095,25 @@ Puede ser modificada. Verifique los archivos de juego en Steam/Heroic para obten
     </message>
 </context>
 <context>
+    <name>FrameworkBanner</name>
+    <message>
+        <source>✔  {0} Installed</source>
+        <translation>✔ {0} Instalado</translation>
+    </message>
+    <message>
+        <source>●  {0} present in modlist but not deployed</source>
+        <translation>● {0} presente en modlist pero no desplegado</translation>
+    </message>
+    <message>
+        <source>●  {0} present in modlist but not enabled</source>
+        <translation>● {0} presente en modlist pero no habilitado</translation>
+    </message>
+    <message>
+        <source>✘  {0} Not Present</source>
+        <translation>✘ {0} No presente</translation>
+    </message>
+</context>
+<context>
     <name>GpakView</name>
     <message>
         <source>GPAK tools — {0}</source>
@@ -3244,8 +3267,8 @@ Puede ser modificada. Verifique los archivos de juego en Steam/Heroic para obten
         <translation>Iniciar a través de</translation>
     </message>
     <message>
-        <source>Auto detects Steam/Heroic ownership. Force a specific launcher, or None to always launch the exe directly via Proton.</source>
-        <translation>Detecta automáticamente si tienes Steam o Heroic. Elige un lanzador específico o «Ninguno» para ejecutar siempre el archivo exe directamente a través de Proton.</translation>
+        <source>Auto detects Steam/Heroic/Lutris ownership. Force a specific launcher, or None to always launch the exe directly via Proton.</source>
+        <translation>Auto detecta la propiedad Steam/Heroic/Lutris. Forzar un lanzador específico, o Ninguno para lanzar siempre el exe directamente a través de Proton.</translation>
     </message>
     <message>
         <source>Deploy mods before launching</source>
@@ -3622,6 +3645,70 @@ Puede ser modificada. Verifique los archivos de juego en Steam/Heroic para obten
     <message>
         <source>Restart now</source>
         <translation>Reiniciar ahora</translation>
+    </message>
+    <message>
+        <source>Deploy Method</source>
+        <translation>Método de implementación</translation>
+    </message>
+    <message>
+        <source>Symlink</source>
+        <translation>Enlace simbólico</translation>
+    </message>
+    <message>
+        <source>Symlink (Recommended)</source>
+        <translation>Enlace simbólico (recomendado)</translation>
+    </message>
+    <message>
+        <source>Hardlink</source>
+        <translation>Enlace físico</translation>
+    </message>
+    <message>
+        <source>Hardlink (Recommended)</source>
+        <translation>Enlace físico (recomendado)</translation>
+    </message>
+    <message>
+        <source>Swap launcher with script extender on deploy</source>
+        <translation>El lanzador de Swap con extensor de scripts</translation>
+    </message>
+    <message>
+        <source>Auto deploy (on enable/disable/reorder)</source>
+        <translation>Implementación automática (en habilitación/desactivación/reorden)</translation>
+    </message>
+    <message>
+        <source>Automatic archive invalidation (prefer loose files over BSAs)</source>
+        <translation>Anulación de archivos automáticos (preferir archivos sueltos sobre BSAs)</translation>
+    </message>
+    <message>
+        <source>Use profile-specific INI files</source>
+        <translation>Usar archivos INI específicos de perfil</translation>
+    </message>
+    <message>
+        <source>Use profile-specific saves</source>
+        <translation>Usar ahorros de perfil específicos</translation>
+    </message>
+    <message>
+        <source>Prepend load-order numbers to mod folders</source>
+        <translation>Números prependientes de carga a carpetas mod</translation>
+    </message>
+    <message>
+        <source>Game Patch Version</source>
+        <translation>Versión del parche del juego</translation>
+    </message>
+    <message>
+        <source>Patch 8</source>
+        <translation>Patch 8</translation>
+    </message>
+    <message>
+        <source>Patch 7</source>
+        <translation>Patch 7</translation>
+    </message>
+    <message>
+        <source>Patch 6</source>
+        <translation>Patch 6</translation>
+    </message>
+    <message>
+        <source>Plugins file name</source>
+        <translation>Nombre del archivo de los complementos</translation>
     </message>
     <message>
         <source>Install-name Rules</source>
@@ -5307,6 +5394,18 @@ How would you like to handle the existing mod?</source>
     <message>
         <source>Show / hide columns</source>
         <translation>Mostrar / ocultar columnas</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Enabled</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Discapacitados</translation>
+    </message>
+    <message>
+        <source>Hide separators</source>
+        <translation>Ocultar separadores</translation>
     </message>
 </context>
 <context>
@@ -7888,6 +7987,22 @@ Combina tus conflictos, luego cierra y haz clic en Done.</translation>
     <message>
         <source>Folder containing Heroic's config.json. Blank = auto-detect (Flatpak and native locations).</source>
         <translation>Carpeta que contiene el archivo config.json de Heroic. Si está vacía, se detecta automáticamente (ubicaciones de Flatpak y nativas).</translation>
+    </message>
+    <message>
+        <source>Lutris Data Location</source>
+        <translation>Ubicación de los datos de Lutris</translation>
+    </message>
+    <message>
+        <source>Folder containing Lutris's pga.db. Blank = auto-detect (Flatpak and native locations).</source>
+        <translation>Carpeta que contiene pga.db de Lutris. Blank = auto-detecto (Flatpak y localizaciones nativas).</translation>
+    </message>
+    <message>
+        <source>Lutris AppImage</source>
+        <translation>Lutris AppImage</translation>
+    </message>
+    <message>
+        <source>Path to the Lutris AppImage, so Play can launch it directly. Only needed for AppImage installs — leave blank for Flatpak or native Lutris.</source>
+        <translation>Path to the Lutris AppImage, so Play puede lanzarlo directamente. Sólo se necesita para AppImage instala — dejar en blanco para Flatpak o Lutris nativo.</translation>
     </message>
     <message>
         <source>Steam libraryfolders.vdf</source>

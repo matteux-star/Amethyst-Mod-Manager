@@ -1156,6 +1156,10 @@ The default profile's settings are not affected.</source>
         <translation>设置已保存。</translation>
     </message>
     <message>
+        <source>Found via Lutris.</source>
+        <translation>通过Lutris找到的.</translation>
+    </message>
+    <message>
         <source>Executable ({0}) not found in this folder — double-check the path.</source>
         <translation>在此文件夹中找不到可执行文件( {0}) —— 双检查路径 .</translation>
     </message>
@@ -3091,6 +3095,25 @@ SHA-1: {1} (英语).
     </message>
 </context>
 <context>
+    <name>FrameworkBanner</name>
+    <message>
+        <source>✔  {0} Installed</source>
+        <translation>{0} 已安装</translation>
+    </message>
+    <message>
+        <source>●  {0} present in modlist but not deployed</source>
+        <translation>* {0}在模块中,但没有部署</translation>
+    </message>
+    <message>
+        <source>●  {0} present in modlist but not enabled</source>
+        <translation>* {0} 在调制列表中但无法使用</translation>
+    </message>
+    <message>
+        <source>✘  {0} Not Present</source>
+        <translation>{0} 未出现</translation>
+    </message>
+</context>
+<context>
     <name>GpakView</name>
     <message>
         <source>GPAK tools — {0}</source>
@@ -3244,8 +3267,8 @@ SHA-1: {1} (英语).
         <translation>通过以下方式发布</translation>
     </message>
     <message>
-        <source>Auto detects Steam/Heroic ownership. Force a specific launcher, or None to always launch the exe directly via Proton.</source>
-        <translation>自动检测 Steam/Heroic 游戏所有权。强制使用特定启动器，或选择“无”以始终通过 Proton 直接运行 exe 文件。</translation>
+        <source>Auto detects Steam/Heroic/Lutris ownership. Force a specific launcher, or None to always launch the exe directly via Proton.</source>
+        <translation>自动检测Steam/Heroic/Lutris所有权. 强迫一个特定的发射装置,或者说None总是通过质子直接发射被执行人.</translation>
     </message>
     <message>
         <source>Deploy mods before launching</source>
@@ -3622,6 +3645,70 @@ SHA-1: {1} (英语).
     <message>
         <source>Restart now</source>
         <translation>立即重启</translation>
+    </message>
+    <message>
+        <source>Deploy Method</source>
+        <translation>部署方法</translation>
+    </message>
+    <message>
+        <source>Symlink</source>
+        <translation>符号链接</translation>
+    </message>
+    <message>
+        <source>Symlink (Recommended)</source>
+        <translation>符号链接（推荐）</translation>
+    </message>
+    <message>
+        <source>Hardlink</source>
+        <translation>硬链接</translation>
+    </message>
+    <message>
+        <source>Hardlink (Recommended)</source>
+        <translation>硬链接（推荐）</translation>
+    </message>
+    <message>
+        <source>Swap launcher with script extender on deploy</source>
+        <translation>部署时使用脚本扩展器的交换发射器</translation>
+    </message>
+    <message>
+        <source>Auto deploy (on enable/disable/reorder)</source>
+        <translation>自动部署(启用/残疾/重排)</translation>
+    </message>
+    <message>
+        <source>Automatic archive invalidation (prefer loose files over BSAs)</source>
+        <translation>自动归档无效( 比 BSAs 优先松开文件)</translation>
+    </message>
+    <message>
+        <source>Use profile-specific INI files</source>
+        <translation>使用特定配置文件 INI 文件</translation>
+    </message>
+    <message>
+        <source>Use profile-specific saves</source>
+        <translation>使用特定配置文件保存</translation>
+    </message>
+    <message>
+        <source>Prepend load-order numbers to mod folders</source>
+        <translation>在 Mod 文件夹中预置负载顺序号</translation>
+    </message>
+    <message>
+        <source>Game Patch Version</source>
+        <translation>游戏补丁版本</translation>
+    </message>
+    <message>
+        <source>Patch 8</source>
+        <translation>补丁 8</translation>
+    </message>
+    <message>
+        <source>Patch 7</source>
+        <translation>补丁 7</translation>
+    </message>
+    <message>
+        <source>Patch 6</source>
+        <translation>补丁 6</translation>
+    </message>
+    <message>
+        <source>Plugins file name</source>
+        <translation>插件文件名</translation>
     </message>
     <message>
         <source>Install-name Rules</source>
@@ -5307,6 +5394,18 @@ How would you like to handle the existing mod?</source>
     <message>
         <source>Show / hide columns</source>
         <translation>显示/隐藏列</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>已启用</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>已禁用</translation>
+    </message>
+    <message>
+        <source>Hide separators</source>
+        <translation>隐藏分隔符</translation>
     </message>
 </context>
 <context>
@@ -7888,6 +7987,22 @@ Merge your conflicts, then close it and click Done.</source>
     <message>
         <source>Folder containing Heroic's config.json. Blank = auto-detect (Flatpak and native locations).</source>
         <translation>包含 Heroic 的 config.json 文件的文件夹。为空表示自动检测（Flatpak 和原生安装路径）。</translation>
+    </message>
+    <message>
+        <source>Lutris Data Location</source>
+        <translation>Lutris 数据位置</translation>
+    </message>
+    <message>
+        <source>Folder containing Lutris's pga.db. Blank = auto-detect (Flatpak and native locations).</source>
+        <translation>包含Lutris的 pga.db.的文件夹. Blank = 自动检测(Flatpak和本地地点).</translation>
+    </message>
+    <message>
+        <source>Lutris AppImage</source>
+        <translation>Lutris 应用程序</translation>
+    </message>
+    <message>
+        <source>Path to the Lutris AppImage, so Play can launch it directly. Only needed for AppImage installs — leave blank for Flatpak or native Lutris.</source>
+        <translation>路特里斯AppImage的路径,因此Play可以直接推出. 仅需AppImage安装——为平板电脑或本地Lutris留空.</translation>
     </message>
     <message>
         <source>Steam libraryfolders.vdf</source>
