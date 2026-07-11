@@ -2805,6 +2805,10 @@ Le fichier exe d'origine est conservé sous le nom {0}.</translation>
         <translation>Rechercher des fichiers... (essayer !.dds)</translation>
     </message>
     <message>
+        <source>Install XACT audio (XAudio2)</source>
+        <translation>Installez XACT audio (XAudio2)</translation>
+    </message>
+    <message>
         <source>Edit custom game…</source>
         <translation>Modifier une partie personnalisée…</translation>
     </message>
@@ -2995,6 +2999,30 @@ Souhaitez-vous supprimer l'entrée de la collection associée ?</translation>
     <message>
         <source>Install paused — {0} mod(s) installed.</source>
         <translation>Installation en pause — {0} mod(s) installé(s).</translation>
+    </message>
+    <message>
+        <source>…and {0} more</source>
+        <translation>...et {0} plus</translation>
+    </message>
+    <message>
+        <source>Off-site mods to install</source>
+        <translation>Mods hors site à installer</translation>
+    </message>
+    <message>
+        <source>This collection includes {0} off-site mod(s) the installer could not download:
+
+{1}
+
+Download and install them manually — the links are in the collection page's "Off-site mods" panel.</source>
+        <translation>Cette collection inclut les mods hors site {0} que l'installateur n'a pas pu télécharger:
+
+{1}
+
+Téléchargez et installez-les manuellement — les liens sont dans le panneau "Modalités hors site" de la page de collection.</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
     <message>
         <source>A load-order reset is already running.</source>
@@ -5949,8 +5977,8 @@ Veuillez redémarrer l'assistant et installer d'abord Script Merger.</translatio
         <translation>Effacer les fichiers d'archive après l'installation</translation>
     </message>
     <message>
-        <source>Delete a mod's downloaded archive after it is extracted.</source>
-        <translation>Supprimer l'archive téléchargée d'un mod une fois qu'elle a été décompressée.</translation>
+        <source>Delete a mod's downloaded archive after it is extracted. Only applies to archives Amethyst downloaded itself — installs from the Install Mod button or the Downloads tab keep their archive.</source>
+        <translation>Supprimer l'archive téléchargée d'un mod après l'extraction. S'applique uniquement aux archives Amethyst téléchargée elle-même — installe depuis le bouton Install Mod ou l'onglet Downloads conserve leur archive.</translation>
     </message>
     <message>
         <source>Keep FOMOD archives</source>
@@ -6109,6 +6137,18 @@ Veuillez redémarrer l'assistant et installer d'abord Script Merger.</translatio
     <message>
         <source>Import</source>
         <translation>Importer</translation>
+    </message>
+    <message>
+        <source>Not a valid share code.</source>
+        <translation>Pas un code de partage valide.</translation>
+    </message>
+    <message>
+        <source>, ~{0} to download</source>
+        <translation>, ~{0} à télécharger</translation>
+    </message>
+    <message>
+        <source>exported {0}</source>
+        <translation>exportations {0}</translation>
     </message>
 </context>
 <context>

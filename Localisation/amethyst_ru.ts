@@ -2805,6 +2805,10 @@ The original exe is kept as {0}.</source>
         <translation>Поисковые файлы (попробуйте!.dds)</translation>
     </message>
     <message>
+        <source>Install XACT audio (XAudio2)</source>
+        <translation>Установка аудио XACT (XAudio2)</translation>
+    </message>
+    <message>
         <source>Edit custom game…</source>
         <translation>Редактировать пользовательскую игру…</translation>
     </message>
@@ -2995,6 +2999,30 @@ Remove the appended-collection entry?</source>
     <message>
         <source>Install paused — {0} mod(s) installed.</source>
         <translation>Установка приостановлена — установлено {0} модификаций.</translation>
+    </message>
+    <message>
+        <source>…and {0} more</source>
+        <translation>и {0} больше</translation>
+    </message>
+    <message>
+        <source>Off-site mods to install</source>
+        <translation>Моды Off-site для установки</translation>
+    </message>
+    <message>
+        <source>This collection includes {0} off-site mod(s) the installer could not download:
+
+{1}
+
+Download and install them manually — the links are in the collection page's "Off-site mods" panel.</source>
+        <translation>Эта коллекция включает в себя мод (ы) вне сайта {0}, который установщик не мог загрузить:
+
+{1}X
+
+Скачайте и установите их вручную — ссылки находятся в панели «Моды вне сайта».</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>Хорошо</translation>
     </message>
     <message>
         <source>A load-order reset is already running.</source>
@@ -5949,8 +5977,8 @@ Please restart the wizard and install Script Merger first.</source>
         <translation>Очистить архив после установки</translation>
     </message>
     <message>
-        <source>Delete a mod's downloaded archive after it is extracted.</source>
-        <translation>Удалить загруженный архив мода после его распаковки.</translation>
+        <source>Delete a mod's downloaded archive after it is extracted. Only applies to archives Amethyst downloaded itself — installs from the Install Mod button or the Downloads tab keep their archive.</source>
+        <translation>Удалите загруженный архив мода после его извлечения. Применяется только к архивам Amethyst, загруженным самостоятельно — установки с кнопки Install Mod или вкладки Downloads сохраняют свой архив.</translation>
     </message>
     <message>
         <source>Keep FOMOD archives</source>
@@ -6109,6 +6137,18 @@ Please restart the wizard and install Script Merger first.</source>
     <message>
         <source>Import</source>
         <translation>Импорт</translation>
+    </message>
+    <message>
+        <source>Not a valid share code.</source>
+        <translation>Не действительный код акций.</translation>
+    </message>
+    <message>
+        <source>, ~{0} to download</source>
+        <translation>~{0} скачать</translation>
+    </message>
+    <message>
+        <source>exported {0}</source>
+        <translation>экспорт {0}</translation>
     </message>
 </context>
 <context>

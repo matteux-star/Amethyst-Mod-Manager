@@ -2805,6 +2805,10 @@ Původní soubor exe zůstává zachován pod názvem {0}.</translation>
         <translation>Vyhledávání souborů... (zkuste to</translation>
     </message>
     <message>
+        <source>Install XACT audio (XAudio2)</source>
+        <translation>Nainstalujte XACT audio (XAudio2)</translation>
+    </message>
+    <message>
         <source>Edit custom game…</source>
         <translation>Upravit vlastní hru..</translation>
     </message>
@@ -2995,6 +2999,30 @@ Chcete odstranit záznam z přidané sbírky?</translation>
     <message>
         <source>Install paused — {0} mod(s) installed.</source>
         <translation>Instalace pozastavena — nainstalováno {0} modů.</translation>
+    </message>
+    <message>
+        <source>…and {0} more</source>
+        <translation>... a {0} více</translation>
+    </message>
+    <message>
+        <source>Off-site mods to install</source>
+        <translation>Off- site mods pro instalaci</translation>
+    </message>
+    <message>
+        <source>This collection includes {0} off-site mod(s) the installer could not download:
+
+{1}
+
+Download and install them manually — the links are in the collection page's "Off-site mods" panel.</source>
+        <translation>Tato kolekce obsahuje {0} off- site mod (s) instalátor nemohl stáhnout:
+
+{1}
+
+Stáhnout a nainstalovat ručně - odkazy jsou v panelu "Off- site mods" na stránce sbírky.</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>Dobře</translation>
     </message>
     <message>
         <source>A load-order reset is already running.</source>
@@ -5949,8 +5977,8 @@ Restartujte prosím průvodce a nejprve nainstalujte Script Merger.</translation
         <translation>Po instalaci vymazat archiv</translation>
     </message>
     <message>
-        <source>Delete a mod's downloaded archive after it is extracted.</source>
-        <translation>Po rozbalení smazat stažený archiv modifikace.</translation>
+        <source>Delete a mod's downloaded archive after it is extracted. Only applies to archives Amethyst downloaded itself — installs from the Install Mod button or the Downloads tab keep their archive.</source>
+        <translation>Smazat stažený archiv modu poté, co je extrahován. Platí pouze pro archivy, které si Ametyst stáhl sám - nainstaluje z tlačítka Install Mod nebo si kartu Ke stažení ponechá svůj archiv.</translation>
     </message>
     <message>
         <source>Keep FOMOD archives</source>
@@ -6109,6 +6137,18 @@ Restartujte prosím průvodce a nejprve nainstalujte Script Merger.</translation
     <message>
         <source>Import</source>
         <translation>Importovat</translation>
+    </message>
+    <message>
+        <source>Not a valid share code.</source>
+        <translation>Není platný kód sdílení.</translation>
+    </message>
+    <message>
+        <source>, ~{0} to download</source>
+        <translation>, ~ {0} ke stažení</translation>
+    </message>
+    <message>
+        <source>exported {0}</source>
+        <translation>exportováno {0}</translation>
     </message>
 </context>
 <context>

@@ -2805,6 +2805,10 @@ The original exe is kept as {0}.</source>
         <translation>搜索文件... (尝试!.dds)</translation>
     </message>
     <message>
+        <source>Install XACT audio (XAudio2)</source>
+        <translation>安装 XACT 音频( XAudio2)</translation>
+    </message>
+    <message>
         <source>Edit custom game…</source>
         <translation>编辑自定义游戏……</translation>
     </message>
@@ -2995,6 +2999,30 @@ Remove the appended-collection entry?</source>
     <message>
         <source>Install paused — {0} mod(s) installed.</source>
         <translation>安装已暂停 — 已安装 {0} 个模组。</translation>
+    </message>
+    <message>
+        <source>…and {0} more</source>
+        <translation>...还有{0}</translation>
+    </message>
+    <message>
+        <source>Off-site mods to install</source>
+        <translation>要安装的场外模型</translation>
+    </message>
+    <message>
+        <source>This collection includes {0} off-site mod(s) the installer could not download:
+
+{1}
+
+Download and install them manually — the links are in the collection page's "Off-site mods" panel.</source>
+        <translation>此收藏包括安装器无法下载的 {0} 站外模式 :
+
+第{1}号
+
+手动下载并安装它们——链接在收藏页的"Off-site mods"面板上.</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>好的</translation>
     </message>
     <message>
         <source>A load-order reset is already running.</source>
@@ -5949,8 +5977,8 @@ Please restart the wizard and install Script Merger first.</source>
         <translation>安装后清除存档</translation>
     </message>
     <message>
-        <source>Delete a mod's downloaded archive after it is extracted.</source>
-        <translation>在解压后删除模组的下载压缩包。</translation>
+        <source>Delete a mod's downloaded archive after it is extracted. Only applies to archives Amethyst downloaded itself — installs from the Install Mod button or the Downloads tab keep their archive.</source>
+        <translation>提取后删除一个 Mod 下载的归档 。 仅适用于自己下载的档案阿梅西斯特——从"安装 Mod"按钮安装或"下载"标签保存其档案.</translation>
     </message>
     <message>
         <source>Keep FOMOD archives</source>
@@ -6109,6 +6137,18 @@ Please restart the wizard and install Script Merger first.</source>
     <message>
         <source>Import</source>
         <translation>导入</translation>
+    </message>
+    <message>
+        <source>Not a valid share code.</source>
+        <translation>无效的共享代码 .</translation>
+    </message>
+    <message>
+        <source>, ~{0} to download</source>
+        <translation>, 请下载 QQPH0X</translation>
+    </message>
+    <message>
+        <source>exported {0}</source>
+        <translation>导出 {0}</translation>
     </message>
 </context>
 <context>
