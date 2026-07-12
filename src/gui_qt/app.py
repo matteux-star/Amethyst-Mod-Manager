@@ -236,6 +236,8 @@ class MainWindow(QMainWindow):
     # state). The disk work (per-plugin header reads) runs off-thread; a
     # generation counter drops results from a superseded reload.
     _plugins_loaded = Signal(int, object, object, object)
+    # Deferred ESL-eligibility worker → UI thread (gen, {name_lower: PF bit}).
+    _esl_elig_ready = Signal(int, object)
     # Size-column disk walk worker → UI thread (gen, sizes, size_bytes).
     _sizes_ready = Signal(int, object, object)
     # Modlist meta.ini read worker → UI thread (gen, payload dict).
@@ -364,6 +366,7 @@ class MainWindow(QMainWindow):
         self._overlap_ready.connect(self._on_overlap_ready)
         self._plugins_gen = 0
         self._plugins_loaded.connect(self._on_plugins_loaded)
+        self._esl_elig_ready.connect(self._on_esl_elig_ready)
         self._sizes_gen = 0
         self._sizes_ready.connect(self._on_sizes_ready)
         self._modlist_meta_gen = 0
@@ -1735,20 +1738,45 @@ class MainWindow(QMainWindow):
     def _on_profile_changed(self, name):
         if name == self._gs.profile:
             return
-        self._gs.set_profile(name)
-        self._profile_selector.set_current(name)
-        # profile_ini_files / profile_saves are per-profile overrides — set_profile
-        # reloaded them, so refresh the Open submenu for the new profile.
-        self._refresh_profile_actions()
-        # Userlist tabs/bars are profile-scoped (userlist.yaml lives there).
-        self._close_userlist_ui()
-        # Exe selection + exe args are per-profile.
-        self._close_exe_settings_tab()
-        self._refresh_play_selector()
-        self._clear_search_boxes()
-        self._reload_modlist()
-        self._reload_plugins()
-        self._update_deployed_profile_highlight()
+        from Utils import perftrace
+        # End-to-end switch latency: the switch "feels done" only when the async
+        # milestones land (meta → plugins → conflicts → final plugin pass), so
+        # stamp t0 here and mark elapsed at each (see _mark_since_switch).
+        if perftrace.is_enabled():
+            import time
+            self._switch_t0 = time.perf_counter()
+            self._switch_conflicts_done = False
+        with perftrace.span("switch.sync_total"):
+            with perftrace.span("switch.set_profile"):
+                self._gs.set_profile(name)
+            self._profile_selector.set_current(name)
+            # profile_ini_files / profile_saves are per-profile overrides — set_profile
+            # reloaded them, so refresh the Open submenu for the new profile.
+            self._refresh_profile_actions()
+            # Userlist tabs/bars are profile-scoped (userlist.yaml lives there).
+            self._close_userlist_ui()
+            # Exe selection + exe args are per-profile.
+            self._close_exe_settings_tab()
+            with perftrace.span("switch.refresh_play_selector"):
+                self._refresh_play_selector()
+            self._clear_search_boxes()
+            with perftrace.span("switch.reload_modlist(sync)"):
+                self._reload_modlist()
+            with perftrace.span("switch.reload_plugins(kickoff)"):
+                if getattr(self, "_reload_had_entries", False):
+                    # The conflict rebuild just queued by _reload_modlist ends
+                    # in a plugin reload against the FRESH filemap. Loading now
+                    # too would run the whole per-plugin pipeline twice — and
+                    # the early pass resolves against the OLD profile's filemap
+                    # (observed: 10 of 254 plugins listed until the rebuild
+                    # corrected it). Clear the stale panel; the rebuild's
+                    # reload populates it once, correctly.
+                    self._clear_plugin_panel()
+                else:
+                    # Empty modlist → no conflict rebuild is coming; load the
+                    # (vanilla-only) plugin list directly.
+                    self._reload_plugins()
+            self._update_deployed_profile_highlight()
         # Appended-collections section tracks the ACTIVE profile.
         view = getattr(self, "_collections_view", None)
         if view is not None:
@@ -1773,6 +1801,20 @@ class MainWindow(QMainWindow):
                         "configure_game", self._configure_tab_title(self._gs.game))
                 except Exception:
                     pass
+
+    def _mark_since_switch(self, label: str) -> None:
+        """Perf instrumentation (MM_PERFTRACE=1): record wall-clock elapsed
+        since the last profile switch under *label*. The switch's perceived
+        latency spans thread boundaries (sync UI work → meta worker → plugin
+        worker → conflict/filemap worker → final plugin pass), which a single
+        span can't measure — so each async milestone marks its own arrival
+        time. No-op when perftrace is disabled or no switch is in flight."""
+        t0 = getattr(self, "_switch_t0", None)
+        if t0 is None:
+            return
+        import time
+        from Utils import perftrace
+        perftrace.mark(label, time.perf_counter() - t0)
 
     def _game_actions(self):
         """Build the pinned entries for the game selector. The 'Edit custom
@@ -8582,12 +8624,19 @@ class MainWindow(QMainWindow):
         must be cleared immediately."""
         from Utils.modlist import read_modlist
         from gui_qt.modlist_data import read_meta_for_entries
+        from Utils.perftrace import span
 
         self._reassert_profile_paths()
 
         ml_path = self._gs.modlist_path()
         staging = self._gs.staging_dir()
-        entries = read_modlist(ml_path) if (ml_path and ml_path.is_file()) else []
+        with span("reload_modlist.read_modlist"):
+            entries = (read_modlist(ml_path)
+                       if (ml_path and ml_path.is_file()) else [])
+        # Non-empty ⇒ this reload ends in a conflict rebuild (see bottom),
+        # whose completion reloads the plugin panel. The profile-switch path
+        # reads this to skip its own (redundant) immediate plugin reload.
+        self._reload_had_entries = bool(entries)
 
         # Preserve the Mod Files tab's shown mod across a same-context refresh
         # (install/toggle/deploy/Refresh of the SAME game+profile): set_entries
@@ -8627,29 +8676,14 @@ class MainWindow(QMainWindow):
             self._modlist_model._versions = {}
             self._modlist_model._installed = {}
             self._modlist_model._categories = {}
-        self._modlist_model.set_entries(entries)
+        with span("reload_modlist.set_entries"):
+            self._modlist_model.set_entries(entries)
         if not preserve_overlays:
             self._modlist_model.set_flags({})
-        self._modlist_model.set_notes(self._read_mod_notes())
-        if entries and staging is not None:
-            import threading
-            ignored = self._ignored_missing_reqs
-            pdir = self._gs.profile_dir()
-            is_bg3 = (getattr(self._gs.game, "game_id", "") == "baldurs_gate_3")
-            meta_entries = list(entries)
-
-            def meta_worker():
-                try:
-                    payload = read_meta_for_entries(
-                        meta_entries, staging, ignored,
-                        profile_dir=pdir, is_bg3=is_bg3)
-                except Exception as exc:
-                    print(f"[gui_qt] meta read failed: {exc}", flush=True)
-                    return
-                self._modlist_meta_ready.emit(meta_gen, payload)
-
-            threading.Thread(target=meta_worker, daemon=True,
-                             name="modlist-meta").start()
+        with span("reload_modlist.read_notes"):
+            self._modlist_model.set_notes(self._read_mod_notes())
+        # (The meta worker itself starts at the END of this reload — see
+        # below — so its disk work doesn't contend with the sync UI section.)
         if not preserve_overlays:
             self._modlist_model.set_conflicts({}, {})   # clear stale; recomputed async
         # Persist edits back to this modlist; rebuild conflicts after each save
@@ -8704,7 +8738,8 @@ class MainWindow(QMainWindow):
         self._modlist_model._sizes = {}
         if not self._modlist_view.isColumnHidden(COL_SIZE):
             self._apply_modlist_sizes()
-        self._modlist_view.load_separator_state()
+        with span("reload_modlist.load_separator_state"):
+            self._modlist_view.load_separator_state()
         # Point the Mod Files tab at this game/profile (index next to filemap).
         if hasattr(self, "_mod_files_view"):
             idx = (staging.parent / "modindex.bin") if staging is not None else None
@@ -8743,8 +8778,9 @@ class MainWindow(QMainWindow):
         # blanking the list until a manual Refresh. compute_hidden_rows re-indexes
         # off the current entry list; the async conflict/filter-data rebuild below
         # then reapplies once more with the freshly-scanned per-mod data.
-        self._apply_modlist_search()
-        self._apply_modlist_filters()
+        with span("reload_modlist.search+filters"):
+            self._apply_modlist_search()
+            self._apply_modlist_filters()
         self._refresh_modlist_stats()
         print(f"[gui_qt] modlist: {ml_path} ({len(entries)} entries)")
 
@@ -8765,13 +8801,63 @@ class MainWindow(QMainWindow):
             nv._game = self._gs.game
             nv.refresh_installed()
 
-        if entries:
+        # Meta read + conflict rebuild, SEQUENCED. Both cold-read the same
+        # per-mod meta.ini files (the meta columns here, the filemap's
+        # root-flag collect inside the conflict build); run concurrently they
+        # each parse ~the whole set and stretch each other under the GIL
+        # (measured 4.0s + 3.1s concurrent vs ~0.4s + ~0.05s sequenced — the
+        # second reader hits the read_meta mtime cache). So: meta worker
+        # first, and _on_modlist_meta_ready chains the conflict rebuild.
+        meta_started = False
+        if entries and staging is not None:
+            import threading
+            ignored = self._ignored_missing_reqs
+            pdir_meta = self._gs.profile_dir()
+            is_bg3 = (getattr(self._gs.game, "game_id", "") == "baldurs_gate_3")
+            meta_entries = list(entries)
+
+            def meta_worker():
+                try:
+                    with span("modlist.meta_worker(read_meta)"):
+                        payload = read_meta_for_entries(
+                            meta_entries, staging, ignored,
+                            profile_dir=pdir_meta, is_bg3=is_bg3)
+                except Exception as exc:
+                    print(f"[gui_qt] meta read failed: {exc}", flush=True)
+                    payload = None   # still emit — the conflict rebuild chains
+                self._modlist_meta_ready.emit(meta_gen, payload)
+
+            self._conflicts_after_meta = (meta_gen, rescan_index)
+            threading.Thread(target=meta_worker, daemon=True,
+                             name="modlist-meta").start()
+            meta_started = True
+
+        if entries and not meta_started:
+            # No meta worker (staging unresolved) → kick the rebuild directly.
             self._rebuild_conflicts_async(rescan_index=rescan_index)
+        elif not entries and getattr(self, "_switch_t0", None) is not None:
+            # Empty profile → no conflict rebuild will follow, so the first
+            # plugin pass IS the final one; without this the switch marks
+            # would leak into the next unrelated plugin reload.
+            self._switch_conflicts_done = True
 
     def _on_modlist_meta_ready(self, gen, payload):
-        """UI thread: apply the worker-read per-mod meta (see _reload_modlist)."""
+        """UI thread: apply the worker-read per-mod meta (see _reload_modlist).
+        *payload* is None when the read failed — the apply is skipped but the
+        chained conflict rebuild below still runs (it must not be lost)."""
         if gen != self._modlist_meta_gen:
             return   # superseded — the game/profile switched mid-read
+        self._mark_since_switch("switch→modlist_meta_applied")
+        from Utils.perftrace import span
+        # Chained conflict/filemap rebuild (see _reload_modlist): kicked here,
+        # AFTER the meta read, so its root-flag collect hits the warm read_meta
+        # cache instead of racing the worker over the same 400+ ini files.
+        pend = getattr(self, "_conflicts_after_meta", None)
+        if pend is not None and pend[0] == gen:
+            self._conflicts_after_meta = None
+            self._rebuild_conflicts_async(rescan_index=pend[1])
+        if payload is None:
+            return
         (versions, installed, flags, categories, updates,
          fomod, bain, missing_reqs, descriptions) = payload
         self._mod_categories = categories
@@ -8779,8 +8865,10 @@ class MainWindow(QMainWindow):
         self._mod_fomod = fomod
         self._mod_bain = bain
         self._mod_missing_reqs = missing_reqs
-        self._modlist_model.set_meta(versions, installed, categories, descriptions)
-        self._modlist_model.set_flags(flags)
+        with span("on_modlist_meta_ready(apply)"):
+            self._modlist_model.set_meta(versions, installed, categories,
+                                         descriptions)
+            self._modlist_model.set_flags(flags)
         # Prune any installed requirements from an open Missing Requirements panel
         # (this is the path the panel's own Install button lands on).
         view = getattr(self, "_missing_reqs_view", None)
@@ -8987,13 +9075,26 @@ class MainWindow(QMainWindow):
             from gui_qt.plugin_state import (
                 load_plugins, resolve_plugin_paths_for_game)
             from Utils.userlist import read_userlist_state
+            from Utils.perftrace import span
+            # Poll for supersession between the load's expensive phases: a
+            # newer reload bumping the gen makes this one's result dead on
+            # arrival (dropped in _on_plugins_loaded), so stop working on it.
+            stale = lambda: gen != self._plugins_gen
             try:
-                rows = load_plugins(game, profile)
+                with span("plugins.load_plugins(worker)"):
+                    rows = load_plugins(game, profile, cancelled=stale)
             except Exception as exc:
                 print(f"[gui_qt] plugin load failed: {exc}", flush=True)
                 rows = []
-            paths = (resolve_plugin_paths_for_game(game)
-                     if game is not None else {})
+            if rows is None or stale():
+                msg = (f"plugin load gen={gen} cancelled mid-build "
+                       f"(superseded by gen={self._plugins_gen})")
+                print(f"[plugin-diag] {msg}", flush=True)
+                self._append_log(f"[rescan-diag] {msg}")
+                return
+            with span("plugins.resolve_paths(worker)"):
+                paths = (resolve_plugin_paths_for_game(game)
+                         if game is not None else {})
             try:
                 state = read_userlist_state(ul_path)
             except Exception:
@@ -9002,6 +9103,20 @@ class MainWindow(QMainWindow):
 
         threading.Thread(target=worker, daemon=True,
                          name="plugins-reload").start()
+
+    def _clear_plugin_panel(self):
+        """Blank the plugin panel while a reload that will repopulate it is in
+        flight (profile switch: the conflict rebuild's plugin reload is the
+        authoritative one). Bumps the generation so any in-flight load from
+        the previous profile is dropped/cancelled."""
+        self._plugins_gen += 1
+        self._plugin_model.set_rows([], game=self._gs.game,
+                                    profile=self._gs.profile,
+                                    profile_dir=self._gs.profile_dir())
+        self._plugin_view.set_master_highlight(set())
+        self._plugin_view.refresh_missing_marker()
+        self._plugin_view.refresh_cycle_marker()
+        self._refresh_plugin_stats()
 
     def _on_plugins_loaded(self, gen, rows, paths, state):
         """UI thread: apply a finished plugin reload (see _reload_plugins)."""
@@ -9017,6 +9132,8 @@ class MainWindow(QMainWindow):
         # user can see + send it without an env var.
         self._append_log(f"[rescan-diag] plugins_loaded gen={gen} → applying "
                          f"{len(rows)} row(s) to the panel")
+        import time as _time
+        _apply_t0 = _time.perf_counter()
         self._plugin_model.set_rows(rows, game=self._gs.game,
                                     profile=self._gs.profile,
                                     profile_dir=self._gs.profile_dir())
@@ -9059,12 +9176,80 @@ class MainWindow(QMainWindow):
         self._plugin_view.on_quick_filter = self._on_quick_plugin_filter
         self._plugin_view.quick_filter_state = self._quick_plugin_filter_state
         print(f"[gui_qt] plugins: {len(rows)} entries")
+        from Utils import perftrace
+        perftrace.mark("on_plugins_loaded(apply)",
+                       _time.perf_counter() - _apply_t0)
+        # ESL-eligibility (filters) computes AFTER the rows are visible — a
+        # cold libloot scan is seconds of GIL-hogging record parsing.
+        self._start_esl_scan(gen, rows, paths)
+        # Profile-switch milestones: the FIRST plugin pass runs against the old
+        # filemap (fast feedback); the FINAL pass follows the conflict rebuild
+        # and is the moment the switch is fully rendered.
+        if getattr(self, "_switch_conflicts_done", False):
+            self._mark_since_switch("switch→plugins_final_applied")
+            self._switch_t0 = None
+            self._switch_conflicts_done = False
+        else:
+            self._mark_since_switch("switch→plugins_first_applied")
         # Last render step of first load — the plugin panel is now fully
         # populated. Dismiss the startup splash here (dropped one event-loop
         # turn later so this final dataChanged pass actually paints first).
         if not self._splash_dismissed and self._splash is not None:
             from PySide6.QtCore import QTimer
             QTimer.singleShot(0, self._dismiss_splash)
+
+    def _start_esl_scan(self, gen, rows, resolved):
+        """Compute the ESL-safe/unsafe filter bits on a worker AFTER the plugin
+        rows are applied. A cold libloot eligibility scan is seconds of
+        full-record parsing that does not release the GIL — inside
+        load_plugins it starved every other reload worker and the UI thread.
+        Results are mtime-cached (plugin_state._ESL_ELIG_CACHE), so repeat
+        loads resolve instantly."""
+        game = self._gs.game
+        if game is None or not getattr(game, "supports_esl_flag", False):
+            return
+        names = [r.name for r in rows]
+        if not names:
+            return
+        import threading
+
+        def worker():
+            from gui_qt.plugin_state import compute_esl_eligibility
+            from Utils.perftrace import span
+            data_dir = (game.get_vanilla_plugins_path()
+                        if hasattr(game, "get_vanilla_plugins_path") else None)
+            with span("plugins.esl_eligibility(deferred)"):
+                kinds = compute_esl_eligibility(names, resolved, data_dir, game)
+            self._esl_elig_ready.emit(gen, kinds)
+
+        threading.Thread(target=worker, daemon=True, name="esl-elig").start()
+
+    def _on_esl_elig_ready(self, gen, kinds):
+        """UI thread: merge the deferred ESL-eligibility bits into the plugin
+        rows (see _start_esl_scan) and reapply any active plugin filter that
+        keys off them."""
+        if gen != self._plugins_gen or not kinds:
+            return   # superseded — a newer plugin reload is in flight/applied
+        from gui_qt.plugin_state import PF_ESL_SAFE, PF_ESL_UNSAFE
+        from gui_qt.plugin_model import COL_FLAGS, PFlagsRole
+        m = self._plugin_model
+        changed = False
+        for r in m._rows:
+            bits = kinds.get(r.name.lower())
+            if bits is None:
+                continue
+            nf = (r.flags & ~(PF_ESL_SAFE | PF_ESL_UNSAFE)) | bits
+            if nf != r.flags:
+                r.flags = nf
+                changed = True
+        if not changed:
+            return
+        m.dataChanged.emit(m.index(0, COL_FLAGS),
+                           m.index(len(m._rows) - 1, COL_FLAGS),
+                           [PFlagsRole, Qt.ToolTipRole])
+        # The ESL-safe/unsafe filters read these bits — reapply if active.
+        if getattr(self, "_plugin_filter_panel", None) is not None:
+            self._apply_plugin_filters()
 
     # ---- LOOT userlist (groups / rules / cycle / flag) ---------------------
     def _userlist_path(self):
@@ -9947,6 +10132,11 @@ class MainWindow(QMainWindow):
         if _did is not None and _did[0] == gen and _did[1]:
             self._pending_rescan_index = False
         from Utils.perftrace import span
+        # Profile-switch milestone: the conflict/filemap build (usually the
+        # long pole) has landed; the reload_plugins below is the final pass.
+        if getattr(self, "_switch_t0", None) is not None:
+            self._mark_since_switch("switch→conflicts_applied")
+            self._switch_conflicts_done = True
         with span("on_conflicts_ready"):
             self._conflict_data = data
             # These maps now describe the on-disk modlist — arm the move

@@ -14,10 +14,12 @@ from __future__ import annotations
 
 import os
 import re
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 
 from Utils.app_log import app_log
+from Utils.perftrace import span
 from Utils.plugins import (
     read_plugins, read_loadorder, write_plugins, write_loadorder, PluginEntry,
 )
@@ -65,6 +67,9 @@ _ESL_ELIG_CACHE: dict = {}
 
 # BOS/SkyPatcher scan cache: (total_staging_mtime, staging_str) -> result dict.
 _BOS_SP_CACHE: dict = {}
+# Serializes BOS/SP scans: overlapping plugin reloads (e.g. the post-conflicts
+# pass racing an auto-deploy's reload) would otherwise each run the scan.
+_BOS_SP_LOCK = threading.Lock()
 
 
 @dataclass
@@ -275,8 +280,18 @@ def _filemap_deployed_plugins(game, plugin_exts: tuple[str, ...]) -> dict[str, s
     return found
 
 
-def load_plugins(game, profile: str) -> list[PluginRow]:
-    """Return the ordered plugin rows for *game*/*profile*, or [] if none."""
+def load_plugins(game, profile: str,
+                 cancelled=None) -> "list[PluginRow] | None":
+    """Return the ordered plugin rows for *game*/*profile*, or [] if none.
+
+    *cancelled* — optional zero-arg callable polled between the expensive
+    phases (path resolution, per-plugin header reads, master checks, ESL
+    eligibility, BOS/SP scan). When it returns True the load aborts and
+    returns None: a superseded reload's result is dropped by the caller's
+    generation check anyway, so finishing it just burns seconds of disk + GIL
+    time that slow the reload that superseded it."""
+    if cancelled is None:
+        cancelled = lambda: False
     p = plugins_path(game, profile)
     if p is None or not p.is_file():
         _diag(f"load_plugins: no plugins.txt (path={p}) → 0 rows")
@@ -292,7 +307,8 @@ def load_plugins(game, profile: str) -> list[PluginRow]:
     # present in Data — same resolver the Tk app uses.
     try:
         from Utils.game_helpers import _vanilla_plugins_for_game
-        vanilla = _vanilla_plugins_for_game(game)
+        with span("plugins.vanilla_resolve"):
+            vanilla = _vanilla_plugins_for_game(game)
     except Exception:
         vanilla = {n.lower(): n for n in getattr(game, "vanilla_plugins", [])}
 
@@ -304,7 +320,8 @@ def load_plugins(game, profile: str) -> list[PluginRow]:
     exts = tuple(e.lower() for e in (getattr(game, "plugin_extensions", []) or [])) \
         or (".esp", ".esm", ".esl")
     listed_lower = {e.name.lower() for e in entries}
-    deployed = _filemap_deployed_plugins(game, exts)
+    with span("plugins.filemap_deployed"):
+        deployed = _filemap_deployed_plugins(game, exts)
     recovered: list[str] = []
     for low, orig in deployed.items():
         if low in listed_lower or low in vanilla:
@@ -364,7 +381,10 @@ def load_plugins(game, profile: str) -> list[PluginRow]:
                 if hasattr(game, "get_vanilla_plugins_path") else None)
     # Resolve each plugin's REAL path (staging mod / overwrite / Data) so header
     # flags (ESL, master, missing-master) work for mod plugins, not just vanilla.
-    resolved = resolve_plugin_paths_for_game(game, data_dir)
+    if cancelled():
+        return None
+    with span("plugins.resolve_paths"):
+        resolved = resolve_plugin_paths_for_game(game, data_dir)
     _diag(f"load_plugins: ordered={len(ordered)} resolver mapped "
           f"{len(resolved)} plugin(s) to on-disk paths")
 
@@ -431,12 +451,24 @@ def load_plugins(game, profile: str) -> list[PluginRow]:
             _prune_phantom_plugins(p, star, set(n.lower() for n in pruned))
             ordered = kept
 
-    rows = [_to_row(e, vanilla, resolved, data_dir) for e in ordered]
-    _apply_master_checks(rows, resolved, data_dir)
-    _apply_loot_flags(rows, p.parent)
-    _apply_userlist_flags(rows, p.parent)
-    _apply_esl_eligibility(rows, resolved, data_dir, game)
-    _apply_bos_sp(rows, staging)
+    if cancelled():
+        return None
+    with span("plugins.header_flags(to_row)"):
+        rows = [_to_row(e, vanilla, resolved, data_dir) for e in ordered]
+    if cancelled():
+        return None
+    with span("plugins.master_checks"):
+        _apply_master_checks(rows, resolved, data_dir)
+    with span("plugins.loot_flags"):
+        _apply_loot_flags(rows, p.parent)
+    with span("plugins.userlist_flags"):
+        _apply_userlist_flags(rows, p.parent)
+    if cancelled():
+        return None
+    # ESL eligibility deliberately NOT computed here — see
+    # compute_esl_eligibility (deferred to its own post-apply worker).
+    with span("plugins.bos_sp"):
+        _apply_bos_sp(rows, staging)
     return rows
 
 
@@ -583,11 +615,16 @@ def _apply_userlist_flags(rows: list[PluginRow], profile_dir: Path) -> None:
                 r.flags |= PF_UL_CYCLE
 
 
-def _apply_esl_eligibility(rows: list[PluginRow], resolved: dict[str, Path],
-                           data_dir: Path | None, game) -> None:
-    """Flag each .esp/.esm plugin as ESL-safe or ESL-unsafe (eligible / not
-    eligible for the ESL flag) using libloot, mirroring Tk
-    _refresh_esl_flagged_set.
+def compute_esl_eligibility(names: list[str], resolved: dict[str, Path],
+                            data_dir: Path | None, game) -> dict[str, int]:
+    """Return {plugin_name_lower: PF_ESL_SAFE | PF_ESL_UNSAFE} for each
+    .esp/.esm in *names* — libloot's is-this-safe-to-ESL-flag verdict,
+    mirroring Tk _refresh_esl_flagged_set. Feeds the ESL-safe/unsafe filters.
+
+    NOT called from load_plugins: a cold scan is seconds of libloot record
+    parsing that does not release the GIL, which starves every other reload
+    worker AND the UI thread. The window defers it to its own worker after
+    the plugin rows are applied (app._start_esl_scan) and patches the bits in.
 
     Gated on the game's ``supports_esl_flag`` capability — no point scanning
     games without an ESL flag (Fallout 3 / Oblivion / Morrowind). ``.esl``
@@ -595,19 +632,20 @@ def _apply_esl_eligibility(rows: list[PluginRow], resolved: dict[str, Path],
     them. Results are cached by (path, mtime_ns, size, game_type, version) so
     the full-file record scan only runs when a plugin file is rewritten.
     """
+    out: dict[str, int] = {}
     if not getattr(game, "supports_esl_flag", False):
-        return
+        return out
     game_type_attr = getattr(game, "loot_game_type", "") or ""
     try:
         from Utils.plugin_parser import check_esl_eligible
     except Exception:
-        return
-    for r in rows:
-        low = r.name.lower()
+        return out
+    for name in names:
+        low = name.lower()
         # .esl files are always light by extension — not eligibility-scanned.
         if low.endswith(".esl") or not low.endswith((".esp", ".esm")):
             continue
-        path = resolved.get(low) or ((data_dir / r.name) if data_dir else None)
+        path = resolved.get(low) or ((data_dir / name) if data_dir else None)
         if path is None:
             continue
         try:
@@ -623,25 +661,122 @@ def _apply_esl_eligibility(rows: list[PluginRow], resolved: dict[str, Path],
             except Exception:
                 cached = False
             _ESL_ELIG_CACHE[elig_key] = cached
-        r.flags |= PF_ESL_SAFE if cached else PF_ESL_UNSAFE
+        out[low] = PF_ESL_SAFE if cached else PF_ESL_UNSAFE
+    return out
 
 
 def scan_bos_sp_patches(staging_root: Path | None) -> dict[str, str]:
     """Scan staging mods for BOS (Base Object Swapper) / SkyPatcher patches.
 
     Returns {plugin_name_lower: "bos" | "sp" | "both"} for every staged plugin
-    a patch targets. Ported 1:1 from Tk _do_scan_bos_sp:
+    a patch targets. Semantics ported from Tk _do_scan_bos_sp:
 
     * BOS: a mod ships ``<PluginStem>_SWAP.ini`` anywhere under it.
     * SP:  a SkyPatcher/SkyPatcher2 INI has a ``filterByFormID = Plugin.esp|..``
            line referencing the plugin. Patch mods target *other* mods' plugins,
            so every mod is scanned, not just the plugin's owner.
 
-    Cached by (total staging dir mtime, staging path) so a repeat call with no
-    staging change is free. Safe to call off the UI thread (pure filesystem).
-    """
+    Fast path: derive everything from modindex.bin (already an in-memory-cached
+    parse) instead of walking the staging tree — a full rglob over hundreds of
+    mods costs seconds, the index pass costs milliseconds. Only SkyPatcher INI
+    contents are read from disk. Cached by the index's mtime, which only changes
+    on install/remove/refresh — deploys touch staging dir mtimes but not the
+    index, so the cache survives an auto-deploy (the old mtime-sum key didn't).
+    Falls back to the original disk walk when the index is missing/unreadable.
+    A lock serializes concurrent scans (overlapping plugin reloads) so the
+    second waits and hits the first's cache instead of duplicating the work.
+    Safe to call off the UI thread (pure filesystem)."""
     if staging_root is None:
         return {}
+    index_path = staging_root.parent / "modindex.bin"
+    try:
+        idx_key = ("modindex", str(index_path), index_path.stat().st_mtime_ns)
+    except OSError:
+        idx_key = None
+    with _BOS_SP_LOCK:
+        if idx_key is not None:
+            cached = _BOS_SP_CACHE.get(idx_key)
+            if cached is not None:
+                return cached
+            from Utils.filemap import read_mod_index, OVERWRITE_NAME
+            index = read_mod_index(index_path)
+            if index:
+                result = _scan_bos_sp_from_index(
+                    index, staging_root, OVERWRITE_NAME)
+                _BOS_SP_CACHE[idx_key] = result
+                return result
+        return _scan_bos_sp_disk(staging_root)
+
+
+def _parse_sp_ini_text(text: str, sp_plugins: set[str]) -> None:
+    """Collect the plugin names referenced by ``filterByFormID = Plugin.esp|…``
+    lines of one SkyPatcher INI into *sp_plugins* (lowercase)."""
+    for line in text.splitlines():
+        s = line.strip()
+        if not s or s.startswith(";"):
+            continue
+        if s.lower().startswith("filterbyformid"):
+            eq = s.find("=")
+            if eq == -1:
+                continue
+            val = s[eq + 1:].strip()
+            if "|" in val:
+                ref = val.split("|")[0].strip().lower()
+                if ref.endswith((".esp", ".esm", ".esl")):
+                    sp_plugins.add(ref)
+
+
+def _scan_bos_sp_from_index(index: dict, staging_root: Path,
+                            overwrite_name: str) -> dict[str, str]:
+    """Index-backed BOS/SP scan — see scan_bos_sp_patches. Index paths are
+    destination-relative (the game's top-level strip prefix, e.g. ``Data``,
+    already removed), which matches what the disk walk collected from the mod
+    root + ``Data/``. Only SkyPatcher INIs are opened; the index key stripped
+    any prefix, so both on-disk candidates are tried."""
+    all_plugins: set[str] = set()
+    bos_stems: set[str] = set()
+    sp_plugins: set[str] = set()
+    for mod_name, (normal, _root) in index.items():
+        if mod_name == overwrite_name:   # disk-walk parity: staging mods only
+            continue
+        mod_dir = staging_root / mod_name
+        for rel_low, rel_orig in normal.items():
+            base = rel_low.rsplit("/", 1)[-1]
+            if "/" not in rel_low and base.endswith((".esp", ".esm", ".esl")):
+                all_plugins.add(base)
+            if base.endswith("_swap.ini"):
+                bos_stems.add(base[:-len("_swap.ini")])
+            elif base.endswith(".ini") and rel_low.startswith(
+                    ("skse/plugins/skypatcher/", "skse/plugins/skypatcher2/")):
+                for cand in (mod_dir / rel_orig, mod_dir / "Data" / rel_orig):
+                    try:
+                        _parse_sp_ini_text(
+                            cand.read_text(encoding="utf-8", errors="ignore"),
+                            sp_plugins)
+                        break
+                    except (OSError, UnicodeDecodeError):
+                        continue
+    return _combine_bos_sp(all_plugins, bos_stems, sp_plugins)
+
+
+def _combine_bos_sp(all_plugins: set[str], bos_stems: set[str],
+                    sp_plugins: set[str]) -> dict[str, str]:
+    result: dict[str, str] = {}
+    for pname in all_plugins:
+        is_bos = Path(pname).stem.lower() in bos_stems
+        is_sp = pname in sp_plugins
+        if is_bos and is_sp:
+            result[pname] = "both"
+        elif is_bos:
+            result[pname] = "bos"
+        elif is_sp:
+            result[pname] = "sp"
+    return result
+
+
+def _scan_bos_sp_disk(staging_root: Path) -> dict[str, str]:
+    """Original full-disk-walk BOS/SP scan — the fallback when modindex.bin is
+    missing or unreadable. Cached by (total staging dir mtime, staging path)."""
     staging_str = str(staging_root)
     try:
         total_mtime = sum(
@@ -698,21 +833,10 @@ def scan_bos_sp_patches(staging_root: Path | None) -> dict[str, str]:
                         if not ini.is_file():
                             continue
                         try:
-                            for line in ini.read_text(
-                                encoding="utf-8", errors="ignore"
-                            ).splitlines():
-                                s = line.strip()
-                                if not s or s.startswith(";"):
-                                    continue
-                                if s.lower().startswith("filterbyformid"):
-                                    eq = s.find("=")
-                                    if eq == -1:
-                                        continue
-                                    val = s[eq + 1:].strip()
-                                    if "|" in val:
-                                        ref = val.split("|")[0].strip().lower()
-                                        if ref.endswith((".esp", ".esm", ".esl")):
-                                            sp_plugins.add(ref)
+                            _parse_sp_ini_text(
+                                ini.read_text(encoding="utf-8",
+                                              errors="ignore"),
+                                sp_plugins)
                         except (OSError, UnicodeDecodeError):
                             pass
                 except OSError:
@@ -720,17 +844,7 @@ def scan_bos_sp_patches(staging_root: Path | None) -> dict[str, str]:
     except OSError:
         pass
 
-    result: dict[str, str] = {}
-    for pname in all_plugins:
-        is_bos = Path(pname).stem.lower() in bos_stems
-        is_sp = pname in sp_plugins
-        if is_bos and is_sp:
-            result[pname] = "both"
-        elif is_bos:
-            result[pname] = "bos"
-        elif is_sp:
-            result[pname] = "sp"
-
+    result = _combine_bos_sp(all_plugins, bos_stems, sp_plugins)
     _BOS_SP_CACHE[cache_key] = result
     return result
 

@@ -461,6 +461,8 @@ class GameState:
             # every profile switch). Without this the previous profile's paths
             # stay live on the game object.
             try:
-                g.load_paths()
+                from Utils.perftrace import span
+                with span("game.load_paths"):
+                    g.load_paths()
             except Exception:
                 pass

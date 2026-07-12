@@ -26,6 +26,8 @@ This module provides:
 from __future__ import annotations
 
 import configparser
+import copy
+import os
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -160,35 +162,59 @@ _BOOL_FIELDS = {
 }
 
 
+# Parsed meta.ini cache, keyed by path with the file's mtime as validity.
+# Several hot paths parse the SAME metas back-to-back on every reload /
+# profile switch (the modlist meta worker, the filemap build's root-flag
+# collect, flag refreshes) — hundreds of configparser runs each. A write
+# bumps the mtime, so the entry self-invalidates. A COPY is returned/stored:
+# callers mutate the result before write_meta, which must never leak into
+# the cached instance (all fields are scalars, so a shallow copy is enough).
+_META_CACHE: dict[str, tuple[int, NexusModMeta]] = {}
+_META_CACHE_MAX = 8192
+
+
 def read_meta(meta_ini_path: Path) -> NexusModMeta:
     """
     Parse a ``meta.ini`` file and return a :class:`NexusModMeta`.
 
-    Missing keys are silently defaulted.
+    Missing keys are silently defaulted. Results are cached by file mtime.
     """
+    path_str = str(meta_ini_path)
+    try:
+        mtime_ns = os.stat(path_str).st_mtime_ns
+    except OSError:
+        mtime_ns = None   # missing file → parse to the defaults, don't cache
+    if mtime_ns is not None:
+        entry = _META_CACHE.get(path_str)
+        if entry is not None and entry[0] == mtime_ns:
+            return copy.copy(entry[1])
+
     cp = configparser.ConfigParser()
-    cp.read(str(meta_ini_path), encoding="utf-8")
+    cp.read(path_str, encoding="utf-8")
 
     meta = NexusModMeta()
     meta.mod_name = meta_ini_path.parent.name
 
-    if not cp.has_section(_SECTION):
-        return meta
+    if cp.has_section(_SECTION):
+        for ini_key, attr in _KEY_MAP.items():
+            raw = cp.get(_SECTION, ini_key, fallback=None)
+            if raw is None:
+                continue
+            if attr in _INT_FIELDS:
+                try:
+                    setattr(meta, attr, int(raw))
+                except ValueError:
+                    pass
+            elif attr in _BOOL_FIELDS:
+                setattr(meta, attr, raw.lower() in ("true", "1", "yes"))
+            else:
+                setattr(meta, attr, raw)
 
-    for ini_key, attr in _KEY_MAP.items():
-        raw = cp.get(_SECTION, ini_key, fallback=None)
-        if raw is None:
-            continue
-        if attr in _INT_FIELDS:
-            try:
-                setattr(meta, attr, int(raw))
-            except ValueError:
-                pass
-        elif attr in _BOOL_FIELDS:
-            setattr(meta, attr, raw.lower() in ("true", "1", "yes"))
-        else:
-            setattr(meta, attr, raw)
-
+    if mtime_ns is not None:
+        if len(_META_CACHE) >= _META_CACHE_MAX:
+            for k in list(_META_CACHE.keys())[: _META_CACHE_MAX // 4]:
+                _META_CACHE.pop(k, None)
+        _META_CACHE[path_str] = (mtime_ns, copy.copy(meta))
     return meta
 
 
