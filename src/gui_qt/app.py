@@ -277,7 +277,7 @@ class MainWindow(QMainWindow):
     _col_agg = Signal("qlonglong", "qlonglong", float)  # bytes cur, total, MB/s (64-bit: >2GB)
     _col_display_total = Signal("qlonglong")   # true collection size (bytes, 64-bit)
     _col_dl = Signal(str, object)              # ("start"|"update"|"finish", payload)
-    _col_extract = Signal(str, object)         # ("queue"|"add"|"remove", payload)
+    _col_extract = Signal(str, object)         # ("queue"|"add"|"update"|"remove", payload)
     _col_row = Signal(int)                     # file_id installed
     _col_manual = Signal(object)               # manual-mode current-mod payload dict
     _col_finished = Signal(str, object)        # ("done"|"paused"|"cancelled", payload)
@@ -3222,6 +3222,7 @@ class MainWindow(QMainWindow):
             on_dl_mod_finish=lambda f: self._col_dl.emit("finish", f),
             on_extract_queue=lambda f, n: self._col_extract.emit("queue", (f, n)),
             on_extract_add=lambda f, n: self._col_extract.emit("add", (f, n)),
+            on_extract_update=lambda f, c, t: self._col_extract.emit("update", (f, c, t)),
             on_extract_remove=lambda f: self._col_extract.emit("remove", f),
             on_row_installed=lambda f: self._col_row.emit(int(f)),
             on_manual_mod=lambda d: self._col_manual.emit(dict(d)),
@@ -3268,6 +3269,8 @@ class MainWindow(QMainWindow):
             ov.extract_queue(*payload)
         elif verb == "add":
             ov.extract_add(*payload)
+        elif verb == "update":
+            ov.extract_update(*payload)
         elif verb == "remove":
             ov.extract_remove(payload)
 

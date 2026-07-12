@@ -18,6 +18,7 @@ Public API:
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import tarfile
@@ -656,7 +657,8 @@ def _fix_nonutf8_names_extracted_tree(extract_dir: str, log_fn: LogFn) -> int:
 
 
 def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn,
-                     cancel=None, error_sink: "list[str] | None" = None) -> bool:
+                     cancel=None, error_sink: "list[str] | None" = None,
+                     progress_cb: "Callable[[int], None] | None" = None) -> bool:
     """Extract *archive_path* into *dest_dir*. Native 7z → bsdtar → py7zr →
     Python zipfile/tarfile, mirroring gui.install_mod's fallback chain. After a
     successful native/zip extraction, backslash-named members are normalised
@@ -668,7 +670,12 @@ def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn,
 
     *error_sink* — optional list; each extractor's failure text is appended so
     the caller can classify the overall failure (e.g. disk-full → retry on a
-    bigger filesystem)."""
+    bigger filesystem).
+
+    *progress_cb* — optional ``cb(percent)`` with real extraction progress.
+    Only the 7z (``-bsp1``) and zipfile paths report; the rare fallbacks
+    (bsdtar/py7zr/tarfile) never fire it, leaving the caller's indeterminate
+    bar in place."""
     ext = Path(archive_path).suffix.lower()
 
     def _note(err) -> None:
@@ -708,7 +715,8 @@ def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn,
            or shutil.which("7z") or shutil.which("7za"))
     if _7z:
         rc, err, killed = _run_extractor_cancellable(
-            [_7z, "x", archive_path, f"-o{dest_dir}", "-y", "-mmt=on"], cancel)
+            [_7z, "x", archive_path, f"-o{dest_dir}", "-y", "-mmt=on", "-bsp1"],
+            cancel, progress_cb=progress_cb)
         if killed:
             log_fn("Extraction cancelled (7z terminated).")
             return False
@@ -745,7 +753,21 @@ def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn,
         return False
     try:
         with zipfile.ZipFile(archive_path, "r") as z:
-            z.extractall(dest_dir)
+            infos = z.infolist()
+            total = sum(i.file_size for i in infos) or 1
+            done = 0
+            last_pct = -1
+            for info in infos:
+                if _cancelled():
+                    log_fn("Extraction cancelled (zipfile).")
+                    return False
+                z.extract(info, dest_dir)
+                done += info.file_size
+                if progress_cb is not None:
+                    pct = min(100, int(done * 100 / total))
+                    if pct != last_pct:
+                        last_pct = pct
+                        progress_cb(pct)
         log_fn("Extracted with zipfile.")
         return _ok()
     except Exception as exc:
@@ -754,34 +776,77 @@ def _extract_archive(archive_path: str, dest_dir: str, log_fn: LogFn,
     return False
 
 
-def _run_extractor_cancellable(cmd: list, cancel) -> "tuple[int, str, bool]":
+def _run_extractor_cancellable(cmd: list, cancel,
+                               progress_cb=None) -> "tuple[int, str, bool]":
     """Run *cmd* (7z/bsdtar), polling *cancel* so a pause/cancel kills the
     extractor promptly instead of waiting for it to finish. Returns
     ``(returncode, stderr, killed)`` — *killed* is True if we terminated it on a
-    cancel request. When *cancel* is None this behaves like a blocking run."""
-    if cancel is None:
-        r = subprocess.run(cmd, stdout=subprocess.DEVNULL,
-                           stderr=subprocess.PIPE, text=True)
-        return r.returncode, r.stderr or "", False
-    proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL,
-                            stderr=subprocess.PIPE, text=True)
+    cancel request. When *cancel* is None this behaves like a blocking run.
+
+    *progress_cb* — optional ``cb(percent)``; when given, stdout is kept (7z is
+    invoked with ``-bsp1``) and scanned for percent updates. 7z redraws its
+    progress line in place with backspaces rather than newlines, so the scan is
+    a regex over raw chunks, not line reads. Both pipes are drained on
+    background threads — waiting for the process first and reading after would
+    deadlock once a pipe buffer fills."""
+    proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE if progress_cb is not None else subprocess.DEVNULL,
+        stderr=subprocess.PIPE)
+    err_parts: "list[bytes]" = []
+
+    def _drain_stderr():
+        err_parts.append(proc.stderr.read() or b"")
+
+    def _scan_stdout():
+        pct_re = re.compile(rb"(\d{1,3})%")
+        last = -1
+        tail = b""
+        while True:
+            chunk = proc.stdout.read1(4096)
+            if not chunk:
+                break
+            hits = pct_re.findall(tail + chunk)
+            # keep a few trailing bytes so a percent split across chunks
+            # ("4" | "7%") still matches next round
+            tail = chunk[-8:]
+            if hits:
+                pct = min(100, int(hits[-1]))
+                if pct != last:
+                    last = pct
+                    try:
+                        progress_cb(pct)
+                    except Exception:
+                        pass
+
+    readers = [threading.Thread(target=_drain_stderr, daemon=True)]
+    if progress_cb is not None:
+        readers.append(threading.Thread(target=_scan_stdout, daemon=True))
+    for t in readers:
+        t.start()
+
+    killed = False
     while True:
         try:
-            _out, err = proc.communicate(timeout=0.25)
-            return proc.returncode, err or "", False
+            proc.wait(timeout=0.25 if cancel is not None else None)
+            break
         except subprocess.TimeoutExpired:
             if cancel.is_set():
                 proc.terminate()
                 try:
-                    _out, err = proc.communicate(timeout=3)
+                    proc.wait(timeout=3)
                 except subprocess.TimeoutExpired:
                     proc.kill()
                     try:
-                        _out, err = proc.communicate(timeout=3)
+                        proc.wait(timeout=3)
                     except subprocess.TimeoutExpired:
-                        err = ""
-                return (proc.returncode if proc.returncode is not None else -1,
-                        err or "", True)
+                        pass
+                killed = True
+                break
+    for t in readers:
+        t.join(timeout=5)
+    err = b"".join(err_parts).decode("utf-8", "replace")
+    return (proc.returncode if proc.returncode is not None else -1, err, killed)
 
 
 # ---------------------------------------------------------------- root detection
@@ -924,6 +989,12 @@ def prepare_archive(archive_path: str, game, profile_dir: Path, *,
             progress_fn(done, total, phase)
 
     _p(0, 0, "Extracting")
+
+    def _extract_progress(pct: int) -> None:
+        # Real percent from 7z/zipfile; the fallback extractors never call this,
+        # so the (0, 0) indeterminate bar above stays for them.
+        _p(pct, 100, "Extracting")
+
     # Pick a temp parent big enough — /tmp is a RAM-backed tmpfs on the Deck, so
     # a large mod must extract to the staging disk instead (Tk parity).
     parent, tmp_reserved = _choose_extract_parent(str(archive),
@@ -933,7 +1004,8 @@ def prepare_archive(archive_path: str, game, profile_dir: Path, *,
     _log_extract_location(extract_dir, log_fn)
     extract_errors: list[str] = []
     extracted = _extract_archive(str(archive), str(extract_dir), log_fn,
-                                 cancel=cancel, error_sink=extract_errors)
+                                 cancel=cancel, error_sink=extract_errors,
+                                 progress_cb=_extract_progress)
     if not extracted and (cancel is None or not cancel.is_set()):
         # The size estimate can undershoot (a solid .7z with no `7z` binary to
         # probe falls back to 15× compressed — extreme texture packs reach 30×),
@@ -959,7 +1031,8 @@ def prepare_archive(archive_path: str, game, profile_dir: Path, *,
                 _log_extract_location(extract_dir, log_fn)
                 extracted = _extract_archive(str(archive), str(extract_dir),
                                              log_fn, cancel=cancel,
-                                             error_sink=extract_errors)
+                                             error_sink=extract_errors,
+                                             progress_cb=_extract_progress)
     if not extracted:
         if cancel is not None and cancel.is_set():
             log_fn("Install: extraction cancelled — removing temp files.")
@@ -985,7 +1058,9 @@ def prepare_archive(archive_path: str, game, profile_dir: Path, *,
         log_fn(f"Archive contains a .fomod wrapper — extracting {fomod_wrapper.name}…")
         inner_dir = Path(tempfile.mkdtemp(prefix="mm_install_",
                                           dir=str(extract_dir.parent)))
-        if _extract_archive(str(fomod_wrapper), str(inner_dir), log_fn, cancel=cancel):
+        _p(0, 0, "Extracting")   # back to indeterminate for the second pass
+        if _extract_archive(str(fomod_wrapper), str(inner_dir), log_fn,
+                            cancel=cancel, progress_cb=_extract_progress):
             shutil.rmtree(extract_dir, ignore_errors=True)
             extract_dir = inner_dir
         else:
