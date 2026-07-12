@@ -2191,13 +2191,19 @@ def _add_to_modlist(profile_dir: Path, mod_name: str, log_fn: LogFn,
                     preserve_position: bool = False) -> None:
     try:
         if preserve_position:
-            # Replacing an existing mod — keep its load-order position.
+            # Replacing an existing mod — keep its load-order position and its
+            # existing enabled/disabled state (a reinstall/update must not
+            # silently re-enable a disabled mod).
             from Utils.modlist import ensure_mod_preserving_position
             ensure_mod_preserving_position(
-                profile_dir / "modlist.txt", mod_name, enabled=True)
+                profile_dir / "modlist.txt", mod_name, enabled=True,
+                preserve_existing_state=True)
         else:
+            # New mods land enabled at the top; but if this name already exists
+            # (reinstall without position-preservation) keep its current state.
             from Utils.modlist import prepend_mod
-            prepend_mod(profile_dir / "modlist.txt", mod_name, enabled=True)
+            prepend_mod(profile_dir / "modlist.txt", mod_name, enabled=True,
+                        preserve_existing_state=True)
     except Exception as exc:
         log_fn(f"modlist update failed ({exc}).")
 
