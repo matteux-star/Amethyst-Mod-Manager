@@ -48,6 +48,7 @@ class NexusModMeta:
     version: str = ""                  # mod version string
     author: str = ""                   # mod author
     nexus_name: str = ""               # mod name on Nexus (may differ from folder)
+    nexus_file_name: str = ""          # per-file display name on Nexus (file_details.name, e.g. "Engine Fixes - Main File")
     installation_file: str = ""        # original archive filename
     file_size: int = 0                 # original archive size in bytes
     installed: str = ""                # ISO-8601 timestamp
@@ -128,6 +129,7 @@ _KEY_MAP: dict[str, str] = {
     "version":           "version",
     "author":            "author",
     "nexusName":         "nexus_name",
+    "nexusFileName":     "nexus_file_name",
     "installationFile":  "installation_file",
     "fileSize":          "file_size",
     "installed":         "installed",
@@ -541,6 +543,7 @@ def resolve_nexus_meta_for_archive(
                         meta.file_id = f.file_id
                         meta.version = f.version or f.mod_version or meta.version
                         meta.file_category = f.category_name
+                        meta.nexus_file_name = f.name or ""
                         break
                 # If no filename match, check if the version matches
                 if meta.file_id == 0 and fn_info.version:
@@ -548,6 +551,7 @@ def resolve_nexus_meta_for_archive(
                         if f.version == fn_info.version or f.mod_version == fn_info.version:
                             meta.file_id = f.file_id
                             meta.file_category = f.category_name
+                            meta.nexus_file_name = f.name or ""
                             break
             except Exception:
                 pass
@@ -588,6 +592,7 @@ def resolve_nexus_meta_for_archive(
                 version=file_data.get("version", "") or file_data.get("mod_version", ""),
                 author=mod_data.get("author", ""),
                 nexus_name=mod_data.get("name", ""),
+                nexus_file_name=file_data.get("name", "") or file_data.get("file_name", ""),
                 installation_file=archive_name,
                 installed=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S"),
                 description=mod_data.get("summary", ""),

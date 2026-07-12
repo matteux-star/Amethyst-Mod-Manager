@@ -982,7 +982,30 @@ def prepare_archive(archive_path: str, game, profile_dir: Path, *,
     if staging_root is None:
         log_fn("Install: no staging folder configured.")
         return None
-    mod_name = preferred_name or _clean_mod_name(archive.stem, game)
+    # Name the mod folder. Priority:
+    #   1. preferred_name  — the caller forces it (Nexus browser, collections).
+    #   2. prebuilt_meta   — the caller already resolved the Nexus file → use its
+    #                        per-file display name if it has one.
+    #   3. Nexus MD5/filename lookup — when logged in, name the folder after the
+    #                        file's Nexus display name (e.g. "Engine Fixes - Main
+    #                        File") and reuse the resolved meta as prebuilt_meta so
+    #                        finish_install doesn't look it up a second time.
+    #   4. _clean_mod_name — strip the archive stem (offline / not on Nexus).
+    if preferred_name:
+        mod_name = preferred_name
+    else:
+        nexus_name = _nexus_file_display_name(prebuilt_meta, game)
+        if not nexus_name:
+            # Not supplied by the caller — try a live lookup ourselves. Reuse the
+            # resolved meta downstream so the MD5 hash isn't recomputed later.
+            resolved = _resolve_nexus_meta_for_naming(archive, game, log_fn)
+            if resolved is not None:
+                if prebuilt_meta is None:
+                    prebuilt_meta = resolved
+                nexus_name = _nexus_file_display_name(resolved, game)
+        mod_name = nexus_name or _clean_mod_name(archive.stem, game)
+        if nexus_name:
+            log_fn(f"Naming mod folder from Nexus: '{mod_name}'.")
 
     def _p(done, total, phase=None):
         if progress_fn is not None:
@@ -2017,6 +2040,55 @@ def _persist_bain_selection(game, mod_name: str, result, profile_dir=None) -> No
 
 
 # ---------------------------------------------------------------- helpers
+def _nexus_domain_for(game) -> str:
+    """The Nexus API domain for *game* (e.g. "skyrimspecialedition")."""
+    return getattr(game, "nexus_game_domain", None) or getattr(game, "game_id", "") or ""
+
+
+def _nexus_file_display_name(meta, game) -> str:
+    """The sanitized per-file Nexus display name from *meta*, or "" if absent.
+
+    Uses ``file_details.name`` (NexusModMeta.nexus_file_name, e.g. "Engine Fixes
+    - Main File") — the label shown against the download on the mod's Files tab —
+    to name the staging folder. Sanitized to a valid folder name; returns "" so
+    the caller falls back to the archive-stem name when the meta has no file name.
+    """
+    if meta is None:
+        return ""
+    raw = (getattr(meta, "nexus_file_name", "") or "").strip()
+    if not raw:
+        return ""
+    try:
+        from Utils.mod_name_utils import sanitize_mod_folder_name
+        cleaned = sanitize_mod_folder_name(raw) or raw
+    except Exception:
+        import re
+        cleaned = re.sub(r'[<>:"/\\|?*]', "_", raw).rstrip(". ")
+    return cleaned.strip()
+
+
+def _resolve_nexus_meta_for_naming(archive: Path, game, log_fn: LogFn):
+    """Look up *archive* on Nexus (filename → MD5) so its folder can be named
+    after the file's Nexus display name. Returns a NexusModMeta or None.
+
+    Requires the user to be logged in (a live API) — offline / not-logged-in
+    returns None and the caller falls back to the stripped archive stem. Failures
+    are swallowed: naming from the archive name is always an acceptable fallback.
+    """
+    try:
+        api = _build_nexus_api()
+        if api is None:
+            return None
+        domain = _nexus_domain_for(game)
+        if not domain:
+            return None
+        from Nexus.nexus_meta import resolve_nexus_meta_for_archive
+        return resolve_nexus_meta_for_archive(archive, domain, api=api, log_fn=log_fn)
+    except Exception as exc:
+        log_fn(f"Nexus name lookup skipped ({exc}).")
+        return None
+
+
 def _clean_mod_name(stem: str, game) -> str:
     """Best-effort folder name from the archive stem.
 
