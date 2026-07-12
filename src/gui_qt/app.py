@@ -23,7 +23,7 @@ from gui_qt.theme_qt import apply_theme, active_palette, _c, contrast_text
 from gui_qt.icons import icon, hamburger_icon
 from gui_qt.modlist_model import ModListModel, COL_SIZE
 from gui_qt.modlist_view import ModListView
-from gui_qt.selector_button import SelectorButton
+from gui_qt.selector_button import SelectorButton, SplitPressHighlighter
 from gui_qt.flow_layout import FlowLayout
 from gui_qt.game_state import GameState
 from gui_qt.detachable_tabs import DetachableTabWidget
@@ -10443,9 +10443,13 @@ class MainWindow(QMainWindow):
         menu = QMenu(b)
         self._populate_menu(menu, items)
         b.setMenu(menu)
-        # Open on press (not release) so the menuOpen highlight covers the
-        # whole button in one repaint — mirrors SelectorButton.
+        # Open on press (not release), and set menuOpen BEFORE the synchronous
+        # sunken repaint (SplitPressHighlighter) so body + arrow light together
+        # instead of the arrow lagging one menu-build behind — mirrors
+        # SelectorButton. Matters most for Wizard, whose menu rebuild on
+        # aboutToShow probes the filesystem.
         b.pressed.connect(b.showMenu)
+        b.installEventFilter(SplitPressHighlighter(b))
 
         def _set_open(on):
             b.setProperty("menuOpen", on)
