@@ -8997,7 +8997,7 @@ class MainWindow(QMainWindow):
         chained conflict rebuild below still runs (it must not be lost)."""
         if gen != self._modlist_meta_gen:
             return   # superseded — the game/profile switched mid-read
-        self._mark_since_switch("switch→modlist_meta_applied")
+        self._mark_since_switch("switch→modlist_meta_applied")  # i18n: skip — perftrace marker label
         from Utils.perftrace import span
         # Chained conflict/filemap rebuild (see _reload_modlist): kicked here,
         # AFTER the meta read, so its root-flag collect hits the warm read_meta
@@ -9340,11 +9340,11 @@ class MainWindow(QMainWindow):
         # filemap (fast feedback); the FINAL pass follows the conflict rebuild
         # and is the moment the switch is fully rendered.
         if getattr(self, "_switch_conflicts_done", False):
-            self._mark_since_switch("switch→plugins_final_applied")
+            self._mark_since_switch("switch→plugins_final_applied")  # i18n: skip — perftrace marker label
             self._switch_t0 = None
             self._switch_conflicts_done = False
         else:
-            self._mark_since_switch("switch→plugins_first_applied")
+            self._mark_since_switch("switch→plugins_first_applied")  # i18n: skip — perftrace marker label
         # Last render step of first load — the plugin panel is now fully
         # populated. Dismiss the startup splash here (dropped one event-loop
         # turn later so this final dataChanged pass actually paints first).
@@ -10298,7 +10298,7 @@ class MainWindow(QMainWindow):
         # Profile-switch milestone: the conflict/filemap build (usually the
         # long pole) has landed; the reload_plugins below is the final pass.
         if getattr(self, "_switch_t0", None) is not None:
-            self._mark_since_switch("switch→conflicts_applied")
+            self._mark_since_switch("switch→conflicts_applied")  # i18n: skip — perftrace marker label
             self._switch_conflicts_done = True
         with span("on_conflicts_ready"):
             self._conflict_data = data

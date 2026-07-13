@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import re
 
-from PySide6.QtCore import Qt, QEvent
+from PySide6.QtCore import Qt, QEvent, QT_TRANSLATE_NOOP
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
     QPushButton, QFrame, QTextEdit,
@@ -37,11 +37,15 @@ def _fmt_size_bytes(b: int) -> str:
 # UPDATE / OLD_VERSION are intentionally excluded — they are patches/superseded
 # archives, not standalone installs.
 _INSTALL_CATEGORIES = {"MAIN": 0, "OPTIONAL": 1, "MISCELLANEOUS": 2}
-_CATEGORY_LABEL = {"MAIN": "Main", "OPTIONAL": "Optional",
-                   "MISCELLANEOUS": "Misc"}
+# UI strings marked for extraction with QT_TRANSLATE_NOOP (module-level, so no
+# tr() context is available here); translated at the use site via self.tr().
+_CATEGORY_LABEL = {"MAIN": QT_TRANSLATE_NOOP("NexusFileChooser", "Main"),
+                   "OPTIONAL": QT_TRANSLATE_NOOP("NexusFileChooser", "Optional"),
+                   "MISCELLANEOUS": QT_TRANSLATE_NOOP("NexusFileChooser", "Misc")}
 # Section headers shown as separator rows (grouped in category order).
-_CATEGORY_HEADER = {"MAIN": "Main files", "OPTIONAL": "Optional files",
-                    "MISCELLANEOUS": "Miscellaneous files"}
+_CATEGORY_HEADER = {"MAIN": QT_TRANSLATE_NOOP("NexusFileChooser", "Main files"),
+                    "OPTIONAL": QT_TRANSLATE_NOOP("NexusFileChooser", "Optional files"),
+                    "MISCELLANEOUS": QT_TRANSLATE_NOOP("NexusFileChooser", "Miscellaneous files")}
 
 # Marks a non-selectable section-header row (vs a real file row).
 _HEADER_ROLE = Qt.UserRole + 1
@@ -128,7 +132,8 @@ class NexusFileChooser(QWidget):
             up = (f.category_name or "").upper()
             if up != last_cat:
                 last_cat = up
-                self._add_header(_CATEGORY_HEADER.get(up, _CATEGORY_LABEL.get(up, up)), p)
+                self._add_header(
+                    self.tr(_CATEGORY_HEADER.get(up, _CATEGORY_LABEL.get(up, up))), p)
             name = f.name or f.file_name or f"File {f.file_id}"
             size = (f.size_in_bytes or 0) or (f.size_kb * 1024 if f.size_kb else 0)
             bits = []
