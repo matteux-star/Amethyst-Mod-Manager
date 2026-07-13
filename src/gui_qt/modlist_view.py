@@ -592,6 +592,11 @@ class ModListView(QTreeView):
         sep = next((r for r in range(top, -1, -1) if _real_sep(r)), None)
         if sep is None:
             return None
+        # A separator hidden by the filter panel ("Hide separators", or a
+        # filter that dropped its whole block) must not pin a band — it would
+        # paint over the first visible mod row.
+        if self.isRowHidden(sep, self.rootIndex()):
+            return None
         # visualRect() of an off-screen row can be empty, so don't measure the
         # separator directly: it needs a pinned stand-in iff it sits ABOVE the
         # top visible row, or IS the top row but partially scrolled off.
