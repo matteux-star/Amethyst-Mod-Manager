@@ -11,8 +11,10 @@
 - Added a right click option to mods in the nexus browser to view other mods by the same author
 - Added extraction resource settings (Settings > Downloads & Collections): a CPU thread limit and a low priority option so the system stays responsive while large archives extract
 - Added a track right click option to mods in the Nexus browser
+- Added a custom date range selector in the Nexus browser
+- Added a live preview panel in the theme editor
 ## Changes
-- A mods missing requirements/optional requirements are now flagged when they are installed
+- A mods missing requirements/optional requirements are now flagged as soon as they are installed
 - The Nexus browser and change version menu are now improved for free users, Pressing install will open the mod page as well as detect when the download is complete and install the archive automatically
 ### Bug Fixes
 - Fixed alphabetical sorting when the priority column is reversed

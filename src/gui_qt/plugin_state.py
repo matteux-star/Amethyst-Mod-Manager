@@ -331,6 +331,21 @@ def load_plugins(game, profile: str,
         recovered.append(orig)
     _diag(f"load_plugins: filemap deploys {len(deployed)} top-level plugin(s); "
           f"recovered {len(recovered)} not in plugins.txt: {recovered[:10]}")
+
+    # Orphan plugins: files sitting in the game's Data/ folder that the user
+    # installed manually — see _scan_orphan_plugins. Appended here so they show
+    # in the panel and can be toggled / LOOT-sorted like any other plugin.
+    data_dir = (game.get_vanilla_plugins_path()
+                if hasattr(game, "get_vanilla_plugins_path") else None)
+    with span("plugins.orphan_scan"):
+        orphans = _scan_orphan_plugins(game, data_dir, exts, listed_lower,
+                                       vanilla, saved_order)
+    for orphan in orphans:
+        entries.append(orphan)
+        listed_lower.add(orphan.name.lower())
+    if orphans:
+        _diag(f"load_plugins: {len(orphans)} manual orphan plugin(s) found in "
+              f"{data_dir}: {[o.name for o in orphans][:10]}")
     # Always-on catch: the filemap deploys plugins but NONE are listed or
     # recoverable → the panel will render empty despite enabled mods. This is
     # the "copied mod's plugins don't show up" signature. filemap present but
@@ -377,8 +392,6 @@ def load_plugins(game, profile: str,
         if e.name.lower() not in seen:
             ordered.append(e); seen.add(e.name.lower())
 
-    data_dir = (game.get_vanilla_plugins_path()
-                if hasattr(game, "get_vanilla_plugins_path") else None)
     # Resolve each plugin's REAL path (staging mod / overwrite / Data) so header
     # flags (ESL, master, missing-master) work for mod plugins, not just vanilla.
     if cancelled():
@@ -451,6 +464,16 @@ def load_plugins(game, profile: str,
             _prune_phantom_plugins(p, star, set(n.lower() for n in pruned))
             ordered = kept
 
+    # Persist manual orphans into plugins.txt so LOOT sort and deploy pick
+    # them up even if the user never touches the panel. Same SAFETY-2 guard
+    # as the prune: only write when the game object points at the profile
+    # being loaded. Skip any the prune dropped above (shouldn't happen —
+    # orphans resolve via the Data/Data_Core scan — but stay consistent).
+    if orphans and _active_matches:
+        still = {e.name.lower() for e in ordered}
+        _append_orphans_to_plugins(
+            p, star, [o for o in orphans if o.name.lower() in still])
+
     if cancelled():
         return None
     with span("plugins.header_flags(to_row)"):
@@ -470,6 +493,75 @@ def load_plugins(game, profile: str,
     with span("plugins.bos_sp"):
         _apply_bos_sp(rows, staging)
     return rows
+
+
+def _scan_orphan_plugins(game, data_dir: Path | None,
+                         exts: tuple[str, ...], listed_lower: set[str],
+                         vanilla: dict[str, str],
+                         saved_order: list[str]) -> list[PluginEntry]:
+    """Plugin files sitting in the game's Data/ folder that the user installed
+    manually — not in plugins.txt (*listed_lower*), not in loadorder.txt
+    (*saved_order*), not vanilla, not deployed by another profile. Returned as
+    enabled entries so the panel surfaces them (Tk parity:
+    gui/plugin_panel.py:_refresh_plugins_tab orphan scan).
+
+    When a deploy is active, Data/ contains mod hardlinks owned by the mod
+    manager. Anything NOT also present in Data_Core/ (the vanilla snapshot)
+    came from a mod deploy and must not be treated as a manual orphan —
+    otherwise disabling a mod would leave its plugin in the panel, because the
+    hardlink in Data/ outlives its plugins.txt entry until the next deploy."""
+    if data_dir is None or not data_dir.is_dir():
+        return []
+    try:
+        from Utils.game_helpers import foreign_deployed_plugin_basenames
+        foreign = foreign_deployed_plugin_basenames(game)
+    except Exception:
+        foreign = set()
+    saved_lower = {n.lower() for n in saved_order}
+    core_dir = data_dir.parent / (data_dir.name + "_Core")
+    core_names: set[str] | None = None
+    if core_dir.is_dir():
+        core_names = set()
+        try:
+            for centry in core_dir.iterdir():
+                if centry.is_file() and centry.name.lower().endswith(exts):
+                    core_names.add(centry.name.lower())
+        except OSError:
+            core_names = None
+    orphans: list[PluginEntry] = []
+    try:
+        for entry in data_dir.iterdir():
+            if not entry.is_file() or not entry.name.lower().endswith(exts):
+                continue
+            low = entry.name.lower()
+            if (low in listed_lower or low in vanilla
+                    or low in saved_lower or low in foreign):
+                continue
+            if core_names is not None and low not in core_names:
+                continue
+            orphans.append(PluginEntry(name=entry.name, enabled=True))
+    except OSError:
+        pass
+    return orphans
+
+
+def _append_orphans_to_plugins(plugins_path: Path, star: bool,
+                               orphans: list[PluginEntry]) -> None:
+    """Append manually-installed orphan plugins to plugins.txt so they stay
+    listed (and get deployed / LOOT-sorted) without requiring a panel edit.
+    Best-effort and idempotent — names already listed are skipped, failures
+    are swallowed (the orphan just re-surfaces from the Data/ scan next
+    reload)."""
+    try:
+        entries = read_plugins(plugins_path, star_prefix=star)
+        listed = {e.name.lower() for e in entries}
+        new = [o for o in orphans if o.name.lower() not in listed]
+        if new:
+            write_plugins(plugins_path, entries + new, star_prefix=star)
+            app_log(f"Plugins: added {len(new)} manually installed plugin(s) "
+                    f"to plugins.txt: {', '.join(o.name for o in new)}")
+    except Exception:
+        pass
 
 
 def _prune_phantom_plugins(plugins_path: Path, star: bool,
