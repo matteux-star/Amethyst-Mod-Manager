@@ -382,18 +382,40 @@ class MainWindow(QMainWindow):
             else self.tr("Amethyst Mod Manager")
         )
         self.setMinimumSize(1280, 800)   # Steam Deck is the floor
+        # Debounced as-you-go persistence of the window geometry + body
+        # splitter, so the state survives exits that never reach closeEvent
+        # (Ctrl+C in the launching terminal, SIGKILL, crashes).
+        self._win_state_timer = QTimer(self)
+        self._win_state_timer.setSingleShot(True)
+        self._win_state_timer.setInterval(1000)
+        self._win_state_timer.timeout.connect(self._save_window_state)
         self.resize(1280, 800)
+        # Restore the last-session window position/size/maximized state.
+        # restoreGeometry() validates the saved rect against the current screen
+        # layout (a since-unplugged monitor falls back on-screen), so a stale
+        # save can't strand the window where the user can't see it.
+        restored = False
+        try:
+            from Utils.ui_config import load_qt_window_state
+            geo = load_qt_window_state().get("geometry")
+            if geo:
+                from PySide6.QtCore import QByteArray
+                restored = bool(self.restoreGeometry(
+                    QByteArray.fromBase64(geo.encode("ascii"))))
+        except Exception:
+            restored = False
         # Centre on the primary screen. The WM otherwise defaults the window to
         # (0,0) in GLOBAL coords, which lands OFF-SCREEN on a multi-head / offset
         # layout (e.g. a primary screen whose origin isn't at x=0) — the window
         # then "doesn't open" because it's drawn where you can't see it.
-        try:
-            scr = (app or QApplication.instance()).primaryScreen()
-            if scr is not None:
-                ag = scr.availableGeometry()
-                self.move(ag.center().x() - 640, ag.center().y() - 400)
-        except Exception:
-            pass
+        if not restored:
+            try:
+                scr = (app or QApplication.instance()).primaryScreen()
+                if scr is not None:
+                    ag = scr.availableGeometry()
+                    self.move(ag.center().x() - 640, ag.center().y() - 400)
+            except Exception:
+                pass
 
         # Header+body+footer go in a vertical splitter with the log text area
         # so the log is drag-resizable; the log control bar stays fixed below.
@@ -445,7 +467,6 @@ class MainWindow(QMainWindow):
         print("[gui_qt] glue wired:", ", ".join(wired))
 
         # Start with the log collapsed (deferred until the layout has real size).
-        from PySide6.QtCore import QTimer
         QTimer.singleShot(0, lambda: (self._vsplit.setSizes(
             [self._vsplit.height(), 0]), self._sync_log_controls()))
 
@@ -674,7 +695,18 @@ class MainWindow(QMainWindow):
         # grip (the default 1px line is nearly invisible / hard to click).
         split.setHandleWidth(8)
         split.setChildrenCollapsible(True)
-        split.setSizes([620, 480])
+        # Last-session splitter position, else the default split. Saved sizes
+        # are absolute pixels at the saved window size; QSplitter rescales them
+        # proportionally when the restored window size differs.
+        saved_sizes = None
+        try:
+            from Utils.ui_config import load_qt_window_state
+            saved_sizes = load_qt_window_state().get("body_split")
+        except Exception:
+            saved_sizes = None
+        split.setSizes(saved_sizes or [620, 480])
+        split.splitterMoved.connect(
+            lambda *_: self._schedule_window_state_save())
         self._body_split = split
         self._wire_cross_panel()
         return split
@@ -6264,10 +6296,37 @@ class MainWindow(QMainWindow):
 
         threading.Thread(target=worker, daemon=True).start()
 
+    def _save_window_state(self):
+        """Persist the window geometry (pos/size/maximized) and the modlist ║
+        plugins splitter position to amethyst.ini [window]."""
+        try:
+            from Utils.ui_config import save_qt_window_state
+            geo = bytes(self.saveGeometry().toBase64()).decode("ascii")
+            split = getattr(self, "_body_split", None)
+            save_qt_window_state(geo, list(split.sizes()) if split else None)
+        except Exception as exc:
+            print(f"[gui_qt] window-state save error: {exc}", flush=True)
+
+    def _schedule_window_state_save(self):
+        """(Re)start the debounce timer — one ini write ~1s after the last
+        move/resize/splitter drag."""
+        t = getattr(self, "_win_state_timer", None)
+        if t is not None:
+            t.start()
+
+    def moveEvent(self, event):
+        super().moveEvent(event)
+        self._schedule_window_state_save()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._schedule_window_state_save()
+
     def closeEvent(self, event):
         """On close, optionally restore every deployed game to vanilla (the
         'Restore on close' setting). Synchronous (the app is exiting) — mirrors
         the Tk gui.py shutdown path."""
+        self._save_window_state()
         try:
             from Nexus.nxm_handler import NxmIPC
             NxmIPC.shutdown()      # release the IPC socket(s)

@@ -1053,6 +1053,51 @@ def save_window_geometry(geometry: str) -> None:
         parser.write(f)
 
 
+def load_qt_window_state() -> dict:
+    """Return the saved Qt main-window state from amethyst.ini [window]:
+
+    * ``geometry`` — base64 str of QMainWindow.saveGeometry() (position, size
+      and maximized flag), or None if never saved.
+    * ``body_split`` — [left, right] pixel sizes of the modlist ║ plugins
+      splitter, or None if never saved / unparseable.
+    """
+    result = {"geometry": None, "body_split": None}
+    path = get_ui_config_path()
+    if not path.is_file():
+        return result
+    try:
+        parser = _new_parser()
+        parser.read(path)
+        geo = parser.get(_WINDOW_SECTION, "qt_geometry", fallback="").strip()
+        if geo:
+            result["geometry"] = geo
+        raw = parser.get(_WINDOW_SECTION, "body_split", fallback="").strip()
+        if raw:
+            sizes = [int(x) for x in raw.split(",")]
+            if len(sizes) == 2 and all(s >= 0 for s in sizes) and sum(sizes) > 0:
+                result["body_split"] = sizes
+    except Exception:
+        pass
+    return result
+
+
+def save_qt_window_state(geometry_b64: str, body_split: "list[int] | None") -> None:
+    """Persist the Qt main-window geometry (base64 of saveGeometry()) and the
+    modlist ║ plugins splitter sizes to amethyst.ini [window] in one write."""
+    path = get_ui_config_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    parser = _new_parser()
+    if path.is_file():
+        parser.read(path)
+    if _WINDOW_SECTION not in parser:
+        parser[_WINDOW_SECTION] = {}
+    parser[_WINDOW_SECTION]["qt_geometry"] = geometry_b64
+    if body_split and len(body_split) == 2:
+        parser[_WINDOW_SECTION]["body_split"] = ",".join(str(int(s)) for s in body_split)
+    with path.open("w", encoding="utf-8") as f:
+        parser.write(f)
+
+
 # ---------------------------------------------------------------------------
 # Dev mode
 # ---------------------------------------------------------------------------
