@@ -205,6 +205,7 @@ class NexusModUpdateInfo:
     summary: str = ""                       # short tagline shown on the mod page
     updated_at: Optional[datetime] = None   # when any file was last uploaded
     viewer_update_available: Optional[bool] = None  # Nexus-native flag (requires tracking)
+    viewer_endorsed: Optional[bool] = None  # True/False if the viewer has endorsed; None if unauthenticated/unknown
     requirements: list["NexusModRequirement"] = field(default_factory=list)  # mod dependencies
     category_id: int = 0                    # Nexus mod category (e.g. Armor, Weapons)
     category_name: str = ""                 # Category display name
@@ -225,6 +226,7 @@ class NexusCollection:
     mod_count: int = 0
     tile_image_url: str = ""
     game_domain: str = ""
+    contains_adult_content: bool = False
 
 
 @dataclass
@@ -1426,6 +1428,7 @@ class NexusAPI:
                     summary
                     updatedAt
                     viewerUpdateAvailable
+                    viewerEndorsed
                     uploader { name memberId }
                     modCategory { categoryId name }
                     modRequirements {
@@ -1483,6 +1486,7 @@ class NexusAPI:
                         except ValueError:
                             pass
                     vua = n.get("viewerUpdateAvailable")
+                    ven = n.get("viewerEndorsed")
                     req_nodes = (
                         (n.get("modRequirements") or {})
                         .get("nexusRequirements") or {}
@@ -1512,11 +1516,11 @@ class NexusAPI:
                         summary=n.get("summary", "") or "",
                         updated_at=updated_at,
                         viewer_update_available=None if vua is None else bool(vua),
+                        viewer_endorsed=None if ven is None else bool(ven),
                         requirements=reqs,
                         category_id=cat_id,
                         category_name=cat_name,
                         uploaded_by=(n.get("uploader") or {}).get("name", "") or "",
-                        uploader_id=int((n.get("uploader") or {}).get("memberId", 0) or 0),
                         files=[],  # Mod has no files field in GraphQL; REST used for file checks
                     )
             except Exception as exc:
@@ -2180,6 +2184,7 @@ class NexusAPI:
                 latestPublishedRevision { modCount }
                 totalDownloads
                 endorsements
+                adultContent
             }
         }
     }
@@ -2205,6 +2210,7 @@ class NexusAPI:
                 mod_count=mod_count,
                 tile_image_url=tile,
                 game_domain=domain,
+                contains_adult_content=bool(n.get("adultContent", False)),
             ))
         return results
 
@@ -2273,6 +2279,7 @@ class NexusAPI:
                 latestPublishedRevision { modCount }
                 totalDownloads
                 endorsements
+                adultContent
             }
         }
     }

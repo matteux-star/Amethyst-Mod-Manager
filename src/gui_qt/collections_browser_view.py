@@ -24,7 +24,7 @@ import threading
 from PySide6.QtCore import Qt, QTimer, Signal, QEvent
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QLineEdit,
-    QScrollArea, QFrame, QToolButton, QMenu,
+    QScrollArea, QFrame, QToolButton, QMenu, QCheckBox,
 )
 
 from gui_qt.theme_qt import active_palette, _c
@@ -65,6 +65,7 @@ class CollectionsBrowserView(QWidget):
         self._on_remove_appended = on_remove_appended
 
         # state
+        self._show_adult = self._load_show_adult()
         self._page = 0
         self._query = ""
         self._sort = "downloads"
@@ -107,6 +108,11 @@ class CollectionsBrowserView(QWidget):
             prefix=self.tr("Sort: "), min_width=170,
             on_select=self._on_sort_changed)
         tb.addWidget(self._sort_sel)
+
+        self._adult_cb = QCheckBox(self.tr("Show adult"))
+        self._adult_cb.setChecked(self._show_adult)
+        self._adult_cb.toggled.connect(self._on_adult_toggled)
+        tb.addWidget(self._adult_cb)
 
         open_btn = QToolButton()
         open_btn.setText(self.tr("Open on Nexus"))
@@ -219,6 +225,30 @@ class CollectionsBrowserView(QWidget):
         ft.addWidget(self._status)
 
         outer.addWidget(footer)
+
+    # -- adult filter -------------------------------------------------------
+    @staticmethod
+    def _load_show_adult() -> bool:
+        try:
+            from Utils.ui_config import load_nexus_show_adult
+            return bool(load_nexus_show_adult())
+        except Exception:
+            return False
+
+    def _on_adult_toggled(self, on: bool):
+        self._show_adult = bool(on)
+        try:
+            from Utils.ui_config import save_nexus_show_adult
+            save_nexus_show_adult(self._show_adult)
+        except Exception:
+            pass
+        self._rebuild_cards()       # filter is applied at card-build time
+
+    def _visible_entries(self):
+        if self._show_adult:
+            return self._entries
+        return [e for e in self._entries
+                if not getattr(e, "contains_adult_content", False)]
 
     # -- search -------------------------------------------------------------
     def _on_search_text(self, text: str):
@@ -422,7 +452,7 @@ class CollectionsBrowserView(QWidget):
             c.setParent(None)
         self._cards.clear()
         primary_view = self._on_open_detail or self._on_view
-        for e in self._entries:
+        for e in self._visible_entries():
             card = CollectionCard(e, primary_view,
                                   on_context=self._show_card_menu)
             self._cards.append(card)

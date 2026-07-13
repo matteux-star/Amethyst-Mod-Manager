@@ -1425,6 +1425,10 @@ def finish_install(prepared: "PreparedInstall", fomod_selections, *,
     _add_to_modlist(p.profile_dir, p.mod_name, log_fn,
                     preserve_position=getattr(p, "_preserve_position", False))
     _add_plugins(p.game, p.profile_dir, dest_root, log_fn)
+    # Stamp missing-requirements + endorsed flags now (one GraphQL call, no
+    # rate-limit cost) so the modlist flags appear immediately without pressing
+    # "Check updates".
+    _check_nexus_flags_after_install(p.game, p.mod_name, log_fn)
     log_fn(f"Installed '{p.mod_name}'.")
     return p.mod_name
 
@@ -2248,6 +2252,8 @@ def _install_multi_mod(p: "PreparedInstall", log_fn: LogFn, _pp) -> str | None:
     if not installed:
         log_fn(f"Install failed: nothing was staged for '{p.mod_name}'.")
         return None
+    for m_name in installed:
+        _check_nexus_flags_after_install(p.game, m_name, log_fn)
     log_fn(f"Installed {len(installed)} mod(s) from archive.")
     return installed[0]
 
@@ -2313,6 +2319,77 @@ def _write_install_meta(dest_root: Path, archive: Path, game, log_fn: LogFn,
         write_meta(meta_path, meta)
     except Exception as exc:
         log_fn(f"meta.ini write skipped ({exc}).")
+
+
+def _check_nexus_flags_after_install(game, mod_name: str, log_fn: LogFn) -> None:
+    """Stamp the freshly installed mod's missing requirements + endorsed flag.
+
+    Both come from a SINGLE Nexus GraphQL v2 request (``modRequirements`` +
+    ``viewerEndorsed``) via ``graphql_mod_update_info_batch``, which does NOT
+    consume the REST hourly rate limit — so this runs on every install at zero
+    rate-limit cost. Results are written to the mod's ``missingRequirements`` and
+    ``endorsed`` meta.ini fields, the same fields the "Check updates" flow
+    populates and the modlist UI already reads, so the warning/★ flags appear
+    immediately without the user pressing Check updates.
+
+    Best-effort: offline / not-logged-in / any failure is swallowed — this must
+    never break or delay a successful install.
+    """
+    try:
+        api = _build_nexus_api()
+        if api is None:
+            return
+        domain = _nexus_domain_for(game)
+        if not domain:
+            return
+        try:
+            staging_root = Path(game.get_effective_mod_staging_path())
+        except Exception:
+            return
+        from Nexus.nexus_meta import scan_installed_mods, read_meta, write_meta
+        from Nexus.nexus_requirements import check_requirements_from_gql
+
+        all_installed = scan_installed_mods(staging_root)
+        # The mod we just installed must have a Nexus mod_id to have flags.
+        this_mod = next(
+            (m for m in all_installed
+             if m.mod_name == mod_name and m.mod_id > 0), None)
+        if this_mod is None:
+            return
+
+        # One GraphQL request for just this mod — fetches modRequirements AND
+        # viewerEndorsed (rate-limit-free). The batch helper parses both.
+        gql_info = api.graphql_mod_update_info_batch([(domain, this_mod.mod_id)])
+        if not gql_info:
+            return
+
+        # Reuse the update flow's data-driven checker: it cross-references the
+        # requirements against ALL installed mod ids (so already-installed
+        # dependencies aren't flagged), applies the external-tool/alternative
+        # filters, and stamps missingRequirements into meta.ini.
+        check_requirements_from_gql(
+            gql_info,
+            all_installed,
+            game_domain=domain,
+            staging_root=staging_root,
+            progress_cb=log_fn,
+            save_results=True,
+            enabled_only={mod_name},
+        )
+
+        # Endorsement: viewerEndorsed is None when unauthenticated/unknown — only
+        # touch the flag when the API returned a definite True/False.
+        info = gql_info.get(this_mod.mod_id)
+        ven = getattr(info, "viewer_endorsed", None) if info is not None else None
+        if ven is not None:
+            meta_path = staging_root / mod_name / "meta.ini"
+            if meta_path.is_file():
+                meta = read_meta(meta_path)
+                if meta.endorsed != bool(ven):
+                    meta.endorsed = bool(ven)
+                    write_meta(meta_path, meta)
+    except Exception as exc:
+        log_fn(f"Nexus flag check after install skipped ({exc}).")
 
 
 def _update_indexes(game, profile_dir: Path, mod_name: str, dest_root: Path,

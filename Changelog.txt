@@ -10,6 +10,8 @@
 - Added an author column to the modlist panel (Hidden by default), Pressing check updates will fetch mod author names
 - Added a right click option to mods in the nexus browser to view other mods by the same author
 - Added extraction resource settings (Settings > Downloads & Collections): a CPU thread limit and a low priority option so the system stays responsive while large archives extract
+## Changes
+- A mods missing requirements/optional requirements are now flagged when they are installed
 ### Bug Fixes
 - Fixed alphabetical sorting when the priority column is reversed
 - Fixed overflow errors when installing via the NXM handler
