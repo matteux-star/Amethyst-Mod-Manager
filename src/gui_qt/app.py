@@ -9929,17 +9929,26 @@ class MainWindow(QMainWindow):
 
     def _color_button(self, text: str, color: str,
                       compact: bool = False) -> QPushButton:
-        """Solid colored button (plugin tools, matching the Tk app)."""
-        pad = "4px 10px" if compact else "6px 14px"
-        fs = "12px" if compact else "14px"
-        fg = contrast_text(color)   # black or white — whichever reads on the fill
+        """Calm ghost tool button. Redesign: at rest every footer/tool button
+        shares one neutral surface (so the two panels' footers and the bottom
+        bar read as a single system instead of a scatter of saturated blocks);
+        its semantic *color* is revealed only on hover as a subtle fill. This
+        keeps a whisper of meaning (green Sort, purple Ko-Fi, red Endorse) while
+        the resting state stays quiet."""
+        pad = "5px 12px" if compact else "6px 14px"
+        fs = "12px" if compact else "13px"
+        surface = _c(self._pal, "BG_ROW")
+        border = _c(self._pal, "BORDER")
+        text_col = _c(self._pal, "TEXT_MAIN")
+        hover_fg = contrast_text(color)   # readable on the semantic hover fill
         b = QPushButton(text)
         b.setCursor(Qt.PointingHandCursor)
         b.setStyleSheet(
-            f"QPushButton{{background:{color}; color:{fg}; border:none;"
-            f" padding:{pad}; border-radius:4px; font-size:{fs};"
-            f" font-weight:600;}}"
-            f"QPushButton:hover{{background:{color};}}")
+            f"QPushButton{{background:{surface}; color:{text_col};"
+            f" border:1px solid {border}; padding:{pad}; border-radius:5px;"
+            f" font-size:{fs}; font-weight:500;}}"
+            f"QPushButton:hover{{background:{color}; color:{hover_fg};"
+            f" border:1px solid {color};}}")
         return b
 
     def _icon_button(self, icon_name: str, tip: str = "") -> QToolButton:

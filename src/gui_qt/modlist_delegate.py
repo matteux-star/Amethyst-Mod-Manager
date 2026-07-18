@@ -103,6 +103,17 @@ _BSA_CONFLICT_TIPS = {
     2:  "BSA conflict - Partial",
 }
 
+def _blend(a: "QColor", b: "QColor", t: float) -> "QColor":
+    """Linear blend of two QColors: t=0 → *a*, t=1 → *b*. Used to derive calm,
+    low-saturation row tints from the loud full-strength conflict/selection
+    colours by mixing them back toward the row background."""
+    return QColor(
+        int(a.red() + (b.red() - a.red()) * t),
+        int(a.green() + (b.green() - a.green()) * t),
+        int(a.blue() + (b.blue() - a.blue()) * t),
+    )
+
+
 def _contrasting_text_color(hex_bg: str) -> str:
     """'#111111' or '#eeeeee' based on the luminance of *hex_bg* so separator
     text stays readable on a custom colour. Inlined from gui.theme (which pulls
@@ -136,6 +147,12 @@ class ModRowDelegate(QStyledItemDelegate):
         self.c_row = qc(p, "BG_ROW")
         self.c_row_alt = qc(p, "BG_ROW_ALT")
         self.c_sel = qc(p, "BG_SELECT")
+        # Calm selection: a soft accent-tinted fill (mostly row background) plus
+        # a crisp accent stripe down the left edge, instead of the old harsh
+        # full-strength blue band. The stripe carries the "selected" signal so
+        # the fill can stay quiet.
+        self.c_sel_soft = _blend(self.c_row, self.c_sel, 0.34)
+        self.c_accent = qc(p, "ACCENT")
         self.c_hover = qc(p, "BG_ROW_HOVER")
         self.c_text = qc(p, "TEXT_MAIN")
         self.c_text_dim = qc(p, "TEXT_DIM")
@@ -151,11 +168,20 @@ class ModRowDelegate(QStyledItemDelegate):
         self.c_overwrite_bg = qc(p, "OVERWRITE_SEP_BG")  # Overwrite band
         self.c_root_bg = qc(p, "ROOT_SEP_BG")            # Root Folder band
         # Cross-panel highlight row tints (palette-driven; seeded from Tk colours).
+        # Full-strength versions drive the left stripe; the *_soft versions are
+        # the muted row fills (mixed back toward the row bg) so a conflict scan
+        # no longer floods the list with saturated green/red/orange bands.
         self.c_hl_higher = qc(p, "CONFLICT_HL_WIN")    # selection beats this mod (green)
         self.c_hl_lower = qc(p, "CONFLICT_HL_LOSE")    # this mod beats selection (red)
         self.c_hl_anchor = qc(p, "CONFLICT_HL_ANCHOR") # plugin-selected mod (orange)
-        self.c_root_text = qc(p, "ROOT_SEP_FG")
-        self.c_overwrite_text = qc(p, "OVERWRITE_SEP_FG")
+        self.c_hl_higher_soft = _blend(self.c_row, self.c_hl_higher, 0.26)
+        self.c_hl_lower_soft = _blend(self.c_row, self.c_hl_lower, 0.26)
+        self.c_hl_anchor_soft = _blend(self.c_row, self.c_hl_anchor, 0.30)
+        # Boundary labels ([Overwrite] / [Root Folder]) muted toward the neutral
+        # separator text so they read as quiet structural markers, not bright
+        # coloured debug text.
+        self.c_root_text = _blend(qc(p, "ROOT_SEP_FG"), self.c_sep_text, 0.45)
+        self.c_overwrite_text = _blend(qc(p, "OVERWRITE_SEP_FG"), self.c_sep_text, 0.45)
         # Shared row/label fonts — paint() runs per visible cell, so build
         # these once instead of allocating a QFont per call.
         self.f_row = QFont()
@@ -201,14 +227,15 @@ class ModRowDelegate(QStyledItemDelegate):
             # selection / cross-panel highlight band overrides it (Tk parity).
             custom = index.model().sep_color(e.name)
             sep_text = None
+            sep_stripe = None
             if selected:
-                p.fillRect(r, self.c_sel)
+                p.fillRect(r, self.c_sel_soft); sep_stripe = self.c_accent
             elif sep_hl == 2:
-                p.fillRect(r, self.c_hl_anchor)
+                p.fillRect(r, self.c_hl_anchor_soft); sep_stripe = self.c_hl_anchor
             elif sep_hl == 1:
-                p.fillRect(r, self.c_hl_higher)
+                p.fillRect(r, self.c_hl_higher_soft); sep_stripe = self.c_hl_higher
             elif sep_hl == -1:
-                p.fillRect(r, self.c_hl_lower)
+                p.fillRect(r, self.c_hl_lower_soft); sep_stripe = self.c_hl_lower
             elif e.name == OVERWRITE_NAME:
                 p.fillRect(r, self.c_overwrite_bg)
             elif e.name == ROOT_FOLDER_NAME:
@@ -218,31 +245,41 @@ class ModRowDelegate(QStyledItemDelegate):
                 sep_text = QColor(_contrasting_text_color(custom))
             else:
                 p.fillRect(r, self.c_sep_bg)
+            if sep_stripe is not None and index.column() == COL_NAME:
+                self._stripe(p, r, sep_stripe)
             if index.column() == COL_NAME:
                 self._paint_separator(p, r, e, index, sep_text)
             p.restore()
             return
 
         # Row background. Selection wins, then cross-panel highlight tint
-        # (green/red/orange), then hover, then the zebra base.
+        # (green/red/orange), then hover, then the zebra base. Redesign: the
+        # selection + conflict states now paint a MUTED fill plus a 3px colour
+        # stripe down the left edge (see _stripe) rather than a saturated band,
+        # so the list stays calm and text keeps its normal contrast.
         selected = bool(opt.state & QStyle.State_Selected)
         hl = index.data(HighlightRole) or 0
-        highlighted = False
+        stripe = None
         if selected:
-            p.fillRect(r, self.c_sel)
+            p.fillRect(r, self.c_sel_soft); stripe = self.c_accent
         elif hl == 2:
-            p.fillRect(r, self.c_hl_anchor); highlighted = True
+            p.fillRect(r, self.c_hl_anchor_soft); stripe = self.c_hl_anchor
         elif hl == 1:
-            p.fillRect(r, self.c_hl_higher); highlighted = True
+            p.fillRect(r, self.c_hl_higher_soft); stripe = self.c_hl_higher
         elif hl == -1:
-            p.fillRect(r, self.c_hl_lower); highlighted = True
+            p.fillRect(r, self.c_hl_lower_soft); stripe = self.c_hl_lower
         elif opt.state & QStyle.State_MouseOver:
             p.fillRect(r, self.c_hover)
         else:
             p.fillRect(r, self.c_row_alt if index.row() % 2 else self.c_row)
+        # Left-edge colour stripe carries the selection/conflict signal; paint it
+        # once, on the leftmost (Name) column, so it sits at the panel edge.
+        if stripe is not None and index.column() == COL_NAME:
+            self._stripe(p, r, stripe)
 
-        text_color = (self.c_text_on_sel if (selected or highlighted)
-                      else (self.c_text if e.enabled else self.c_text_dim))
+        # Muted fills keep the normal text colour readable; only truly disabled
+        # rows dim. (No more white-on-saturated-band text.)
+        text_color = self.c_text if e.enabled else self.c_text_dim
 
         if index.column() == COL_NAME:
             self._paint_name(p, r, e, index, text_color)
@@ -261,6 +298,13 @@ class ModRowDelegate(QStyledItemDelegate):
             p.drawText(pad, Qt.AlignVCenter | Qt.AlignHCenter, str(val))
 
         p.restore()
+
+    STRIPE_W = 3   # width of the left-edge selection/conflict colour stripe
+
+    def _stripe(self, p, r, color):
+        """Paint a crisp full-height colour bar at the left edge of the row —
+        the calm replacement for a saturated full-width highlight band."""
+        p.fillRect(QRect(r.left(), r.top(), self.STRIPE_W, r.height()), color)
 
     # Geometry shared by paint + editorEvent so the hit areas match exactly.
     ARROW_SZ = ICON_SZ
