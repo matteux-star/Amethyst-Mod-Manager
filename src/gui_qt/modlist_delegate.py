@@ -338,15 +338,17 @@ class ModRowDelegate(QStyledItemDelegate):
         # collapsible/lockable: just a centred name + strikethrough, no controls.
         from gui_qt.modlist_model import (_BOUNDARY_NAMES, ROOT_FOLDER_NAME,
                                           OVERWRITE_NAME)
+        # A hairline under the band gives every separator a clean "section
+        # header" edge (replaces the old strikethrough lines drawn through the
+        # text). Painted for both boundary and normal separators.
+        p.setPen(QPen(self.c_border, 1))
+        p.drawLine(r.left(), r.bottom(), r.right(), r.bottom())
+
         if e.name in _BOUNDARY_NAMES:
+            # Pinned boundaries (Overwrite / Root Folder): a quiet centred label,
+            # no controls, no strikethrough.
             p.setFont(self.f_bold)
-            cy = r.center().y()
             nr = self._col_rect(COL_NAME, r)
-            tw = p.fontMetrics().horizontalAdvance(e.display_name)
-            cx = nr.center().x(); gap = tw // 2 + 12
-            p.setPen(QPen(self.c_border, 1))
-            p.drawLine(r.left() + 6, cy, cx - gap, cy)
-            p.drawLine(cx + gap, cy, r.right() - 6, cy)
             txt = (self.c_overwrite_text if e.name == OVERWRITE_NAME
                    else self.c_root_text if e.name == ROOT_FOLDER_NAME
                    else self.c_sep_text)
@@ -359,30 +361,31 @@ class ModRowDelegate(QStyledItemDelegate):
         locked = model.is_sep_locked(name)
         block = model.sep_block_rows(index.row())
 
-        name_rect = self._col_rect(COL_NAME, r)
-        p.setFont(self.f_bold)
-        label = f"{name}   ({len(block)})"
-        tw = p.fontMetrics().horizontalAdvance(label)
-        cx = name_rect.center().x()
-        cy = r.center().y()
-
-        # Strikethrough line across the row, broken around the centred name
-        # (Tk-style — makes separators easy to distinguish).
-        p.setPen(QPen(self.c_border, 1))
-        gap = tw // 2 + 12
-        p.drawLine(r.left() + 6, cy, cx - gap, cy)
-        p.drawLine(cx + gap, cy, r.right() - 6, cy)
-
-        # Collapse arrow — right.png when collapsed, arrow.png when expanded.
+        # Modern collapsible section header: [arrow]  Name  (N) — left-aligned,
+        # no strikethrough. The arrow sits at the far left; the bold name follows,
+        # with a dim member count after it.
         a = self._arrow_rect(r)
         ico = icon("right.png" if collapsed else "arrow.png", self.ARROW_SZ,
                    color=self.c_arrow)
         if not ico.isNull():
             ico.paint(p, a)
 
-        # Centred name + "(N)" count over the Mod Name column.
+        tx = a.right() + 8
+        # Right edge stops short of the lock box so a long name never collides.
+        avail_right = r.right() - self.PAD - self.LOCK_SZ - 10
+        p.setFont(self.f_bold)
         p.setPen(text_color)
-        p.drawText(name_rect, Qt.AlignVCenter | Qt.AlignHCenter, label)
+        nm_w = p.fontMetrics().horizontalAdvance(name)
+        p.drawText(QRect(tx, r.top(), max(0, avail_right - tx), r.height()),
+                   Qt.AlignVCenter | Qt.AlignLeft,
+                   opt_fm(p).elidedText(name, Qt.ElideRight,
+                                        max(0, avail_right - tx - 44)))
+        # Dim "(N)" count just after the (possibly elided) name.
+        p.setFont(self.f_row)
+        p.setPen(self.c_text_dim)
+        p.drawText(QRect(min(tx + nm_w + 8, avail_right - 40), r.top(), 44,
+                         r.height()),
+                   Qt.AlignVCenter | Qt.AlignLeft, f"({len(block)})")
 
         # Grouped flags/conflicts when collapsed — each under its own column.
         if collapsed:

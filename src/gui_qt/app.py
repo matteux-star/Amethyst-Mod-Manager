@@ -1467,7 +1467,10 @@ class MainWindow(QMainWindow):
         ]:
             # `label` stays the canonical key (handler lookup + _full_label);
             # `disp` is the translated text shown on the button + tooltip.
-            b = self._action_button(disp, ico)
+            # Redesign: mono-tint the action glyphs to TEXT_MAIN so the toolbar
+            # reads as one cohesive set instead of a row of clashing multicolour
+            # icons (blue monitor / red rocket / cyan refresh).
+            b = self._action_button(disp, ico, tint=_c(self._pal, "TEXT_MAIN"))
             b.setFixedHeight(self._BTN_H)
             b.setToolTip(disp)
             b._full_label = disp
@@ -1481,6 +1484,11 @@ class MainWindow(QMainWindow):
                     self._install_btn = b
             self._action_buttons.append(b)
             h.addWidget(b)
+
+        # Divider between the primary mod actions (Install/Deploy/Restore) and
+        # the tool menus (Proton/Wizard/Nexus) so the toolbar reads as grouped
+        # clusters rather than one long undifferentiated run of buttons.
+        h.addWidget(self._group_sep())
 
         # Split menu buttons (placeholder menus — wired up in a later phase).
         # `label` stays the canonical key (used in == comparisons + as the
@@ -1522,9 +1530,10 @@ class MainWindow(QMainWindow):
                 ]),
             ]),
         ]:
-            # Proton's logo is a mono glyph — tint it white like the Settings
-            # icon so it stays visible. The others are full-colour logos.
-            tint = _c(self._pal, "TEXT_MAIN") if label == "Proton" else None
+            # Redesign: tint every tool-menu glyph to TEXT_MAIN so Proton/Wizard/
+            # Nexus match the mono primary-action icons — one cohesive toolbar
+            # instead of a mix of mono and full-colour brand logos.
+            tint = _c(self._pal, "TEXT_MAIN")
             b = self._menu_action_button(disp, ico, items, tint=tint)
             b.setFixedHeight(self._BTN_H)
             b.setToolTip(disp)
