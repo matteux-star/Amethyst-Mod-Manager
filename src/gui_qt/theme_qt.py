@@ -222,9 +222,13 @@ def build_qss(pal: dict | None = None) -> str:
         border: none;
         outline: none;
     }}
+    /* Calm list selection: a muted accent-tinted fill (mostly the list surface)
+       with normal-contrast text, matching the modlist delegate's softened rows
+       instead of a saturated full-width blue band. Applies to the plugins list,
+       Mod Files / Data / Downloads trees and dialog lists. */
     QTreeView::item:selected, QListView::item:selected {{
-        background: {c('BG_SELECT')};
-        color: {c('TEXT_ON_ACCENT')};
+        background: {_mix(c('BG_LIST'), c('ACCENT'), 0.34)};
+        color: {c('TEXT_MAIN')};
     }}
     QHeaderView::section {{
         background: {c('BG_HEADER')};
@@ -642,6 +646,23 @@ def _resolve_base_style(p: dict):
             or keys.get("breeze")
             or (QStyleFactory.keys()[0] if QStyleFactory.keys() else None))
     return QStyleFactory.create(pick) if pick else None
+
+
+def _mix(a: str, b: str, t: float) -> str:
+    """Blend two hex colours: t=0 → *a*, t=1 → *b*. Used to derive a calm,
+    low-saturation list-selection fill (mostly the list background with a hint of
+    accent) so selected rows match the modlist's muted treatment instead of the
+    old full-strength blue band."""
+    ah, bh = a.lstrip("#"), b.lstrip("#")
+    if len(ah) != 6 or len(bh) != 6:
+        return a
+    try:
+        ar, ag, ab = (int(ah[i:i + 2], 16) for i in (0, 2, 4))
+        br, bg, bb = (int(bh[i:i + 2], 16) for i in (0, 2, 4))
+    except ValueError:
+        return a
+    return "#%02x%02x%02x" % (
+        int(ar + (br - ar) * t), int(ag + (bg - ag) * t), int(ab + (bb - ab) * t))
 
 
 def _lighten(hex_color: str, factor: float = 0.18) -> str:

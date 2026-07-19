@@ -115,6 +115,12 @@ class TkStyleHeader(QHeaderView):
             painter.setPen(self.palette().buttonText().color())
             painter.drawText(avail, int(self.defaultAlignment()), elided)
             painter.restore()
+        # Only the actively-sorted column shows a triangle now (idle columns kept
+        # a permanent grey ▲ that just added clutter). The strip width above is
+        # still reserved on every column so the label doesn't shift when a column
+        # becomes the sort key.
+        if not active:
+            return
         x = rect.right() - _TRI_PAD - _TRI_W
         if x < rect.left() + 2:
             return   # section too narrow

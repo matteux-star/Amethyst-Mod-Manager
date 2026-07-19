@@ -10019,28 +10019,26 @@ class MainWindow(QMainWindow):
 
         h.addStretch(1)
 
-        # Changelog button — sits just left of the Nexus info; opens the
-        # bundled Changelog.txt as a detachable tab.
-        self._changelog_btn = self._text_button(self.tr("Changelog"), compact=True)
-        self._changelog_btn.clicked.connect(self._open_changelog_tab)
-        h.addWidget(self._changelog_btn)
-
-        # GitHub / Ko-Fi / Endorse — colored buttons mirroring the Tk status
-        # bar. GitHub + Ko-Fi open external links; Endorse endorses the AMM
-        # Nexus page (site mod 1714) via the shared Nexus API.
-        self._github_btn = self._text_button(self.tr("Github"), compact=True)
-        self._github_btn.clicked.connect(self._open_github)
-        h.addWidget(self._github_btn)
-
-        self._kofi_btn = self._color_button(
-            self.tr("Ko-Fi"), _c(self._pal, "BTN_PURPLE"), compact=True)
-        self._kofi_btn.clicked.connect(self._open_kofi)
-        h.addWidget(self._kofi_btn)
-
-        self._endorse_amm_btn = self._color_button(
-            self.tr("♥ Endorse AMM"), _c(self._pal, "BTN_DANGER"), compact=True)
-        self._endorse_amm_btn.clicked.connect(self._endorse_amm)
-        h.addWidget(self._endorse_amm_btn)
+        # Redesign: the Changelog / GitHub / Ko-Fi / Endorse links used to sit in
+        # the bottom strip as four differently-coloured buttons. Fold them into a
+        # single compact overflow menu so the strip reads as a clean status bar
+        # (log controls on the left, Nexus status on the right).
+        self._more_btn = QToolButton()
+        self._more_btn.setObjectName("FooterButton")
+        self._more_btn.setText(self.tr("More"))
+        self._more_btn.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self._more_btn.setCursor(Qt.PointingHandCursor)
+        self._more_btn.setPopupMode(QToolButton.InstantPopup)
+        _more_menu = QMenu(self._more_btn)
+        self._populate_menu(_more_menu, [
+            (self.tr("Changelog"), self._open_changelog_tab),
+            (self.tr("GitHub"), self._open_github),
+            None,
+            (self.tr("Support on Ko-Fi"), self._open_kofi),
+            (self.tr("♥ Endorse AMM"), self._endorse_amm),
+        ])
+        self._more_btn.setMenu(_more_menu)
+        h.addWidget(self._more_btn)
 
         # Nexus username at the far right; hover shows API rate-limit usage.
         from gui_qt.nexus_footer import NexusFooterLabel
